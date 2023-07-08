@@ -6,8 +6,10 @@ use Slim\Views\TwigMiddleware;
 
 require './vendor/autoload.php';
 
+//Router
 $app = AppFactory::create();
 
+//Path to view
 $twig = Twig::create('./src/views/', ['cache' => false]);
 
 // Add Twig-View Middleware
