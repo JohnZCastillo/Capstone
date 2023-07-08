@@ -1,0 +1,19 @@
+{
+    "name": "john/slim",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "JohnZCastillo",
+            "email": "johnzunigacastillo@gmail.com"
+        }
+    ],
+    "require": {
+        "slim/slim": "4.*",
+        "slim/psr7": "^1.6",
+        "slim/twig-view": "^3.3"
+    }
+}
