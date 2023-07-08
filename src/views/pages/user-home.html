@@ -1,9 +1,8 @@
-{% extends "./admin.php" %}
+{% extends "./user.html" %}
 
 {% block body %}
 <h1>User List</h1>
 <ul>
-    <li><a href="{{ url_for('profile', { 'name': 'josh' }) }}" {% if is_current_url('profile', { 'name': 'josh' }) %}class="active"{% endif %}>Josh</a></li>
-    <li><a href="{{ url_for('profile', { 'name': 'andrew' }) }}">Andrew</a></li>
+    test
 </ul>
 {% endblock %}
