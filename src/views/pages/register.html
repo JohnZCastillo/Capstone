@@ -71,11 +71,7 @@
       <a href="/login" class="text-decoration-none small">Have an account?</a>
     </div>
     <div class="form-group text-danger text-center">
-      <?php
-                if (isset($_GET['reason'])) {
-                    echo $_GET['reason'];
-                }
-                ?>
+      {{message}}
     </div>
   </form>
 </div>

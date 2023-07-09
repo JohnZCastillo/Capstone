@@ -29,11 +29,8 @@ $twig = Twig::create('./src/views/', ['cache' => false]);
 
 $app->add(TwigMiddleware::create($app, $twig));
 
-$app->add(new Auth());
-
 // Register User
-$app->post('/register', [UserController::class, 'register'])
-->add(new Auth());
+$app->post('/register', [UserController::class, 'register']);
 
 // Return Signup View
 $app->get('/register', function ($request, $response, $args) {
