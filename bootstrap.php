@@ -7,6 +7,7 @@
  */
 
 use App\service\Service;
+use App\service\TransactionService;
 use App\service\UserService;
 use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\ORM\EntityManager;
@@ -42,6 +43,11 @@ $container->set(EntityManager::class, static function (Container $c): EntityMana
 // Add the services to the container. 
 $container->set(UserService::class, static function (Container $c) {
     return new UserService($c->get(EntityManager::class));
+});
+
+// Add the services to the container. 
+$container->set(TransactionService::class, static function (Container $c) {
+    return new TransactionService($c->get(EntityManager::class));
 });
 
 $container->set(Service::class, static function (Container $c) {

@@ -32,6 +32,11 @@ $app->add(TwigMiddleware::create($app, $twig));
 // Register User
 $app->post('/register', [UserController::class, 'register']);
 
+$app->get('/home', [UserController::class, 'home']);
+$app->get('/test', [UserController::class, 'test']);
+
+$app->post('/pay', [UserController::class, 'pay']);
+
 // Return Signup View
 $app->get('/register', function ($request, $response, $args) {
     $view = Twig::fromRequest($request);

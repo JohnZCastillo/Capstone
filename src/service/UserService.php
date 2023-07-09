@@ -13,15 +13,13 @@ class UserService extends Service {
      * @return void
      */
     public function save(UserModel $user) {
-        try {
-            $this->entityManager->persist($user);
-            $this->entityManager->flush($user);
-        } catch (\PDOException $th) {
-            throw $th;
-        }
+        $this->entityManager->persist($user);
+        $this->entityManager->flush($user);
     }
 
-    public function getManager(){
-        return $this->entityManager;
+    public function findById($id):UserModel {
+        $em = $this->entityManager;
+        $user = $em->find(UserModel::class,$id);
+        return $user;
     }
 }

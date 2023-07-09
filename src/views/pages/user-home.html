@@ -1,8 +1,209 @@
-{% extends "./user.html" %}
+{% extends "./user.html" %} {% block body %}
 
-{% block body %}
-<h1>User List</h1>
-<ul>
-    test
-</ul>
+<style>
+  .img-small {
+    width: 300px;
+    height: 300px;
+  }
+
+  .gap {
+    gap: 10px;
+  }
+
+  .cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 20px 30px;
+  }
+
+  .card {
+    padding: 20px 30px;
+    box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+  }
+
+  .card-amount {
+    font-size: 2rem;
+  }
+
+  .btn {
+    padding: 10px 30px;
+  }
+
+  .table td {
+    vertical-align: middle;
+  }
+</style>
+
+<main>
+  <div class="container-fluid">
+    <div class="cards">
+      <div class="card">
+        <div class="card-body">
+          <p class="text-secondary small block">Current Due</p>
+          <h2 class="card-amount text-success">{{currentDue}}</h2>
+          <span class="small text-secondary">{{currentMonth}}</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <a class="card-body decoration-none text-decoration-none" href="/dues">
+          <p class="text-secondary small block">Unpaid Bill</p>
+          <h2 class="card-amount text-danger">{{unpaid}}</h2>
+          <span class="small text-secondary">view more</span>
+        </a>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <p class="text-secondary small block">Next Due</p>
+          <h2 class="card-amount text-secondary">{{nextDue}}</h2>
+          <span class="small text-secondary">{{nextMonth}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid bg-light">
+    <div>
+      <div>
+        <div class="action p-2">
+          <button
+            type="button"
+            class="btn-success btn shadow"
+            data-toggle="modal"
+            data-target="#exampleModal"
+          >
+            Pay
+          </button>
+        </div>
+        <h2>Payment History</h2>
+        <!-- Filter here -->
+        <form action="" class="p-2">
+          <div class="form-group">
+            <label for="">Search</label>
+            <input type="text" class="form-control" />
+          </div>
+        </form>
+      </div>
+      <table class="table thead-dark table-hover">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Transaction ID</th>
+            <th scope="col">From</th>
+            <th scope="col">To</th>
+            <th scope="col">Status</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for transaction in transactions %}
+          <tr>
+            <td>{{transaction.getId()}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div
+    class="modal modal-lg fade"
+    id="exampleModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
+  >
+    <!-- Payment Form -->
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Payment</h5>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body row">
+          <div class="col-sm form-group row gap pt-2">
+            <h4 class="display-label">Scan To Pay</h4>
+            <div class="col-sm-12">
+              <label class="form-label form-label">QR Code</label>
+              <img src="" class="d-block mx-auto img-small form-control" />
+            </div>
+            <div class="col-sm">
+              <label for="" class="form-label">Account Name</label>
+              <input readonly="text" class="form-control" value="" />
+            </div>
+            <div class="col-sm">
+              <label for="" class="form-label">Account Number</label>
+              <input readonly="text" class="form-control" value="" />
+            </div>
+          </div>
+          <form
+            class="col-sm form border bg-light p-2 rounded mt-2"
+            method="POST"
+            action="/pay"
+            enctype="multipart/form-data"
+          >
+            <h4>Fill Up Form</h4>
+            <div class="form-group">
+              <label for="">Add Receipt</label>
+              <input
+                type="file"
+                class="form-control"
+                multiple
+                accept="image/*"
+              />
+            </div>
+            <div class="form-group">
+              <label for="">Amount</label>
+              <input
+                type="number"
+                class="form-control"
+                name="amount"
+                id="from-amount"
+              />
+            </div>
+            <div class="form-group row py-2">
+              <h6>Date</h6>
+              <div class="col-sm">
+                <label for="">From</label>
+                <input
+                  class="form-control"
+                  type="month"
+                  name="startDate"
+                  id="from-fromDate"
+                />
+              </div>
+              <div class="col-sm">
+                <label for="">To</label>
+                <input
+                  class="form-control"
+                  type="month"
+                  name="endDate"
+                  id="from-toDate"
+                />
+              </div>
+            </div>
+            <div class="d-flex gap">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
 {% endblock %}

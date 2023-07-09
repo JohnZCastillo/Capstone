@@ -30,7 +30,7 @@ class UserModel{
     #[ORM\Column(type: 'string')]
     private string $password; 
 
-    #[ORM\OneToMany(targetEntity: TransactionModel::class, mappedBy: 'transaction')]
+    #[ORM\OneToMany(targetEntity: TransactionModel::class, mappedBy: 'user')]
     private Collection|array $transactions;
 
     /**
@@ -150,6 +150,26 @@ class UserModel{
     public function setPassword($password)
     {
         $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of transactions
+     */ 
+    public function getTransactions()
+    {
+        return $this->transactions;
+    }
+
+    /**
+     * Set the value of transactions
+     *
+     * @return  self
+     */ 
+    public function setTransactions($transactions)
+    {
+        $this->transactions[] = $transactions;
 
         return $this;
     }
