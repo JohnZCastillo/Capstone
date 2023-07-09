@@ -13,9 +13,4 @@ class Service{
         $this->entityManager = $entityManager;
     }
 
-    public function save(UserModel $user){
-        $this->entityManager->persist($user);    
-        $this->entityManager->flush($user);
-    }
-
 }
