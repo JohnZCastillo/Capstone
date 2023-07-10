@@ -6,6 +6,7 @@
  * globally.
  */
 
+use App\service\DuesService;
 use App\service\Service;
 use App\service\TransactionService;
 use App\service\UserService;
@@ -44,6 +45,11 @@ $container->set(EntityManager::class, static function (Container $c): EntityMana
 $container->set(UserService::class, static function (Container $c) {
     return new UserService($c->get(EntityManager::class));
 });
+
+$container->set(DuesService::class, static function (Container $c) {
+    return new DuesService($c->get(EntityManager::class));
+});
+
 
 // Add the services to the container. 
 $container->set(TransactionService::class, static function (Container $c) {

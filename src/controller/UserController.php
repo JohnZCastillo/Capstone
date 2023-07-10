@@ -5,6 +5,7 @@ namespace App\controller;
 use App\lib\Time;
 use App\model\TransactionModel;
 use App\model\UserModel;
+use App\service\DuesService;
 use App\service\UserService;
 use App\service\TransactionService;
 use Exception;
@@ -16,11 +17,13 @@ class UserController {
 
     private UserService $userSerivce;
     private TransactionService $transactionService;
+    private DuesService $duesService;
 
     public function __construct(Container  $container) {
         //get the userService from dependency container
         $this->userSerivce = $container->get(UserService::class);
         $this->transactionService = $container->get(TransactionService::class);
+        $this->duesService = $container->get(DuesService::class);
     }
 
     public function home($request, $response, $args) {
@@ -89,7 +92,8 @@ class UserController {
 
     public function test($request, $response, $args){
 
-        var_dump($this->transactionService->findById(1)->getFromMonth());
+        var_dump($this->duesService->getDue('2023-12-01'));
+        // var_dump($this->transactionService->findById(1)->getFromMonth());
         // var_dump($this->transactionService->isPaid('2023-01-03'));
 
         return $response;
