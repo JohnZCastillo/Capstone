@@ -41,6 +41,9 @@ class UserController {
         return $view->render($response, 'pages/user-home.html', $data);
     }
 
+    /**
+     *  Save user transaction on database
+     */
     public function pay($request, $response, $args) {
 
         $view = Twig::fromRequest($request);
@@ -48,14 +51,16 @@ class UserController {
         $transaction = new TransactionModel();
 
         $transaction->setAmount($request->getParsedBody()['amount']);
-        $transaction->setForMonth(Time::date($request->getParsedBody()['startDate']));
-        $transaction->setToMonth(Time::date($request->getParsedBody()['startDate']));
+        $transaction->setFromMonth(Time::startMonth($request->getParsedBody()['startDate']));
+        $transaction->setToMonth(Time::endMonth($request->getParsedBody()['startDate']));
         $transaction->setCreatedAt(Time::timestamp());
         $transaction->setReceiptId('234');
         $transaction->setUser($this->userSerivce->findById(1));
 
+        //save transaction
         $this->transactionService->save($transaction);
         
+        // return response
         return $response
         ->withHeader('Location', '/home')
         ->withStatus(302);
@@ -63,9 +68,7 @@ class UserController {
 
     public function test($request, $response, $args){
 
-        $user =  $this->userSerivce->findById(1);
-
-        var_dump($user->getTransactions());
+        var_dump($this->transactionService->isPaid('2023-01-03'));
 
         return $response;
     }

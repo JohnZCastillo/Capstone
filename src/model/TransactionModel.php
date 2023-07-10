@@ -6,7 +6,13 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'transaction')]
-class TransactionModel{
+class TransactionModel {
+
+    private $statuses = [
+        "PENDING",
+        "APPROVED",
+        "REJECTED",
+    ];  
 
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
@@ -23,7 +29,7 @@ class TransactionModel{
     private $receiptId;
 
     #[ORM\Column(type: 'date')]
-    private $forMonth;
+    private $fromMonth;
 
     #[ORM\Column(type: 'date')]
     private $toMonth;
@@ -31,11 +37,13 @@ class TransactionModel{
     #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
+    #[ORM\Column(type: 'string')]
+    private $status = 'PENDING';
+
     /**
      * Get the value of amount
-     */ 
-    public function getAmount()
-    {
+     */
+    public function getAmount() {
         return $this->amount;
     }
 
@@ -43,9 +51,8 @@ class TransactionModel{
      * Set the value of amount
      *
      * @return  self
-     */ 
-    public function setAmount($amount)
-    {
+     */
+    public function setAmount($amount) {
         $this->amount = $amount;
 
         return $this;
@@ -53,9 +60,8 @@ class TransactionModel{
 
     /**
      * Get the value of receiptId
-     */ 
-    public function getReceiptId()
-    {
+     */
+    public function getReceiptId() {
         return $this->receiptId;
     }
 
@@ -63,9 +69,8 @@ class TransactionModel{
      * Set the value of receiptId
      *
      * @return  self
-     */ 
-    public function setReceiptId($receiptId)
-    {
+     */
+    public function setReceiptId($receiptId) {
         $this->receiptId = $receiptId;
 
         return $this;
@@ -73,29 +78,26 @@ class TransactionModel{
 
     /**
      * Get the value of forMonth
-     */ 
-    public function getForMonth()
-    {
-        return $this->forMonth;
+     */
+    public function getFromMonth() {
+        return $this->fromMonth;
     }
 
     /**
      * Set the value of forMonth
      *
      * @return  self
-     */ 
-    public function setForMonth($forMonth)
-    {
-        $this->forMonth = $forMonth;
+     */
+    public function setFromMonth($fromMonth) {
+        $this->fromMonth = $fromMonth;
 
         return $this;
     }
 
     /**
      * Get the value of toMonth
-     */ 
-    public function getToMonth()
-    {
+     */
+    public function getToMonth() {
         return $this->toMonth;
     }
 
@@ -103,9 +105,8 @@ class TransactionModel{
      * Set the value of toMonth
      *
      * @return  self
-     */ 
-    public function setToMonth($toMonth)
-    {
+     */
+    public function setToMonth($toMonth) {
         $this->toMonth = $toMonth;
 
         return $this;
@@ -113,9 +114,8 @@ class TransactionModel{
 
     /**
      * Get the value of createdAt
-     */ 
-    public function getCreatedAt()
-    {
+     */
+    public function getCreatedAt() {
         return $this->createdAt;
     }
 
@@ -123,9 +123,8 @@ class TransactionModel{
      * Set the value of createdAt
      *
      * @return  self
-     */ 
-    public function setCreatedAt($createdAt)
-    {
+     */
+    public function setCreatedAt($createdAt) {
         $this->createdAt = $createdAt;
 
         return $this;
@@ -133,9 +132,8 @@ class TransactionModel{
 
     /**
      * Get the value of id
-     */ 
-    public function getId()
-    {
+     */
+    public function getId() {
         return $this->id;
     }
 
@@ -143,9 +141,8 @@ class TransactionModel{
      * Set the value of id
      *
      * @return  self
-     */ 
-    public function setId($id)
-    {
+     */
+    public function setId($id) {
         $this->id = $id;
 
         return $this;
@@ -153,9 +150,8 @@ class TransactionModel{
 
     /**
      * Get the value of user
-     */ 
-    public function getUser()
-    {
+     */
+    public function getUser() {
         return $this->user;
     }
 
@@ -163,10 +159,33 @@ class TransactionModel{
      * Set the value of user
      *
      * @return  self
-     */ 
-    public function setUser($user)
-    {
+     */
+    public function setUser($user) {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of status
+     */ 
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * Set the value of status
+     *
+     * @return  self
+     */ 
+    public function setStatus($status)
+    {
+        if (!in_array($status, $this->statuses)){
+            throw new \InvalidArgumentException("Invalid status");
+        }
+        
+        $this->status = $status;
 
         return $this;
     }
