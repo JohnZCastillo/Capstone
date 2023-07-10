@@ -7,6 +7,7 @@
  */
 
 use App\service\DuesService;
+use App\service\ReceiptService;
 use App\service\Service;
 use App\service\TransactionService;
 use App\service\UserService;
@@ -50,7 +51,9 @@ $container->set(DuesService::class, static function (Container $c) {
     return new DuesService($c->get(EntityManager::class));
 });
 
-
+$container->set(ReceiptService::class, static function (Container $c) {
+    return new ReceiptService($c->get(EntityManager::class));
+});
 // Add the services to the container. 
 $container->set(TransactionService::class, static function (Container $c) {
     return new TransactionService($c->get(EntityManager::class));

@@ -3,10 +3,12 @@
 namespace App\controller;
 
 use App\Lib\Currency;
+use App\Lib\Image;
 use App\lib\Time;
 use App\model\TransactionModel;
 use App\model\UserModel;
 use App\service\DuesService;
+use App\service\ReceiptService;
 use App\service\UserService;
 use App\service\TransactionService;
 use Exception;
@@ -19,12 +21,14 @@ class UserController {
     private UserService $userSerivce;
     private TransactionService $transactionService;
     private DuesService $duesService;
+    private ReceiptService $receiptService;
 
     public function __construct(Container  $container) {
         //get the userService from dependency container
         $this->userSerivce = $container->get(UserService::class);
         $this->transactionService = $container->get(TransactionService::class);
         $this->duesService = $container->get(DuesService::class);
+        $this->receiptService = $container->get(ReceiptService::class);
     }
 
     public function home($request, $response, $args) {
@@ -87,13 +91,22 @@ class UserController {
         $transaction->setFromMonth(Time::startMonth($request->getParsedBody()['startDate']));
         $transaction->setToMonth(Time::endMonth($request->getParsedBody()['startDate']));
         $transaction->setCreatedAt(Time::timestamp());
+       
         // $transaction->setReceiptId('234');
         $transaction->setUser($this->userSerivce->findById(1));
 
-        //save transaction
+        $images = $_FILES['receipts'];
+        
+        $path = './uploads/';
+
         $this->transactionService->save($transaction);
         
-        // return response
+        $storedImages = Image::storeAll($path,$images);
+        
+        $this->receiptService->saveAll($storedImages,$transaction);
+
+        //save transaction
+        
         return $response
         ->withHeader('Location', '/home')
         ->withStatus(302);

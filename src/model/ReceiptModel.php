@@ -17,10 +17,70 @@ class ReceiptModel {
     #[ORM\Column(type: 'string')]
     private $path;
 
-    #[ORM\Column(type: 'string')]
-    private $referenceNumber;
+    #[ORM\Column(type: 'string' , nullable: true,)]
+    private ?string $referenceNumber = null;
 
     #[ORM\ManyToOne(targetEntity: TransactionModel::class, inversedBy: 'receipts')]
     private ?TransactionModel $transaction = null;
 
+
+    /**
+     * Get the value of path
+     */ 
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * Set the value of path
+     *
+     * @return  self
+     */ 
+    public function setPath($path)
+    {
+        $this->path = $path;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of referenceNumber
+     */ 
+    public function getReferenceNumber()
+    {
+        return $this->referenceNumber;
+    }
+
+    /**
+     * Set the value of referenceNumber
+     *
+     * @return  self
+     */ 
+    public function setReferenceNumber($referenceNumber)
+    {
+        $this->referenceNumber = $referenceNumber;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of transaction
+     */ 
+    public function getTransaction()
+    {
+        return $this->transaction;
+    }
+
+    /**
+     * Set the value of transaction
+     *
+     * @return  self
+     */ 
+    public function setTransaction($transaction)
+    {
+        $this->transaction = $transaction;
+
+        return $this;
+    }
 }
