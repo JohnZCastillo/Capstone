@@ -31,6 +31,8 @@ class UserController {
         // if page is present then set value to page otherwise to 1
         $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
 
+        $query = isset($queryParams['query']) ? $queryParams['query'] : null;
+
         // max transaction per page
         $max = 5;
 
@@ -40,7 +42,7 @@ class UserController {
         $user = $this->userSerivce->findById(1);
 
         //Get Transaction
-        $result = $this->transactionService->findAll($user,$page,$max);
+        $result = $this->transactionService->findAll($user,$page,$max,$query);
         
         $transactions = $result['transactions'];
 
@@ -54,6 +56,7 @@ class UserController {
             'totalTransaction' => $result['totalTransaction'],
             'transactionPerPage' => $max,
             'currentPage' => $page,
+            'query' => $query
         ];
 
         return $view->render($response, 'pages/user-home.html', $data);

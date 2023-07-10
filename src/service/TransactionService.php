@@ -36,7 +36,7 @@ class TransactionService extends Service {
      * @param int $max max transaction per page
      * @return array An array containing 'transactions' and 'totalTransactions'.
      */
-    public function findAll($user,$page,$max) {
+    public function findAll($user, $page, $max, $id) {
 
         $result = [];
 
@@ -47,27 +47,38 @@ class TransactionService extends Service {
         $em = $this->entityManager;
 
         // Step 3: Fetch paginated transactions
-        $queryBuilder =  $em->createQueryBuilder();
+        $queryBuilder = $em->createQueryBuilder();
         $queryBuilder->select('t')
             ->from(TransactionModel::class, 't')
             ->where('t.user = :user')
-            ->setParameter('user', $user)
-            ->setMaxResults($transactionsPerPage)
+            ->setParameter('user', $user);
+
+        if ($id != null) {
+            $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
+        }
+
+        $queryBuilder->setMaxResults($transactionsPerPage)
             ->setFirstResult(($currentPage - 1) * $transactionsPerPage);
 
-
         // Step 4: Execute the query and retrieve transactions
-        $result['transactions'] = $queryBuilder->getQuery()->getResult();
+        $transactions = $queryBuilder->getQuery()->getResult();
 
-        $queryBuilder =  $em->createQueryBuilder();
+        $queryBuilder = $em->createQueryBuilder();
         $queryBuilder->select('count(t.id)')
             ->from(TransactionModel::class, 't')
             ->where('t.user = :user')
             ->setParameter('user', $user);
 
-       $result['totalTransaction'] = $queryBuilder->getQuery()->getSingleScalarResult();
+        if ($id != null) {
+            $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
+        }
 
-        return $result;
+        $totalTransaction = $queryBuilder->getQuery()->getSingleScalarResult();
+
+        return [
+            'transactions' => $transactions,
+            'totalTransaction' => $totalTransaction
+        ];
     }
 
     /**

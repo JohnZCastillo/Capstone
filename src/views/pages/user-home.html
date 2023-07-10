@@ -80,7 +80,13 @@
         <form action="/home" class="p-2" method="GET">
           <div class="form-group">
             <label for="">Search</label>
-            <input placeholder="transaction id"  type="text" class="form-control" name="query" />
+            <input
+              placeholder="transaction id"
+              type="text"
+              class="form-control"
+              name="query"
+              value="{{query}}"
+            />
           </div>
         </form>
       </div>
@@ -107,6 +113,7 @@
         </tbody>
       </table>
 
+      {% if (totalTransaction > transactionPerPage) %}
       <!-- Pagination Links -->
       <nav aria-label="...">
         Page
@@ -123,6 +130,7 @@
           {% endif %} {% endfor %}
         </ul>
       </nav>
+      {% endif %}
     </div>
   </div>
 
