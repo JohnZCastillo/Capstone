@@ -33,6 +33,9 @@ class UserModel{
     #[ORM\OneToMany(targetEntity: TransactionModel::class, mappedBy: 'user')]
     private Collection|array $transactions;
 
+    #[ORM\OneToMany(targetEntity: TransactionLogsModel::class, mappedBy: 'updatedBy')]
+    private Collection|array $logs;
+
     /**
      * Get the value of name
      */ 

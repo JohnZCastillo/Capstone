@@ -9,6 +9,7 @@
 use App\service\DuesService;
 use App\service\ReceiptService;
 use App\service\Service;
+use App\service\TransactionLogsService;
 use App\service\TransactionService;
 use App\service\UserService;
 use Doctrine\Common\Cache\Psr6\DoctrineProvider;
@@ -58,6 +59,12 @@ $container->set(ReceiptService::class, static function (Container $c) {
 $container->set(TransactionService::class, static function (Container $c) {
     return new TransactionService($c->get(EntityManager::class));
 });
+
+// Add the services to the container. 
+$container->set(TransactionLogsService::class, static function (Container $c) {
+    return new TransactionLogsService($c->get(EntityManager::class));
+});
+
 
 $container->set(Service::class, static function (Container $c) {
     return new Service($c->get(EntityManager::class));

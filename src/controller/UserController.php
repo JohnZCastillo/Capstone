@@ -151,9 +151,12 @@ class UserController {
 
         $items = Currency::formatArray($data['items'],'due');
 
+        $logs = $transaction->getLogs();
+
         return $view->render($response, 'pages/user-transaction.html', [
             'transaction' => $transaction,
             'receipts' => $transaction->getReceipts(),
+            'logs' => $logs,
         ]);
 
     }

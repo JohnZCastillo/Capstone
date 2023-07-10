@@ -1,25 +1,37 @@
 {% extends "./user.html" %} {% block body %}
 
 <div class="container py-2">
-    <h1>Transaction ID: {{ transaction.id }}</h1>
-    <p>From Due: {{ transaction.getFromMonth() }}</p>
-    <p>To Due: {{ transaction.getToMonth() }}</p>
-    <p>Status: {{ transaction.status }}</p>
-    <h2>Receipts:</h2>
-    {% if receipts is not empty %}
-        <ul class="list-group">
-            <li class="list-group-item">
-                    {% for receipt in receipts %}
-                    <img src="/uploads/{{ receipt.getPath() }}"  class="img-thumbnail">
-                    {% endfor %}
-            </li>
-        </ul>
-    {% else %}
-        <p>No receipts available.</p>
-    {% endif %}
+  <h1>Transaction ID: {{ transaction.id }}</h1>
+  <p>From Due: {{ transaction.getFromMonth() }}</p>
+  <p>To Due: {{ transaction.getToMonth() }}</p>
+  <p>Status: {{ transaction.status }}</p>
+  <h2>Receipts:</h2>
+  {% if receipts is not empty %}
+  <ul class="list-group">
+    <li class="list-group-item">
+      {% for receipt in receipts %}
+      <img src="/uploads/{{ receipt.getPath() }}" class="img-thumbnail" />
+      {% endfor %}
+    </li>
+  </ul>
+  {% else %}
+  <p>No receipts available.</p>
+  {% endif %} {% if logs is not empty %}
+  <h4>Message</h4>
+  <ul class="list-group">
+    {% if transaction.status == 'REJECTED' %} {% set bg = 'bg-danger text-white
+    p-2' %} {% elseif transaction.status == 'APPROVED' %} {% set bg =
+    'bg-success text-white p-2' %} {% else %} {% set bg = 'bg-secondary
+    text-white p-2' %} {% endif %} {% for log in logs %}
 
+    <li class="list-group-item">
+      <span class="badge badge-pill {{bg}}">{{transaction.status}}</span>
+      {{log.message}}
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
   <a href="/home" class="btn btn-primary mt-2">Back</a>
-
 </div>
 
 {% endblock %}

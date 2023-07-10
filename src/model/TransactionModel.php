@@ -30,6 +30,9 @@ class TransactionModel {
     #[ORM\OneToMany(targetEntity: ReceiptModel::class, mappedBy: 'transaction')]
     private Collection|array $receipts;
 
+    #[ORM\OneToMany(targetEntity: TransactionLogsModel::class, mappedBy: 'transaction')]
+    private Collection|array $logs;
+
     #[ORM\Column(type: 'date')]
     private $fromMonth;
 
@@ -41,6 +44,7 @@ class TransactionModel {
 
     #[ORM\Column(type: 'string')]
     private $status = 'PENDING';
+
 
     /**
      * Get the value of amount
@@ -192,6 +196,26 @@ class TransactionModel {
     public function setReceipts($receipts)
     {
         $this->receipts = $receipts;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of logs
+     */ 
+    public function getLogs()
+    {
+        return $this->logs;
+    }
+
+    /**
+     * Set the value of logs
+     *
+     * @return  self
+     */ 
+    public function setLogs($logs)
+    {
+        $this->logs = $logs;
 
         return $this;
     }

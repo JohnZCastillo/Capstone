@@ -11,6 +11,7 @@ use App\service\DuesService;
 use App\service\ReceiptService;
 use App\service\UserService;
 use App\service\TransactionService;
+use App\service\TransactionLogsService;
 use Exception;
 use Slim\Psr7\Response;
 use Slim\Views\Twig;
@@ -22,6 +23,7 @@ class AdminController {
     private TransactionService $transactionService;
     private DuesService $duesService;
     private ReceiptService $receiptService;
+    private TransactionLogsService $logsService;
 
     public function __construct(Container  $container) {
         //get the userService from dependency container
@@ -29,6 +31,7 @@ class AdminController {
         $this->transactionService = $container->get(TransactionService::class);
         $this->duesService = $container->get(DuesService::class);
         $this->receiptService = $container->get(ReceiptService::class);
+        $this->logsService = $container->get(TransactionLogsService::class);
     }
 
     public function home($request, $response, $args) {
@@ -82,14 +85,22 @@ class AdminController {
         $view = Twig::fromRequest($request);
 
         $id = $request->getParsedBody()['id'];
+        $message = $request->getParsedBody()['message'];
 
+        // get the transaction form db
         $transaction = $this->transactionService->findById($id);
 
+        //get the owner of the transaction
         $user = $transaction->getUser();
 
+        // set transctio to rejected
         $transaction->setStatus('REJECTED');
 
+        // save transaction
         $this->transactionService->save($transaction);
+
+        //save logs
+        $this->logsService->log($transaction,$user,$message,'REJECTED');
 
         return $response
             ->withHeader('Location', "/admin/transaction/$id")
