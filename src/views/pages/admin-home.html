@@ -1,8 +1,32 @@
 {% extends "./admin.html" %} {% block body %}
 
+<form action="/admin" method="GET" id="searchForm">
 
+  <div>
+    <input placeholder="search" type="text" name="query" value="{{query}}" />
+  </div>
+  <div>
+    <label for="">From</label>
+    <input type="month" name="from" value="{{from}}" />
+  </div>
+  <div>
+    <label for="">To</label>
+    <input type="month" name="to"  value="{{to}}"/>
+  </div>
+  <div>
+    <label for="">Status</label>
+    <select name="status">
+      <option value="ALL"  {% if status == 'ALL' %}selected{% endif %}>ALL</option>
+      <option value="PENDING" {% if status == 'PENDING' %}selected{% endif %}>PENDING</option>
+      <option value="APPROVED" {% if status == 'APPROVED' %}selected{% endif %}>APPROVED</option>
+      <option value="REJECTED" {% if status == 'REJECTED' %}selected{% endif %}>REJECTED</option>
+    </select>
+  </div>
+  <div>
+    <button type="submit">Apply</button>
+  </div>
+</form>
 <main>
- 
   <div class="container-fluid bg-light">
     <div>
       <table class="table thead-dark table-hover">
@@ -16,8 +40,8 @@
           </tr>
         </thead>
         <tbody>
-          {% if transactions is not empty %} {% for transaction in
-          transactions %}
+          {% if transactions is not empty %} {% for transaction in transactions
+          %}
           <tr>
             <td>{{transaction.getId()}}</td>
             <td>{{transaction.getFromMonth()}}</td>
@@ -33,7 +57,7 @@
             </td>
           </tr>
           {% endfor %} {% else %}
-          <td colspan="5"  class="text-center">No Data Available</td>
+          <td colspan="5" class="text-center">No Data Available</td>
           {% endif %}
         </tbody>
       </table>
@@ -49,7 +73,7 @@
           </li>
           {% else %}
           <li class="page-item">
-            <a class="page-link" href="?page={{ page }}">{{ page }}</a>
+            <a class="page-link" href="?page={{ page }}&from={{from}}&to={{to}}&status={{status}}">{{ page }}</a>
           </li>
           {% endif %} {% endfor %}
         </ul>
@@ -58,5 +82,6 @@
     </div>
   </div>
 </main>
-{% endblock %}
 
+
+{% endblock %}

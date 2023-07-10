@@ -88,7 +88,7 @@ class TransactionService extends Service {
      * @param int $max max transaction per page
      * @return array An array containing 'transactions' and 'totalTransactions'.
      */
-    public function getAll($page, $max, $id) {
+    public function getAll($page, $max, $id,$filter) {
 
         $result = [];
 
@@ -107,6 +107,18 @@ class TransactionService extends Service {
             $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
         }
 
+        if ($filter['from'] != null) {
+            $queryBuilder->andWhere('t.fromMonth = :from')->setParameter('from', $filter['from']);
+        }
+
+        if ($filter['to'] != null) {
+            $queryBuilder->andWhere('t.toMonth <= :to')->setParameter('to', $filter['to']);
+        }
+
+        if ($filter['status'] != null && $filter['status'] != 'ALL') {
+            $queryBuilder->andWhere('t.status = :status')->setParameter('status', $filter['status']);
+        }
+
         $queryBuilder->setMaxResults($transactionsPerPage)
             ->setFirstResult(($currentPage - 1) * $transactionsPerPage);
 
@@ -119,6 +131,18 @@ class TransactionService extends Service {
 
         if ($id != null) {
             $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
+        }
+
+        if ($filter['from'] != null) {
+            $queryBuilder->andWhere('t.fromMonth = :from')->setParameter('from', $filter['from']);
+        }
+
+        if ($filter['to'] != null) {
+            $queryBuilder->andWhere('t.toMonth <= :to')->setParameter('to', $filter['to']);
+        }
+
+        if ($filter['status'] != null && $filter['status'] != 'ALL') {
+            $queryBuilder->andWhere('t.status = :status')->setParameter('status', $filter['status']);
         }
 
         $totalTransaction = $queryBuilder->getQuery()->getSingleScalarResult();

@@ -15,6 +15,14 @@ class Time {
         return DateTime::createFromFormat('Y-m-d', $date . '-01');
     }
 
+    static function nowStartMonth($date) {
+        return  self::convert(self::startMonth($date));
+    }
+
+    static function nowEndMonth($date) {
+        return  self::convert(self::endMonth($date));
+    }
+    
     /**
      * Create a date with the starting day set to the last day.
      * @param string date

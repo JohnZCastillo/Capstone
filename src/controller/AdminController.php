@@ -42,15 +42,27 @@ class AdminController {
         // if page is present then set value to page otherwise to 1
         $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
 
-        $query = isset($queryParams['query']) ? $queryParams['query'] : null;
+        if(isset(($queryParams['from'])) && $queryParams['from'] == null){
+            unset($queryParams['from']);
+        }
+
+        if(isset(($queryParams['to'])) && $queryParams['to'] == null){
+            unset($queryParams['to']);
+        }
+
+        $filter['from'] = isset($queryParams['from']) ? Time::nowStartMonth($queryParams['from']): null;
+        $filter['to'] = isset($queryParams['to']) ? Time::nowEndMonth($queryParams['to']) : null;
+        $filter['status'] =  isset($queryParams['status']) ? $queryParams['status'] : null;
+
+        $id = isset($queryParams['query']) ? $queryParams['query'] : null;
 
         // max transaction per page
-        $max = 10;
+        $max = 4;
 
         $view = Twig::fromRequest($request);
 
         //Get Transaction
-        $result = $this->transactionService->getAll($page, $max, $query);
+        $result = $this->transactionService->getAll($page, $max, $id,$filter);
 
         $transactions = $result['transactions'];
 
@@ -59,7 +71,10 @@ class AdminController {
             'totalTransaction' => $result['totalTransaction'],
             'transactionPerPage' => $max,
             'currentPage' => $page,
-            'query' => $query,
+            'query' => $id,
+            'from' =>  isset($queryParams['from']) ? $queryParams['from'] : null,
+            'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
+            'status' =>  isset($queryParams['status']) ? $queryParams['status'] : null,
             'totalPages' => ceil(($result['totalTransaction']) / $max),
         ];
 
