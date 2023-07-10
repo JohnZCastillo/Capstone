@@ -25,9 +25,24 @@ class UserController {
 
     public function home($request, $response, $args) {
 
+        // get the query params
+        $queryParams = $request->getQueryParams();
+
+        // if page is present then set value to page otherwise to 1
+        $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
+
+        // max transaction per page
+        $max = 5;
+
         $view = Twig::fromRequest($request);
 
-        $user = $this->userSerivce->findById(1);;
+        // login in user !Note: PLEASE UPDATE THIS
+        $user = $this->userSerivce->findById(1);
+
+        //Get Transaction
+        $result = $this->transactionService->findAll($user,$page,$max);
+        
+        $transactions = $result['transactions'];
 
         $data = [
             'currentMonth' => "June",
@@ -35,7 +50,10 @@ class UserController {
             "currentDue" => "100",
             "nextDue" => "100",
             "unpaid" => "100",
-            'transactions' => $user->getTransactions()->toArray()
+            'transactions' => $transactions,
+            'totalTransaction' => $result['totalTransaction'],
+            'transactionPerPage' => $max,
+            'currentPage' => $page,
         ];
 
         return $view->render($response, 'pages/user-home.html', $data);
@@ -68,7 +86,8 @@ class UserController {
 
     public function test($request, $response, $args){
 
-        var_dump($this->transactionService->isPaid('2023-01-03'));
+        var_dump($this->transactionService->findById(1)->getFromMonth());
+        // var_dump($this->transactionService->isPaid('2023-01-03'));
 
         return $response;
     }

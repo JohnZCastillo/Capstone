@@ -2,6 +2,7 @@
 
 namespace App\model;
 
+use App\lib\Time;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -80,7 +81,9 @@ class TransactionModel {
      * Get the value of forMonth
      */
     public function getFromMonth() {
-        return $this->fromMonth;
+        // return $this->fromMonth;
+        
+        return Time::convert($this->toMonth);
     }
 
     /**
@@ -90,7 +93,6 @@ class TransactionModel {
      */
     public function setFromMonth($fromMonth) {
         $this->fromMonth = $fromMonth;
-
         return $this;
     }
 
@@ -98,7 +100,8 @@ class TransactionModel {
      * Get the value of toMonth
      */
     public function getToMonth() {
-        return $this->toMonth;
+        return Time::convert($this->toMonth);
+        // return $this->toMonth;
     }
 
     /**
@@ -108,7 +111,6 @@ class TransactionModel {
      */
     public function setToMonth($toMonth) {
         $this->toMonth = $toMonth;
-
         return $this;
     }
 

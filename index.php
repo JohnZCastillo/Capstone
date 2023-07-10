@@ -2,17 +2,9 @@
 
 use App\controller\UserController;
 use App\middleware\Auth;
-use App\service\Service;
-use App\service\UserService;
 use Slim\Factory\AppFactory;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
-
-use Doctrine\Common\Cache\Psr6\DoctrineProvider;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Tools\Setup;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use UMA\DIC\Container;
 
 require './vendor/autoload.php';

@@ -26,6 +26,10 @@ class Time {
         return DateTime::createFromFormat('Y-m-d', $date);
     }
 
+    static function convert($date) {
+        return $date->format('Y-m-d');
+    }
+    
     /**
      * Create a timestamp at now time
      */
