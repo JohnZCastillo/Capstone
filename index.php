@@ -1,5 +1,6 @@
 <?php
 
+use App\controller\AdminController;
 use App\controller\UserController;
 use App\middleware\Auth;
 use Slim\Factory\AppFactory;
@@ -29,6 +30,10 @@ $app->get('/dues', [UserController::class, 'dues']);
 $app->get('/transaction/{id}', [UserController::class, 'transaction']);
 
 $app->get('/test', [UserController::class, 'test']);
+
+$app->get('/admin', [AdminController::class, 'home']);
+$app->get('/admin/transaction/{id}', [AdminController::class, 'transaction']);
+$app->post('/admin/transaction/reject', [AdminController::class, 'rejectPayment']);
 
 $app->post('/pay', [UserController::class, 'pay']);
 

@@ -82,6 +82,53 @@ class TransactionService extends Service {
         ];
     }
 
+       /**
+     * Retrieve user transaction from db
+     * @param int $page current page
+     * @param int $max max transaction per page
+     * @return array An array containing 'transactions' and 'totalTransactions'.
+     */
+    public function getAll($page, $max, $id) {
+
+        $result = [];
+
+        // Step 1: Define pagination settings
+        $transactionsPerPage = $max;
+        $currentPage = $page; // Set the current page based on user input or any other criteria
+
+        $em = $this->entityManager;
+
+        // Step 3: Fetch paginated transactions
+        $queryBuilder = $em->createQueryBuilder();
+        $queryBuilder->select('t')
+            ->from(TransactionModel::class, 't');
+
+        if ($id != null) {
+            $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
+        }
+
+        $queryBuilder->setMaxResults($transactionsPerPage)
+            ->setFirstResult(($currentPage - 1) * $transactionsPerPage);
+
+        // Step 4: Execute the query and retrieve transactions
+        $transactions = $queryBuilder->getQuery()->getResult();
+
+        $queryBuilder = $em->createQueryBuilder();
+        $queryBuilder->select('count(t.id)')
+            ->from(TransactionModel::class, 't');
+
+        if ($id != null) {
+            $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
+        }
+
+        $totalTransaction = $queryBuilder->getQuery()->getSingleScalarResult();
+
+        return [
+            'transactions' => $transactions,
+            'totalTransaction' => $totalTransaction
+        ];
+    }
+
     public function getUnpaid($user, DuesService $dueService){
 
         $months = Time::getMonths('2023-01-01','2023-12-01');
