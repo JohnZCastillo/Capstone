@@ -4,6 +4,7 @@ namespace App\model;
 
 use App\lib\Time;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'transaction')]
@@ -26,8 +27,8 @@ class TransactionModel {
     #[ORM\Column(type: 'float')]
     private $amount;
 
-    #[ORM\Column(type: 'integer')]
-    private $receiptId;
+    #[ORM\OneToMany(targetEntity: ReceiptModel::class, mappedBy: 'transaction')]
+    private Collection|array $receipts;
 
     #[ORM\Column(type: 'date')]
     private $fromMonth;
@@ -59,23 +60,6 @@ class TransactionModel {
         return $this;
     }
 
-    /**
-     * Get the value of receiptId
-     */
-    public function getReceiptId() {
-        return $this->receiptId;
-    }
-
-    /**
-     * Set the value of receiptId
-     *
-     * @return  self
-     */
-    public function setReceiptId($receiptId) {
-        $this->receiptId = $receiptId;
-
-        return $this;
-    }
 
     /**
      * Get the value of forMonth
@@ -188,6 +172,26 @@ class TransactionModel {
         }
         
         $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of receipts
+     */ 
+    public function getReceipts()
+    {
+        return $this->receipts;
+    }
+
+    /**
+     * Set the value of receipts
+     *
+     * @return  self
+     */ 
+    public function setReceipts($receipts)
+    {
+        $this->receipts = $receipts;
 
         return $this;
     }

@@ -87,7 +87,7 @@ class UserController {
         $transaction->setFromMonth(Time::startMonth($request->getParsedBody()['startDate']));
         $transaction->setToMonth(Time::endMonth($request->getParsedBody()['startDate']));
         $transaction->setCreatedAt(Time::timestamp());
-        $transaction->setReceiptId('234');
+        // $transaction->setReceiptId('234');
         $transaction->setUser($this->userSerivce->findById(1));
 
         //save transaction
