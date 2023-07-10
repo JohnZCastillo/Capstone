@@ -1,0 +1,24 @@
+{% extends "./user.html" %} {% block body %}
+
+<div class="container py-2">
+    <h1>Transaction ID: {{ transaction.id }}</h1>
+    <p>From Due: {{ transaction.fromDue }}</p>
+    <p>To Due: {{ transaction.toDue }}</p>
+    <p>Status: {{ transaction.status }}</p>
+
+    <h2>Receipts:</h2>
+    {% if transaction.receipts is not empty %}
+        <ul class="list-group">
+            {% for receipt in transaction.receipts %}
+                <li class="list-group-item">{{ receipt }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No receipts available.</p>
+    {% endif %}
+
+  <a href="/home" class="btn btn-primary mt-2">Back</a>
+
+</div>
+
+{% endblock %}

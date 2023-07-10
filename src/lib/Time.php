@@ -36,4 +36,36 @@ class Time {
     static function timestamp() {
         return DateTime::createFromFormat('U', time());
     }
+
+       // return payment amount for this month
+       static function thisMonth()
+       {
+           return date("Y-m-01");
+       }
+   
+       // return payment amount for next month
+       static function nextMonth()
+       {
+           return date("Y-m-01", strtotime("+1 month", strtotime(self::thisMonth())));
+       }
+   
+       // return months
+       static function getMonths($startMonth, $endMonth)
+       {
+   
+           // Create DateTime objects for the start and end months
+           $startDateTime = DateTime::createFromFormat('Y-m-01', $startMonth);
+           $endDateTime = DateTime::createFromFormat('Y-m-01', $endMonth);
+   
+           // Initialize an empty array to store the months
+           $months = [];
+   
+           // Loop through the months and add them to the array
+           while ($startDateTime <= $endDateTime) {
+               $months[] = $startDateTime->format('Y-m-01');
+               $startDateTime->modify('+1 month'); // Add 1 month
+           }
+   
+           return $months;
+       }
 }

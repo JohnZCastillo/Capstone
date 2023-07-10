@@ -101,15 +101,25 @@
           </tr>
         </thead>
         <tbody>
-          {% for transaction in transactions %}
+          {% if transactions is not empty %} {% for transaction in
+          transactions %}
           <tr>
             <td>{{transaction.getId()}}</td>
             <td>{{transaction.getFromMonth()}}</td>
             <td>{{transaction.getToMonth()}}</td>
             <td>{{transaction.getStatus()}}</td>
-            <td><button class="btn btn-secondary">View</button></td>
+            <td>
+              <a
+                class="btn btn-secondary"
+                href="/transaction/{{transaction.getId()}}"
+              >
+                View
+              </a>
+            </td>
           </tr>
-          {% endfor %}
+          {% endfor %} {% else %}
+          <td colspan="5"  class="text-center">No Data Available</td>
+          {% endif %}
         </tbody>
       </table>
 

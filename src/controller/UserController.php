@@ -2,6 +2,7 @@
 
 namespace App\controller;
 
+use App\Lib\Currency;
 use App\lib\Time;
 use App\model\TransactionModel;
 use App\model\UserModel;
@@ -49,17 +50,25 @@ class UserController {
         
         $transactions = $result['transactions'];
 
+        $currentMonth = Time::thisMonth();
+        $nextMonth = Time::nextMonth();
+
+        $currentDue = $this->transactionService->getBalance($user,$currentMonth,$this->duesService);
+        $nextDue = $this->transactionService->getBalance($user,$nextMonth,$this->duesService);
+
+        $unpaid = $this->transactionService->getUnpaid($user,$this->duesService);
+
         $data = [
-            'currentMonth' => "June",
-            'nextMonth' => "July",
-            "currentDue" => "100",
-            "nextDue" => "100",
-            "unpaid" => "100",
+            'currentMonth' => $currentMonth,
+            'nextMonth' => $nextMonth,
+            "currentDue" => Currency::format($currentDue),
+            "nextDue" =>  Currency::format($nextDue),
+            "unpaid" =>  Currency::format($unpaid['total']),
             'transactions' => $transactions,
             'totalTransaction' => $result['totalTransaction'],
             'transactionPerPage' => $max,
             'currentPage' => $page,
-            'query' => $query
+            'query' => $query,
         ];
 
         return $view->render($response, 'pages/user-home.html', $data);
@@ -99,6 +108,37 @@ class UserController {
         return $response;
     }
 
+    public function dues($request, $response, $args){
+        $view = Twig::fromRequest($request);
+        
+        // login in user !Note: PLEASE UPDATE THIS
+        $user = $this->userSerivce->findById(1);
+
+        $data = $this->transactionService->getUnpaid($user,$this->duesService);
+
+        $items = Currency::formatArray($data['items'],'due');
+
+        return $view->render($response, 'pages/dues-breakdown.html', [
+            'items' => $items,
+            'total' =>  Currency::format($data['total'])
+        ]);
+
+    }
+
+    public function transaction($request, $response, $args){
+        $view = Twig::fromRequest($request);
+        
+        // login in user !Note: PLEASE UPDATE THIS
+        $user = $this->userSerivce->findById(1);
+
+        $data = $this->transactionService->getUnpaid($user,$this->duesService);
+
+        $items = Currency::formatArray($data['items'],'due');
+
+        return $view->render($response, 'pages/user-transaction.html', [
+        ]);
+
+    }
 
     /**
      * 

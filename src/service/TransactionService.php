@@ -2,6 +2,7 @@
 
 namespace App\service;
 
+use App\lib\Time;
 use App\model\TransactionModel;
 use App\model\UserModel;
 use Doctrine\ORM;
@@ -81,12 +82,56 @@ class TransactionService extends Service {
         ];
     }
 
+    public function getUnpaid($user, DuesService $dueService){
+
+        $months = Time::getMonths('2023-01-01','2023-12-01');
+        
+        $data = [];
+
+        $total = 0;
+
+        
+        foreach($months as $month){
+            
+            if($this->isPaid($user,$month)) continue;
+
+            $balance = $this->getBalance($user,$month,$dueService);
+
+            $data[] = [
+                'month' => $month,
+                'due' => $balance,
+            ];
+            
+            $total += $balance;
+        }
+
+        return [
+            'items' => $data,
+            'total' => $total
+        ];
+    }
+
+    /**
+     * Return the current  balance of user for the certain month.
+     * if User has already paid then balance is 0.
+     * Otherwise balance is the due for the month.
+     * @param UserModel $user
+     * @param string $month
+     * @param DuesService @dueService
+     * @return int
+     */
+    public function getBalance($user,$month, DuesService $dueService){
+        return $this->isPaid($user,$month) ? 0 
+        : $dueService->getDue($month);
+    }
+
+    
     /**
      * Check if user paid for a certain month
      * @param Month month to check
      * @return bool values
      */
-    public function isPaid($month) {
+    public function isPaid($user,$month) {
 
         // em - Entity Manager
         // eq - Query Builder
@@ -101,7 +146,9 @@ class TransactionService extends Service {
             ->from(TransactionModel::class, 'u')
             ->where($qb->expr()->between(':month', 'u.fromMonth', 'u.toMonth'))
             ->andWhere($qb->expr()->eq('u.status', ':status'))
+            ->andWhere($qb->expr()->eq('u.user', ':user'))
             ->setParameter('month', $month)
+            ->setParameter('user', $user)
             ->setParameter('status', 'APPROVED');
 
         $query = $qb->getQuery();

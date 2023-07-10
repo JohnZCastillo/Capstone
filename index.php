@@ -25,6 +25,9 @@ $app->add(TwigMiddleware::create($app, $twig));
 $app->post('/register', [UserController::class, 'register']);
 
 $app->get('/home', [UserController::class, 'home']);
+$app->get('/dues', [UserController::class, 'dues']);
+$app->get('/transaction/{id}', [UserController::class, 'transaction']);
+
 $app->get('/test', [UserController::class, 'test']);
 
 $app->post('/pay', [UserController::class, 'pay']);
