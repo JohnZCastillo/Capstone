@@ -2,10 +2,9 @@
 
 <div class="container py-2">
     <h1>Transaction ID: {{ transaction.id }}</h1>
-    <p>From Due: {{ transaction.fromDue }}</p>
-    <p>To Due: {{ transaction.toDue }}</p>
+    <p>From Due: {{ transaction.getFromMonth() }}</p>
+    <p>To Due: {{ transaction.getToMonth() }}</p>
     <p>Status: {{ transaction.status }}</p>
-
     <h2>Receipts:</h2>
     {% if transaction.receipts is not empty %}
         <ul class="list-group">

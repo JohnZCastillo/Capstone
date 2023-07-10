@@ -130,12 +130,15 @@ class UserController {
         
         // login in user !Note: PLEASE UPDATE THIS
         $user = $this->userSerivce->findById(1);
+        
+        $transaction = $this->transactionService->findById($args['id']);
 
         $data = $this->transactionService->getUnpaid($user,$this->duesService);
 
         $items = Currency::formatArray($data['items'],'due');
 
         return $view->render($response, 'pages/user-transaction.html', [
+            'transaction' => $transaction,
         ]);
 
     }
