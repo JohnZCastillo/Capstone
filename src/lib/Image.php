@@ -8,10 +8,9 @@ class Image {
 
     static function store($path, $image) {
 
-
             $extension = pathinfo($image['name'], PATHINFO_EXTENSION);
 
-            $imageName = time() . '.' . $extension;
+            $imageName = time() .rand(1, 1000). '.' . $extension;
 
             $imagePath =  $path . $imageName;
 

@@ -73,6 +73,7 @@ class UserController {
             'transactionPerPage' => $max,
             'currentPage' => $page,
             'query' => $query,
+            'totalPages' => ceil(($result['totalTransaction'])/$max),
         ];
 
         return $view->render($response, 'pages/user-home.html', $data);
@@ -152,6 +153,7 @@ class UserController {
 
         return $view->render($response, 'pages/user-transaction.html', [
             'transaction' => $transaction,
+            'receipts' => $transaction->getReceipts(),
         ]);
 
     }
