@@ -55,7 +55,4 @@ $app->get('/login', function ($request, $response, $args) {
 });
 
 
-
-
-
 $app->run();
