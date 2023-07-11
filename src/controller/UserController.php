@@ -27,7 +27,6 @@ class UserController {
     private PaymentService $paymentService;
     private UserModel $user;
 
-
     public function __construct(Container  $container) {
         //get the userService from dependency container
         $this->userSerivce = $container->get(UserService::class);
@@ -94,6 +93,8 @@ class UserController {
      */
     public function pay($request, $response, $args) {
 
+        $user = $this->user;
+
         $view = Twig::fromRequest($request);
 
         $transaction = new TransactionModel();
@@ -103,20 +104,23 @@ class UserController {
         $transaction->setToMonth(Time::endMonth($request->getParsedBody()['startDate']));
         $transaction->setCreatedAt(Time::timestamp());
 
-        // $transaction->setReceiptId('234');
-        $transaction->setUser($this->userSerivce->findById(1));
+        // set user id to the current login user
+        $transaction->setUser($user);
 
+        // gcash receipts sent by user | multiple files
         $images = $_FILES['receipts'];
 
+        // upload path
         $path = './uploads/';
 
+        // save transaction
         $this->transactionService->save($transaction);
 
+        // store physicaly
         $storedImages = Image::storeAll($path, $images);
 
+        // save image to database
         $this->receiptService->saveAll($storedImages, $transaction);
-
-        //save transaction
 
         return $response
             ->withHeader('Location', '/home')
@@ -132,16 +136,24 @@ class UserController {
         return $response;
     }
 
+    /**
+     * View unpaid monthly dues and its total.
+     */
     public function dues($request, $response, $args) {
+
         $view = Twig::fromRequest($request);
 
-        // login in user !Note: PLEASE UPDATE THIS
-        $user = $this->userSerivce->findById(1);
+        // login in user
+        $user = $this->user;
 
+        // Default payment settings is 1
         $paymentSettings = $this->paymentService->findById(1);
 
+        //get arrays of unpaid monhts
         $data = $this->transactionService->getUnpaid($user, $this->duesService, $paymentSettings);
 
+        //since the dues in unpaid month are float. 
+        //then format it to have peso value / curreny
         $items = Currency::formatArray($data['items'], 'due');
 
         return $view->render($response, 'pages/dues-breakdown.html', [
@@ -150,21 +162,27 @@ class UserController {
         ]);
     }
 
+
+    /**
+     * This function retrieves a transaction from the database
+     * using the provided ID and displays it to the user.
+     *
+     * @return The rendered HTML page displaying the transaction.
+     */
     public function transaction($request, $response, $args) {
+
         $view = Twig::fromRequest($request);
 
-        // login in user !Note: PLEASE UPDATE THIS
-        $user = $this->userSerivce->findById(1);
+        // login in user
+        $user = $this->user;
 
+        //get transction from databse base on ID
         $transaction = $this->transactionService->findById($args['id']);
 
-
+        //Default Payment Settings
         $paymentSettings = $this->paymentService->findById(1);
 
-        $data = $this->transactionService->getUnpaid($user, $this->duesService, $paymentSettings);
-
-        $items = Currency::formatArray($data['items'], 'due');
-
+        //Transactions logs
         $logs = $transaction->getLogs();
 
         return $view->render($response, 'pages/user-transaction.html', [
@@ -172,40 +190,5 @@ class UserController {
             'receipts' => $transaction->getReceipts(),
             'logs' => $logs,
         ]);
-    }
-
-    /**
-     * 
-     * Register new User to database.
-     */
-    public function register($request, $response, $args) {
-
-        $view = Twig::fromRequest($request);
-
-        // Creat user model
-        $user = new UserModel();
-
-        // update user information from post request parameters
-        $user->setName($request->getParsedBody()['name']);
-        $user->setEmail($request->getParsedBody()['email']);
-        $user->setPassword($request->getParsedBody()['password']);
-        $user->setBlock($request->getParsedBody()['block']);
-        $user->setLot($request->getParsedBody()['lot']);
-
-        try {
-            $this->userSerivce->save($user);
-            return $view->render($response, 'pages/user-home.html', []);
-        } catch (Exception $e) {
-
-            $data['message'] = "Something Went Wrong";
-
-            //error code for duplicate entry
-            if ($e->getCode() == 1062) {
-                $data['message'] = "Email Is Already In Used";
-            }
-
-            $response->withStatus(500);
-            return $view->render($response, 'pages/register.html', $data);
-        }
     }
 }

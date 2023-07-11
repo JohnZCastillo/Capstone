@@ -92,7 +92,11 @@ class AdminController {
         return $view->render($response, 'pages/admin-home.html', $data);
     }
 
+    /**
+     *   Get Transaction Base on id
+     */
     public function transaction($request, $response, $args) {
+        
         $view = Twig::fromRequest($request);
 
         $transaction = $this->transactionService->findById($args['id']);
