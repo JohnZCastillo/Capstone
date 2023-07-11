@@ -1,132 +1,18 @@
 {% extends "./admin.html" %} {% block body %}
 
-<div class="container-fluid p-2">
-<button class="btn btn-warning" data-toggle="modal" data-target="#accountModal" >Settings</button>
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#dueModal">
-  Add New Due
-</button>
+<!-- Controls -->
+{% include './partials/admin-home-control.html' %}
 
-<button type="button" class="btn btn-success" data-toggle="modal" data-target="#exportModal">
-  Export Excel
-</button>
-</div>
 <!-- Settings Form -->
-<div class="modal fade" id="accountModal" tabindex="-1" role="dialog" aria-labelledby="accountModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="accountModalLabel">Edit Account Details</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <!-- Account details form -->
-        <form id="accountForm" method="POST" action="/admin/payment-settings" enctype="multipart/form-data">
-          <div>
-            <input type="text" name="id" value="{{settings.id}}" class="d-none">
-          </div>
-          <div class="form-group">
-            <!-- Preview -->
-            <img src="/uploads/{{settings.qr}}" class="img-thumbnail d-block mx-auto">
-            <label for="accountQRCode">Change QR</label>
-            <input type="file" class="form-control" id="accountQRCode" name="qr">
-          </div>
-          <div class="form-group row">
-            <div class="col-sm">
-              <label for="accountName">Account Name</label>
-              <input type="text" class="form-control" id="accountName" name="name" value="{{settings.accountName}}" required>
-            </div>
-            <div class="col-sm">
-              <label for="accountNumber">Account Number</label>
-              <input type="text" class="form-control" id="accountNumber" name="number" value="{{settings.accountNumber}}" required>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="dueMonth">Start Month</label>
-            <input type="month" class="form-control"  name="start" value="{{settings.getConvertedStart()}}" required>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary" >Save Changes</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
+{% include './partials/settings-form.html' %}
 
 <!-- Due form -->
-<div class="modal fade" id="dueModal" tabindex="-1" role="dialog" aria-labelledby="dueModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="dueModalLabel">Add New Due</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <!-- Previous dues list -->
-        <h6>Previous Dues:</h6>
-        <ul id="previousDuesList"></ul>
-
-        <!-- New due form -->
-        <form id="newDueForm">
-          <div class="form-group">
-            <label for="dueMonth">Due Month</label>
-            <input type="text" class="form-control" id="dueMonth" name="dueMonth">
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" onclick="addDue()">Add Due</button>
-      </div>
-    </div>
-  </div>
-</div>
-
+{% include './partials/due-form.html' %}
 
 <!-- Search Form -->
-<div class="container-fluid py-2">
+{% include './partials/admin-search.html' %}
 
-<form action="/admin" method="GET" id="searchForm" class="form-inline">
-
-  <div class="form-group w-100 mb-2">
-    <input placeholder="Search" type="text" name="query" value="{{query}}" class="form-control w-100">
-  </div>
-  
-  <div class="form-group mr-2">
-    <label for="">From</label>
-    <input type="month" name="from" value="{{from}}" class="form-control">
-  </div>
-  
-  <div class="form-group mr-2">
-    <label for="">To</label>
-    <input type="month" name="to" value="{{to}}" class="form-control">
-  </div>
-  
-  <div class="form-group mr-2">
-    <label for="">Status</label>
-    <select name="status" class="form-control">
-      <option value="ALL" {% if status == 'ALL' %}selected{% endif %}>ALL</option>
-      <option value="PENDING" {% if status == 'PENDING' %}selected{% endif %}>PENDING</option>
-      <option value="APPROVED" {% if status == 'APPROVED' %}selected{% endif %}>APPROVED</option>
-      <option value="REJECTED" {% if status == 'REJECTED' %}selected{% endif %}>REJECTED</option>
-    </select>
-  </div>
-  
-  <div class="form-group">
-    <button type="submit" class="btn btn-primary">Apply Filter</button>
-  </div>
-  
-</form>
-</div>
-
-
-
-
+<!-- Main Content -->
 <main>
   <div class="container-fluid bg-light">
     <div>
@@ -183,6 +69,5 @@
     </div>
   </div>
 </main>
-
 
 {% endblock %}
