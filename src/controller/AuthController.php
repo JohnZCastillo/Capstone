@@ -19,6 +19,7 @@ class AuthController extends Controller{
     public function login($request, $response, $args) {
 
         try {
+            
             $email = $request->getParsedBody()['email'];
             $password = $request->getParsedBody()['password'];
 

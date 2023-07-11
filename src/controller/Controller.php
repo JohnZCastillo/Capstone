@@ -2,7 +2,9 @@
 
 namespace App\controller;
 
+use App\lib\Helper;
 use App\lib\Login;
+use App\model\PaymentModel;
 use App\model\UserModel;
 use App\service\DuesService;
 use App\service\PaymentService;
@@ -34,5 +36,46 @@ class Controller {
     protected function getLogin():UserModel{
         return $this->userSerivce->findById(Login::getLogin());
     }
+
+    //return default payment settings
+    protected function getPaymentSettings():PaymentModel{
+        $id = 1;
+        return $this->paymentService->findById($id);
+    }
+
+    /**
+     * Wrapper function to get unpaid due for the month.
+     * user to find balance. (Default: login user).
+     */
+    protected function getBalance($month,$user = null){
+        // if user null then set to login user otherwise passed user
+        $user = Helper::getValue($user,$this->getLogin());
+
+        // dues service
+        $dues = $this->duesService;
+
+        //return the balance of the user for the month
+        return $this->transactionService->getBalance($user, $month, $dues);
+    }
+    
+     /**
+     * Wrapper function to get total dues of user for the unpaid months
+     * @return float total dues
+     */
+    protected function getTotalDues($user = null){
+
+        // if user null then set to login user otherwise passed user
+        $user = Helper::getValue($user,$this->getLogin());
+
+        // dues service
+        $dues = $this->duesService;
+
+        $paymentSettings = $this->getPaymentSettings();
+
+        //return the balance of the user for the month
+        return $this->transactionService->getUnpaid($user,$dues,$paymentSettings)['total'];
+    }
+
+
 
 }

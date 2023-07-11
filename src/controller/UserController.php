@@ -3,60 +3,58 @@
 namespace App\controller;
 
 use App\Lib\Currency;
+use App\lib\Helper;
 use App\Lib\Image;
 use App\lib\Login;
 use App\lib\Time;
 use App\model\TransactionModel;
 use Slim\Views\Twig;
 
-class UserController extends Controller{
+class UserController extends Controller {
 
     public function home($request, $response, $args) {
-
-        // login in user: PLEASE UPDATE THIS
-        $user = $this->getLogin();
-
-        // get the query params
-        $queryParams = $request->getQueryParams();
-
-        // if page is present then set value to page otherwise to 1
-        $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
-
-        $query = isset($queryParams['query']) ? $queryParams['query'] : null;
-
-        // max transaction per page
-        $max = 5;
-
+        
         $view = Twig::fromRequest($request);
-
-        //Get Transaction
-        $result = $this->transactionService->findAll($user, $page, $max, $query);
-
-        $transactions = $result['transactions'];
-
+        $queryParams = $request->getQueryParams();
+    
+        // Get the user
+        $user = $this->getLogin();
+    
+        // Get page and set default value to 1 if not provided
+        $page = Helper::getArrayValue($queryParams,'page', 1);
+    
+        // Get search query
+        $query = Helper::getArrayValue($queryParams,'query');
+    
+        // Set max transactions per page
+        $max = 5;
+    
+        // Get transactions
+        $result = $this->transactionService->getAll($page, $max, $query,[],$user);
+    
+        // Get balances
         $currentMonth = Time::thisMonth();
         $nextMonth = Time::nextMonth();
-
-        $currentDue = $this->transactionService->getBalance($user, $currentMonth, $this->duesService);
-        $nextDue = $this->transactionService->getBalance($user, $nextMonth, $this->duesService);
-
-        $paymentSettings = $this->paymentService->findById(1);
-
-        $unpaid = $this->transactionService->getUnpaid($user, $this->duesService, $paymentSettings);
-
+        $currentDue = $this->getBalance($currentMonth);
+        $nextDue = $this->getBalance($nextMonth);
+    
+        // Calculate total dues
+        $totalDues = $this->getTotalDues();
+    
+        // Prepare data for the view
         $data = [
             'currentMonth' => $currentMonth,
             'nextMonth' => $nextMonth,
-            "currentDue" => Currency::format($currentDue),
-            "nextDue" =>  Currency::format($nextDue),
-            "unpaid" =>  Currency::format($unpaid['total']),
-            'transactions' => $transactions,
+            'currentDue' => Currency::format($currentDue),
+            'nextDue' => Currency::format($nextDue),
+            'unpaid' => Currency::format($totalDues),
+            'transactions' => $result['transactions'],
             'totalTransaction' => $result['totalTransaction'],
             'transactionPerPage' => $max,
             'currentPage' => $page,
             'query' => $query,
-            'totalPages' => ceil(($result['totalTransaction']) / $max),
-            'settings' => $paymentSettings,
+            'totalPages' => ceil($result['totalTransaction'] / $max),
+            'settings' => $this->getPaymentSettings(),
         ];
 
         return $view->render($response, 'pages/user-home.html', $data);
@@ -81,14 +79,14 @@ class UserController extends Controller{
         // set user id to the current login user
         $transaction->setUser($user);
 
+        // save transaction
+        $this->transactionService->save($transaction);
+        
         // gcash receipts sent by user | multiple files
         $images = $_FILES['receipts'];
 
-        // upload path
-        $path = './uploads/';
-
-        // save transaction
-        $this->transactionService->save($transaction);
+         // upload path
+         $path = './uploads/';
 
         // store physicaly
         $storedImages = Image::storeAll($path, $images);

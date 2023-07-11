@@ -31,67 +31,14 @@ class TransactionService extends Service {
         return $transaction;
     }
 
+   
     /**
      * Retrieve user transaction from db
-     * @param UserModel $user 
      * @param int $page current page
      * @param int $max max transaction per page
      * @return array An array containing 'transactions' and 'totalTransactions'.
      */
-    public function findAll($user, $page, $max, $id) {
-
-        $result = [];
-
-        // Step 1: Define pagination settings
-        $transactionsPerPage = $max;
-        $currentPage = $page; // Set the current page based on user input or any other criteria
-
-        $em = $this->entityManager;
-
-        // Step 3: Fetch paginated transactions
-        $queryBuilder = $em->createQueryBuilder();
-        $queryBuilder->select('t')
-            ->from(TransactionModel::class, 't')
-            ->where('t.user = :user')
-            ->setParameter('user', $user);
-
-        if ($id != null) {
-            $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
-        }
-
-        $queryBuilder
-            ->addOrderBy('t.createdAt','DESC')
-            ->setMaxResults($transactionsPerPage)
-            ->setFirstResult(($currentPage - 1) * $transactionsPerPage);
-
-        // Step 4: Execute the query and retrieve transactions
-        $transactions = $queryBuilder->getQuery()->getResult();
-
-        $queryBuilder = $em->createQueryBuilder();
-        $queryBuilder->select('count(t.id)')
-            ->from(TransactionModel::class, 't')
-            ->where('t.user = :user')
-            ->setParameter('user', $user);
-
-        if ($id != null) {
-            $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
-        }
-
-        $totalTransaction = $queryBuilder->getQuery()->getSingleScalarResult();
-
-        return [
-            'transactions' => $transactions,
-            'totalTransaction' => $totalTransaction
-        ];
-    }
-
-       /**
-     * Retrieve user transaction from db
-     * @param int $page current page
-     * @param int $max max transaction per page
-     * @return array An array containing 'transactions' and 'totalTransactions'.
-     */
-    public function getAll($page, $max, $id,$filter) {
+    public function getAll($page, $max, $id,$filter, $user = null) {
 
         $result = [];
 
@@ -105,6 +52,12 @@ class TransactionService extends Service {
         $queryBuilder = $em->createQueryBuilder();
         $queryBuilder->select('t')
             ->from(TransactionModel::class, 't');
+
+
+        if ($user != null) {
+            $queryBuilder->where('t.user = :user')
+                ->setParameter('user', $user);
+        }
 
         if ($id != null) {
             $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
@@ -132,6 +85,11 @@ class TransactionService extends Service {
         $queryBuilder->select('count(t.id)')
             ->from(TransactionModel::class, 't');
 
+        if ($user != null) {
+            $queryBuilder->where('t.user = :user')
+                ->setParameter('user', $user);
+
+        }
         if ($id != null) {
             $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
         }
@@ -156,25 +114,25 @@ class TransactionService extends Service {
         ];
     }
 
-    public function getUnpaid($user, DuesService $dueService, PaymentModel $payment){
+    public function getUnpaid($user, DuesService $dueService, PaymentModel $payment) {
 
-        $months = Time::getMonths($payment->getStart(),Time::thisMonth());
-        
+        $months = Time::getMonths($payment->getStart(), Time::thisMonth());
+
         $data = [];
 
         $total = 0;
-        
-        foreach($months as $month){
-            
-            if($this->isPaid($user,$month)) continue;
 
-            $balance = $this->getBalance($user,$month,$dueService);
+        foreach ($months as $month) {
+
+            if ($this->isPaid($user, $month)) continue;
+
+            $balance = $this->getBalance($user, $month, $dueService);
 
             $data[] = [
                 'month' => $month,
                 'due' => $balance,
             ];
-            
+
             $total += $balance;
         }
 
@@ -193,18 +151,18 @@ class TransactionService extends Service {
      * @param DuesService @dueService
      * @return int
      */
-    public function getBalance($user,$month, DuesService $dueService){
-        return $this->isPaid($user,$month) ? 0 
-        : $dueService->getDue($month);
+    public function getBalance($user, $month, DuesService $dueService) {
+        return $this->isPaid($user, $month) ? 0
+            : $dueService->getDue($month);
     }
 
-    
+
     /**
      * Check if user paid for a certain month
      * @param Month month to check
      * @return bool values
      */
-    public function isPaid($user,$month) {
+    public function isPaid($user, $month) {
 
         // em - Entity Manager
         // eq - Query Builder
