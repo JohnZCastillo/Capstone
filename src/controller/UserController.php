@@ -25,7 +25,6 @@ class UserController {
     private DuesService $duesService;
     private ReceiptService $receiptService;
     private PaymentService $paymentService;
-    private UserModel $user;
 
     public function __construct(Container  $container) {
         //get the userService from dependency container
@@ -34,13 +33,16 @@ class UserController {
         $this->duesService = $container->get(DuesService::class);
         $this->receiptService = $container->get(ReceiptService::class);
         $this->paymentService = $container->get(PaymentService::class);
-        $this->user = Login::getLogin();
+    }
+
+    private function getLogin():UserModel{
+        return $this->userSerivce->findById(Login::getLogin());
     }
 
     public function home($request, $response, $args) {
 
-        // login in user !Note: PLEASE UPDATE THIS
-        $user = $this->user;
+        // login in user: PLEASE UPDATE THIS
+        $user = $this->getLogin();
 
         // get the query params
         $queryParams = $request->getQueryParams();
@@ -93,7 +95,7 @@ class UserController {
      */
     public function pay($request, $response, $args) {
 
-        $user = $this->user;
+        $user = $this->getLogin();
 
         $view = Twig::fromRequest($request);
 
@@ -144,7 +146,7 @@ class UserController {
         $view = Twig::fromRequest($request);
 
         // login in user
-        $user = $this->user;
+        $user = $this->getLogin();
 
         // Default payment settings is 1
         $paymentSettings = $this->paymentService->findById(1);
@@ -174,7 +176,7 @@ class UserController {
         $view = Twig::fromRequest($request);
 
         // login in user
-        $user = $this->user;
+        $user = $this->getLogin();
 
         //get transction from databse base on ID
         $transaction = $this->transactionService->findById($args['id']);

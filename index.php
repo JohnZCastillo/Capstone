@@ -1,9 +1,10 @@
 <?php
 
+session_start();
+
 use App\controller\AdminController;
 use App\controller\AuthController;
 use App\controller\UserController;
-use App\middleware\Auth;
 use Slim\Factory\AppFactory;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
@@ -47,6 +48,12 @@ $app->get('/register', function ($request, $response, $args) {
     $view = Twig::fromRequest($request);
     return $view->render($response, 'pages/register.html');
 });
+
+$app->get('/logout', function ($request, $response, $args) {
+    session_destroy();
+    return $response;
+});
+
 
 // Return Signup View
 $app->get('/login', function ($request, $response, $args) {

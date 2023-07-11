@@ -2,12 +2,7 @@
 
 namespace App\controller;
 
-use App\Lib\Currency;
-use App\Lib\Image;
 use App\lib\Login;
-use App\lib\Time;
-use App\model\PaymentModel;
-use App\model\TransactionModel;
 use App\model\UserModel;
 use App\service\DuesService;
 use App\service\PaymentService;
@@ -16,27 +11,16 @@ use App\service\UserService;
 use App\service\TransactionService;
 use App\service\TransactionLogsService;
 use Exception;
-use Slim\Psr7\Response;
 use Slim\Views\Twig;
 use UMA\DIC\Container;
 
-class AuthController {
+class AuthController{
 
     private UserService $userSerivce;
-    private TransactionService $transactionService;
-    private DuesService $duesService;
-    private ReceiptService $receiptService;
-    private TransactionLogsService $logsService;
-    private PaymentService $paymentService;
 
     public function __construct(Container  $container) {
         //get the userService from dependency container
         $this->userSerivce = $container->get(UserService::class);
-        $this->transactionService = $container->get(TransactionService::class);
-        $this->duesService = $container->get(DuesService::class);
-        $this->receiptService = $container->get(ReceiptService::class);
-        $this->logsService = $container->get(TransactionLogsService::class);
-        $this->paymentService = $container->get(PaymentService::class);
     }
 
     public function login($request, $response, $args) {
@@ -51,7 +35,7 @@ class AuthController {
                 throw new Exception("Incorrect Email or Password");
             }
 
-            Login::login($user);
+            Login::login($user->getId());
 
             return $response
                 ->withHeader('Location', "/home")

@@ -21,7 +21,7 @@ class TransactionModel {
     #[ORM\GeneratedValue]
     private $id;
 
-    #[ORM\ManyToOne(targetEntity: UserModel::class, inversedBy: 'transactions')]
+    #[ORM\ManyToOne(targetEntity: UserModel::class, inversedBy: 'transactions',)]
     private ?UserModel $user = null;
 
     #[ORM\Column(type: 'float')]
