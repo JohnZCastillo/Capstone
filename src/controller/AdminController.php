@@ -5,9 +5,11 @@ namespace App\controller;
 use App\Lib\Currency;
 use App\Lib\Image;
 use App\lib\Time;
+use App\model\PaymentModel;
 use App\model\TransactionModel;
 use App\model\UserModel;
 use App\service\DuesService;
+use App\service\PaymentService;
 use App\service\ReceiptService;
 use App\service\UserService;
 use App\service\TransactionService;
@@ -24,6 +26,7 @@ class AdminController {
     private DuesService $duesService;
     private ReceiptService $receiptService;
     private TransactionLogsService $logsService;
+    private PaymentService $paymentService;
 
     public function __construct(Container  $container) {
         //get the userService from dependency container
@@ -32,12 +35,15 @@ class AdminController {
         $this->duesService = $container->get(DuesService::class);
         $this->receiptService = $container->get(ReceiptService::class);
         $this->logsService = $container->get(TransactionLogsService::class);
+        $this->paymentService = $container->get(PaymentService::class);
     }
 
     public function home($request, $response, $args) {
 
         // get the query params
         $queryParams = $request->getQueryParams();
+
+        $settings = $this->paymentService->findById(1);
 
         // if page is present then set value to page otherwise to 1
         $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
@@ -76,6 +82,7 @@ class AdminController {
             'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
             'status' =>  isset($queryParams['status']) ? $queryParams['status'] : null,
             'totalPages' => ceil(($result['totalTransaction']) / $max),
+            'settings' => $settings
         ];
 
         return $view->render($response, 'pages/admin-home.html', $data);
@@ -157,6 +164,39 @@ class AdminController {
 
         return $response
             ->withHeader('Location', "/admin/transaction/$id")
+            ->withStatus(302);
+    }
+
+    public function paymentSettings($request, $response, $args){
+
+        $view = Twig::fromRequest($request);
+
+        $id = $request->getParsedBody()['id'];
+        $name = $request->getParsedBody()['name'];
+        $number = $request->getParsedBody()['number'];
+        $start = $request->getParsedBody()['start'];
+
+        $settings = new PaymentModel();
+
+        //find settings if id is not null
+        if($id != null){
+            $settings = $this->paymentService->findById($id);
+        }
+
+        //update qr
+        if(isset($_FILES['qr']) && $_FILES['qr']['error'] === UPLOAD_ERR_OK){
+            $path = './uploads/';
+            $settings->setQr(Image::store($path,$_FILES['qr']));
+        }
+
+        $settings->setAccountName($name);
+        $settings->setAccountNumber($number);
+        $settings->setStart(Time::startMonth($start));
+
+        $this->paymentService->save($settings);
+        
+        return $response
+            ->withHeader('Location', "/admin")
             ->withStatus(302);
     }
 

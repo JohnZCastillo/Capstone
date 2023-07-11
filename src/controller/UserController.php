@@ -8,6 +8,7 @@ use App\lib\Time;
 use App\model\TransactionModel;
 use App\model\UserModel;
 use App\service\DuesService;
+use App\service\PaymentService;
 use App\service\ReceiptService;
 use App\service\UserService;
 use App\service\TransactionService;
@@ -22,6 +23,7 @@ class UserController {
     private TransactionService $transactionService;
     private DuesService $duesService;
     private ReceiptService $receiptService;
+    private PaymentService $paymentService;
 
     public function __construct(Container  $container) {
         //get the userService from dependency container
@@ -29,6 +31,7 @@ class UserController {
         $this->transactionService = $container->get(TransactionService::class);
         $this->duesService = $container->get(DuesService::class);
         $this->receiptService = $container->get(ReceiptService::class);
+        $this->paymentService = $container->get(PaymentService::class);
     }
 
     public function home($request, $response, $args) {
@@ -60,7 +63,9 @@ class UserController {
         $currentDue = $this->transactionService->getBalance($user,$currentMonth,$this->duesService);
         $nextDue = $this->transactionService->getBalance($user,$nextMonth,$this->duesService);
 
-        $unpaid = $this->transactionService->getUnpaid($user,$this->duesService);
+        $paymentSettings = $this->paymentService->findById(1);
+
+        $unpaid = $this->transactionService->getUnpaid($user,$this->duesService,$paymentSettings);
 
         $data = [
             'currentMonth' => $currentMonth,
@@ -128,7 +133,9 @@ class UserController {
         // login in user !Note: PLEASE UPDATE THIS
         $user = $this->userSerivce->findById(1);
 
-        $data = $this->transactionService->getUnpaid($user,$this->duesService);
+        $paymentSettings = $this->paymentService->findById(1);
+
+        $data = $this->transactionService->getUnpaid($user,$this->duesService,$paymentSettings);
 
         $items = Currency::formatArray($data['items'],'due');
 
@@ -147,7 +154,10 @@ class UserController {
         
         $transaction = $this->transactionService->findById($args['id']);
 
-        $data = $this->transactionService->getUnpaid($user,$this->duesService);
+        
+        $paymentSettings = $this->paymentService->findById(1);
+
+        $data = $this->transactionService->getUnpaid($user,$this->duesService,$paymentSettings);
 
         $items = Currency::formatArray($data['items'],'due');
 

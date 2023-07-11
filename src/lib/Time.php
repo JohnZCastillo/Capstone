@@ -38,6 +38,10 @@ class Time {
         return $date->format('Y-m-d');
     }
     
+    static function convertToMonth($date) {
+        return $date->format('Y-m');
+    }
+    
     /**
      * Create a timestamp at now time
      */

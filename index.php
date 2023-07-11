@@ -35,6 +35,7 @@ $app->get('/admin', [AdminController::class, 'home']);
 $app->get('/admin/transaction/{id}', [AdminController::class, 'transaction']);
 $app->post('/admin/transaction/reject', [AdminController::class, 'rejectPayment']);
 $app->post('/admin/transaction/approve', [AdminController::class, 'approvePayment']);
+$app->post('/admin/payment-settings', [AdminController::class, 'paymentSettings']);
 
 $app->post('/pay', [UserController::class, 'pay']);
 

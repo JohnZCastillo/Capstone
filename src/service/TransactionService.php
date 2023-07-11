@@ -3,6 +3,7 @@
 namespace App\service;
 
 use App\lib\Time;
+use App\model\PaymentModel;
 use App\model\TransactionModel;
 use App\model\UserModel;
 use Doctrine\ORM;
@@ -153,14 +154,13 @@ class TransactionService extends Service {
         ];
     }
 
-    public function getUnpaid($user, DuesService $dueService){
+    public function getUnpaid($user, DuesService $dueService, PaymentModel $payment){
 
-        $months = Time::getMonths('2023-01-01','2023-12-01');
+        $months = Time::getMonths($payment->getStart(),Time::thisMonth());
         
         $data = [];
 
         $total = 0;
-
         
         foreach($months as $month){
             
