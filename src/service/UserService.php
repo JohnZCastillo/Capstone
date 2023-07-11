@@ -17,9 +17,23 @@ class UserService extends Service {
         $this->entityManager->flush($user);
     }
 
-    public function findById($id):UserModel {
+    public function findById($id): UserModel {
         $em = $this->entityManager;
-        $user = $em->find(UserModel::class,$id);
+        $user = $em->find(UserModel::class, $id);
         return $user;
+    }
+
+    public function getUser($email, $password) {
+
+        $queryBuilder = $this->entityManager->createQueryBuilder();
+        $queryBuilder
+            ->select('u')
+            ->from(UserModel::class, 'u')
+            ->where('u.email = :email')
+            ->andWhere('u.password = :password')
+            ->setParameter('email', $email)
+            ->setParameter('password', $password);
+
+        return $queryBuilder->getQuery()->getOneOrNullResult();
     }
 }

@@ -4,6 +4,7 @@ namespace App\controller;
 
 use App\Lib\Currency;
 use App\Lib\Image;
+use App\lib\Login;
 use App\lib\Time;
 use App\model\PaymentModel;
 use App\model\TransactionModel;
@@ -27,6 +28,7 @@ class AdminController {
     private ReceiptService $receiptService;
     private TransactionLogsService $logsService;
     private PaymentService $paymentService;
+    private UserModel $user;
 
     public function __construct(Container  $container) {
         //get the userService from dependency container
@@ -36,6 +38,8 @@ class AdminController {
         $this->receiptService = $container->get(ReceiptService::class);
         $this->logsService = $container->get(TransactionLogsService::class);
         $this->paymentService = $container->get(PaymentService::class);
+        $this->user = Login::getLogin();
+
     }
 
     public function home($request, $response, $args) {

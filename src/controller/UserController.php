@@ -4,6 +4,7 @@ namespace App\controller;
 
 use App\Lib\Currency;
 use App\Lib\Image;
+use App\lib\Login;
 use App\lib\Time;
 use App\model\TransactionModel;
 use App\model\UserModel;
@@ -24,6 +25,8 @@ class UserController {
     private DuesService $duesService;
     private ReceiptService $receiptService;
     private PaymentService $paymentService;
+    private UserModel $user;
+
 
     public function __construct(Container  $container) {
         //get the userService from dependency container
@@ -32,9 +35,13 @@ class UserController {
         $this->duesService = $container->get(DuesService::class);
         $this->receiptService = $container->get(ReceiptService::class);
         $this->paymentService = $container->get(PaymentService::class);
+        $this->user = Login::getLogin();
     }
 
     public function home($request, $response, $args) {
+
+        // login in user !Note: PLEASE UPDATE THIS
+        $user = $this->user;
 
         // get the query params
         $queryParams = $request->getQueryParams();
@@ -49,23 +56,20 @@ class UserController {
 
         $view = Twig::fromRequest($request);
 
-        // login in user !Note: PLEASE UPDATE THIS
-        $user = $this->userSerivce->findById(1);
-
         //Get Transaction
-        $result = $this->transactionService->findAll($user,$page,$max,$query);
-        
+        $result = $this->transactionService->findAll($user, $page, $max, $query);
+
         $transactions = $result['transactions'];
 
         $currentMonth = Time::thisMonth();
         $nextMonth = Time::nextMonth();
 
-        $currentDue = $this->transactionService->getBalance($user,$currentMonth,$this->duesService);
-        $nextDue = $this->transactionService->getBalance($user,$nextMonth,$this->duesService);
+        $currentDue = $this->transactionService->getBalance($user, $currentMonth, $this->duesService);
+        $nextDue = $this->transactionService->getBalance($user, $nextMonth, $this->duesService);
 
         $paymentSettings = $this->paymentService->findById(1);
 
-        $unpaid = $this->transactionService->getUnpaid($user,$this->duesService,$paymentSettings);
+        $unpaid = $this->transactionService->getUnpaid($user, $this->duesService, $paymentSettings);
 
         $data = [
             'currentMonth' => $currentMonth,
@@ -78,7 +82,7 @@ class UserController {
             'transactionPerPage' => $max,
             'currentPage' => $page,
             'query' => $query,
-            'totalPages' => ceil(($result['totalTransaction'])/$max),
+            'totalPages' => ceil(($result['totalTransaction']) / $max),
             'settings' => $paymentSettings,
         ];
 
@@ -98,28 +102,28 @@ class UserController {
         $transaction->setFromMonth(Time::startMonth($request->getParsedBody()['startDate']));
         $transaction->setToMonth(Time::endMonth($request->getParsedBody()['startDate']));
         $transaction->setCreatedAt(Time::timestamp());
-       
+
         // $transaction->setReceiptId('234');
         $transaction->setUser($this->userSerivce->findById(1));
 
         $images = $_FILES['receipts'];
-        
+
         $path = './uploads/';
 
         $this->transactionService->save($transaction);
-        
-        $storedImages = Image::storeAll($path,$images);
-        
-        $this->receiptService->saveAll($storedImages,$transaction);
+
+        $storedImages = Image::storeAll($path, $images);
+
+        $this->receiptService->saveAll($storedImages, $transaction);
 
         //save transaction
-        
+
         return $response
-        ->withHeader('Location', '/home')
-        ->withStatus(302);
+            ->withHeader('Location', '/home')
+            ->withStatus(302);
     }
 
-    public function test($request, $response, $args){
+    public function test($request, $response, $args) {
 
         var_dump($this->duesService->getDue('2023-12-01'));
         // var_dump($this->transactionService->findById(1)->getFromMonth());
@@ -128,39 +132,38 @@ class UserController {
         return $response;
     }
 
-    public function dues($request, $response, $args){
+    public function dues($request, $response, $args) {
         $view = Twig::fromRequest($request);
-        
+
         // login in user !Note: PLEASE UPDATE THIS
         $user = $this->userSerivce->findById(1);
 
         $paymentSettings = $this->paymentService->findById(1);
 
-        $data = $this->transactionService->getUnpaid($user,$this->duesService,$paymentSettings);
+        $data = $this->transactionService->getUnpaid($user, $this->duesService, $paymentSettings);
 
-        $items = Currency::formatArray($data['items'],'due');
+        $items = Currency::formatArray($data['items'], 'due');
 
         return $view->render($response, 'pages/dues-breakdown.html', [
             'items' => $items,
             'total' =>  Currency::format($data['total'])
         ]);
-
     }
 
-    public function transaction($request, $response, $args){
+    public function transaction($request, $response, $args) {
         $view = Twig::fromRequest($request);
-        
+
         // login in user !Note: PLEASE UPDATE THIS
         $user = $this->userSerivce->findById(1);
-        
+
         $transaction = $this->transactionService->findById($args['id']);
 
-        
+
         $paymentSettings = $this->paymentService->findById(1);
 
-        $data = $this->transactionService->getUnpaid($user,$this->duesService,$paymentSettings);
+        $data = $this->transactionService->getUnpaid($user, $this->duesService, $paymentSettings);
 
-        $items = Currency::formatArray($data['items'],'due');
+        $items = Currency::formatArray($data['items'], 'due');
 
         $logs = $transaction->getLogs();
 
@@ -169,7 +172,6 @@ class UserController {
             'receipts' => $transaction->getReceipts(),
             'logs' => $logs,
         ]);
-
     }
 
     /**
@@ -200,7 +202,7 @@ class UserController {
             //error code for duplicate entry
             if ($e->getCode() == 1062) {
                 $data['message'] = "Email Is Already In Used";
-            } 
+            }
 
             $response->withStatus(500);
             return $view->render($response, 'pages/register.html', $data);

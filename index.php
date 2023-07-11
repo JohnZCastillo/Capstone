@@ -1,6 +1,7 @@
 <?php
 
 use App\controller\AdminController;
+use App\controller\AuthController;
 use App\controller\UserController;
 use App\middleware\Auth;
 use Slim\Factory\AppFactory;
@@ -23,7 +24,7 @@ $twig = Twig::create('./src/views/', ['cache' => false]);
 $app->add(TwigMiddleware::create($app, $twig));
 
 // Register User
-$app->post('/register', [UserController::class, 'register']);
+$app->post('/register', [AuthController::class, 'register']);
 
 $app->get('/home', [UserController::class, 'home']);
 $app->get('/dues', [UserController::class, 'dues']);
@@ -39,11 +40,22 @@ $app->post('/admin/payment-settings', [AdminController::class, 'paymentSettings'
 
 $app->post('/pay', [UserController::class, 'pay']);
 
+$app->post('/login', [AuthController::class, 'login']);
+
 // Return Signup View
 $app->get('/register', function ($request, $response, $args) {
     $view = Twig::fromRequest($request);
     return $view->render($response, 'pages/register.html');
 });
+
+// Return Signup View
+$app->get('/login', function ($request, $response, $args) {
+    $view = Twig::fromRequest($request);
+    return $view->render($response, 'pages/login.html');
+});
+
+
+
 
 
 $app->run();
