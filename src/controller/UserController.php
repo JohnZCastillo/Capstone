@@ -4,6 +4,7 @@ namespace App\controller;
 
 use App\Lib\Currency;
 use App\Lib\Image;
+use App\lib\Login;
 use App\lib\Time;
 use App\model\TransactionModel;
 use Slim\Views\Twig;
@@ -102,7 +103,8 @@ class UserController extends Controller{
 
     public function test($request, $response, $args) {
 
-        var_dump($this->duesService->getDue('2023-12-01'));
+        var_dump(Login::isLogin());
+        // var_dump($this->duesService->getDue('2023-12-01'));
         // var_dump($this->transactionService->findById(1)->getFromMonth());
         // var_dump($this->transactionService->isPaid('2023-01-03'));
 

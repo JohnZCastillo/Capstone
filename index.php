@@ -5,9 +5,13 @@ session_start();
 use App\controller\AdminController;
 use App\controller\AuthController;
 use App\controller\UserController;
+use App\middleware\Auth;
 use Slim\Factory\AppFactory;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use UMA\DIC\Container;
 
 require './vendor/autoload.php';
@@ -24,42 +28,40 @@ $twig = Twig::create('./src/views/', ['cache' => false]);
 
 $app->add(TwigMiddleware::create($app, $twig));
 
-// Register User
+// Protected Routes
+$app->group('', function ($app) {
+    $app->get('/home', [UserController::class, 'home']);
+    $app->get('/dues', [UserController::class, 'dues']);
+    $app->get('/transaction/{id}', [UserController::class, 'transaction']);
+    $app->post('/pay', [UserController::class, 'pay']);
+})->add(new Auth());
+
+$app->group('/admin', function ($app) {
+    $app->get('/home', [AdminController::class, 'home']);
+    $app->get('/transaction/{id}', [AdminController::class, 'transaction']);
+    $app->post('/transaction/reject', [AdminController::class, 'rejectPayment']);
+    $app->post('/transaction/approve', [AdminController::class, 'approvePayment']);
+    $app->post('/payment-settings', [AdminController::class, 'paymentSettings']);
+})->add(new Auth());
+
+// Public Routes
 $app->post('/register', [AuthController::class, 'register']);
-
-$app->get('/home', [UserController::class, 'home']);
-$app->get('/dues', [UserController::class, 'dues']);
-$app->get('/transaction/{id}', [UserController::class, 'transaction']);
-
 $app->get('/test', [UserController::class, 'test']);
-
-$app->get('/admin', [AdminController::class, 'home']);
-$app->get('/admin/transaction/{id}', [AdminController::class, 'transaction']);
-$app->post('/admin/transaction/reject', [AdminController::class, 'rejectPayment']);
-$app->post('/admin/transaction/approve', [AdminController::class, 'approvePayment']);
-$app->post('/admin/payment-settings', [AdminController::class, 'paymentSettings']);
-
-$app->post('/pay', [UserController::class, 'pay']);
-
 $app->post('/login', [AuthController::class, 'login']);
 
 // Return Signup View
-$app->get('/register', function ($request, $response, $args) {
-    $view = Twig::fromRequest($request);
-    return $view->render($response, 'pages/register.html');
+$app->get('/register', function (Request $request, Response $response) use ($twig) {
+    return $twig->render($response, 'pages/register.html');
 });
 
-$app->get('/logout', function ($request, $response, $args) {
+$app->get('/logout', function (Request $request, Response $response) {
     session_destroy();
     return $response;
 });
 
-
-// Return Signup View
-$app->get('/login', function ($request, $response, $args) {
-    $view = Twig::fromRequest($request);
-    return $view->render($response, 'pages/login.html');
+// Return Login View
+$app->get('/login', function (Request $request, Response $response) use ($twig) {
+    return $twig->render($response, 'pages/login.html');
 });
-
 
 $app->run();

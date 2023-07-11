@@ -2,25 +2,22 @@
 
 namespace App\middleware;
 
-use Psr\Http\Message\ResponseInterface as Response;
+use App\lib\Login;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
+use Slim\Psr7\Response;
 
-class Auth {
-    /**
-     * Example middleware invokable class
-     *
-     * @param  ServerRequestInterface $request PSR-7 request
-     * @param  RequestHandler $handler PSR-15 request handler
-     *
-     * @return Response
-     */
-    public function __invoke(Request $request, RequestHandler $handler): Response {
-        $response = $handler->handle($request);
-        $response->getBody()->write('AFTER');
-        return $response
-            ->withHeader('Location', '/')
-            ->withStatus(302);
+class Auth{
+
+    public function __invoke(Request $request, RequestHandler $handler): ResponseInterface {            
+        
+        if (Login::isLogin()) {
+            $response = $handler->handle($request);
+            return $response;
+        } else {
+            $response = new Response();
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
     }
 }
