@@ -111,7 +111,7 @@ class TransactionService extends Service {
         }
 
         if ($filter['from'] != null) {
-            $queryBuilder->andWhere('t.fromMonth = :from')->setParameter('from', $filter['from']);
+            $queryBuilder->andWhere('t.fromMonth >= :from')->setParameter('from', $filter['from']);
         }
 
         if ($filter['to'] != null) {
@@ -137,7 +137,7 @@ class TransactionService extends Service {
         }
 
         if ($filter['from'] != null) {
-            $queryBuilder->andWhere('t.fromMonth = :from')->setParameter('from', $filter['from']);
+            $queryBuilder->andWhere('t.fromMonth >= :from')->setParameter('from', $filter['from']);
         }
 
         if ($filter['to'] != null) {

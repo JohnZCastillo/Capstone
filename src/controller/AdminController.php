@@ -87,8 +87,8 @@ class AdminController extends Controller{
         // get the transaction form db
         $transaction = $this->transactionService->findById($id);
 
-        //get the owner of the transaction
-        $user = $transaction->getUser();
+        //login admin who rejected the payment
+        $user = $this->getLogin();
 
         // set transctio to rejected
         $transaction->setStatus('REJECTED');
@@ -115,8 +115,8 @@ class AdminController extends Controller{
         // get the transaction form db
         $transaction = $this->transactionService->findById($id);
         
-        //get the owner of the transaction
-        $user = $transaction->getUser();
+        //login admin who approved the payment
+        $user = $this->getLogin();
         
         //array of reference number
         $fields = $request->getParsedBody()['field'];
