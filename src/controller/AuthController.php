@@ -14,14 +14,7 @@ use Exception;
 use Slim\Views\Twig;
 use UMA\DIC\Container;
 
-class AuthController{
-
-    private UserService $userSerivce;
-
-    public function __construct(Container  $container) {
-        //get the userService from dependency container
-        $this->userSerivce = $container->get(UserService::class);
-    }
+class AuthController extends Controller{
 
     public function login($request, $response, $args) {
 
@@ -52,7 +45,6 @@ class AuthController{
         
     }
 
-    
     /**
      * 
      * Register new User to database.

@@ -4,40 +4,11 @@ namespace App\controller;
 
 use App\Lib\Currency;
 use App\Lib\Image;
-use App\lib\Login;
 use App\lib\Time;
 use App\model\TransactionModel;
-use App\model\UserModel;
-use App\service\DuesService;
-use App\service\PaymentService;
-use App\service\ReceiptService;
-use App\service\UserService;
-use App\service\TransactionService;
-use Exception;
-use Slim\Psr7\Response;
 use Slim\Views\Twig;
-use UMA\DIC\Container;
 
-class UserController {
-
-    private UserService $userSerivce;
-    private TransactionService $transactionService;
-    private DuesService $duesService;
-    private ReceiptService $receiptService;
-    private PaymentService $paymentService;
-
-    public function __construct(Container  $container) {
-        //get the userService from dependency container
-        $this->userSerivce = $container->get(UserService::class);
-        $this->transactionService = $container->get(TransactionService::class);
-        $this->duesService = $container->get(DuesService::class);
-        $this->receiptService = $container->get(ReceiptService::class);
-        $this->paymentService = $container->get(PaymentService::class);
-    }
-
-    private function getLogin():UserModel{
-        return $this->userSerivce->findById(Login::getLogin());
-    }
+class UserController extends Controller{
 
     public function home($request, $response, $args) {
 
