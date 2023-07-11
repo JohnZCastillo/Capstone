@@ -170,15 +170,15 @@
             <h4 class="display-label">Scan To Pay</h4>
             <div class="col-sm-12">
               <label class="form-label form-label">QR Code</label>
-              <img src="" class="d-block mx-auto img-small form-control" />
+              <img src="/uploads/{{settings.qr}}" class="d-block mx-auto img-small form-control" />
             </div>
             <div class="col-sm">
               <label for="" class="form-label">Account Name</label>
-              <input readonly="text" class="form-control" value="" />
+              <input readonly="text" class="form-control" value="{{settings.accountName}}" />
             </div>
             <div class="col-sm">
               <label for="" class="form-label">Account Number</label>
-              <input readonly="text" class="form-control" value="" />
+              <input readonly="text" class="form-control" value="{{settings.accountNumber}}" />
             </div>
           </div>
           <form

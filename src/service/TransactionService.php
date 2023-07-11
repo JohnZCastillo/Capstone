@@ -59,7 +59,9 @@ class TransactionService extends Service {
             $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
         }
 
-        $queryBuilder->setMaxResults($transactionsPerPage)
+        $queryBuilder
+            ->addOrderBy('t.createdAt','DESC')
+            ->setMaxResults($transactionsPerPage)
             ->setFirstResult(($currentPage - 1) * $transactionsPerPage);
 
         // Step 4: Execute the query and retrieve transactions

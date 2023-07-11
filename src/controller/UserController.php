@@ -79,6 +79,7 @@ class UserController {
             'currentPage' => $page,
             'query' => $query,
             'totalPages' => ceil(($result['totalTransaction'])/$max),
+            'settings' => $paymentSettings,
         ];
 
         return $view->render($response, 'pages/user-home.html', $data);
