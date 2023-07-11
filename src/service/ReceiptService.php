@@ -33,6 +33,13 @@ class ReceiptService extends Service {
 
     }
 
+    /**
+     * Confirm the reference number of the receipt
+     */
+    public function confirm(ReceiptModel $receipt,$reference){
+        $receipt->setReferenceNumber($reference);
+        $this->save($receipt);
+    }
 
     public function findById($id): ReceiptModel {
         $em = $this->entityManager;

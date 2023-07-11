@@ -199,11 +199,12 @@
           <div class="modal-body">
             <h2 class="text-center">Payment Approval</h2>
             <p>Please Input each receipt reference number</p>
-            <form id="approvalForm">
+            <form id="approvalForm" method="POST" action="/admin/transaction/approve">
+              <input type="text" name="id" class="d-none" value="{{transaction.id}}">
               {% for receipt in receipts %}
               <div class="form-group">
                 <label>Receipt {{ loop.index}}</label>
-                <input type="text" class="form-control" />
+                <input type="text" class="form-control" name="field[]" />
               </div>
               {% endfor %}
               <div class="modal-footer">
@@ -214,7 +215,7 @@
                 >
                   Cancel
                 </button>
-                <button class="btn btn-primary">Confirm</button>
+                <button  type="submit" class="btn btn-primary">Confirm</button>
               </div>
             </form>
           </div>

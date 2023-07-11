@@ -121,4 +121,43 @@ class AdminController {
             ->withHeader('Location', "/admin/transaction/$id")
             ->withStatus(302);
     }
+
+    public function approvePayment($request, $response, $args) {
+
+        $view = Twig::fromRequest($request);
+
+        $id = $request->getParsedBody()['id'];
+        
+        $message = "Payment was approved";
+        
+        // get the transaction form db
+        $transaction = $this->transactionService->findById($id);
+        
+        //get the owner of the transaction
+        $user = $transaction->getUser();
+        
+        //array of reference number
+        $fields = $request->getParsedBody()['field'];
+
+        //array of transaction receipts
+        $reciepts = $transaction->getReceipts();
+  
+        for ($i=0; $i <count($reciepts) ; $i++) { 
+            $this->receiptService->confirm($reciepts[$i],$fields[$i]);
+        }
+
+        // set transctio to rejected
+        $transaction->setStatus('APPROVED');
+
+        // save transaction
+        $this->transactionService->save($transaction);
+
+        //save logs
+        $this->logsService->log($transaction,$user,$message,'APPROVED');
+
+        return $response
+            ->withHeader('Location', "/admin/transaction/$id")
+            ->withStatus(302);
+    }
+
 }
