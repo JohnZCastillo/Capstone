@@ -28,4 +28,17 @@ class Helper {
         return $data[$key];
     }
 
+    /**
+     * Check weather a variable does exist and not null
+     */
+    static function existAndNotNull($data,$key = null){
+        if($key){
+            if(!isset($data[$key])) return false;
+            return $data[$key] != null;
+        }else{
+            if(!isset($data)) return false;
+            return $data != null;
+        }
+    }
+
 }

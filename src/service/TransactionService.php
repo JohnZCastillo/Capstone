@@ -2,6 +2,7 @@
 
 namespace App\service;
 
+use App\lib\Helper;
 use App\lib\Time;
 use App\model\PaymentModel;
 use App\model\TransactionModel;
@@ -53,26 +54,27 @@ class TransactionService extends Service {
         $queryBuilder->select('t')
             ->from(TransactionModel::class, 't');
 
-
-        if ($user != null) {
+        if(Helper::existAndNotNull($user)){
             $queryBuilder->where('t.user = :user')
-                ->setParameter('user', $user);
+            ->setParameter('user', $user);
         }
 
-        if ($id != null) {
+        if (Helper::existAndNotNull($id)) {
             $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
         }
 
-        if ($filter['from'] != null) {
+        if (Helper::existAndNotNull($filter,'from')) {
             $queryBuilder->andWhere('t.fromMonth >= :from')->setParameter('from', $filter['from']);
         }
 
-        if ($filter['to'] != null) {
+        if (Helper::existAndNotNull($filter,'to')) {
             $queryBuilder->andWhere('t.toMonth <= :to')->setParameter('to', $filter['to']);
         }
 
-        if ($filter['status'] != null && $filter['status'] != 'ALL') {
-            $queryBuilder->andWhere('t.status = :status')->setParameter('status', $filter['status']);
+        if (Helper::existAndNotNull($filter,'status')) {
+            if($filter['status'] != 'ALL'){
+                $queryBuilder->andWhere('t.status = :status')->setParameter('status', $filter['status']);
+            }
         }
 
         $queryBuilder->setMaxResults($transactionsPerPage)
@@ -85,26 +87,28 @@ class TransactionService extends Service {
         $queryBuilder->select('count(t.id)')
             ->from(TransactionModel::class, 't');
 
-        if ($user != null) {
-            $queryBuilder->where('t.user = :user')
+            if(Helper::existAndNotNull($user)){
+                $queryBuilder->where('t.user = :user')
                 ->setParameter('user', $user);
-
-        }
-        if ($id != null) {
-            $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
-        }
-
-        if ($filter['from'] != null) {
-            $queryBuilder->andWhere('t.fromMonth >= :from')->setParameter('from', $filter['from']);
-        }
-
-        if ($filter['to'] != null) {
-            $queryBuilder->andWhere('t.toMonth <= :to')->setParameter('to', $filter['to']);
-        }
-
-        if ($filter['status'] != null && $filter['status'] != 'ALL') {
-            $queryBuilder->andWhere('t.status = :status')->setParameter('status', $filter['status']);
-        }
+            }
+    
+            if (Helper::existAndNotNull($id)) {
+                $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
+            }
+    
+            if (Helper::existAndNotNull($filter,'from')) {
+                $queryBuilder->andWhere('t.fromMonth >= :from')->setParameter('from', $filter['from']);
+            }
+    
+            if (Helper::existAndNotNull($filter,'to')) {
+                $queryBuilder->andWhere('t.toMonth <= :to')->setParameter('to', $filter['to']);
+            }
+    
+            if (Helper::existAndNotNull($filter,'status')) {
+                if($filter['status'] != 'ALL'){
+                    $queryBuilder->andWhere('t.status = :status')->setParameter('status', $filter['status']);
+                }
+            }
 
         $totalTransaction = $queryBuilder->getQuery()->getSingleScalarResult();
 

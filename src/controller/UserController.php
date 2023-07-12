@@ -73,7 +73,7 @@ class UserController extends Controller {
 
         $transaction->setAmount($request->getParsedBody()['amount']);
         $transaction->setFromMonth(Time::startMonth($request->getParsedBody()['startDate']));
-        $transaction->setToMonth(Time::endMonth($request->getParsedBody()['startDate']));
+        $transaction->setToMonth(Time::endMonth($request->getParsedBody()['endDate']));
         $transaction->setCreatedAt(Time::timestamp());
 
         // set user id to the current login user
@@ -120,7 +120,7 @@ class UserController extends Controller {
         $user = $this->getLogin();
 
         // Default payment settings is 1
-        $paymentSettings = $this->paymentService->findById(1);
+        $paymentSettings = $this->getPaymentSettings();
 
         //get arrays of unpaid monhts
         $data = $this->transactionService->getUnpaid($user, $this->duesService, $paymentSettings);
