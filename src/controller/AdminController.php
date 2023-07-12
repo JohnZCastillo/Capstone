@@ -2,6 +2,7 @@
 
 namespace App\controller;
 
+use App\lib\Filter;
 use App\Lib\Image;
 use App\lib\Time;
 use App\model\PaymentModel;
@@ -19,17 +20,7 @@ class AdminController extends Controller{
         // if page is present then set value to page otherwise to 1
         $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
 
-        if(isset(($queryParams['from'])) && $queryParams['from'] == null){
-            unset($queryParams['from']);
-        }
-
-        if(isset(($queryParams['to'])) && $queryParams['to'] == null){
-            unset($queryParams['to']);
-        }
-
-        $filter['from'] = isset($queryParams['from']) ? Time::nowStartMonth($queryParams['from']): null;
-        $filter['to'] = isset($queryParams['to']) ? Time::nowEndMonth($queryParams['to']) : null;
-        $filter['status'] =  isset($queryParams['status']) ? $queryParams['status'] : null;
+        $filter = Filter::check($queryParams);
 
         $id = isset($queryParams['query']) ? $queryParams['query'] : null;
 
@@ -175,4 +166,12 @@ class AdminController extends Controller{
             ->withStatus(302);
     }
 
+    public function announcement($request, $response, $args) {
+
+        // $view = Twig::fromRequest($request);
+
+        // return $response
+        //     ->withHeader('Location', "/admin//$id")
+        //     ->withStatus(302);
+    }
 }

@@ -43,6 +43,17 @@ class Time {
     }
     
     /**
+     * Convert string date '2023-01-01 to '2023-01'.
+     */
+    static function toMonth($date) {
+        if(Helper::existAndNotNull($date)){
+            $date = DateTime::createFromFormat('Y-m-d', $date);
+            return $date->format('Y-m');
+        }
+    }
+    
+
+    /**
      * Create a timestamp at now time
      */
     static function timestamp() {

@@ -3,6 +3,7 @@
 namespace App\controller;
 
 use App\Lib\Currency;
+use App\lib\Filter;
 use App\lib\Helper;
 use App\Lib\Image;
 use App\lib\Login;
@@ -17,6 +18,8 @@ class UserController extends Controller {
         $view = Twig::fromRequest($request);
         $queryParams = $request->getQueryParams();
     
+        $filter = Filter::check($queryParams);
+
         // Get the user
         $user = $this->getLogin();
     
@@ -30,7 +33,7 @@ class UserController extends Controller {
         $max = 5;
     
         // Get transactions
-        $result = $this->transactionService->getAll($page, $max, $query,[],$user);
+        $result = $this->transactionService->getAll($page, $max, $query,$filter,$user);
     
         // Get balances
         $currentMonth = Time::thisMonth();
@@ -40,7 +43,7 @@ class UserController extends Controller {
     
         // Calculate total dues
         $totalDues = $this->getTotalDues();
-    
+
         // Prepare data for the view
         $data = [
             'currentMonth' => $currentMonth,
@@ -53,6 +56,9 @@ class UserController extends Controller {
             'transactionPerPage' => $max,
             'currentPage' => $page,
             'query' => $query,
+            'from' => Time::toMonth($filter['from']),
+            'to' =>  Time::toMonth($filter['to']),
+            'status' =>  $filter['status'],
             'totalPages' => ceil($result['totalTransaction'] / $max),
             'settings' => $this->getPaymentSettings(),
         ];

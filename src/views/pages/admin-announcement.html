@@ -1,0 +1,149 @@
+{% extends "./admin.html" %} {% block body %}
+<!-- POST MODAL -->
+<div
+  class="modal-xl fade"
+  id="postModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Announcement</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        
+      </div>
+    </div>
+  </div>
+</div>
+<form id="formSave" class="form">
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      <input type="text" id="title" class="form-control" name="title" />
+    </div>
+    <div class="form-group mt-2">
+      <label class="form-label">Content</label>
+      <div id="editor" class="form-control"></div>
+    </div>
+    <div class="form-group">
+      <label>Save As</label>
+      <select name="type" class="form-control mt-2" id="saveAs">
+        <option value="posted">Post</option>
+        <option value="drafted">Draft</option>
+      </select>
+    </div>
+    <div class="from-group mt-2">
+      <button class="btn btn-success" type="submit">Continue</button>
+      <a class="btn btn-secondary" id="clear" type="button">CLEAR</a>
+    </div>
+  </form>
+<!-- Initialize Quill editor -->
+<script>
+  var quill = new Quill("#editor", {
+    theme: "snow",
+    modules: {
+      toolbar: [
+        [
+          {
+            header: [1, 2, false],
+          },
+        ],
+        ["bold", "italic", "underline"],
+        ["image"],
+      ],
+      imageResize: {},
+    },
+  });
+</script>
+
+<script>
+  // Add a custom image handler
+  quill.getModule("toolbar").addHandler("image", function () {
+    // Create an input element to select the image file
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", "image/*");
+    input.click();
+
+    // Handle the image file selection
+    input.onchange = async function () {
+      const file = input.files[0];
+
+      // Create a FormData object to store the image file
+      const formData = new FormData();
+      formData.append("image", file);
+
+      // Log the image uploading process
+      console.log("Uploading image:", file.name);
+
+      try {
+        // Send the image file to the server using Fetch
+        const result = await fetch("/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await result.json();
+
+        if (!result.ok) {
+          throw new Error("Erro uploading file");
+        }
+
+        const range = quill.getSelection();
+        quill.insertEmbed(range.index, "image", data.path);
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+  });
+
+  const form = document.querySelector("#formSave");
+  const editor = document.querySelector("#editor");
+  const content = document.querySelector(".ql-editor");
+
+  const title = document.querySelector("#title");
+
+  form.addEventListener("submit", async (event) => {
+    console.log(quill.root.innerHTML);
+
+    // event.preventDefault();
+
+    // const formData = new FormData();
+    // formData.append("title", title.value);
+    // formData.append("content", content.innerHTML);
+    // formData.append('as', type.value)
+
+    // try {
+    //     // Send the image file to the server using Fetch
+    //     const result = await fetch('/announcement', {
+    //         method: 'POST',
+    //         body: formData
+    //     })
+
+    //     const data = await result.json();
+
+    //     if (!result.ok) {
+    //         throw new Error("Cant Post");
+    //     }
+
+    //     $('#postModal').modal('hide');
+
+    //     refresh();
+
+    // } catch (error) {
+    //     console.log(error.message);
+    // }
+  });
+</script>
+{% endblock %}

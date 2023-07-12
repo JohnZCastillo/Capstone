@@ -64,4 +64,10 @@ $app->get('/login', function (Request $request, Response $response) use ($twig) 
     return $twig->render($response, 'pages/login.html');
 });
 
+// Return Login View
+$app->get('/admin/announcement', function (Request $request, Response $response) use ($twig) {
+    return $twig->render($response, 'pages/admin-announcement.html');
+});
+
+
 $app->run();
