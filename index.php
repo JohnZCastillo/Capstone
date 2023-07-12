@@ -3,6 +3,7 @@
 session_start();
 
 use App\controller\AdminController;
+use App\controller\ApiController;
 use App\controller\AuthController;
 use App\controller\UserController;
 use App\middleware\Auth;
@@ -43,6 +44,8 @@ $app->group('/admin', function ($app) {
     $app->post('/transaction/approve', [AdminController::class, 'approvePayment']);
     $app->post('/payment-settings', [AdminController::class, 'paymentSettings']);
 })->add(new Auth());
+
+$app->post('/upload', [ApiController::class, 'upload']);
 
 // Public Routes
 $app->post('/register', [AuthController::class, 'register']);
