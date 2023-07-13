@@ -33,6 +33,9 @@ class UserModel{
     #[ORM\OneToMany(targetEntity: TransactionModel::class, mappedBy: 'user')]
     private Collection|array $transactions;
 
+    #[ORM\OneToMany(targetEntity: AnnouncementModel::class, mappedBy: 'user')]
+    private Collection|array $posts;
+
     #[ORM\OneToMany(targetEntity: TransactionLogsModel::class, mappedBy: 'updatedBy')]
     private Collection|array $logs;
 
@@ -173,6 +176,46 @@ class UserModel{
     public function setTransactions($transactions)
     {
         $this->transactions[] = $transactions;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of posts
+     */ 
+    public function getPosts()
+    {
+        return $this->posts;
+    }
+
+    /**
+     * Set the value of posts
+     *
+     * @return  self
+     */ 
+    public function setPosts($posts)
+    {
+        $this->posts = $posts;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of logs
+     */ 
+    public function getLogs()
+    {
+        return $this->logs;
+    }
+
+    /**
+     * Set the value of logs
+     *
+     * @return  self
+     */ 
+    public function setLogs($logs)
+    {
+        $this->logs = $logs;
 
         return $this;
     }

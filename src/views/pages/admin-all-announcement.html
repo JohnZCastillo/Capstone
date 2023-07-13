@@ -1,0 +1,41 @@
+{% extends "./admin.html" %} {% block body %}
+
+<section class="p-3">
+  <a href="/admin/announcement" class="btn btn-success">Create</a>
+
+  <div class="container-fluid py-2">
+    <table class="table table-bordered table-hover table-striped">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Posted By</th>
+          <th>Created At</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if announcements is not empty %} {% for announcement in announcements
+        %}
+        <tr>
+          <td>{{announcement.getTitle()}}</td>
+          <td>{{announcement.getUser().getName()}}</td>
+          <td>{{announcement.getCreatedAt()}}</td>
+          <td>{{announcement.getStatus()}}</td>
+          <td>
+            <a href="/admin/announcement/edit/{{announcement.getId()}}" class="btn btn-warning">Edit</a>
+            <a href="/admin/announcement/delete/{{announcement.getId()}}" class="btn btn-danger">Delete</a>
+          </td>
+        </tr>
+        {% endfor %} {% else %}
+        <td colspan="5" class="text-center">No Data Available</td>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  {% include './partials/pagination.html' %}
+
+</section>
+
+{% endblock %}

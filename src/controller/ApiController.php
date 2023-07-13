@@ -10,6 +10,9 @@ use Slim\Views\Twig;
 
 class ApiController extends Controller {
 
+    /**
+     * End point to save image. 
+     */
     public function upload($request, $response, $args) {
         $uploadPath = './uploads/';
         $imageName = Image::store($uploadPath, $_FILES['image']);
@@ -20,4 +23,6 @@ class ApiController extends Controller {
         return $response
             ->withHeader('Content-Type', 'application/json');
     }
+
+    
 }

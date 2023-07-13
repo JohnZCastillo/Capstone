@@ -6,55 +6,31 @@
 
 <link rel="stylesheet" href="/bootstrap/quill.snow.css">
 
-<!-- POST MODAL -->
-<div
-  class="modal-xl fade"
-  id="postModal"
-  tabindex="-1"
-  role="dialog"
-  aria-labelledby="exampleModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Announcement</h5>
-        <button
-          type="button"
-          class="close"
-          data-dismiss="modal"
-          aria-label="Close"
-        >
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        
-      </div>
-    </div>
-  </div>
-</div>
-<form id="formSave" class="form">
+<div class="container-fluid py-2">
+
+  <h1>Announcement Page</h1>
+  <form id="formSave" class="form">
     <div class="form-group">
       <label class="form-label">Title</label>
-      <input type="text" id="title" class="form-control" name="title" />
+      <input type="text" id="title" class="form-control" name="title" value="{{announcement.title}}" />
     </div>
     <div class="form-group mt-2">
       <label class="form-label">Content</label>
       <div id="editor" class="form-control"></div>
     </div>
-    <div class="form-group">
-      <label>Save As</label>
-      <select name="type" class="form-control mt-2" id="saveAs">
-        <option value="posted">Post</option>
-        <option value="drafted">Draft</option>
-      </select>
-    </div>
     <div class="from-group mt-2">
-      <button class="btn btn-success" type="submit">Continue</button>
+      <button class="btn btn-success" type="submit">Post</button>
       <a class="btn btn-secondary" id="clear" type="button">CLEAR</a>
     </div>
+    <div class="form-group">
+      <!-- Announcement ID -->
+      <input id="id" type="text" class="form-control d-none" name="id" value="{{announcement.getId()}}" >
+
+    </div>
+
   </form>
+</div>
+
 <!-- Initialize Quill editor -->
 <script>
   var quill = new Quill("#editor", {
@@ -120,37 +96,42 @@
   const content = document.querySelector(".ql-editor");
 
   const title = document.querySelector("#title");
+  const id = document.querySelector("#id");
 
   form.addEventListener("submit", async (event) => {
-    console.log(quill.root.innerHTML);
+    
+    event.preventDefault();
 
-    // event.preventDefault();
+    const formData = new FormData();
 
-    // const formData = new FormData();
-    // formData.append("title", title.value);
-    // formData.append("content", content.innerHTML);
-    // formData.append('as', type.value)
+    formData.append("title", title.value);
+    formData.append("content", content.innerHTML);
+    formData.append("id", id.value);
 
-    // try {
-    //     // Send the image file to the server using Fetch
-    //     const result = await fetch('/announcement', {
-    //         method: 'POST',
-    //         body: formData
-    //     })
+    try {
+        // Send the image file to the server using Fetch
+        const result = await fetch('/admin/announcement', {
+            method: 'POST',
+            body: formData
+        })
 
-    //     const data = await result.json();
+        const data = await result.json();
 
-    //     if (!result.ok) {
-    //         throw new Error("Cant Post");
-    //     }
+        if (!result.ok) {
+            throw new Error("Cant Post");
+        }
 
-    //     $('#postModal').modal('hide');
-
-    //     refresh();
-
-    // } catch (error) {
-    //     console.log(error.message);
-    // }
+    } catch (error) {
+        console.log(error.message);
+    }
   });
 </script>
+
+<!-- set content if its updating -->
+<script>
+  quill.root.innerHTML = '{{ announcement.content|raw }}';
+</script>
+
+
 {% endblock %}
+

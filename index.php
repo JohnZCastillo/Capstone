@@ -1,5 +1,6 @@
 <?php
 
+session_cache_limiter(false);
 session_start();
 
 use App\controller\AdminController;
@@ -43,6 +44,14 @@ $app->group('/admin', function ($app) {
     $app->post('/transaction/reject', [AdminController::class, 'rejectPayment']);
     $app->post('/transaction/approve', [AdminController::class, 'approvePayment']);
     $app->post('/payment-settings', [AdminController::class, 'paymentSettings']);
+
+    $app->post('/announcement', [AdminController::class, 'announcement']);
+    
+    $app->get('/announcement/edit/{id}', [AdminController::class, 'editAnnouncement']);
+    $app->get('/announcement/delete/{id}', [AdminController::class, 'deleteAnnouncement']);
+
+    $app->get('/announcements', [AdminController::class, 'announcements']);
+    
 })->add(new Auth());
 
 $app->post('/upload', [ApiController::class, 'upload']);
@@ -71,6 +80,7 @@ $app->get('/login', function (Request $request, Response $response) use ($twig) 
 $app->get('/admin/announcement', function (Request $request, Response $response) use ($twig) {
     return $twig->render($response, 'pages/admin-announcement.html');
 });
+
 
 
 $app->run();

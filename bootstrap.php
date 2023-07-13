@@ -6,6 +6,8 @@
  * globally.
  */
 
+use App\model\AnnouncementModel;
+use App\service\AnnouncementService;
 use App\service\DuesService;
 use App\service\PaymentService;
 use App\service\ReceiptService;
@@ -59,6 +61,11 @@ $container->set(ReceiptService::class, static function (Container $c) {
 // Add the services to the container. 
 $container->set(TransactionService::class, static function (Container $c) {
     return new TransactionService($c->get(EntityManager::class));
+});
+
+// Add the services to the container. 
+$container->set(AnnouncementService::class, static function (Container $c) {
+    return new AnnouncementService($c->get(EntityManager::class));
 });
 
 // Add the services to the container. 

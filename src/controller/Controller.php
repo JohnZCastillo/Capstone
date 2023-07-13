@@ -4,8 +4,10 @@ namespace App\controller;
 
 use App\lib\Helper;
 use App\lib\Login;
+use App\model\AnnouncementModel;
 use App\model\PaymentModel;
 use App\model\UserModel;
+use App\service\AnnouncementService;
 use App\service\DuesService;
 use App\service\PaymentService;
 use App\service\ReceiptService;
@@ -22,6 +24,7 @@ class Controller {
     protected ReceiptService $receiptService;
     protected PaymentService $paymentService;
     protected TransactionLogsService $logsService;
+    protected AnnouncementService $announcementService;
 
     public function __construct(Container  $container) {
         //get the userService from dependency container
@@ -31,6 +34,7 @@ class Controller {
         $this->receiptService = $container->get(ReceiptService::class);
         $this->paymentService = $container->get(PaymentService::class);
         $this->logsService = $container->get(TransactionLogsService::class);
+        $this->announcementService = $container->get(AnnouncementService::class);
     }
 
     protected function getLogin():UserModel{
