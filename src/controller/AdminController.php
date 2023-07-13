@@ -202,6 +202,8 @@ class AdminController extends Controller {
 
         $view = Twig::fromRequest($request);
 
+        $this->flashMessages->addMessage('Test', 'This is a message');
+
         $id = $args['id'];
 
         $post = $this->announcementService->findById($id);
@@ -222,12 +224,18 @@ class AdminController extends Controller {
 
         $announcement = $this->announcementService->findById($id);
 
+        $this->flashMessages->addMessage('Test', 'This is a message');
+
         return $view->render($response, 'pages/admin-announcement.html', [
             'announcement' => $announcement,
         ]);
     }
 
     public function announcements($request, $response, $args) {
+
+        $test = $this->flashMessages->getFirstMessage('Test');
+
+        var_dump($test);
 
         $view = Twig::fromRequest($request);
 

@@ -21,6 +21,7 @@ use Doctrine\ORM\Tools\Setup;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use UMA\DIC\Container;
+use Slim\Flash\Messages;
 
 // setup container
 $container = new Container(require __DIR__ . '/settings.php');
@@ -58,6 +59,11 @@ $container->set(DuesService::class, static function (Container $c) {
 $container->set(ReceiptService::class, static function (Container $c) {
     return new ReceiptService($c->get(EntityManager::class));
 });
+
+$container->set(Messages::class, function (Container $container) {
+    return new Messages();
+});
+
 // Add the services to the container. 
 $container->set(TransactionService::class, static function (Container $c) {
     return new TransactionService($c->get(EntityManager::class));

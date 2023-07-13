@@ -14,6 +14,7 @@ use App\service\ReceiptService;
 use App\service\TransactionLogsService;
 use App\service\UserService;
 use App\service\TransactionService;
+use Slim\Flash\Messages;
 use UMA\DIC\Container;
 
 class Controller {
@@ -25,6 +26,7 @@ class Controller {
     protected PaymentService $paymentService;
     protected TransactionLogsService $logsService;
     protected AnnouncementService $announcementService;
+    protected Messages $flashMessages;
 
     public function __construct(Container  $container) {
         //get the userService from dependency container
@@ -35,6 +37,7 @@ class Controller {
         $this->paymentService = $container->get(PaymentService::class);
         $this->logsService = $container->get(TransactionLogsService::class);
         $this->announcementService = $container->get(AnnouncementService::class);
+        $this->flashMessages = $container->get(Messages::class);
     }
 
     protected function getLogin():UserModel{
