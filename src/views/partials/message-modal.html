@@ -1,11 +1,5 @@
-{% if message is not empty %}
-
-<script>
-  $("#myModal").on("shown.bs.modal", function () {
-    $("#myInput").trigger("focus");
-  });
-</script>
-<div class="modal" tabindex="-1" role="dialog">
+{% if message %}
+<div class="modal" tabindex="-1" role="dialog" id="messageModal">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -30,5 +24,7 @@
     </div>
   </div>
 </div>
-
+<script>
+  $("#messageModal").modal('show');
+</script>
 {% endif %}

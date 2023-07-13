@@ -202,7 +202,6 @@ class AdminController extends Controller {
 
         $view = Twig::fromRequest($request);
 
-        
         $id = $args['id'];
         
         $post = $this->announcementService->findById($id);
