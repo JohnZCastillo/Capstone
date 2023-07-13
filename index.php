@@ -36,6 +36,7 @@ $app->group('', function ($app) {
     $app->get('/dues', [UserController::class, 'dues']);
     $app->get('/transaction/{id}', [UserController::class, 'transaction']);
     $app->post('/pay', [UserController::class, 'pay']);
+    $app->get('/announcements', [UserController::class, 'announcements']);
 })->add(new Auth());
 
 $app->group('/admin', function ($app) {

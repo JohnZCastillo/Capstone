@@ -182,20 +182,22 @@ class AdminController extends Controller {
         $post->setUser($this->getLogin());
 
         if (Helper::existAndNotNull($id)) {
-            $post = $this->announcementService->findById($id);            
-        } 
+            $post = $this->announcementService->findById($id);
+        }
 
         $post->setTitle($title);
         $post->setContent($content);
         $post->setStatus("POSTED");
 
-        $this->announcementService->save($post);
+        try {
+            $this->announcementService->save($post);
+            $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . 'Posted');
+        } catch (\Throwable $th) {
+            $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . 'Posting Error');
+        }
 
-        $payload = json_encode(['message' => "ok"]);
-
-        $response->getBody()->write($payload);
-        return $response
-            ->withHeader('Content-Type', 'application/json');
+        return $response->withHeader('Location', "/admin/announcements")
+            ->withStatus(302);
     }
 
     public function deleteAnnouncement($request, $response, $args) {
@@ -203,17 +205,16 @@ class AdminController extends Controller {
         $view = Twig::fromRequest($request);
 
         $id = $args['id'];
-        
+
         $post = $this->announcementService->findById($id);
-        
-        $this->flashMessages->addMessage('message', 'Announcement '.$post->getTitle().' deleted');
+
+        $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . ' deleted');
 
         $this->announcementService->delete($post);
 
         return $response
-        ->withHeader('Location', "/admin/announcements")
-        ->withStatus(302);
-       
+            ->withHeader('Location', "/admin/announcements")
+            ->withStatus(302);
     }
 
     public function editAnnouncement($request, $response, $args) {
@@ -237,20 +238,20 @@ class AdminController extends Controller {
 
         $view = Twig::fromRequest($request);
 
-         // get the query params
-         $queryParams = $request->getQueryParams();
+        // get the query params
+        $queryParams = $request->getQueryParams();
 
-         // if page is present then set value to page otherwise to 1
-         $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
+        // if page is present then set value to page otherwise to 1
+        $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
 
-         $id = isset($queryParams['query']) ? $queryParams['query'] : null;
+        $id = isset($queryParams['query']) ? $queryParams['query'] : null;
 
-         // max transaction per page
-         $max = 5;
- 
-         $filter = Filter::check($queryParams);
+        // max transaction per page
+        $max = 5;
 
-        $result = $this->announcementService->getAll($page, $max, null,$filter);
+        $filter = Filter::check($queryParams);
+
+        $result = $this->announcementService->getAll($page, $max, null, $filter);
 
         return $view->render($response, 'pages/admin-all-announcement.html', [
             'announcements' => $result['announcements'],
@@ -260,7 +261,7 @@ class AdminController extends Controller {
             'from' =>  isset($queryParams['from']) ? $queryParams['from'] : null,
             'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
             'status' =>  isset($queryParams['status']) ? $queryParams['status'] : null,
-            'totalPages' => ceil(($result['totalAnnouncement']) / $max), 
+            'totalPages' => ceil(($result['totalAnnouncement']) / $max),
         ]);
     }
 }

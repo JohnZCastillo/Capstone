@@ -4,30 +4,42 @@
 
 <script src="/bootstrap/quill.resize.js"></script>
 
-<link rel="stylesheet" href="/bootstrap/quill.snow.css">
+<link rel="stylesheet" href="/bootstrap/quill.snow.css" />
 
 <div class="container-fluid py-2">
-
   <h1>Announcement Page</h1>
-  <form id="formSave" class="form">
+  <form id="formSave" class="form" method="POST" action="/admin/announcement">
     <div class="form-group">
       <label class="form-label">Title</label>
-      <input type="text" id="title" class="form-control" name="title" value="{{announcement.title}}" />
+      <input
+        type="text"
+        id="title"
+        class="form-control"
+        name="title"
+        value="{{announcement.title}}"
+      />
     </div>
     <div class="form-group mt-2">
       <label class="form-label">Content</label>
       <div id="editor" class="form-control"></div>
     </div>
+    <div class="form-group">
+      <textarea name="content" id="content" class="d-none"></textarea>
+    </div>
     <div class="from-group mt-2">
-      <button class="btn btn-success" type="submit">Post</button>
+      <button class="btn btn-success" type="button" id="postBtn">Post</button>
       <a class="btn btn-secondary" id="clear" type="button">CLEAR</a>
     </div>
     <div class="form-group">
       <!-- Announcement ID -->
-      <input id="id" type="text" class="form-control d-none" name="id" value="{{announcement.getId()}}" >
-
+      <input
+        id="id"
+        type="text"
+        class="form-control d-none"
+        name="id"
+        value="{{announcement.getId()}}"
+      />
     </div>
-
   </form>
 </div>
 
@@ -92,46 +104,23 @@
   });
 
   const form = document.querySelector("#formSave");
-  const editor = document.querySelector("#editor");
   const content = document.querySelector(".ql-editor");
+  const postBtn = document.querySelector("#postBtn");
 
   const title = document.querySelector("#title");
   const id = document.querySelector("#id");
+  const hiddenContent = document.querySelector("#content");
 
-  form.addEventListener("submit", async (event) => {
-    
-    event.preventDefault();
-
-    const formData = new FormData();
-
-    formData.append("title", title.value);
-    formData.append("content", content.innerHTML);
-    formData.append("id", id.value);
-
-    try {
-        // Send the image file to the server using Fetch
-        const result = await fetch('/admin/announcement', {
-            method: 'POST',
-            body: formData
-        })
-
-        const data = await result.json();
-
-        if (!result.ok) {
-            throw new Error("Cant Post");
-        }
-
-    } catch (error) {
-        console.log(error.message);
-    }
+  postBtn.addEventListener("click", (event) => {
+    hiddenContent.innerHTML = content.innerHTML;
+    form.submit();
   });
+
 </script>
 
 <!-- set content if its updating -->
 <script>
-  quill.root.innerHTML = '{{ announcement.content|raw }}';
+  quill.root.innerHTML = `{{ announcement.content|raw }}`;
 </script>
 
-
 {% endblock %}
-
