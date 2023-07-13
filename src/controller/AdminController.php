@@ -202,11 +202,12 @@ class AdminController extends Controller {
 
         $view = Twig::fromRequest($request);
 
-        $this->flashMessages->addMessage('Test', 'This is a message');
-
+        
         $id = $args['id'];
-
+        
         $post = $this->announcementService->findById($id);
+        
+        $this->flashMessages->addMessage('message', 'Announcement '.$post->getTitle().' deleted');
 
         $this->announcementService->delete($post);
 
@@ -233,9 +234,7 @@ class AdminController extends Controller {
 
     public function announcements($request, $response, $args) {
 
-        $test = $this->flashMessages->getFirstMessage('Test');
-
-        var_dump($test);
+        $message = $this->flashMessages->getFirstMessage('message');
 
         $view = Twig::fromRequest($request);
 
@@ -256,6 +255,7 @@ class AdminController extends Controller {
 
         return $view->render($response, 'pages/admin-all-announcement.html', [
             'announcements' => $result['announcements'],
+            'message' => $message,
             'query' => $id,
             'currentPage' => $page,
             'from' =>  isset($queryParams['from']) ? $queryParams['from'] : null,
