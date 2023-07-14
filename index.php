@@ -50,6 +50,8 @@ $app->group('/admin', function ($app) {
     
     $app->get('/announcement/edit/{id}', [AdminController::class, 'editAnnouncement']);
     $app->get('/announcement/delete/{id}', [AdminController::class, 'deleteAnnouncement']);
+    $app->get('/announcement/post/{id}', [AdminController::class, 'postAnnouncement']);
+    $app->get('/announcement/archive/{id}', [AdminController::class, 'archiveAnnouncement']);
 
     $app->get('/announcements', [AdminController::class, 'announcements']);
     

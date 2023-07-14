@@ -29,7 +29,7 @@ class AnnouncementService extends Service {
     }
 
     
-    public function getAll($page, $max, $id,$filter, $user = null) {
+    public function getAll($page, $max, $id,$filter, $user = null, $status = 'posted') {
 
         // Step 1: Define pagination settings
         $transactionsPerPage = $max;
@@ -40,7 +40,9 @@ class AnnouncementService extends Service {
         // Step 3: Fetch paginated announcements
         $queryBuilder = $em->createQueryBuilder();
         $queryBuilder->select('t')
-            ->from(AnnouncementModel::class, 't');
+            ->from(AnnouncementModel::class, 't')
+            ->where('t.status = :status')
+            ->setParameter('status', $status);
 
         if(Helper::existAndNotNull($user)){
             $queryBuilder->where('t.user = :user')
@@ -73,7 +75,10 @@ class AnnouncementService extends Service {
 
         $queryBuilder = $em->createQueryBuilder();
         $queryBuilder->select('count(t.id)')
-            ->from(AnnouncementModel::class, 't');
+            ->from(AnnouncementModel::class, 't')
+            ->where('t.status = :status')
+            ->setParameter('status', $status);
+
 
             if(Helper::existAndNotNull($user)){
                 $queryBuilder->where('t.user = :user')

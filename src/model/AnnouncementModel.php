@@ -3,6 +3,7 @@
 namespace App\model;
 
 use App\lib\Time;
+use App\model\enum\AnnouncementStatus;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 
@@ -24,7 +25,7 @@ class AnnouncementModel {
     #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: AnnouncementStatus::class)]
     private $status;
 
     #[ORM\ManyToOne(targetEntity: UserModel::class, inversedBy: 'posts')]

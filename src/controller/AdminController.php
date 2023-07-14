@@ -7,6 +7,7 @@ use App\lib\Helper;
 use App\Lib\Image;
 use App\lib\Time;
 use App\model\AnnouncementModel;
+use App\model\enum\AnnouncementStatus;
 use App\model\PaymentModel;
 use Slim\Views\Twig;
 
@@ -187,7 +188,7 @@ class AdminController extends Controller {
 
         $post->setTitle($title);
         $post->setContent($content);
-        $post->setStatus("POSTED");
+        $post->setStatus(AnnouncementStatus::posted());
 
         try {
             $this->announcementService->save($post);
@@ -231,6 +232,45 @@ class AdminController extends Controller {
             'announcement' => $announcement,
         ]);
     }
+
+    public function postAnnouncement($request, $response, $args) {
+
+        $view = Twig::fromRequest($request);
+
+        $id = $args['id'];
+
+        $announcement = $this->announcementService->findById($id);
+
+        $announcement->setStatus(AnnouncementStatus::posted());
+
+        $this->announcementService->save($announcement);
+
+        $this->flashMessages->addMessage('Test', 'This is a message');
+
+        return $response
+            ->withHeader('Location', "/admin/announcements")
+            ->withStatus(302);
+    }
+
+    public function archiveAnnouncement($request, $response, $args) {
+
+        $view = Twig::fromRequest($request);
+
+        $id = $args['id'];
+
+        $announcement = $this->announcementService->findById($id);
+
+        $announcement->setStatus(AnnouncementStatus::archived());
+
+        $this->announcementService->save($announcement);
+
+        $this->flashMessages->addMessage('Test', 'This is a message');
+
+        return $response
+            ->withHeader('Location', "/admin/announcements")
+            ->withStatus(302);
+    }
+
 
     public function announcements($request, $response, $args) {
 

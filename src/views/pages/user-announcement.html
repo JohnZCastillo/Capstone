@@ -4,7 +4,7 @@
 <div class="container-fluid py-3 bg-light">
     <div class="w-75 mx-auto row gap">
         {% for announcement in announcements %}
-        <div  class='border rounded p-3 shadow-sm bg-white'>
+        <div  class='border rounded p-3 shadow-sm bg-white w-100'>
             <h3>{{ announcement.title }}</h3>
             <small>{{ announcement.createdAt }}</small>
             <div class="content">`{{ announcement.content|raw }}`</div>

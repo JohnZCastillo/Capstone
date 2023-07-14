@@ -7,6 +7,7 @@
  */
 
 use App\model\AnnouncementModel;
+use App\model\enum\AnnouncementStatus;
 use App\service\AnnouncementService;
 use App\service\DuesService;
 use App\service\PaymentService;
@@ -22,6 +23,7 @@ use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use UMA\DIC\Container;
 use Slim\Flash\Messages;
+use Doctrine\DBAL\Types\Type;
 
 // setup container
 $container = new Container(require __DIR__ . '/settings.php');
@@ -84,9 +86,13 @@ $container->set(TransactionLogsService::class, static function (Container $c) {
     return new TransactionLogsService($c->get(EntityManager::class));
 });
 
-
 $container->set(Service::class, static function (Container $c) {
     return new Service($c->get(EntityManager::class));
 });
+
+Type::addType(AnnouncementStatus::class, AnnouncementStatus::class);
+
+$conn = $container->get(EntityManager::class)->getConnection();
+$conn->getDatabasePlatform()->registerDoctrineTypeMapping('AnnouncementStatus', 'string');
 
 return $container;

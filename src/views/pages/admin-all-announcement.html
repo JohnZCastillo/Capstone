@@ -25,6 +25,13 @@
           <td>
             <a href="/admin/announcement/edit/{{announcement.getId()}}" class="btn btn-warning">Edit</a>
             <a href="/admin/announcement/delete/{{announcement.getId()}}" class="btn btn-danger">Delete</a>
+
+            {% if announcement.status == 'posted' %}
+              <a href="/admin/announcement/archive/{{announcement.getId()}}" class="btn btn-secondary">Archive</a>
+              {% else %}
+              <a href="/admin/announcement/post/{{announcement.getId()}}" class="btn btn-success">Post</a>
+            {% endif %}
+
           </td>
         </tr>
         {% endfor %} {% else %}
