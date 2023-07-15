@@ -2,6 +2,7 @@
 
 namespace App\model;
 
+use App\model\enum\UserRole;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 
@@ -38,6 +39,10 @@ class UserModel{
 
     #[ORM\OneToMany(targetEntity: TransactionLogsModel::class, mappedBy: 'updatedBy')]
     private Collection|array $logs;
+
+    #[ORM\Column(type: UserRole::class)]
+    private $role;
+
 
     /**
      * Get the value of name
@@ -216,6 +221,26 @@ class UserModel{
     public function setLogs($logs)
     {
         $this->logs = $logs;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of role
+     */ 
+    public function getRole()
+    {
+        return $this->role;
+    }
+
+    /**
+     * Set the value of role
+     *
+     * @return  self
+     */ 
+    public function setRole($role)
+    {
+        $this->role = $role;
 
         return $this;
     }

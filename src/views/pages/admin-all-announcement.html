@@ -24,6 +24,7 @@
           <td>{{announcement.getStatus()}}</td>
           <td>
             <a href="/admin/announcement/edit/{{announcement.getId()}}" class="btn btn-warning">Edit</a>
+            
             <button onclick="confirm('Are You sure you want to delete this?','/admin/announcement/delete/{{announcement.getId()}}','true')" class="btn btn-danger">Delete</button>
 
             {% if announcement.status == 'posted' %}

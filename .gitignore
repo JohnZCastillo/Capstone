@@ -2,3 +2,4 @@ vendor/
 composer.lock
 phpDocumentor.phar
 .phpdoc/
+todo.txt

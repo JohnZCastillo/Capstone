@@ -47,6 +47,7 @@ $app->group('/admin', function ($app) {
     $app->post('/payment-settings', [AdminController::class, 'paymentSettings']);
 
     $app->post('/announcement', [AdminController::class, 'announcement']);
+    $app->post('/add-due', [AdminController::class, 'addDue']);
     
     $app->get('/announcement/edit/{id}', [AdminController::class, 'editAnnouncement']);
     $app->get('/announcement/delete/{id}', [AdminController::class, 'deleteAnnouncement']);

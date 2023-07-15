@@ -8,6 +8,7 @@
 
 use App\model\AnnouncementModel;
 use App\model\enum\AnnouncementStatus;
+use App\model\enum\UserRole;
 use App\service\AnnouncementService;
 use App\service\DuesService;
 use App\service\PaymentService;
@@ -91,8 +92,10 @@ $container->set(Service::class, static function (Container $c) {
 });
 
 Type::addType(AnnouncementStatus::class, AnnouncementStatus::class);
+Type::addType(UserRole::class, UserRole::class);
 
 $conn = $container->get(EntityManager::class)->getConnection();
 $conn->getDatabasePlatform()->registerDoctrineTypeMapping('AnnouncementStatus', 'string');
+$conn->getDatabasePlatform()->registerDoctrineTypeMapping('UserRole', 'string');
 
 return $container;

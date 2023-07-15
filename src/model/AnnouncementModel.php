@@ -25,9 +25,9 @@ class AnnouncementModel {
     #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
-    #[ORM\Column(type: AnnouncementStatus::class)]
+   #[ORM\Column(type: AnnouncementStatus::class)]
     private $status;
-
+ 
     #[ORM\ManyToOne(targetEntity: UserModel::class, inversedBy: 'posts')]
     private ?UserModel $user = null;
 

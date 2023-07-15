@@ -7,6 +7,7 @@ use App\lib\Helper;
 use App\Lib\Image;
 use App\lib\Time;
 use App\model\AnnouncementModel;
+use App\model\DuesModel;
 use App\model\enum\AnnouncementStatus;
 use App\model\PaymentModel;
 use Slim\Views\Twig;
@@ -304,4 +305,25 @@ class AdminController extends Controller {
             'totalPages' => ceil(($result['totalAnnouncement']) / $max),
         ]);
     }
+
+    public function addDue($request, $response, $args) {
+
+        $view = Twig::fromRequest($request);
+
+        $month = $request->getParsedBody()['month'];
+        $amount = $request->getParsedBody()['amount'];
+
+        $due = new DuesModel();
+        $due->setAmount($amount);
+        $due->setMonth(Time::startMonth($month));
+
+        $this->duesService->save($due);
+
+        $this->flashMessages->addMessage('Test', 'This is a message');
+
+        return $response
+            ->withHeader('Location', "/admin/home")
+            ->withStatus(302);
+    }
+    
 }

@@ -3,6 +3,7 @@
 namespace App\controller;
 
 use App\lib\Login;
+use App\model\enum\UserRole;
 use App\model\UserModel;
 use App\service\DuesService;
 use App\service\PaymentService;
@@ -10,6 +11,7 @@ use App\service\ReceiptService;
 use App\service\UserService;
 use App\service\TransactionService;
 use App\service\TransactionLogsService;
+use Doctrine\ORM\NoResultException;
 use Exception;
 use Slim\Views\Twig;
 use UMA\DIC\Container;
@@ -63,6 +65,7 @@ class AuthController extends Controller{
         $user->setPassword($request->getParsedBody()['password']);
         $user->setBlock($request->getParsedBody()['block']);
         $user->setLot($request->getParsedBody()['lot']);
+        $user->setRole(UserRole::user());
 
         try {
             $this->userSerivce->save($user);
