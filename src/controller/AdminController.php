@@ -272,7 +272,6 @@ class AdminController extends Controller {
             ->withStatus(302);
     }
 
-
     public function announcements($request, $response, $args) {
         
         $message = $this->flashMessages->getFirstMessage('message');

@@ -24,5 +24,30 @@ class ApiController extends Controller {
             ->withHeader('Content-Type', 'application/json');
     }
 
-    
+    public function amount($request, $response, $args) {
+        
+        $body = $request->getParsedBody();
+        
+        $fromMonth = $body['fromMonth'];
+        $toMonth = $body['toMonth'];
+
+        $fromMonth = Time::nowStartMonth($fromMonth);
+        $toMonth = Time::nowStartMonth($toMonth);
+
+        $amount = $this->transactionService->getUnpaid(
+            $this->getLogin(),
+            $this->duesService,
+            $this->getPaymentSettings(),
+            $fromMonth,
+            $toMonth
+        );
+
+        $months = Time::getMonths($fromMonth,$toMonth);
+
+        $payload = json_encode(['amount' => $amount['total']]);
+
+        $response->getBody()->write($payload);
+        return $response->withHeader('Content-Type', 'application/json');
+
+    }
 }

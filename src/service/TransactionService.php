@@ -118,9 +118,15 @@ class TransactionService extends Service {
         ];
     }
 
-    public function getUnpaid($user, DuesService $dueService, PaymentModel $payment) {
+    public function getUnpaid($user, DuesService $dueService, PaymentModel $payment,$startMonth = null, $endMonth = null) {
 
-        $months = Time::getMonths($payment->getStart(), Time::thisMonth());
+        $months = [];
+
+        if($startMonth != null and $endMonth != null){
+            $months = Time::getMonths($startMonth, $endMonth);
+        }else{
+            $months = Time::getMonths($payment->getStart(), Time::thisMonth());
+        }
 
         $data = [];
 

@@ -22,7 +22,7 @@ class Time {
     static function nowEndMonth($date) {
         return  self::convert(self::endMonth($date));
     }
-    
+
     /**
      * Create a date with the starting day set to the last day.
      * @param string date
@@ -37,21 +37,21 @@ class Time {
     static function convert($date) {
         return $date->format('Y-m-d');
     }
-    
+
     static function convertToMonth($date) {
         return $date->format('Y-m');
     }
-    
+
     /**
      * Convert string date '2023-01-01 to '2023-01'.
      */
     static function toMonth($date) {
-        if(Helper::existAndNotNull($date)){
+        if (Helper::existAndNotNull($date)) {
             $date = DateTime::createFromFormat('Y-m-d', $date);
             return $date->format('Y-m');
         }
     }
-    
+
 
     /**
      * Create a timestamp at now time
@@ -60,35 +60,37 @@ class Time {
         return DateTime::createFromFormat('U', time());
     }
 
-       // return payment amount for this month
-       static function thisMonth()
-       {
-           return date("Y-m-01");
-       }
-   
-       // return payment amount for next month
-       static function nextMonth()
-       {
-           return date("Y-m-01", strtotime("+1 month", strtotime(self::thisMonth())));
-       }
-   
-       // return months
-       static function getMonths($startMonth, $endMonth)
-       {
-   
-           // Create DateTime objects for the start and end months
-           $startDateTime = DateTime::createFromFormat('Y-m-01', $startMonth);
-           $endDateTime = DateTime::createFromFormat('Y-m-01', $endMonth);
-   
-           // Initialize an empty array to store the months
-           $months = [];
-   
-           // Loop through the months and add them to the array
-           while ($startDateTime <= $endDateTime) {
-               $months[] = $startDateTime->format('Y-m-01');
-               $startDateTime->modify('+1 month'); // Add 1 month
-           }
-   
-           return $months;
-       }
+    // return payment amount for this month
+    static function thisMonth() {
+        return date("Y-m-01");
+    }
+
+    // return payment amount for next month
+    static function nextMonth() {
+        return date("Y-m-01", strtotime("+1 month", strtotime(self::thisMonth())));
+    }
+
+    /**
+     * Return an array of months from start and to end month.
+     * The month must start on the first day 2023-12-01.
+     * @param string $startMonth
+     * @param string $endMonth
+     */
+    static function getMonths($startMonth, $endMonth) {
+
+        // Create DateTime objects for the start and end months
+        $startDateTime = DateTime::createFromFormat('Y-m-01', $startMonth);
+        $endDateTime = DateTime::createFromFormat('Y-m-01', $endMonth);
+
+        // Initialize an empty array to store the months
+        $months = [];
+
+        // Loop through the months and add them to the array
+        while ($startDateTime <= $endDateTime) {
+            $months[] = $startDateTime->format('Y-m-01');
+            $startDateTime->modify('+1 month'); // Add 1 month
+        }
+
+        return $months;
+    }
 }

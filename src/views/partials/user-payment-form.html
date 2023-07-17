@@ -70,7 +70,8 @@
               type="number"
               class="form-control"
               name="amount"
-              id="from-amount"
+              id="amount"
+              readonly
             />
           </div>
           <div class="form-group row py-2">
@@ -81,7 +82,7 @@
                 class="form-control"
                 type="month"
                 name="startDate"
-                id="from-fromDate"
+                id="fromDate"
               />
             </div>
             <div class="col-sm">
@@ -90,7 +91,7 @@
                 class="form-control"
                 type="month"
                 name="endDate"
-                id="from-toDate"
+                id="toDate"
               />
             </div>
           </div>
@@ -109,3 +110,33 @@
     </div>
   </div>
 </div>
+
+<script>
+  const fromDate = document.querySelector("#fromDate");
+  const toDate = document.querySelector("#toDate");
+  const amount = document.querySelector("#amount");
+
+  fromDate.addEventListener("change", (event) => getAmount());
+  toDate.addEventListener("change", (event) => getAmount());
+
+  const getAmount = async () => {
+    const formData = new FormData();
+    formData.append("fromMonth", fromDate.value);
+    formData.append("toMonth", toDate.value);
+
+    const result = await fetch("/payable-amount", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!result.ok) {
+      console.log("an error occured");
+      return;
+    }
+
+    const data = await result.json();
+
+    amount.value = data.amount;
+
+  };
+</script>

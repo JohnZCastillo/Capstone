@@ -59,6 +59,7 @@ $app->group('/admin', function ($app) {
 })->add(new Auth());
 
 $app->post('/upload', [ApiController::class, 'upload']);
+$app->post('/payable-amount', [ApiController::class, 'amount']);
 
 // Public Routes
 $app->post('/register', [AuthController::class, 'register']);
