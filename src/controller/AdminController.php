@@ -249,7 +249,7 @@ class AdminController extends Controller {
         $this->flashMessages->addMessage('Test', 'This is a message');
 
         return $response
-            ->withHeader('Location', "/admin/announcements")
+            ->withHeader('Location', "/admin/announcements?status=ARCHIVED")
             ->withStatus(302);
     }
 
@@ -268,13 +268,13 @@ class AdminController extends Controller {
         $this->flashMessages->addMessage('Test', 'This is a message');
 
         return $response
-            ->withHeader('Location', "/admin/announcements")
+            ->withHeader('Location', "/admin/announcements?status=POSTED")
             ->withStatus(302);
     }
 
 
     public function announcements($request, $response, $args) {
-
+        
         $message = $this->flashMessages->getFirstMessage('message');
 
         $view = Twig::fromRequest($request);
