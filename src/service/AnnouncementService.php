@@ -45,7 +45,7 @@ class AnnouncementService extends Service {
             ->setParameter('status', $status);
 
         if(Helper::existAndNotNull($user)){
-            $queryBuilder->where('t.user = :user')
+            $queryBuilder->andWhere('t.user = :user')
             ->setParameter('user', $user);
         }
 
@@ -61,12 +61,6 @@ class AnnouncementService extends Service {
             $queryBuilder->andWhere('t.createdAt <= :to')->setParameter('to', $filter['to']);
         }
 
-        if (Helper::existAndNotNull($filter,'status')) {
-            if($filter['status'] != 'ALL'){
-                $queryBuilder->andWhere('t.status = :status')->setParameter('status', $filter['status']);
-            }
-        }
-
         $queryBuilder->setMaxResults($transactionsPerPage)
             ->setFirstResult(($currentPage - 1) * $transactionsPerPage);
 
@@ -79,9 +73,8 @@ class AnnouncementService extends Service {
             ->where('t.status = :status')
             ->setParameter('status', $status);
 
-
             if(Helper::existAndNotNull($user)){
-                $queryBuilder->where('t.user = :user')
+                $queryBuilder->andWhere('t.user = :user')
                 ->setParameter('user', $user);
             }
     
@@ -95,12 +88,6 @@ class AnnouncementService extends Service {
     
             if (Helper::existAndNotNull($filter,'to')) {
                 $queryBuilder->andWhere('t.createdAt <= :to')->setParameter('to', $filter['to']);
-            }
-    
-            if (Helper::existAndNotNull($filter,'status')) {
-                if($filter['status'] != 'ALL'){
-                    $queryBuilder->andWhere('t.status = :status')->setParameter('status', $filter['status']);
-                }
             }
 
         $totalAnnouncement = $queryBuilder->getQuery()->getSingleScalarResult();

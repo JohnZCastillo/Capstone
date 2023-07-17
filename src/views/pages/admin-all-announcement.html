@@ -3,6 +3,16 @@
 <section class="p-3">
   <a href="/admin/announcement" class="btn btn-success">Create</a>
 
+  <form action="/admin/announcements"  method="GET" id="viewForm">
+    <div class="form-group">
+      <label for="">View</label>
+      <select name="status" class="form-control" id="view">
+        <option value="POSTED" {% if status == 'POSTED' %}selected{% endif %}>Post</option>
+        <option value="ARCHIVED" {% if status == 'ARCHIVED' %}selected{% endif %}>Archived</option>
+      </select>
+    </div>
+  </form>
+
   <div class="container-fluid py-2">
     <table class="table table-bordered table-hover table-striped">
       <thead>
@@ -46,5 +56,14 @@
   {% include './partials/confirmation.html' %}
 
 </section>
+
+<script>
+  const viewForm = document.querySelector('#viewForm');
+  const view = document.querySelector('#view');
+
+  view.addEventListener('change',(event)=>{
+    viewForm.submit();
+  })
+</script>
 
 {% endblock %}

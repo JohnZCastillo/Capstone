@@ -287,12 +287,14 @@ class AdminController extends Controller {
 
         $id = isset($queryParams['query']) ? $queryParams['query'] : null;
 
+        $status = isset($queryParams['status']) ? $queryParams['status'] : 'posted';
+
         // max transaction per page
         $max = 5;
 
         $filter = Filter::check($queryParams);
 
-        $result = $this->announcementService->getAll($page, $max, null, $filter);
+        $result = $this->announcementService->getAll($page, $max, null, $filter,null,$status);
 
         return $view->render($response, 'pages/admin-all-announcement.html', [
             'announcements' => $result['announcements'],
@@ -303,6 +305,7 @@ class AdminController extends Controller {
             'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
             'status' =>  isset($queryParams['status']) ? $queryParams['status'] : null,
             'totalPages' => ceil(($result['totalAnnouncement']) / $max),
+            'status' => $status
         ]);
     }
 
