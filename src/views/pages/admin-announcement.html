@@ -106,11 +106,15 @@
   const form = document.querySelector("#formSave");
   const content = document.querySelector(".ql-editor");
   const postBtn = document.querySelector("#postBtn");
+  const clearBtn = document.querySelector("#clear");
 
   const title = document.querySelector("#title");
   const id = document.querySelector("#id");
   const hiddenContent = document.querySelector("#content");
 
+  clearBtn.addEventListener('click',()=>{
+    content.innerHTML = "";
+  })
   postBtn.addEventListener("click", (event) => {
     hiddenContent.innerHTML = content.innerHTML;
     form.submit();
