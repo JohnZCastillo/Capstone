@@ -203,4 +203,33 @@ class UserController extends Controller {
     }
 
 
+    /**
+     * View Issues.
+     */
+    public function issues($request, $response, $args) {
+
+        $view = Twig::fromRequest($request);
+
+        $queryParams = $request->getQueryParams();
+
+        // if page is present then set value to page otherwise to 1
+        $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
+
+        // max transaction per page
+        $max = 5;
+
+        $filter = Filter::check($queryParams);
+
+        $result = $this->announcementService->getAll($page, $max, null, $filter);
+
+        return $view->render($response, 'pages/user-all-issues.html', [
+            'announcements' => $result['announcements'],
+            'currentPage' => $page,
+            'from' =>  isset($queryParams['from']) ? $queryParams['from'] : null,
+            'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
+            'status' =>  isset($queryParams['status']) ? $queryParams['status'] : null,
+            'totalPages' => ceil(($result['totalAnnouncement']) / $max),
+        ]);
+    }
+
 }

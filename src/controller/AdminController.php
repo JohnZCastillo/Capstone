@@ -204,6 +204,9 @@ class AdminController extends Controller {
 
     public function deleteAnnouncement($request, $response, $args) {
 
+        // get the query params
+        $queryParams = $request->getQueryParams();
+
         $view = Twig::fromRequest($request);
 
         $id = $args['id'];
@@ -215,9 +218,10 @@ class AdminController extends Controller {
         $this->announcementService->delete($post);
 
         return $response
-            ->withHeader('Location', "/admin/announcements")
+            ->withHeader('Location', '/admin/announcements')
             ->withStatus(302);
     }
+
 
     public function editAnnouncement($request, $response, $args) {
 
@@ -273,7 +277,7 @@ class AdminController extends Controller {
     }
 
     public function announcements($request, $response, $args) {
-        
+
         $message = $this->flashMessages->getFirstMessage('message');
 
         $view = Twig::fromRequest($request);
@@ -293,7 +297,7 @@ class AdminController extends Controller {
 
         $filter = Filter::check($queryParams);
 
-        $result = $this->announcementService->getAll($page, $max, null, $filter,null,$status);
+        $result = $this->announcementService->getAll($page, $max, null, $filter, null, $status);
 
         return $view->render($response, 'pages/admin-all-announcement.html', [
             'announcements' => $result['announcements'],
@@ -327,5 +331,4 @@ class AdminController extends Controller {
             ->withHeader('Location', "/admin/home")
             ->withStatus(302);
     }
-    
 }
