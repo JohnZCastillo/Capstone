@@ -24,6 +24,9 @@ class IssuesModel{
 
     #[ORM\Column(type: 'string')]
     private $title;
+    
+    #[ORM\Column(type: 'string')]
+    private $type;
 
    #[ORM\Column(type: IssuesStatus::class)]
     private $status;
@@ -170,6 +173,26 @@ class IssuesModel{
     public function setUser($user)
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of type
+     */ 
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Set the value of type
+     *
+     * @return  self
+     */ 
+    public function setType($type)
+    {
+        $this->type = $type;
 
         return $this;
     }

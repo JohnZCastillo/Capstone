@@ -12,38 +12,39 @@ use App\model\enum\AnnouncementStatus;
 use App\model\enum\IssuesStatus;
 use App\model\IssuesModel;
 use App\model\TransactionModel;
+use Exception;
 use Slim\Views\Twig;
 
 class UserController extends Controller {
 
     public function home($request, $response, $args) {
-        
+
         $view = Twig::fromRequest($request);
         $queryParams = $request->getQueryParams();
-    
+
         $filter = Filter::check($queryParams);
 
         // Get the user
         $user = $this->getLogin();
-    
+
         // Get page and set default value to 1 if not provided
-        $page = Helper::getArrayValue($queryParams,'page', 1);
-    
+        $page = Helper::getArrayValue($queryParams, 'page', 1);
+
         // Get search query
-        $query = Helper::getArrayValue($queryParams,'query');
-    
+        $query = Helper::getArrayValue($queryParams, 'query');
+
         // Set max transactions per page
         $max = 5;
-    
+
         // Get transactions
-        $result = $this->transactionService->getAll($page, $max, $query,$filter,$user);
-    
+        $result = $this->transactionService->getAll($page, $max, $query, $filter, $user);
+
         // Get balances
         $currentMonth = Time::thisMonth();
         $nextMonth = Time::nextMonth();
         $currentDue = $this->getBalance($currentMonth);
         $nextDue = $this->getBalance($nextMonth);
-    
+
         // Calculate total dues
         $totalDues = $this->getTotalDues();
 
@@ -90,12 +91,12 @@ class UserController extends Controller {
 
         // save transaction
         $this->transactionService->save($transaction);
-        
+
         // gcash receipts sent by user | multiple files
         $images = $_FILES['receipts'];
 
-         // upload path
-         $path = './uploads/';
+        // upload path
+        $path = './uploads/';
 
         // store physicaly
         $storedImages = Image::storeAll($path, $images);
@@ -175,7 +176,7 @@ class UserController extends Controller {
     }
 
 
-     /**
+    /**
      * View unpaid monthly dues and its total.
      */
     public function announcements($request, $response, $args) {
@@ -216,6 +217,8 @@ class UserController extends Controller {
 
         // if page is present then set value to page otherwise to 1
         $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
+        
+        $type = isset($queryParams['type']) ? $queryParams['type'] : 'posted';
 
         // max transaction per page
         $max = 5;
@@ -224,9 +227,10 @@ class UserController extends Controller {
 
         $user = $this->getLogin();
 
-        $result = $this->issuesService->getAll($page, $max, null, $filter,$user);
+        $result = $this->issuesService->getAll($page, $max, null, $filter, $user,$type);
 
         return $view->render($response, 'pages/user-all-issues.html', [
+            'type'=> $type,
             'issues' => $result['issues'],
             'currentPage' => $page,
             'from' =>  isset($queryParams['from']) ? $queryParams['from'] : null,
@@ -236,7 +240,7 @@ class UserController extends Controller {
         ]);
     }
 
-     /**
+    /**
      * View Issues.
      */
     public function issue($request, $response, $args) {
@@ -253,13 +257,46 @@ class UserController extends Controller {
         $issue->setStatus(IssuesStatus::pending());
         $issue->setAction('None');
         $issue->setUser($this->getLogin());
-        
+        $issue->setType('posted');
+
         $this->issuesService->save($issue);
 
         return $response
-        ->withHeader('Location', "/issues")
-        ->withStatus(302);
+            ->withHeader('Location', "/issues")
+            ->withStatus(302);
     }
 
+    public function archiveIssue($request, $response, $args) {
 
+        $view = Twig::fromRequest($request);
+
+        $id = $args['id'];
+
+        $issue = $this->issuesService->findById($id);
+
+        $issue->setType('archive');
+
+        $this->issuesService->save($issue);
+
+        return $response
+            ->withHeader('Location', "/issues")
+            ->withStatus(302);
+    }
+
+    public function unArchiveIssue($request, $response, $args) {
+
+        $view = Twig::fromRequest($request);
+
+        $id = $args['id'];
+
+        $issue = $this->issuesService->findById($id);
+
+        $issue->setType('posted');
+
+        $this->issuesService->save($issue);
+
+        return $response
+            ->withHeader('Location', "/issues")
+            ->withStatus(302);
+    }
 }

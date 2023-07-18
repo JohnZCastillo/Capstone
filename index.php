@@ -1,6 +1,5 @@
 <?php
 
-session_cache_limiter(false);
 session_start();
 
 use App\controller\AdminController;
@@ -36,6 +35,9 @@ $app->group('', function ($app) {
     $app->get('/dues', [UserController::class, 'dues']);
     $app->get('/issues', [UserController::class, 'issues']);
     $app->post('/issue', [UserController::class, 'issue']);
+    $app->get('/issue/archive/{id}', [UserController::class, 'archiveIssue']);
+    $app->get('/issue/unarchive/{id}', [UserController::class, 'unArchiveIssue']);
+
     $app->get('/transaction/{id}', [UserController::class, 'transaction']);
     $app->post('/pay', [UserController::class, 'pay']);
     $app->get('/announcements', [UserController::class, 'announcements']);
@@ -87,6 +89,5 @@ $app->get('/login', function (Request $request, Response $response) use ($twig) 
 $app->get('/admin/announcement', function (Request $request, Response $response) use ($twig) {
     return $twig->render($response, 'pages/admin-announcement.html');
 });
-
 
 $app->run();

@@ -26,6 +26,7 @@
 </style>
 
 <div class="container-fluid py-2">
+
   <div class="input-group mb-3">
     <div class="input-group-prepend">
       <span class="input-group-text side-rounded" id="basic-addon1">
@@ -46,6 +47,26 @@
     New Issue
   </button>
 
+  <form action="/issues"  method="GET" id="viewForm">
+    <div class="form-group">
+      <label for="">View</label>
+      <select name="type" class="form-control" id="view">
+        <option value="POSTED" {% if type == 'POSTED' %}selected{% endif %}>Post</option>
+        <option value="ARCHIVE" {% if type == 'ARCHIVE' %}selected{% endif %}>Archived</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="">Status</label>
+      <select name="status" class="form-control" id="status">
+        <option value="ALL" {% if status == 'ALL' %}selected{% endif %}>All</option>
+        <option value="Pending" {% if status == 'Pending' %}selected{% endif %}>Pending</option>
+        <option value="Resolved" {% if status == 'Resolved' %}selected{% endif %}>Resolved</option>
+        <option value="Rejected" {% if status == 'Rejected' %}selected{% endif %}>Rejected</option>
+      </select>
+    </div>
+  </form>
+
+
   <div class="py-2">
     <table class="table table-hover table-striped table-bordered">
       <thead>
@@ -55,6 +76,7 @@
           <th>Content</th>
           <th>Date</th>
           <th>Status</th>
+          <th>Solution</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -66,8 +88,17 @@
           <td>{{issue.content}}</td>
           <td>{{issue.getCreatedAt()}}</td>
           <td>{{issue.status}}</td>
+          <td>{{issue.action}}</td>
           <td>
-            <a href="/issue/{{issue.id}}" class="btn btn-secondary">Archive</a>
+            {% if issue.type == 'posted' %}
+            <a href="/issue/archive/{{issue.id}}" class="btn btn-secondary">
+              Archive
+            </a>
+            {% else %}
+            <a href="/issue/unarchive/{{issue.id}}" class="btn btn-secondary">
+              Unarchive
+            </a>
+            {% endif %}
           </td>
         </tr>
         {% endfor %}
@@ -150,6 +181,23 @@
       form.classList.remove("text-white");
     }
   });
+</script>
+
+<script>
+  // view
+  const viewForm = document.querySelector('#viewForm');
+
+  const view = document.querySelector('#view');
+  const status = document.querySelector('#status');
+
+  view.addEventListener('change',(event)=>{
+    viewForm.submit();
+  })
+
+  status.addEventListener('change',(event)=>{
+    viewForm.submit();
+  })
+
 </script>
 
 {% endblock %}
