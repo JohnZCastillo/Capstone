@@ -8,9 +8,11 @@
 
 use App\model\AnnouncementModel;
 use App\model\enum\AnnouncementStatus;
+use App\model\enum\IssuesStatus;
 use App\model\enum\UserRole;
 use App\service\AnnouncementService;
 use App\service\DuesService;
+use App\service\IssuesService;
 use App\service\PaymentService;
 use App\service\ReceiptService;
 use App\service\Service;
@@ -91,11 +93,17 @@ $container->set(Service::class, static function (Container $c) {
     return new Service($c->get(EntityManager::class));
 });
 
+$container->set(IssuesService::class, static function (Container $c) {
+    return new IssuesService($c->get(EntityManager::class));
+});
+
 Type::addType(AnnouncementStatus::class, AnnouncementStatus::class);
 Type::addType(UserRole::class, UserRole::class);
+Type::addType(IssuesStatus::class, IssuesStatus::class);
 
 $conn = $container->get(EntityManager::class)->getConnection();
 $conn->getDatabasePlatform()->registerDoctrineTypeMapping('AnnouncementStatus', 'string');
 $conn->getDatabasePlatform()->registerDoctrineTypeMapping('UserRole', 'string');
+$conn->getDatabasePlatform()->registerDoctrineTypeMapping('IssuesStatus', 'string');
 
 return $container;

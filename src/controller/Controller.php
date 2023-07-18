@@ -9,6 +9,7 @@ use App\model\PaymentModel;
 use App\model\UserModel;
 use App\service\AnnouncementService;
 use App\service\DuesService;
+use App\service\IssuesService;
 use App\service\PaymentService;
 use App\service\ReceiptService;
 use App\service\TransactionLogsService;
@@ -27,6 +28,7 @@ class Controller {
     protected TransactionLogsService $logsService;
     protected AnnouncementService $announcementService;
     protected Messages $flashMessages;
+    protected IssuesService $issuesService;
 
     public function __construct(Container  $container) {
         //get the userService from dependency container
@@ -37,6 +39,7 @@ class Controller {
         $this->paymentService = $container->get(PaymentService::class);
         $this->logsService = $container->get(TransactionLogsService::class);
         $this->announcementService = $container->get(AnnouncementService::class);
+        $this->issuesService = $container->get(IssuesService::class);
         $this->flashMessages = $container->get(Messages::class);
     }
 

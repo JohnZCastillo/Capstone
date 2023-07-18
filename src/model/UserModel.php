@@ -40,6 +40,9 @@ class UserModel{
     #[ORM\OneToMany(targetEntity: TransactionLogsModel::class, mappedBy: 'updatedBy')]
     private Collection|array $logs;
 
+    #[ORM\OneToMany(targetEntity: IssuesModel::class, mappedBy: 'issues')]
+    private Collection|array $issues;
+
     #[ORM\Column(type: UserRole::class)]
     private $role;
 
@@ -241,6 +244,26 @@ class UserModel{
     public function setRole($role)
     {
         $this->role = $role;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of issues
+     */ 
+    public function getIssues()
+    {
+        return $this->issues;
+    }
+
+    /**
+     * Set the value of issues
+     *
+     * @return  self
+     */ 
+    public function setIssues($issues)
+    {
+        $this->issues = $issues;
 
         return $this;
     }

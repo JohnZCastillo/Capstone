@@ -35,6 +35,7 @@ $app->group('', function ($app) {
     $app->get('/home', [UserController::class, 'home']);
     $app->get('/dues', [UserController::class, 'dues']);
     $app->get('/issues', [UserController::class, 'issues']);
+    $app->post('/issue', [UserController::class, 'issue']);
     $app->get('/transaction/{id}', [UserController::class, 'transaction']);
     $app->post('/pay', [UserController::class, 'pay']);
     $app->get('/announcements', [UserController::class, 'announcements']);

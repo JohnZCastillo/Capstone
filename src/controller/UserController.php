@@ -9,6 +9,8 @@ use App\Lib\Image;
 use App\lib\Login;
 use App\lib\Time;
 use App\model\enum\AnnouncementStatus;
+use App\model\enum\IssuesStatus;
+use App\model\IssuesModel;
 use App\model\TransactionModel;
 use Slim\Views\Twig;
 
@@ -220,16 +222,44 @@ class UserController extends Controller {
 
         $filter = Filter::check($queryParams);
 
-        $result = $this->announcementService->getAll($page, $max, null, $filter);
+        $user = $this->getLogin();
+
+        $result = $this->issuesService->getAll($page, $max, null, $filter,$user);
 
         return $view->render($response, 'pages/user-all-issues.html', [
-            'announcements' => $result['announcements'],
+            'issues' => $result['issues'],
             'currentPage' => $page,
             'from' =>  isset($queryParams['from']) ? $queryParams['from'] : null,
             'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
             'status' =>  isset($queryParams['status']) ? $queryParams['status'] : null,
-            'totalPages' => ceil(($result['totalAnnouncement']) / $max),
+            'totalPages' => ceil(($result['totalIssues']) / $max),
         ]);
     }
+
+     /**
+     * View Issues.
+     */
+    public function issue($request, $response, $args) {
+
+        $view = Twig::fromRequest($request);
+
+        $queryParams = $request->getQueryParams();
+
+        $issue = new IssuesModel();
+
+        $issue->setTitle($request->getParsedBody()['title']);
+        $issue->setContent($request->getParsedBody()['content']);
+        $issue->setCreatedAt(Time::timestamp());
+        $issue->setStatus(IssuesStatus::pending());
+        $issue->setAction('None');
+        $issue->setUser($this->getLogin());
+        
+        $this->issuesService->save($issue);
+
+        return $response
+        ->withHeader('Location', "/issues")
+        ->withStatus(302);
+    }
+
 
 }
