@@ -221,8 +221,7 @@ class AdminController extends Controller {
             ->withHeader('Location', '/admin/announcements')
             ->withStatus(302);
     }
-
-
+    
     public function editAnnouncement($request, $response, $args) {
 
         $view = Twig::fromRequest($request);

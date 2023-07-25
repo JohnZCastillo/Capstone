@@ -211,13 +211,15 @@ class UserController extends Controller {
      */
     public function issues($request, $response, $args) {
 
+        $message = $this->flashMessages->getFirstMessage('message');
+
         $view = Twig::fromRequest($request);
 
         $queryParams = $request->getQueryParams();
 
         // if page is present then set value to page otherwise to 1
         $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
-        
+
         $type = isset($queryParams['type']) ? $queryParams['type'] : 'posted';
 
         // max transaction per page
@@ -227,10 +229,11 @@ class UserController extends Controller {
 
         $user = $this->getLogin();
 
-        $result = $this->issuesService->getAll($page, $max, null, $filter, $user,$type);
+        $result = $this->issuesService->getAll($page, $max, null, $filter, $user, $type);
 
         return $view->render($response, 'pages/user-all-issues.html', [
-            'type'=> $type,
+            'type' => $type,
+            'message' => $message,
             'issues' => $result['issues'],
             'currentPage' => $page,
             'from' =>  isset($queryParams['from']) ? $queryParams['from'] : null,
@@ -241,7 +244,7 @@ class UserController extends Controller {
     }
 
     /**
-     * View Issues.
+     * Create an issues
      */
     public function issue($request, $response, $args) {
 
@@ -251,6 +254,8 @@ class UserController extends Controller {
 
         $issue = new IssuesModel();
 
+        $anonymous = $request->getParsedBody()['anonymous'];
+
         $issue->setTitle($request->getParsedBody()['title']);
         $issue->setContent($request->getParsedBody()['content']);
         $issue->setCreatedAt(Time::timestamp());
@@ -258,6 +263,11 @@ class UserController extends Controller {
         $issue->setAction('None');
         $issue->setUser($this->getLogin());
         $issue->setType('posted');
+
+        if ($anonymous) {
+            $issue->setUser(null);
+            $this->flashMessages->addMessage('message', "Anonymous  Issues Sent");
+        }
 
         $this->issuesService->save($issue);
 

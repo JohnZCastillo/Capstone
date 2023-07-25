@@ -48,13 +48,17 @@
   </button>
 
   <form action="/issues"  method="GET" id="viewForm">
+
+ <div class="d-flex gap">
+
     <div class="form-group">
       <label for="">View</label>
       <select name="type" class="form-control" id="view">
-        <option value="POSTED" {% if type == 'POSTED' %}selected{% endif %}>Post</option>
+        <option value="POSTED" {% if type == "POSTED" %}selected{% endif %}>Post</option>
         <option value="ARCHIVE" {% if type == 'ARCHIVE' %}selected{% endif %}>Archived</option>
       </select>
     </div>
+
     <div class="form-group">
       <label for="">Status</label>
       <select name="status" class="form-control" id="status">
@@ -64,6 +68,9 @@
         <option value="Rejected" {% if status == 'Rejected' %}selected{% endif %}>Rejected</option>
       </select>
     </div>
+    
+  </div>
+
   </form>
 
 
@@ -139,6 +146,7 @@
               type="checkbox"
               id="anonymous"
             />
+            <input type="text" class="d-none" name="anonymous" id="anonymousInput">
             <label class="form-check-label" for="flexSwitchCheckDefault">
               Submit as Anonymous
             </label>
@@ -169,6 +177,7 @@
 <script>
   const anonyBtn = document.querySelector("#anonymous");
   const form = document.querySelector("#issueContent");
+  const anonymousInput = document.querySelector('#anonymousInput');
 
   const issueForm = document.querySelector("#issueform");
 
@@ -176,9 +185,11 @@
     if (anonyBtn.checked) {
       form.classList.add("bg-dark");
       form.classList.add("text-white");
+      anonymousInput.value = true;
     } else {
       form.classList.remove("bg-dark");
       form.classList.remove("text-white");
+      anonymousInput.value = false;
     }
   });
 </script>
