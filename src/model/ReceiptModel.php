@@ -5,8 +5,13 @@ namespace App\model;
 use App\lib\Time;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Reciept reference is unique. 
+ */
+
 #[ORM\Entity]
 #[ORM\Table(name: 'receipt')]
+#[ORM\UniqueConstraint(name: "reference", columns: ["referenceNumber"])]
 class ReceiptModel {
 
     #[ORM\Id]

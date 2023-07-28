@@ -45,7 +45,6 @@ class TransactionModel {
     #[ORM\Column(type: 'string')]
     private $status = 'PENDING';
 
-
     /**
      * Get the value of amount
      */

@@ -41,6 +41,9 @@ $app->group('', function ($app) {
     $app->get('/transaction/{id}', [UserController::class, 'transaction']);
     $app->post('/pay', [UserController::class, 'pay']);
     $app->get('/announcements', [UserController::class, 'announcements']);
+
+    $app->get('/account', [UserController::class, 'accountSettings']);
+
 })->add(new Auth());
 
 $app->group('/admin', function ($app) {
@@ -49,6 +52,7 @@ $app->group('/admin', function ($app) {
     $app->post('/transaction/reject', [AdminController::class, 'rejectPayment']);
     $app->post('/transaction/approve', [AdminController::class, 'approvePayment']);
     $app->post('/payment-settings', [AdminController::class, 'paymentSettings']);
+    $app->get('/payment-map', [AdminController::class, 'paymentMap']);
 
     $app->post('/announcement', [AdminController::class, 'announcement']);
     $app->post('/add-due', [AdminController::class, 'addDue']);
@@ -59,6 +63,7 @@ $app->group('/admin', function ($app) {
     $app->get('/announcement/archive/{id}', [AdminController::class, 'archiveAnnouncement']);
 
     $app->get('/announcements', [AdminController::class, 'announcements']);
+    $app->get('/issues', [AdminController::class, 'issues']);
     
 })->add(new Auth());
 

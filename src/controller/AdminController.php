@@ -123,7 +123,7 @@ class AdminController extends Controller {
             $this->receiptService->confirm($reciepts[$i], $fields[$i]);
         }
 
-        // set transctio to rejected
+        // set transction
         $transaction->setStatus('APPROVED');
 
         // save transaction
@@ -221,7 +221,7 @@ class AdminController extends Controller {
             ->withHeader('Location', '/admin/announcements')
             ->withStatus(302);
     }
-    
+
     public function editAnnouncement($request, $response, $args) {
 
         $view = Twig::fromRequest($request);
@@ -329,5 +329,73 @@ class AdminController extends Controller {
         return $response
             ->withHeader('Location', "/admin/home")
             ->withStatus(302);
+    }
+
+    /**
+     * View Issues.
+     */
+    public function issues($request, $response, $args) {
+
+        $message = $this->flashMessages->getFirstMessage('message');
+
+        $view = Twig::fromRequest($request);
+
+        $queryParams = $request->getQueryParams();
+
+        // if page is present then set value to page otherwise to 1
+        $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
+
+        $type = isset($queryParams['type']) ? $queryParams['type'] : 'posted';
+
+        // max transaction per page
+        $max = 5;
+
+        $filter = Filter::check($queryParams);
+
+        $result = $this->issuesService->getAll($page, $max, null, $filter, null, $type);
+
+        return $view->render($response, 'pages/admin-all-issues.html', [
+            'type' => $type,
+            'message' => $message,
+            'issues' => $result['issues'],
+            'currentPage' => $page,
+            'from' =>  isset($queryParams['from']) ? $queryParams['from'] : null,
+            'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
+            'status' =>  isset($queryParams['status']) ? $queryParams['status'] : null,
+            'totalPages' => ceil(($result['totalIssues']) / $max),
+        ]);
+    }
+
+
+     /**
+     * View Issues.
+     */
+    public function paymentMap($request, $response, $args) {
+
+        $message = $this->flashMessages->getFirstMessage('message');
+
+        $view = Twig::fromRequest($request);
+
+        $queryParams = $request->getQueryParams();
+
+        // if page is present then set value to page otherwise to 1
+        $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
+
+        $type = isset($queryParams['type']) ? $queryParams['type'] : 'posted';
+
+        // max transaction per page
+        $max = 5;
+
+        $filter = Filter::check($queryParams);
+
+        return $view->render($response, 'pages/admin-payments-map.html', [
+            'type' => $type,
+            'message' => $message,
+            'currentPage' => $page,
+            'from' =>  isset($queryParams['from']) ? $queryParams['from'] : null,
+            'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
+            'status' =>  isset($queryParams['status']) ? $queryParams['status'] : null,
+            // 'totalPages' => ceil(($result['totalIssues']) / $max),
+        ]);
     }
 }

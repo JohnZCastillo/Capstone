@@ -205,6 +205,27 @@ class UserController extends Controller {
         ]);
     }
 
+    /**
+     * View unpaid monthly dues and its total.
+     */
+    public function accountSettings($request, $response, $args) {
+
+        $user = $this->getLogin();
+        $name = $user->getName();
+        $email = $user->getEmail();
+        $block = $user->getBlock();
+        $lot = $user->getLot();
+
+        $view = Twig::fromRequest($request);
+
+        return $view->render($response, 'pages/user-account-settings.html', [
+            "name" => $name,
+            "email" => $email,
+            "block" => $block,
+            "lot" => $lot,
+        ]);
+    }
+
 
     /**
      * View Issues.

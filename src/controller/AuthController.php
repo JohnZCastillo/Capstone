@@ -13,6 +13,7 @@ use App\service\TransactionService;
 use App\service\TransactionLogsService;
 use Doctrine\ORM\NoResultException;
 use Exception;
+use Respect\Validation\Validator as V;
 use Slim\Views\Twig;
 use UMA\DIC\Container;
 
@@ -59,24 +60,41 @@ class AuthController extends Controller{
         // Creat user model
         $user = new UserModel();
 
+        $content = $request->getParsedBody();
+
         // update user information from post request parameters
-        $user->setName($request->getParsedBody()['name']);
-        $user->setEmail($request->getParsedBody()['email']);
-        $user->setPassword($request->getParsedBody()['password']);
-        $user->setBlock($request->getParsedBody()['block']);
-        $user->setLot($request->getParsedBody()['lot']);
+        $user->setName($content['name']);
+        $user->setEmail($content['email']);
+        $user->setPassword($content['password']);
+        $user->setBlock($content['block']);
+        $user->setLot($content['lot']);
         $user->setRole(UserRole::user());
 
         try {
+
+            $userValidator = V::attribute('name',V::stringType()->length(1, 32))
+                            ->attribute('email',V::email());
+
+
+            if(!V::stringType()->length(2,30)->validate($user->getName())){
+                $data['nameError'] = "Name lenght must be within 3 - 30";
+                throw new Exception('');
+            }
+
+            if(!V::email()->validate($user->getEmail())){
+                $data['emailError'] = "not an email";
+                throw new Exception('');
+            }
+
             $this->userSerivce->save($user);
             return $view->render($response, 'pages/register.html', []);
         } catch (Exception $e) {
 
-            $data['message'] = "Something Went Wrong";
+            $data['error'] = "Something Went Wrong";
 
             //error code for duplicate entry
             if ($e->getCode() == 1062) {
-                $data['message'] = "Email Is Already In Used";
+                $data['error'] = "Email Is Already In Used";
             }
 
             $response->withStatus(500);
