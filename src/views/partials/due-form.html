@@ -13,16 +13,20 @@
           <ul id="previousDuesList"></ul>
   
           <!-- New due form -->
-          <form id="newDueForm">
+          <form id="newDueForm" method="POST" action="/admin/add-due">
             <div class="form-group">
               <label for="dueMonth">Due Month</label>
-              <input type="text" class="form-control" id="dueMonth" name="dueMonth">
+              <input type="month" class="form-control" id="dueMonth" name="month">
+            </div>
+            <div class="form-group">
+              <label for="dueMonth">Amount</label>
+              <input type="number" class="form-control" id="dueMonth" name="amount">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Add Due</button>
             </div>
           </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" onclick="addDue()">Add Due</button>
         </div>
       </div>
     </div>

@@ -2,12 +2,17 @@
 
 namespace App\controller;
 
+use App\lib\Filter;
+use App\lib\Helper;
 use App\Lib\Image;
 use App\lib\Time;
+use App\model\AnnouncementModel;
+use App\model\DuesModel;
+use App\model\enum\AnnouncementStatus;
 use App\model\PaymentModel;
 use Slim\Views\Twig;
 
-class AdminController extends Controller{
+class AdminController extends Controller {
 
     public function home($request, $response, $args) {
 
@@ -19,17 +24,7 @@ class AdminController extends Controller{
         // if page is present then set value to page otherwise to 1
         $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
 
-        if(isset(($queryParams['from'])) && $queryParams['from'] == null){
-            unset($queryParams['from']);
-        }
-
-        if(isset(($queryParams['to'])) && $queryParams['to'] == null){
-            unset($queryParams['to']);
-        }
-
-        $filter['from'] = isset($queryParams['from']) ? Time::nowStartMonth($queryParams['from']): null;
-        $filter['to'] = isset($queryParams['to']) ? Time::nowEndMonth($queryParams['to']) : null;
-        $filter['status'] =  isset($queryParams['status']) ? $queryParams['status'] : null;
+        $filter = Filter::check($queryParams);
 
         $id = isset($queryParams['query']) ? $queryParams['query'] : null;
 
@@ -39,7 +34,7 @@ class AdminController extends Controller{
         $view = Twig::fromRequest($request);
 
         //Get Transaction
-        $result = $this->transactionService->getAll($page, $max, $id,$filter);
+        $result = $this->transactionService->getAll($page, $max, $id, $filter);
 
         $transactions = $result['transactions'];
 
@@ -63,7 +58,7 @@ class AdminController extends Controller{
      *   Get Transaction Base on id
      */
     public function transaction($request, $response, $args) {
-        
+
         $view = Twig::fromRequest($request);
 
         $transaction = $this->transactionService->findById($args['id']);
@@ -97,7 +92,7 @@ class AdminController extends Controller{
         $this->transactionService->save($transaction);
 
         //save logs
-        $this->logsService->log($transaction,$user,$message,'REJECTED');
+        $this->logsService->log($transaction, $user, $message, 'REJECTED');
 
         return $response
             ->withHeader('Location', "/admin/transaction/$id")
@@ -109,40 +104,40 @@ class AdminController extends Controller{
         $view = Twig::fromRequest($request);
 
         $id = $request->getParsedBody()['id'];
-        
+
         $message = "Payment was approved";
-        
+
         // get the transaction form db
         $transaction = $this->transactionService->findById($id);
-        
+
         //login admin who approved the payment
         $user = $this->getLogin();
-        
+
         //array of reference number
         $fields = $request->getParsedBody()['field'];
 
         //array of transaction receipts
         $reciepts = $transaction->getReceipts();
-  
-        for ($i=0; $i <count($reciepts) ; $i++) { 
-            $this->receiptService->confirm($reciepts[$i],$fields[$i]);
+
+        for ($i = 0; $i < count($reciepts); $i++) {
+            $this->receiptService->confirm($reciepts[$i], $fields[$i]);
         }
 
-        // set transctio to rejected
+        // set transction
         $transaction->setStatus('APPROVED');
 
         // save transaction
         $this->transactionService->save($transaction);
 
         //save logs
-        $this->logsService->log($transaction,$user,$message,'APPROVED');
+        $this->logsService->log($transaction, $user, $message, 'APPROVED');
 
         return $response
             ->withHeader('Location', "/admin/transaction/$id")
             ->withStatus(302);
     }
 
-    public function paymentSettings($request, $response, $args){
+    public function paymentSettings($request, $response, $args) {
 
         $view = Twig::fromRequest($request);
 
@@ -154,14 +149,14 @@ class AdminController extends Controller{
         $settings = new PaymentModel();
 
         //find settings if id is not null
-        if($id != null){
+        if ($id != null) {
             $settings = $this->paymentService->findById($id);
         }
 
         //update qr
-        if(isset($_FILES['qr']) && $_FILES['qr']['error'] === UPLOAD_ERR_OK){
+        if (isset($_FILES['qr']) && $_FILES['qr']['error'] === UPLOAD_ERR_OK) {
             $path = './uploads/';
-            $settings->setQr(Image::store($path,$_FILES['qr']));
+            $settings->setQr(Image::store($path, $_FILES['qr']));
         }
 
         $settings->setAccountName($name);
@@ -169,10 +164,238 @@ class AdminController extends Controller{
         $settings->setStart(Time::startMonth($start));
 
         $this->paymentService->save($settings);
-        
+
         return $response
             ->withHeader('Location', "/admin")
             ->withStatus(302);
     }
 
+    public function announcement($request, $response, $args) {
+
+        $view = Twig::fromRequest($request);
+
+        $title = $request->getParsedBody()['title'];
+        $content = $request->getParsedBody()['content'];
+        $id = $request->getParsedBody()['id'];
+
+        $post = new AnnouncementModel();
+
+        $post->setCreatedAt(Time::timestamp());
+        $post->setUser($this->getLogin());
+
+        if (Helper::existAndNotNull($id)) {
+            $post = $this->announcementService->findById($id);
+        }
+
+        $post->setTitle($title);
+        $post->setContent($content);
+        $post->setStatus(AnnouncementStatus::posted());
+
+        try {
+            $this->announcementService->save($post);
+            $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . 'Posted');
+        } catch (\Throwable $th) {
+            $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . 'Posting Error');
+        }
+
+        return $response->withHeader('Location', "/admin/announcements")
+            ->withStatus(302);
+    }
+
+    public function deleteAnnouncement($request, $response, $args) {
+
+        // get the query params
+        $queryParams = $request->getQueryParams();
+
+        $view = Twig::fromRequest($request);
+
+        $id = $args['id'];
+
+        $post = $this->announcementService->findById($id);
+
+        $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . ' deleted');
+
+        $this->announcementService->delete($post);
+
+        return $response
+            ->withHeader('Location', '/admin/announcements')
+            ->withStatus(302);
+    }
+
+    public function editAnnouncement($request, $response, $args) {
+
+        $view = Twig::fromRequest($request);
+
+        $id = $args['id'];
+
+        $announcement = $this->announcementService->findById($id);
+
+        $this->flashMessages->addMessage('Test', 'This is a message');
+
+        return $view->render($response, 'pages/admin-announcement.html', [
+            'announcement' => $announcement,
+        ]);
+    }
+
+    public function postAnnouncement($request, $response, $args) {
+
+        $view = Twig::fromRequest($request);
+
+        $id = $args['id'];
+
+        $announcement = $this->announcementService->findById($id);
+
+        $announcement->setStatus(AnnouncementStatus::posted());
+
+        $this->announcementService->save($announcement);
+
+        $this->flashMessages->addMessage('Test', 'This is a message');
+
+        return $response
+            ->withHeader('Location', "/admin/announcements?status=ARCHIVED")
+            ->withStatus(302);
+    }
+
+    public function archiveAnnouncement($request, $response, $args) {
+
+        $view = Twig::fromRequest($request);
+
+        $id = $args['id'];
+
+        $announcement = $this->announcementService->findById($id);
+
+        $announcement->setStatus(AnnouncementStatus::archived());
+
+        $this->announcementService->save($announcement);
+
+        $this->flashMessages->addMessage('Test', 'This is a message');
+
+        return $response
+            ->withHeader('Location', "/admin/announcements?status=POSTED")
+            ->withStatus(302);
+    }
+
+    public function announcements($request, $response, $args) {
+
+        $message = $this->flashMessages->getFirstMessage('message');
+
+        $view = Twig::fromRequest($request);
+
+        // get the query params
+        $queryParams = $request->getQueryParams();
+
+        // if page is present then set value to page otherwise to 1
+        $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
+
+        $id = isset($queryParams['query']) ? $queryParams['query'] : null;
+
+        $status = isset($queryParams['status']) ? $queryParams['status'] : 'posted';
+
+        // max transaction per page
+        $max = 5;
+
+        $filter = Filter::check($queryParams);
+
+        $result = $this->announcementService->getAll($page, $max, null, $filter, null, $status);
+
+        return $view->render($response, 'pages/admin-all-announcement.html', [
+            'announcements' => $result['announcements'],
+            'message' => $message,
+            'query' => $id,
+            'currentPage' => $page,
+            'from' =>  isset($queryParams['from']) ? $queryParams['from'] : null,
+            'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
+            'status' =>  isset($queryParams['status']) ? $queryParams['status'] : null,
+            'totalPages' => ceil(($result['totalAnnouncement']) / $max),
+            'status' => $status
+        ]);
+    }
+
+    public function addDue($request, $response, $args) {
+
+        $view = Twig::fromRequest($request);
+
+        $month = $request->getParsedBody()['month'];
+        $amount = $request->getParsedBody()['amount'];
+
+        $due = new DuesModel();
+        $due->setAmount($amount);
+        $due->setMonth(Time::startMonth($month));
+
+        $this->duesService->save($due);
+
+        $this->flashMessages->addMessage('Test', 'This is a message');
+
+        return $response
+            ->withHeader('Location', "/admin/home")
+            ->withStatus(302);
+    }
+
+    /**
+     * View Issues.
+     */
+    public function issues($request, $response, $args) {
+
+        $message = $this->flashMessages->getFirstMessage('message');
+
+        $view = Twig::fromRequest($request);
+
+        $queryParams = $request->getQueryParams();
+
+        // if page is present then set value to page otherwise to 1
+        $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
+
+        $type = isset($queryParams['type']) ? $queryParams['type'] : 'posted';
+
+        // max transaction per page
+        $max = 5;
+
+        $filter = Filter::check($queryParams);
+
+        $result = $this->issuesService->getAll($page, $max, null, $filter, null, $type);
+
+        return $view->render($response, 'pages/admin-all-issues.html', [
+            'type' => $type,
+            'message' => $message,
+            'issues' => $result['issues'],
+            'currentPage' => $page,
+            'from' =>  isset($queryParams['from']) ? $queryParams['from'] : null,
+            'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
+            'status' =>  isset($queryParams['status']) ? $queryParams['status'] : null,
+            'totalPages' => ceil(($result['totalIssues']) / $max),
+        ]);
+    }
+
+
+     /**
+     * View Issues.
+     */
+    public function paymentMap($request, $response, $args) {
+
+        $message = $this->flashMessages->getFirstMessage('message');
+
+        $view = Twig::fromRequest($request);
+
+        $queryParams = $request->getQueryParams();
+
+        // if page is present then set value to page otherwise to 1
+        $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
+
+        $type = isset($queryParams['type']) ? $queryParams['type'] : 'posted';
+
+        // max transaction per page
+        $max = 5;
+
+        $filter = Filter::check($queryParams);
+
+        return $view->render($response, 'pages/admin-payments-map.html', [
+            'type' => $type,
+            'message' => $message,
+            'currentPage' => $page,
+            'from' =>  isset($queryParams['from']) ? $queryParams['from'] : null,
+            'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
+            'status' =>  isset($queryParams['status']) ? $queryParams['status'] : null,
+            // 'totalPages' => ceil(($result['totalIssues']) / $max),
+        ]);
+    }
 }

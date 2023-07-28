@@ -47,4 +47,22 @@ class ReceiptService extends Service {
         return $receipt;
     }
 
+    public function precheck($reference){
+        $em = $this->entityManager;
+
+        $qb = $em->createQueryBuilder();
+
+        $qb->select('count(u.referenceNumber)')
+            ->from(ReceiptModel::class, 'u')
+            ->where($qb->expr()->eq('u.referenceNumber','reference'))
+            ->setParameter('reference', $reference);
+
+        $query = $qb->getQuery();
+        $result = $query->getSingleScalarResult();
+
+        return  $result;
+
+    }
+
+
 }

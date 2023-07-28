@@ -1,4 +1,6 @@
 vendor/
+nbproject/
 composer.lock
 phpDocumentor.phar
 .phpdoc/
+todo.txt

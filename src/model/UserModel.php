@@ -2,6 +2,7 @@
 
 namespace App\model;
 
+use App\model\enum\UserRole;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 
@@ -33,8 +34,18 @@ class UserModel{
     #[ORM\OneToMany(targetEntity: TransactionModel::class, mappedBy: 'user')]
     private Collection|array $transactions;
 
+    #[ORM\OneToMany(targetEntity: AnnouncementModel::class, mappedBy: 'user')]
+    private Collection|array $posts;
+
     #[ORM\OneToMany(targetEntity: TransactionLogsModel::class, mappedBy: 'updatedBy')]
     private Collection|array $logs;
+
+    #[ORM\OneToMany(targetEntity: IssuesModel::class, mappedBy: 'issues')]
+    private Collection|array $issues;
+
+    #[ORM\Column(type: UserRole::class)]
+    private $role;
+
 
     /**
      * Get the value of name
@@ -173,6 +184,86 @@ class UserModel{
     public function setTransactions($transactions)
     {
         $this->transactions[] = $transactions;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of posts
+     */ 
+    public function getPosts()
+    {
+        return $this->posts;
+    }
+
+    /**
+     * Set the value of posts
+     *
+     * @return  self
+     */ 
+    public function setPosts($posts)
+    {
+        $this->posts = $posts;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of logs
+     */ 
+    public function getLogs()
+    {
+        return $this->logs;
+    }
+
+    /**
+     * Set the value of logs
+     *
+     * @return  self
+     */ 
+    public function setLogs($logs)
+    {
+        $this->logs = $logs;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of role
+     */ 
+    public function getRole()
+    {
+        return $this->role;
+    }
+
+    /**
+     * Set the value of role
+     *
+     * @return  self
+     */ 
+    public function setRole($role)
+    {
+        $this->role = $role;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of issues
+     */ 
+    public function getIssues()
+    {
+        return $this->issues;
+    }
+
+    /**
+     * Set the value of issues
+     *
+     * @return  self
+     */ 
+    public function setIssues($issues)
+    {
+        $this->issues = $issues;
 
         return $this;
     }

@@ -1,0 +1,70 @@
+{% extends "./admin.html" %} {% block body %}
+
+<section class="p-3">
+  <a href="/admin/announcement" class="btn btn-success">Create</a>
+
+  <form action="/admin/announcements"  method="GET" id="viewForm">
+    
+    <div class="form-group">
+      <label for="">View</label>
+      <select name="status" class="form-control" id="view">
+        <option value="POSTED" {% if status == 'POSTED' %}selected{% endif %}>Post</option>
+        <option value="ARCHIVED" {% if status == 'ARCHIVED' %}selected{% endif %}>Archived</option>
+      </select>
+    </div>
+  </form>
+
+  <div class="container-fluid py-2">
+    <table class="table table-bordered table-hover table-striped">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Posted By</th>
+          <th>Created At</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if announcements is not empty %} {% for announcement in announcements
+        %}
+        <tr>
+          <td>{{announcement.getTitle()}}</td>
+          <td>{{announcement.getUser().getName()}}</td>
+          <td>{{announcement.getCreatedAt()}}</td>
+          <td>{{announcement.getStatus()}}</td>
+          <td>
+            <a href="/admin/announcement/edit/{{announcement.getId()}}" class="btn btn-warning">Edit</a>
+            
+            <button onclick="confirm('Are You sure you want to delete this?','/admin/announcement/delete/{{announcement.getId()}}','true')" class="btn btn-danger">Delete</button>
+
+            {% if announcement.status == 'posted' %}
+              <a href="/admin/announcement/archive/{{announcement.getId()}}" class="btn btn-secondary">Archive</a>
+              {% else %}
+              <a href="/admin/announcement/post/{{announcement.getId()}}" class="btn btn-success">Post</a>
+            {% endif %}
+
+          </td>
+        </tr>
+        {% endfor %} {% else %}
+        <td colspan="5" class="text-center">No Data Available</td>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+  {% include './partials/pagination.html' %}
+  {% include './partials/message-modal.html' %}
+  {% include './partials/confirmation.html' %}
+
+</section>
+
+<script>
+  const viewForm = document.querySelector('#viewForm');
+  const view = document.querySelector('#view');
+
+  view.addEventListener('change',(event)=>{
+    viewForm.submit();
+  })
+</script>
+
+{% endblock %}

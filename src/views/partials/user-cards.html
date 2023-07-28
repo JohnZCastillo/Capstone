@@ -1,0 +1,26 @@
+<div class="container-fluid">
+  <div class="cards">
+    <div class="card">
+      <div class="card-body">
+        <p class="text-secondary small block">Current Due</p>
+        <h2 class="card-amount text-success">{{currentDue}}</h2>
+        <span class="small text-secondary">{{currentMonth}}</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <a class="card-body text-decoration-none" href="/dues">
+        <p class="text-secondary small block">Unpaid Bill</p>
+        <h2 class="card-amount text-danger">{{unpaid}}</h2>
+        <span class="small text-secondary">view more</span>
+      </a>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <p class="text-secondary small block">Next Due</p>
+        <h2 class="card-amount text-secondary">{{nextDue}}</h2>
+        <span class="small text-secondary">{{nextMonth}}</span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,130 @@
+{% extends "./admin.html" %} {% block body %}
+
+<script src="/bootstrap/quill.js"></script>
+
+<script src="/bootstrap/quill.resize.js"></script>
+
+<link rel="stylesheet" href="/bootstrap/quill.snow.css" />
+
+<div class="container-fluid py-2">
+  <h1>Announcement Page</h1>
+  <form id="formSave" class="form" method="POST" action="/admin/announcement">
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      <input
+        type="text"
+        id="title"
+        class="form-control"
+        name="title"
+        value="{{announcement.title}}"
+      />
+    </div>
+    <div class="form-group mt-2">
+      <label class="form-label">Content</label>
+      <div id="editor" class="form-control"></div>
+    </div>
+    <div class="form-group">
+      <textarea name="content" id="content" class="d-none"></textarea>
+    </div>
+    <div class="from-group mt-2">
+      <button class="btn btn-success" type="button" id="postBtn">Post</button>
+      <a class="btn btn-secondary" id="clear" type="button">CLEAR</a>
+    </div>
+    <div class="form-group">
+      <!-- Announcement ID -->
+      <input
+        id="id"
+        type="text"
+        class="form-control d-none"
+        name="id"
+        value="{{announcement.getId()}}"
+      />
+    </div>
+  </form>
+</div>
+
+<!-- Initialize Quill editor -->
+<script>
+  var quill = new Quill("#editor", {
+    theme: "snow",
+    modules: {
+      toolbar: [
+        [
+          {
+            header: [1, 2, false],
+          },
+        ],
+        ["bold", "italic", "underline"],
+        ["image"],
+      ],
+      imageResize: {},
+    },
+  });
+</script>
+
+<script>
+  // Add a custom image handler
+  quill.getModule("toolbar").addHandler("image", function () {
+    // Create an input element to select the image file
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", "image/*");
+    input.click();
+
+    // Handle the image file selection
+    input.onchange = async function () {
+      const file = input.files[0];
+
+      // Create a FormData object to store the image file
+      const formData = new FormData();
+      formData.append("image", file);
+
+      // Log the image uploading process
+      console.log("Uploading image:", file.name);
+
+      try {
+        // Send the image file to the server using Fetch
+        const result = await fetch("/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await result.json();
+
+        if (!result.ok) {
+          throw new Error("Erro uploading file");
+        }
+
+        const range = quill.getSelection();
+        quill.insertEmbed(range.index, "image", data.path);
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+  });
+
+  const form = document.querySelector("#formSave");
+  const content = document.querySelector(".ql-editor");
+  const postBtn = document.querySelector("#postBtn");
+  const clearBtn = document.querySelector("#clear");
+
+  const title = document.querySelector("#title");
+  const id = document.querySelector("#id");
+  const hiddenContent = document.querySelector("#content");
+
+  clearBtn.addEventListener('click',()=>{
+    content.innerHTML = "";
+  })
+  postBtn.addEventListener("click", (event) => {
+    hiddenContent.innerHTML = content.innerHTML;
+    form.submit();
+  });
+
+</script>
+
+<!-- set content if its updating -->
+<script>
+  quill.root.innerHTML = `{{ announcement.content|raw }}`;
+</script>
+
+{% endblock %}
