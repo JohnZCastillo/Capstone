@@ -44,7 +44,7 @@ jobs:
           username: ${{ env.VM_USERNAME }}
           password: ${{ env.VM_PASSWORD }}
           source: ./
-          target: /opt/bitnami/capstone
+          target: /opt/bitnami/capstone/htdocs
 
       - name: SSH into VM and Restart Server
         uses: appleboy/ssh-action@master
