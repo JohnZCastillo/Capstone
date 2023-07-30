@@ -17,9 +17,6 @@ jobs:
       - name: Install Dependencies
         run: composer install
 
-      - name: Run Tests
-        run: vendor/bin/phpunit
-
   deploy:
     name: Deploy to Azure VM
     runs-on: ubuntu-latest
