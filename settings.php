@@ -1,5 +1,12 @@
 <?php
 
+require 'vendor/autoload.php';
+
+use Dotenv\Dotenv;
+
+$dotenv = Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
 define('APP_ROOT', __DIR__);
 
 return [
@@ -43,7 +50,7 @@ return [
                 'port' => 3306,
                 'dbname' => 'slim',
                 'user' => 'root',
-                'password' => '',
+                'password' => $_ENV["DB_PASS"],
                 // 'charset' => 'utf-8'
             ]
         ]
