@@ -46,10 +46,10 @@ return [
             // of valid parameters: https://www.doctrine-project.org/projects/doctrine-dbal/en/current/reference/configuration.html
             'connection' => [
                 'driver' => 'pdo_mysql',
-                'host' => 'localhost',
+                'host' => $_ENV["DB_HOST"],
                 'port' => 3306,
-                'dbname' => 'slim',
-                'user' => 'root',
+                'dbname' => $_ENV["DB_NAME"],
+                'user' => $_ENV["DB_USER"],
                 'password' => $_ENV["DB_PASS"],
                 // 'charset' => 'utf-8'
             ]
