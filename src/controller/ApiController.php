@@ -3,7 +3,7 @@
 namespace App\controller;
 
 use App\lib\Filter;
-use App\Lib\Image;
+use App\lib\Image;
 use App\lib\Time;
 use App\model\PaymentModel;
 use Slim\Views\Twig;

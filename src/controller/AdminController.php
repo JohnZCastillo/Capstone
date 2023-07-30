@@ -4,7 +4,7 @@ namespace App\controller;
 
 use App\lib\Filter;
 use App\lib\Helper;
-use App\Lib\Image;
+use App\lib\Image;
 use App\lib\Time;
 use App\model\AnnouncementModel;
 use App\model\DuesModel;
