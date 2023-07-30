@@ -5,6 +5,11 @@ on:
     branches:
       - master
 
+env:
+  VM_HOST: ${{ secrets.VM_HOST }}
+  VM_USERNAME: ${{ secrets.VM_USERNAME }}
+  VM_PASSWORD: ${{ secrets.VM_PASSWORD }}
+
 jobs:
   build:
     name: Build
@@ -13,6 +18,11 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
+
+      - name: Setup Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
 
       - name: Install Dependencies
         run: composer install
@@ -30,17 +40,17 @@ jobs:
       - name: Transfer Files to VM
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USERNAME }}
-          password: ${{ secrets.VM_PASSWORD }}
+          host: ${{ env.VM_HOST }}
+          username: ${{ env.VM_USERNAME }}
+          password: ${{ env.VM_PASSWORD }}
           source: ./
           target: /opt/bitnami/capstone
 
       - name: SSH into VM and Restart Server
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USERNAME }}
-          password: ${{ secrets.VM_PASSWORD }}
+          host: ${{ env.VM_HOST }}
+          username: ${{ env.VM_USERNAME }}
+          password: ${{ env.VM_PASSWORD }}
           script: |
             sudo service apache2 restart
