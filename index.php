@@ -29,6 +29,10 @@ $twig = Twig::create('./src/views/', ['cache' => false]);
 
 $app->add(TwigMiddleware::create($app, $twig));
 
+$app->get('/', function (Request $request, Response $response) use ($twig) {
+    return $twig->render($response, 'homepage.html');
+});
+
 // Protected Routes
 $app->group('', function ($app) {
     $app->get('/home', [UserController::class, 'home']);

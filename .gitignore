@@ -5,3 +5,4 @@ phpDocumentor.phar
 .phpdoc/
 todo.txt
 .env
+.idea/
