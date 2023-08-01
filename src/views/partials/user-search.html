@@ -5,19 +5,19 @@
       <input placeholder="Search" type="text" name="query" value="{{query}}" class="form-control">
     </div>
   
-    <div class="row">
+    <div class="d-flex mb-2" style="gap:5px">
 
-    <div class="col-sm form-group mb-2 mr-2">
+    <div class="form-group" style="width: 33.33%;">
       <label for="">From</label>
       <input type="month" name="from" value="{{from}}" class="form-control">
     </div>
   
-    <div class="col-sm form-group mb-2 mr-2">
+    <div class="form-group" style="width: 33.33%;">
       <label for="">To</label>
       <input type="month" name="to" value="{{to}}" class="form-control">
     </div>
   
-    <div class="col-sm form-group mb-2 mr-2">
+    <div class="form-group" style="width: 33.33%;">
       <label for="">Status</label>
       <select name="status" class="form-control">
         <option value="ALL" {% if status == 'ALL' %}selected{% endif %}>ALL</option>
