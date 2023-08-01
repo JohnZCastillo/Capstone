@@ -11,16 +11,19 @@ class Time {
      * @param string date
      * @return DateTime
      */
-    static function startMonth($date) {
+    static function startMonth($date)
+    {
         return DateTime::createFromFormat('Y-m-d', $date . '-01');
     }
 
-    static function nowStartMonth($date) {
-        return  self::convert(self::startMonth($date));
+    static function nowStartMonth($date)
+    {
+        return self::convert(self::startMonth($date));
     }
 
-    static function nowEndMonth($date) {
-        return  self::convert(self::endMonth($date));
+    static function nowEndMonth($date)
+    {
+        return self::convert(self::endMonth($date));
     }
 
     /**
@@ -28,24 +31,28 @@ class Time {
      * @param string date
      * @return DateTime
      */
-    static function endMonth($date) {
+    static function endMonth($date)
+    {
         $date = self::startMonth($date);
-        $date =  $date->format('Y-m-t');
+        $date = $date->format('Y-m-t');
         return DateTime::createFromFormat('Y-m-d', $date);
     }
 
-    static function convert($date) {
+    static function convert($date)
+    {
         return $date->format('Y-m-d');
     }
 
-    static function convertToMonth($date) {
+    static function convertToMonth($date)
+    {
         return $date->format('Y-m');
     }
 
     /**
      * Convert string date '2023-01-01 to '2023-01'.
      */
-    static function toMonth($date) {
+    static function toMonth($date)
+    {
         if (Helper::existAndNotNull($date)) {
             $date = DateTime::createFromFormat('Y-m-d', $date);
             return $date->format('Y-m');
@@ -56,17 +63,20 @@ class Time {
     /**
      * Create a timestamp at now time
      */
-    static function timestamp() {
+    static function timestamp()
+    {
         return DateTime::createFromFormat('U', time());
     }
 
     // return payment amount for this month
-    static function thisMonth() {
+    static function thisMonth()
+    {
         return date("Y-m-01");
     }
 
     // return payment amount for next month
-    static function nextMonth() {
+    static function nextMonth()
+    {
         return date("Y-m-01", strtotime("+1 month", strtotime(self::thisMonth())));
     }
 
@@ -76,7 +86,8 @@ class Time {
      * @param string $startMonth
      * @param string $endMonth
      */
-    static function getMonths($startMonth, $endMonth) {
+    static function getMonths($startMonth, $endMonth)
+    {
 
         // Create DateTime objects for the start and end months
         $startDateTime = DateTime::createFromFormat('Y-m-01', $startMonth);
@@ -93,4 +104,48 @@ class Time {
 
         return $months;
     }
+
+    /**
+     * Check if range are valid.
+     * Note: from and to are expected to be a valid date eg: 2015-09-31
+     * @param string $from
+     * @param string $to
+     * @return bool
+     * @throws /Exception - when incorrect format is suplemented
+     */
+    static function isValidDateRange(string $from, string $to): bool
+    {
+        // Create DateTime objects from the input strings
+        $fromDate = new DateTime($from);
+        $toDate = new DateTime($to);
+        return $fromDate <= $toDate;
+    }
+
+    /**
+     * This function takes a string representing a month in the 'Y-m' format (e.g., '2023-08')
+     *  and returns the first day of that month in 'Y-m-d' format.
+     * @param string $month
+     * @return string
+     * @throws Exception - when invalid format is passed
+     */
+    static function setToFirstDayOfMonth(string $month): string
+    {
+        $targetMonth = DateTime::createFromFormat('Y-m', $month);
+        return $targetMonth->format('Y-m-d');
+    }
+
+    /**
+     * This function takes a string representing a month in the 'Y-m' format (e.g., '2023-08')
+     *  and returns the first day of that month in 'Y-m-d' format.
+     * @param string $month
+     * @return string
+     * @throws Exception - when invalid format is passed
+     */
+    static function setToLastDayOfMonth(string $month): string
+    {
+        $targetMonth = DateTime::createFromFormat('Y-m', $month);
+        return $targetMonth->format('Y-m-t');
+    }
+
 }
+
