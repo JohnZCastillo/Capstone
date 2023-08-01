@@ -86,7 +86,9 @@ $app->get('/register', function (Request $request, Response $response) use ($twi
 
 $app->get('/logout', function (Request $request, Response $response) {
     session_destroy();
-    return $response;
+    return $response
+        ->withHeader('Location', '/login')
+        ->withStatus(302);
 });
 
 // Return Login View
