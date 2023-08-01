@@ -2,6 +2,8 @@
 
 namespace App\controller;
 
+use App\exception\date\InvalidDateRange;
+use App\exception\image\UnsupportedImageException;
 use App\lib\Currency;
 use App\lib\Filter;
 use App\lib\Helper;
@@ -17,7 +19,8 @@ use Slim\Views\Twig;
 
 class UserController extends Controller {
 
-    public function home($request, $response, $args) {
+    public function home($request, $response, $args)
+    {
 
         $view = Twig::fromRequest($request);
         $queryParams = $request->getQueryParams();
@@ -29,6 +32,8 @@ class UserController extends Controller {
 
         // Get page and set default value to 1 if not provided
         $page = Helper::getArrayValue($queryParams, 'page', 1);
+
+        $errorMessage = $this->flashMessages->getFirstMessage("ErrorMessage");
 
         // Get search query
         $query = Helper::getArrayValue($queryParams, 'query');
@@ -50,6 +55,7 @@ class UserController extends Controller {
 
         // Prepare data for the view
         $data = [
+            'errorMessage' => $errorMessage,
             'currentMonth' => $currentMonth,
             'nextMonth' => $nextMonth,
             'currentDue' => Currency::format($currentDue),
@@ -61,8 +67,8 @@ class UserController extends Controller {
             'currentPage' => $page,
             'query' => $query,
             'from' => Time::toMonth($filter['from']),
-            'to' =>  Time::toMonth($filter['to']),
-            'status' =>  $filter['status'],
+            'to' => Time::toMonth($filter['to']),
+            'status' => $filter['status'],
             'totalPages' => ceil($result['totalTransaction'] / $max),
             'settings' => $this->getPaymentSettings(),
         ];
@@ -73,43 +79,69 @@ class UserController extends Controller {
     /**
      *  Save user transaction on database
      */
-    public function pay($request, $response, $args) {
+    public function pay($request, $response, $args)
+    {
 
-        $user = $this->getLogin();
+        try {
+            $user = $this->getLogin();
 
-        $view = Twig::fromRequest($request);
+            $view = Twig::fromRequest($request);
 
-        $transaction = new TransactionModel();
+            $fromMonth = $request->getParsedBody()['startDate'];
+            $fromMonth = Time::setToFirstDayOfMonth($fromMonth);
 
-        $transaction->setAmount($request->getParsedBody()['amount']);
-        $transaction->setFromMonth(Time::startMonth($request->getParsedBody()['startDate']));
-        $transaction->setToMonth(Time::endMonth($request->getParsedBody()['endDate']));
-        $transaction->setCreatedAt(Time::timestamp());
+            $toMonth = $request->getParsedBody()['endDate'];
+            $toMonth = Time::setToLastDayOfMonth($toMonth);
 
-        // set user id to the current login user
-        $transaction->setUser($user);
+            $transaction = new TransactionModel();
+            $transaction->setAmount($request->getParsedBody()['amount']);
+            $transaction->setFromMonth($fromMonth);
+            $transaction->setToMonth($toMonth);
+            $transaction->setCreatedAt(Time::timestamp());
 
-        // save transaction
-        $this->transactionService->save($transaction);
+            if (!Time::isValidDateRange($fromMonth,$toMonth)) {
+                throw new InvalidDateRange();
+            }
 
-        // gcash receipts sent by user | multiple files
-        $images = $_FILES['receipts'];
+            // set user id to the current login user
+            $transaction->setUser($user);
 
-        // upload path
-        $path = './uploads/';
+            // save transaction
+            $this->transactionService->save($transaction);
 
-        // store physicaly
-        $storedImages = Image::storeAll($path, $images);
+            // gcash receipts sent by user | multiple files
+            $images = $_FILES['receipts'];
 
-        // save image to database
-        $this->receiptService->saveAll($storedImages, $transaction);
+            if (!Image::isImage($images)) {
+                throw new UnsupportedImageException();
+            }
 
-        return $response
-            ->withHeader('Location', '/home')
-            ->withStatus(302);
+            // upload path
+            $path = './uploads/';
+
+            // store physicaly
+            $storedImages = Image::storeAll($path, $images);
+
+            // save image to database
+            $this->receiptService->saveAll($storedImages, $transaction);
+
+        } catch (UnsupportedImageException $imageException) {
+            $message = "Your Attach Receipt was Invalid. Please make sure that it as an image";
+            $this->flashMessages->addMessage("ErrorMessage", $message);
+        } catch (InvalidDateRange $invalidDateRange) {
+            $message = "Your have inputted an invalid date range";
+            $this->flashMessages->addMessage("ErrorMessage", $message);
+        } catch (Exception $exception) {
+            $this->flashMessages->addMessage("ErrorMessage", "An Error Occurred!");
+        }finally {
+            return $response
+                ->withHeader('Location', '/home')
+                ->withStatus(302);
+        }
     }
 
-    public function test($request, $response, $args) {
+    public function test($request, $response, $args)
+    {
 
         var_dump(Login::isLogin());
         // var_dump($this->duesService->getDue('2023-12-01'));
@@ -122,7 +154,8 @@ class UserController extends Controller {
     /**
      * View unpaid monthly dues and its total.
      */
-    public function dues($request, $response, $args) {
+    public function dues($request, $response, $args)
+    {
 
         $view = Twig::fromRequest($request);
 
@@ -141,7 +174,7 @@ class UserController extends Controller {
 
         return $view->render($response, 'pages/dues-breakdown.html', [
             'items' => $items,
-            'total' =>  Currency::format($data['total'])
+            'total' => Currency::format($data['total'])
         ]);
     }
 
@@ -152,7 +185,8 @@ class UserController extends Controller {
      *
      * @return The rendered HTML page displaying the transaction.
      */
-    public function transaction($request, $response, $args) {
+    public function transaction($request, $response, $args)
+    {
 
         $view = Twig::fromRequest($request);
 
@@ -179,7 +213,8 @@ class UserController extends Controller {
     /**
      * View unpaid monthly dues and its total.
      */
-    public function announcements($request, $response, $args) {
+    public function announcements($request, $response, $args)
+    {
 
         $view = Twig::fromRequest($request);
 
@@ -198,9 +233,9 @@ class UserController extends Controller {
         return $view->render($response, 'pages/user-announcement.html', [
             'announcements' => $result['announcements'],
             'currentPage' => $page,
-            'from' =>  isset($queryParams['from']) ? $queryParams['from'] : null,
+            'from' => isset($queryParams['from']) ? $queryParams['from'] : null,
             'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
-            'status' =>  isset($queryParams['status']) ? $queryParams['status'] : null,
+            'status' => isset($queryParams['status']) ? $queryParams['status'] : null,
             'totalPages' => ceil(($result['totalAnnouncement']) / $max),
         ]);
     }
@@ -208,7 +243,8 @@ class UserController extends Controller {
     /**
      * View unpaid monthly dues and its total.
      */
-    public function accountSettings($request, $response, $args) {
+    public function accountSettings($request, $response, $args)
+    {
 
         $user = $this->getLogin();
         $name = $user->getName();
@@ -230,7 +266,8 @@ class UserController extends Controller {
     /**
      * View Issues.
      */
-    public function issues($request, $response, $args) {
+    public function issues($request, $response, $args)
+    {
 
         $message = $this->flashMessages->getFirstMessage('message');
 
@@ -257,9 +294,9 @@ class UserController extends Controller {
             'message' => $message,
             'issues' => $result['issues'],
             'currentPage' => $page,
-            'from' =>  isset($queryParams['from']) ? $queryParams['from'] : null,
+            'from' => isset($queryParams['from']) ? $queryParams['from'] : null,
             'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
-            'status' =>  isset($queryParams['status']) ? $queryParams['status'] : null,
+            'status' => isset($queryParams['status']) ? $queryParams['status'] : null,
             'totalPages' => ceil(($result['totalIssues']) / $max),
         ]);
     }
@@ -267,7 +304,8 @@ class UserController extends Controller {
     /**
      * Create an issues
      */
-    public function issue($request, $response, $args) {
+    public function issue($request, $response, $args)
+    {
 
         $view = Twig::fromRequest($request);
 
@@ -297,7 +335,8 @@ class UserController extends Controller {
             ->withStatus(302);
     }
 
-    public function archiveIssue($request, $response, $args) {
+    public function archiveIssue($request, $response, $args)
+    {
 
         $view = Twig::fromRequest($request);
 
@@ -314,7 +353,8 @@ class UserController extends Controller {
             ->withStatus(302);
     }
 
-    public function unArchiveIssue($request, $response, $args) {
+    public function unArchiveIssue($request, $response, $args)
+    {
 
         $view = Twig::fromRequest($request);
 
