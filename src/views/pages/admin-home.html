@@ -16,38 +16,40 @@
 <main>
   <div class="container-fluid bg-light">
     <div>
-      <table class="table thead-dark table-hover">
-        <thead>
-          <tr>
-            <th scope="col">Transaction ID</th>
-            <th scope="col">From</th>
-            <th scope="col">To</th>
-            <th scope="col">Status</th>
-            <th scope="col">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if transactions is not empty %} {% for transaction in transactions
-          %}
-          <tr>
-            <td>{{transaction.getId()}}</td>
-            <td>{{transaction.getFromMonth()}}</td>
-            <td>{{transaction.getToMonth()}}</td>
-            <td>{{transaction.getStatus()}}</td>
-            <td>
-              <a
-                class="btn btn-secondary"
-                href="/admin/transaction/{{transaction.getId()}}"
-              >
-                View
-              </a>
-            </td>
-          </tr>
-          {% endfor %} {% else %}
-          <td colspan="5" class="text-center">No Data Available</td>
-          {% endif %}
-        </tbody>
-      </table>
+      <div class="table-responsive">
+        <table class="table thead-dark table-hover">
+          <thead>
+            <tr>
+              <th scope="col">Transaction ID</th>
+              <th scope="col">From</th>
+              <th scope="col">To</th>
+              <th scope="col">Status</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if transactions is not empty %} {% for transaction in
+            transactions %}
+            <tr>
+              <td>{{transaction.getId()}}</td>
+              <td>{{transaction.getFromMonth()}}</td>
+              <td>{{transaction.getToMonth()}}</td>
+              <td>{{transaction.getStatus()}}</td>
+              <td>
+                <a
+                  class="btn btn-secondary"
+                  href="/admin/transaction/{{transaction.getId()}}"
+                >
+                  View
+                </a>
+              </td>
+            </tr>
+            {% endfor %} {% else %}
+            <td colspan="5" class="text-center">No Data Available</td>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
 
       {% if (totalTransaction > transactionPerPage) %}
       <!-- Pagination Links -->
@@ -60,7 +62,12 @@
           </li>
           {% else %}
           <li class="page-item">
-            <a class="page-link" href="?page={{ page }}&from={{from}}&to={{to}}&status={{status}}">{{ page }}</a>
+            <a
+              class="page-link"
+              href="?page={{ page }}&from={{from}}&to={{to}}&status={{status}}"
+            >
+              {{ page }}
+            </a>
           </li>
           {% endif %} {% endfor %}
         </ul>
