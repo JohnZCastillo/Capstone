@@ -3,6 +3,7 @@
 namespace App\lib;
 
 use Exception;
+use Respect\Validation\Validator as V;
 
 class Image {
 
@@ -39,4 +40,25 @@ class Image {
 
         return $names;
     }
+
+    /**
+     * Check if the uploaded files are valid images.
+     *
+     * @param array $images An associative array containing image details from $_FILES superglobal.
+     *
+     * @return bool Returns true if all uploaded files are valid images; otherwise, returns false.
+     */
+    public static function isImage(array $images): bool{
+        foreach ($images['tmp_name'] as $index => $tmp_name){
+
+            $image = $images['tmp_name'][$index];
+
+            if(!V::image()->validate($image)){
+                return false;
+            }
+
+        }
+        return true;
+    }
+
 }

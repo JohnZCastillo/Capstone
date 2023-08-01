@@ -86,6 +86,12 @@ class Controller {
         return $this->transactionService->getUnpaid($user,$dues,$paymentSettings)['total'];
     }
 
-
+    /**
+     * Add Message to the flashMessages.
+     * Note: this doest show flashmessage on the view.
+     */
+    protected function flashMessage(string $key, string $message): void{
+        $this->flashMessages->addMessage($key,$message);
+    }
 
 }

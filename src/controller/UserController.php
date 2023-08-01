@@ -2,6 +2,7 @@
 
 namespace App\controller;
 
+use App\exception\image\UnsupportedImageException;
 use App\lib\Currency;
 use App\lib\Filter;
 use App\lib\Helper;
@@ -30,6 +31,8 @@ class UserController extends Controller {
         // Get page and set default value to 1 if not provided
         $page = Helper::getArrayValue($queryParams, 'page', 1);
 
+        $errorMessage = $this->flashMessages->getFirstMessage("ErrorMessage");
+
         // Get search query
         $query = Helper::getArrayValue($queryParams, 'query');
 
@@ -50,6 +53,7 @@ class UserController extends Controller {
 
         // Prepare data for the view
         $data = [
+            'errorMessage' => $errorMessage,
             'currentMonth' => $currentMonth,
             'nextMonth' => $nextMonth,
             'currentDue' => Currency::format($currentDue),
@@ -75,38 +79,50 @@ class UserController extends Controller {
      */
     public function pay($request, $response, $args) {
 
-        $user = $this->getLogin();
+        try {
+            $user = $this->getLogin();
 
-        $view = Twig::fromRequest($request);
+            $view = Twig::fromRequest($request);
 
-        $transaction = new TransactionModel();
+            $transaction = new TransactionModel();
 
-        $transaction->setAmount($request->getParsedBody()['amount']);
-        $transaction->setFromMonth(Time::startMonth($request->getParsedBody()['startDate']));
-        $transaction->setToMonth(Time::endMonth($request->getParsedBody()['endDate']));
-        $transaction->setCreatedAt(Time::timestamp());
+            $transaction->setAmount($request->getParsedBody()['amount']);
+            $transaction->setFromMonth(Time::startMonth($request->getParsedBody()['startDate']));
+            $transaction->setToMonth(Time::endMonth($request->getParsedBody()['endDate']));
+            $transaction->setCreatedAt(Time::timestamp());
 
-        // set user id to the current login user
-        $transaction->setUser($user);
+            // set user id to the current login user
+            $transaction->setUser($user);
 
-        // save transaction
-        $this->transactionService->save($transaction);
+            // save transaction
+            $this->transactionService->save($transaction);
 
-        // gcash receipts sent by user | multiple files
-        $images = $_FILES['receipts'];
+            // gcash receipts sent by user | multiple files
+            $images = $_FILES['receipts'];
 
-        // upload path
-        $path = './uploads/';
+            if(!Image::isImage($images)){
+                throw new UnsupportedImageException();
+            }
 
-        // store physicaly
-        $storedImages = Image::storeAll($path, $images);
+            // upload path
+            $path = './uploads/';
 
-        // save image to database
-        $this->receiptService->saveAll($storedImages, $transaction);
+            // store physicaly
+            $storedImages = Image::storeAll($path, $images);
 
-        return $response
-            ->withHeader('Location', '/home')
-            ->withStatus(302);
+            // save image to database
+            $this->receiptService->saveAll($storedImages, $transaction);
+
+            return $response
+                ->withHeader('Location', '/home')
+                ->withStatus(302);
+        }catch (UnsupportedImageException $imageException){
+            $message = "Your Attach Receipt was Invalid. Please make sure that it as an image";
+            $this->flashMessages->addMessage("ErrorMessage",$message);
+            return $response
+                ->withHeader('Location', '/home')
+                ->withStatus(302);
+        }
     }
 
     public function test($request, $response, $args) {
