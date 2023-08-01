@@ -1,23 +1,23 @@
-{% extends "./user.html" %} {% block body %}
-  
-{% include './partials/user-cards.html' %}
+{% extends "./user.html" %} {% block body %} {% include
+'./partials/user-cards.html' %}
 
-  <div class="container-fluid bg-light">
-    <button
-      type="button"
-      class="btn-success btn shadow"
-      data-toggle="modal"
-      data-target="#exampleModal"
-    >
-      Pay
-    </button>
+<div class="container-fluid bg-light">
+  <button
+    type="button"
+    class="btn-success btn shadow"
+    data-toggle="modal"
+    data-target="#exampleModal"
+  >
+    Pay
+  </button>
 
-    <h2>Payment History</h2>
+  <h2>Payment History</h2>
 
-    <!-- Filter here -->
-    {% include './partials/user-search.html' %}
+  <!-- Filter here -->
+  {% include './partials/user-search.html' %}
 
-    <!-- table -->
+  <!-- table -->
+  <div class="table-responsive">
     <table class="table thead-dark table-hover">
       <thead>
         <tr>
@@ -49,12 +49,9 @@
         {% endif %}
       </tbody>
     </table>
-
-  {% include './partials/pagination.html' %}
-
   </div>
-  
-  <!-- Payment Form -->
-  {% include './partials/user-payment-form.html' %}
+  {% include './partials/pagination.html' %}
+</div>
 
-{% endblock %}
+<!-- Payment Form -->
+{% include './partials/user-payment-form.html' %} {% endblock %}
