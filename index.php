@@ -8,11 +8,11 @@ use App\controller\AuthController;
 use App\controller\UserController;
 use App\middleware\Auth;
 use Slim\Factory\AppFactory;
+use Slim\Flash\Messages as FlashMessages;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use UMA\DIC\Container;
 
 require './vendor/autoload.php';
@@ -48,7 +48,7 @@ $app->group('', function ($app) {
 
     $app->get('/account', [UserController::class, 'accountSettings']);
 
-})->add(new Auth());
+})->add(Auth::class);
 
 $app->group('/admin', function ($app) {
     $app->get('/home', [AdminController::class, 'home']);
@@ -69,7 +69,7 @@ $app->group('/admin', function ($app) {
     $app->get('/announcements', [AdminController::class, 'announcements']);
     $app->get('/issues', [AdminController::class, 'issues']);
     
-})->add(new Auth());
+})->add(Auth::class);
 
 $app->post('/upload', [ApiController::class, 'upload']);
 $app->post('/payable-amount', [ApiController::class, 'amount']);
@@ -92,9 +92,14 @@ $app->get('/logout', function (Request $request, Response $response) {
 });
 
 // Return Login View
-$app->get('/login', function (Request $request, Response $response) use ($twig) {
-    return $twig->render($response, 'pages/login.html');
+$app->get('/login', function (Request $request, Response $response) use ($twig,$container) {
+    $flash = $container->get(\Slim\Flash\Messages::class);
+    $message = $flash->getFirstMessage('AuthFailedMessage');
+    return $twig->render($response, 'pages/login.html',[
+        'loginErrorMessage' => $message
+    ]);
 });
+
 
 // Return Login View
 $app->get('/admin/announcement', function (Request $request, Response $response) use ($twig) {

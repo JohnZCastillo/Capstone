@@ -42,7 +42,7 @@ class AuthController extends Controller{
             $view = Twig::fromRequest($request);
 
             return $view->render($response, 'pages/login.html', [
-                'message' => $ex->getMessage(),
+                'loginErrorMessage' => $ex->getMessage(),
             ]);
 
         }
