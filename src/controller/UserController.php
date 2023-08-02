@@ -3,19 +3,18 @@
 namespace App\controller;
 
 use App\exception\date\InvalidDateRange;
+use App\exception\image\ImageNotGcashReceiptException;
 use App\exception\image\UnsupportedImageException;
 use App\lib\Currency;
 use App\lib\Filter;
+use App\lib\GCashReceiptValidator;
 use App\lib\Helper;
 use App\lib\Image;
 use App\lib\Login;
-use App\lib\Ocr;
 use App\lib\Time;
-use App\model\enum\AnnouncementStatus;
 use App\model\enum\IssuesStatus;
 use App\model\IssuesModel;
 use App\model\TransactionModel;
-use Exception;
 use Slim\Views\Twig;
 
 class UserController extends Controller {
@@ -33,9 +32,7 @@ class UserController extends Controller {
         // Get page and set default value to 1 if not provided
         $page = Helper::getArrayValue($queryParams, 'page', 1);
 
-        $errorMessage = $this->flashMessages->getMessage("ErrorMessage");
-
-        var_dump($errorMessage);
+        $errorMessage = $this->flashMessages->getFirstMessage("ErrorMessage");
 
         // Get search query
         $query = Helper::getArrayValue($queryParams, 'query');
@@ -87,8 +84,6 @@ class UserController extends Controller {
 
             $user = $this->getLogin();
 
-            $view = Twig::fromRequest($request);
-
             $fromMonth = $request->getParsedBody()['startDate'];
             $fromMonth = Time::setToFirstDayOfMonth($fromMonth);
 
@@ -97,57 +92,49 @@ class UserController extends Controller {
 
             $transaction = new TransactionModel();
             $transaction->setAmount($request->getParsedBody()['amount']);
-            $transaction->setFromMonth($fromMonth);
-            $transaction->setToMonth($toMonth);
+            $transaction->setFromMonth(Time::convertDateStringToDateTime($fromMonth));
+            $transaction->setToMonth(Time::convertDateStringToDateTime($toMonth));
             $transaction->setCreatedAt(Time::timestamp());
-
-            // gcash receipts sent by user | multiple files
-            $images = $_FILES['receipts'];
+            $transaction->setUser($user);
 
             // upload path
             $path = './uploads/';
 
-            // store physicaly
-            $storedImages = Image::storeAll($path, $images);
-
-            $tempImage = $path . $storedImages[0];
-
-            if(Ocr::inText($tempImage,"Sent With Gcash")){
-                throw new Exception('Image is not a GCash Receipt');
-            }
-
-            if (!Time::isValidDateRange($fromMonth, $toMonth)) {
-                throw new InvalidDateRange();
-            }
-
-            // set user id to the current login user
-            $transaction->setUser($user);
-
-            // save transaction
-            $this->transactionService->save($transaction);
-
+            // gcash receipts sent by user | multiple files
+            $images = $_FILES['receipts'];
 
             if (!Image::isImage($images)) {
                 throw new UnsupportedImageException();
             }
 
+            if (!GCashReceiptValidator::isValid($images)) {
+                echo "NOT GCASH";
+                throw new ImageNotGcashReceiptException();
+            };
 
+            if (!Time::isValidDateRange($fromMonth, $toMonth)) {
+                throw new InvalidDateRange();
+            }
 
+            // store physicaly
+            $storedImages = Image::storeAll($path, $images);
+
+            // save transaction
+            $this->transactionService->save($transaction);
 
             // save image to database
             $this->receiptService->saveAll($storedImages, $transaction);
+
         } catch (UnsupportedImageException $imageException) {
-            $message = "Your Attach Receipt was Invalid. Please make sure that it as an image";
-            $this->flashMessages->addMessage("ErrorMessage", $message);
+            $imageExceptionMessage = "Your Attach Receipt was Invalid. Please make sure that it as an image";
+            $this->flashMessages->addMessage("ErrorMessage", $imageExceptionMessage);
         } catch (InvalidDateRange $invalidDateRange) {
-            $message = "Your have inputted an invalid date range";
-            $this->flashMessages->addMessage("ErrorMessage", $message);
-        } catch (Exception $exception) {
-            $this->flashMessages->addMessageNow("ErrorMessage", $exception->getMessage());
+            $invalidDateRangeMessage = "Your have inputted an invalid date range";
+            $this->flashMessages->addMessage("ErrorMessage", $invalidDateRangeMessage);
+        } catch (ImageNotGcashReceiptException $notGcashReceipt) {
+            $notGcashMessage = "The image that was sent was not a GCash receipt";
+            $this->flashMessages->addMessage("ErrorMessage", $notGcashMessage);
         } finally {
-            return $response
-                ->withHeader('Location', '/home')
-                ->withStatus(302);
         }
     }
 

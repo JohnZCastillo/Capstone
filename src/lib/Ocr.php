@@ -2,29 +2,38 @@
 
 namespace App\lib;
 
-use Exception;
 use thiagoalessio\TesseractOCR\TesseractOCR;
+use thiagoalessio\TesseractOCR\TesseractOcrException;
 
 class Ocr {
 
     /**
-     * Return the text form image
+     * Comeback to this.
+     * Handle Exception so that admin can know that OCR encountered A Problem
      */
-    static function getText($image): string {
 
-        if (!Image::isImage([$image])) {
-            throw new Exception("Not an Image");
-        }
-
-        return (new TesseractOCR($image))->run();
-    }
 
     /**
-     * Check if  a text is in image
-     * 
+     * Return the text form image
      */
-    static function inText($image, $text): bool {
-        $textInImage = getText($image);
-        return str_contains($textInImage, $text);
+    static function getText($images): string
+    {
+
+        $imageData = file_get_contents($images);
+
+        $tmpFileName = tempnam('./ocr_', "ocr");
+
+        file_put_contents($tmpFileName, $imageData);
+
+        try {
+            $output = (new TesseractOCR($tmpFileName))->run();
+        } catch (TesseractOcrException $e) {
+            $output = $e->getMessage();
+        } finally {
+            unlink($tmpFileName);
+        }
+
+        return $output;
     }
+
 }

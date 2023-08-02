@@ -15,7 +15,6 @@ class AnnouncementModel {
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
     private $id;
-
     #[ORM\Column(type: 'string')]
     private $title;
 
