@@ -1,213 +1,196 @@
 {% extends "./user.html" %} {% block body %}
 
-<style>
-  .table td {
-    vertical-align: middle;
-  }
-
-  .gap {
-    gap: 10px;
-  }
-
-  .small-img {
-    width: 200px;
-    height: 200px;
-  }
-
-  .hand {
-    cursor: pointer;
-  }
-
-  .side-rounded {
-    border-radius: 0px !important;
-    border-top-left-radius: 0.375rem !important;
-    border-bottom-left-radius: 0.375rem !important;
-  }
-</style>
 
 <div class="container-fluid py-2">
 
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
       <span class="input-group-text side-rounded" id="basic-addon1">
         Search Issue
       </span>
-    </div>
-    <input
-      id="searchBar"
-      type="text"
-      class="form-control"
-      placeholder="Issue Name"
-      aria-label="Username"
-      aria-describedby="basic-addon1"
-    />
-  </div>
-
-  <button class="btn btn-success" data-toggle="modal" data-target="#issueModal">
-    New Issue
-  </button>
-
-  <form action="/issues"  method="GET" id="viewForm">
-
- <div class="d-flex gap">
-
-    <div class="form-group">
-      <label for="">View</label>
-      <select name="type" class="form-control" id="view">
-        <option value="POSTED" {% if type == "POSTED" %}selected{% endif %}>Post</option>
-        <option value="ARCHIVE" {% if type == 'ARCHIVE' %}selected{% endif %}>Archived</option>
-      </select>
+        </div>
+        <input
+                id="searchBar"
+                type="text"
+                class="form-control"
+                placeholder="Issue Name"
+                aria-label="Username"
+                aria-describedby="basic-addon1"
+        />
     </div>
 
-    <div class="form-group">
-      <label for="">Status</label>
-      <select name="status" class="form-control" id="status">
-        <option value="ALL" {% if status == 'ALL' %}selected{% endif %}>All</option>
-        <option value="Pending" {% if status == 'Pending' %}selected{% endif %}>Pending</option>
-        <option value="Resolved" {% if status == 'Resolved' %}selected{% endif %}>Resolved</option>
-        <option value="Rejected" {% if status == 'Rejected' %}selected{% endif %}>Rejected</option>
-      </select>
+    <button class="btn btn-success" data-toggle="modal" data-target="#issueModal">
+        New Issue
+    </button>
+
+    <form action="/issues" method="GET" id="viewForm">
+
+        <div class="d-flex gap">
+
+            <div class="form-group">
+                <label for="">View</label>
+                <select name="type" class="form-control" id="view">
+                    <option value="POSTED" {% if type==
+                    "POSTED" %}selected{% endif %}>Post</option>
+                    <option value="ARCHIVE" {% if type==
+                    'ARCHIVE' %}selected{% endif %}>Archived</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="">Status</label>
+                <select name="status" class="form-control" id="status">
+                    <option value="ALL" {% if status==
+                    'ALL' %}selected{% endif %}>All</option>
+                    <option value="Pending" {% if status==
+                    'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="Resolved" {% if status==
+                    'Resolved' %}selected{% endif %}>Resolved</option>
+                    <option value="Rejected" {% if status==
+                    'Rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+
+        </div>
+
+    </form>
+
+
+    <div class="py-2 table-responsive">
+        <table class="table table-hover table-striped table-bordered">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Content</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Solution</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for issue in issues %}
+            <tr>
+                <td>{{issue.id}}</td>
+                <td>{{issue.title}}</td>
+                <td>{{issue.content}}</td>
+                <td>{{issue.getCreatedAt()}}</td>
+                <td>{{issue.status}}</td>
+                <td>{{issue.action}}</td>
+                <td>
+                    {% if issue.type == 'posted' %}
+                    <a href="/issue/archive/{{issue.id}}" class="btn btn-secondary">
+                        Archive
+                    </a>
+                    {% else %}
+                    <a href="/issue/unarchive/{{issue.id}}" class="btn btn-secondary">
+                        Unarchive
+                    </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% include './partials/pagination.html' %}
     </div>
-    
-  </div>
 
-  </form>
-
-
-  <div class="py-2">
-    <table class="table table-hover table-striped table-bordered">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Title</th>
-          <th>Content</th>
-          <th>Date</th>
-          <th>Status</th>
-          <th>Solution</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for issue in issues %}
-        <tr>
-          <td>{{issue.id}}</td>
-          <td>{{issue.title}}</td>
-          <td>{{issue.content}}</td>
-          <td>{{issue.getCreatedAt()}}</td>
-          <td>{{issue.status}}</td>
-          <td>{{issue.action}}</td>
-          <td>
-            {% if issue.type == 'posted' %}
-            <a href="/issue/archive/{{issue.id}}" class="btn btn-secondary">
-              Archive
-            </a>
-            {% else %}
-            <a href="/issue/unarchive/{{issue.id}}" class="btn btn-secondary">
-              Unarchive
-            </a>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% include './partials/pagination.html' %}
-  </div>
 </div>
 
 <div
-  class="modal fade"
-  id="issueModal"
-  tabindex="-1"
-  role="dialog"
-  aria-labelledby="exampleModalLabel"
-  aria-hidden="true"
+        class="modal fade"
+        id="issueModal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
 >
-  <div class="modal-dialog" role="document">
-    <div class="modal-content" id="issueContent">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Issue</h5>
-        <button
-          type="button"
-          class="close"
-          data-dismiss="modal"
-          aria-label="Close"
-        >
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form id="issueform" method="POST" action="/issue">
-          <div class="form-check form-switch">
-            <input
-              name="type"
-              class="form-check-input"
-              value="off"
-              type="checkbox"
-              id="anonymous"
-            />
-            <input type="text" class="d-none" name="anonymous" id="anonymousInput">
-            <label class="form-check-label" for="flexSwitchCheckDefault">
-              Submit as Anonymous
-            </label>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Title</label>
-            <input type="text" class="form-control" name="title" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Content</label>
-            <textarea
-              name="content"
-              class="form-control"
-              cols="30"
-              rows="10"
-            ></textarea>
-          </div>
-          <div class="modal-footer">
-            <a class="btn btn-secondary" data-dismiss="modal">Cancel</a>
-            <button class="btn btn-primary" type="submit">Submit</button>
-          </div>
-        </form>
-      </div>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" id="issueContent">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Issue</h5>
+                <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                >
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="issueform" method="POST" action="/issue">
+                    <div class="form-check form-switch">
+                        <input
+                                name="type"
+                                class="form-check-input"
+                                value="off"
+                                type="checkbox"
+                                id="anonymous"
+                        />
+                        <input type="text" class="d-none" name="anonymous" id="anonymousInput">
+                        <label class="form-check-label" for="flexSwitchCheckDefault">
+                            Submit as Anonymous
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Title</label>
+                        <input type="text" class="form-control" name="title"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Content</label>
+                        <textarea
+                                name="content"
+                                class="form-control"
+                                cols="30"
+                                rows="10"
+                        ></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <a class="btn btn-secondary" data-dismiss="modal">Cancel</a>
+                        <button class="btn btn-primary" type="submit">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
-  const anonyBtn = document.querySelector("#anonymous");
-  const form = document.querySelector("#issueContent");
-  const anonymousInput = document.querySelector('#anonymousInput');
+    const anonyBtn = document.querySelector("#anonymous");
+    const form = document.querySelector("#issueContent");
+    const anonymousInput = document.querySelector('#anonymousInput');
 
-  const issueForm = document.querySelector("#issueform");
+    const issueForm = document.querySelector("#issueform");
 
-  anonyBtn.addEventListener("click", (event) => {
-    if (anonyBtn.checked) {
-      form.classList.add("bg-dark");
-      form.classList.add("text-white");
-      anonymousInput.value = true;
-    } else {
-      form.classList.remove("bg-dark");
-      form.classList.remove("text-white");
-      anonymousInput.value = false;
-    }
-  });
+    anonyBtn.addEventListener("click", (event) => {
+        if (anonyBtn.checked) {
+            form.classList.add("bg-dark");
+            form.classList.add("text-white");
+            anonymousInput.value = true;
+        } else {
+            form.classList.remove("bg-dark");
+            form.classList.remove("text-white");
+            anonymousInput.value = false;
+        }
+    });
 </script>
 
 <script>
-  // view
-  const viewForm = document.querySelector('#viewForm');
+    // view
+    const viewForm = document.querySelector('#viewForm');
 
-  const view = document.querySelector('#view');
-  const status = document.querySelector('#status');
+    const view = document.querySelector('#view');
+    const status = document.querySelector('#status');
 
-  view.addEventListener('change',(event)=>{
-    viewForm.submit();
-  })
+    view.addEventListener('change', (event) => {
+        viewForm.submit();
+    })
 
-  status.addEventListener('change',(event)=>{
-    viewForm.submit();
-  })
+    status.addEventListener('change', (event) => {
+        viewForm.submit();
+    })
 
 </script>
 
