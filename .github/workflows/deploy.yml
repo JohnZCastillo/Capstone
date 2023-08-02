@@ -47,7 +47,7 @@ jobs:
           target: /opt/bitnami/capstone/htdocs
 
       - name: Install Dependencies
-        run: composer install
+        run: composer update
 
       - name: SSH into VM and Restart Server
         uses: appleboy/ssh-action@master
