@@ -3,24 +3,23 @@
 namespace App\controller;
 
 use App\exception\date\InvalidDateRange;
+use App\exception\image\ImageNotGcashReceiptException;
 use App\exception\image\UnsupportedImageException;
 use App\lib\Currency;
 use App\lib\Filter;
+use App\lib\GCashReceiptValidator;
 use App\lib\Helper;
 use App\lib\Image;
 use App\lib\Login;
 use App\lib\Time;
-use App\model\enum\AnnouncementStatus;
 use App\model\enum\IssuesStatus;
 use App\model\IssuesModel;
 use App\model\TransactionModel;
-use Exception;
 use Slim\Views\Twig;
 
 class UserController extends Controller {
 
-    public function home($request, $response, $args)
-    {
+    public function home($request, $response, $args) {
 
         $view = Twig::fromRequest($request);
         $queryParams = $request->getQueryParams();
@@ -79,13 +78,11 @@ class UserController extends Controller {
     /**
      *  Save user transaction on database
      */
-    public function pay($request, $response, $args)
-    {
+    public function pay($request, $response, $args) {
 
         try {
-            $user = $this->getLogin();
 
-            $view = Twig::fromRequest($request);
+            $user = $this->getLogin();
 
             $fromMonth = $request->getParsedBody()['startDate'];
             $fromMonth = Time::setToFirstDayOfMonth($fromMonth);
@@ -95,19 +92,13 @@ class UserController extends Controller {
 
             $transaction = new TransactionModel();
             $transaction->setAmount($request->getParsedBody()['amount']);
-            $transaction->setFromMonth($fromMonth);
-            $transaction->setToMonth($toMonth);
+            $transaction->setFromMonth(Time::convertDateStringToDateTime($fromMonth));
+            $transaction->setToMonth(Time::convertDateStringToDateTime($toMonth));
             $transaction->setCreatedAt(Time::timestamp());
-
-            if (!Time::isValidDateRange($fromMonth,$toMonth)) {
-                throw new InvalidDateRange();
-            }
-
-            // set user id to the current login user
             $transaction->setUser($user);
 
-            // save transaction
-            $this->transactionService->save($transaction);
+            // upload path
+            $path = './uploads/';
 
             // gcash receipts sent by user | multiple files
             $images = $_FILES['receipts'];
@@ -116,32 +107,38 @@ class UserController extends Controller {
                 throw new UnsupportedImageException();
             }
 
-            // upload path
-            $path = './uploads/';
+            if (!GCashReceiptValidator::isValid($images)) {
+                echo "NOT GCASH";
+                throw new ImageNotGcashReceiptException();
+            };
+
+            if (!Time::isValidDateRange($fromMonth, $toMonth)) {
+                throw new InvalidDateRange();
+            }
 
             // store physicaly
             $storedImages = Image::storeAll($path, $images);
+
+            // save transaction
+            $this->transactionService->save($transaction);
 
             // save image to database
             $this->receiptService->saveAll($storedImages, $transaction);
 
         } catch (UnsupportedImageException $imageException) {
-            $message = "Your Attach Receipt was Invalid. Please make sure that it as an image";
-            $this->flashMessages->addMessage("ErrorMessage", $message);
+            $imageExceptionMessage = "Your Attach Receipt was Invalid. Please make sure that it as an image";
+            $this->flashMessages->addMessage("ErrorMessage", $imageExceptionMessage);
         } catch (InvalidDateRange $invalidDateRange) {
-            $message = "Your have inputted an invalid date range";
-            $this->flashMessages->addMessage("ErrorMessage", $message);
-        } catch (Exception $exception) {
-            $this->flashMessages->addMessage("ErrorMessage", "An Error Occurred!");
-        }finally {
-            return $response
-                ->withHeader('Location', '/home')
-                ->withStatus(302);
+            $invalidDateRangeMessage = "Your have inputted an invalid date range";
+            $this->flashMessages->addMessage("ErrorMessage", $invalidDateRangeMessage);
+        } catch (ImageNotGcashReceiptException $notGcashReceipt) {
+            $notGcashMessage = "The image that was sent was not a GCash receipt";
+            $this->flashMessages->addMessage("ErrorMessage", $notGcashMessage);
+        } finally {
         }
     }
 
-    public function test($request, $response, $args)
-    {
+    public function test($request, $response, $args) {
 
         var_dump(Login::isLogin());
         // var_dump($this->duesService->getDue('2023-12-01'));
@@ -154,8 +151,7 @@ class UserController extends Controller {
     /**
      * View unpaid monthly dues and its total.
      */
-    public function dues($request, $response, $args)
-    {
+    public function dues($request, $response, $args) {
 
         $view = Twig::fromRequest($request);
 
@@ -185,8 +181,7 @@ class UserController extends Controller {
      *
      * @return The rendered HTML page displaying the transaction.
      */
-    public function transaction($request, $response, $args)
-    {
+    public function transaction($request, $response, $args) {
 
         $view = Twig::fromRequest($request);
 
@@ -213,8 +208,7 @@ class UserController extends Controller {
     /**
      * View unpaid monthly dues and its total.
      */
-    public function announcements($request, $response, $args)
-    {
+    public function announcements($request, $response, $args) {
 
         $view = Twig::fromRequest($request);
 
@@ -243,8 +237,7 @@ class UserController extends Controller {
     /**
      * View unpaid monthly dues and its total.
      */
-    public function accountSettings($request, $response, $args)
-    {
+    public function accountSettings($request, $response, $args) {
 
         $user = $this->getLogin();
         $name = $user->getName();
@@ -266,8 +259,7 @@ class UserController extends Controller {
     /**
      * View Issues.
      */
-    public function issues($request, $response, $args)
-    {
+    public function issues($request, $response, $args) {
 
         $message = $this->flashMessages->getFirstMessage('message');
 
@@ -304,8 +296,7 @@ class UserController extends Controller {
     /**
      * Create an issues
      */
-    public function issue($request, $response, $args)
-    {
+    public function issue($request, $response, $args) {
 
         $view = Twig::fromRequest($request);
 
@@ -335,8 +326,7 @@ class UserController extends Controller {
             ->withStatus(302);
     }
 
-    public function archiveIssue($request, $response, $args)
-    {
+    public function archiveIssue($request, $response, $args) {
 
         $view = Twig::fromRequest($request);
 
@@ -353,8 +343,7 @@ class UserController extends Controller {
             ->withStatus(302);
     }
 
-    public function unArchiveIssue($request, $response, $args)
-    {
+    public function unArchiveIssue($request, $response, $args) {
 
         $view = Twig::fromRequest($request);
 

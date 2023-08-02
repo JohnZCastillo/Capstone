@@ -20,6 +20,7 @@
         "uma/dic": "3.0",
         "slim/flash": "^0.4.0",
         "respect/validation": "^2.2",
-        "vlucas/phpdotenv": "^5.5"
+        "vlucas/phpdotenv": "^5.5",
+        "thiagoalessio/tesseract_ocr": "^2.12"
     }
 }

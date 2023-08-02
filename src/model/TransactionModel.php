@@ -68,9 +68,7 @@ class TransactionModel {
      * Get the value of forMonth
      */
     public function getFromMonth() {
-        // return $this->fromMonth;
-        
-        return Time::convert($this->toMonth);
+         return Time::convert($this->toMonth);
     }
 
     /**
@@ -87,8 +85,7 @@ class TransactionModel {
      * Get the value of toMonth
      */
     public function getToMonth() {
-        return Time::convert($this->toMonth);
-        // return $this->toMonth;
+         return Time::convert($this->toMonth);
     }
 
     /**

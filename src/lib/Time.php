@@ -147,5 +147,14 @@ class Time {
         return $targetMonth->format('Y-m-t');
     }
 
+    /**
+     * Convert String Date eg '2023-12-15' to DateTime
+     * @param string $stringDate
+     * @return DateTime
+     */
+    static function convertDateStringToDateTime(string $stringDate): DateTime{
+        return DateTime::createFromFormat('Y-m-d', $stringDate);
+    }
+
 }
 
