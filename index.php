@@ -8,7 +8,6 @@ use App\controller\AuthController;
 use App\controller\UserController;
 use App\middleware\Auth;
 use Slim\Factory\AppFactory;
-use Slim\Flash\Messages as FlashMessages;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -75,21 +74,16 @@ $app->post('/upload', [ApiController::class, 'upload']);
 $app->post('/payable-amount', [ApiController::class, 'amount']);
 
 // Public Routes
-$app->post('/register', [AuthController::class, 'register']);
-$app->get('/test', [UserController::class, 'test']);
 $app->post('/login', [AuthController::class, 'login']);
+$app->get('/logout', [AuthController::class, 'logout']);
+
+$app->post('/register', [AuthController::class, 'register']);
 
 // Return Signup View
 $app->get('/register', function (Request $request, Response $response) use ($twig) {
     return $twig->render($response, 'pages/register.html');
 });
 
-$app->get('/logout', function (Request $request, Response $response) {
-    session_destroy();
-    return $response
-        ->withHeader('Location', '/login')
-        ->withStatus(302);
-});
 
 // Return Login View
 $app->get('/login', function (Request $request, Response $response) use ($twig,$container) {
@@ -99,7 +93,6 @@ $app->get('/login', function (Request $request, Response $response) use ($twig,$
         'loginErrorMessage' => $message
     ]);
 });
-
 
 // Return Login View
 $app->get('/admin/announcement', function (Request $request, Response $response) use ($twig) {

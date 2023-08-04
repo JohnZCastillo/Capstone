@@ -3,7 +3,9 @@
 namespace App\controller;
 
 use App\lib\Login;
+use App\lib\LoginDetails;
 use App\model\enum\UserRole;
+use App\model\LoginHistoryModel;
 use App\model\UserModel;
 use App\service\DuesService;
 use App\service\PaymentService;
@@ -34,6 +36,17 @@ class AuthController extends Controller{
 
             Login::login($user->getId());
 
+            $loginHistoryModel = new LoginHistoryModel();
+            $loginDetails = LoginDetails::getLoginDetails();
+
+            $loginHistoryModel->setLoginDate($loginDetails['loginTime']);
+            $loginHistoryModel->setIp($loginDetails['ipAddress']);
+            $loginHistoryModel->setDevice($loginDetails['deviceLogin']);
+            $loginHistoryModel->setSession($loginDetails['sessionId']);
+            $loginHistoryModel->setUser($user);
+
+            $this->loginHistoryService->addLoginLog($loginHistoryModel);
+
             return $response
                 ->withHeader('Location', "/home")
                 ->withStatus(302);
@@ -47,6 +60,15 @@ class AuthController extends Controller{
 
         }
         
+    }
+
+    public function logout($request, $response, $args) {
+            $this->loginHistoryService->addLogoutLog();
+        session_destroy();
+
+            return $response
+                ->withHeader('Location', "/login")
+                ->withStatus(302);
     }
 
     /**

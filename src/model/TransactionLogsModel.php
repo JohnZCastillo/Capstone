@@ -2,10 +2,7 @@
 
 namespace App\model;
 
-use App\lib\Time;
-use App\model\TransactionModel as ModelTransactionModel;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'transaction_log')]
