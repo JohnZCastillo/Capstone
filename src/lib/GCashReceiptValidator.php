@@ -10,8 +10,7 @@ class GCashReceiptValidator{
         
         $GCASH_KEYWORDS = [
             'gcash',
-            'transaction',
-            'amount'
+            'amount',
         ];
 
         foreach ($images['tmp_name'] as $index => $tmp_name){
@@ -19,12 +18,17 @@ class GCashReceiptValidator{
             $currentImage = $images['tmp_name'][$index];
             $ocrStringResult = Ocr::getText($currentImage);
 
-            if(!V::containsAny($GCASH_KEYWORDS)->validate($ocrStringResult)){
-                return false;
+            $ocrStringResult = strtolower($ocrStringResult);
+
+            foreach ($GCASH_KEYWORDS as $keyword) {
+                if (!V::contains($keyword)->validate($ocrStringResult)) {
+                    return false;
+                }
             }
 
         }
 
         return true;
     }
+
 }

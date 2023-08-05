@@ -1,26 +1,16 @@
 <?php
 
-use App\lib\GCashReceiptValidator;
+use Respect\Validation\Validator as V;
 
 require './vendor/autoload.php';
 
+$GCASH_KEYWORDS=["amount",'gcash','transaction'];
+$target = "Sent Via Gcash amount : 500 transaction no 1231231";
 
-// use thiagoalessio\TesseractOCR\TesseractOCR;
+$target = strtolower($target);
 
-// $image = 'sample_gcash.jpeg';
-
-// $imageData = file_get_contents($image);
-
-// var_dump($imageData);
-
-// // Save the image data to a temporary file
-// $tmpFileName = tempnam('./ocr_', "ocr");
-
-// file_put_contents($tmpFileName, $imageData);
-
-// $output = (new TesseractOCR($tmpFileName))->run();
-
-// // Delete the temporary file
-// unlink($tmpFileName);
-
-// echo  $output;
+foreach ($GCASH_KEYWORDS as $keyword) {
+    if (!V::contains($keyword)->validate($target)) {
+        echo  "not Gcash";
+    }
+}
