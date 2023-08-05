@@ -15,6 +15,7 @@ use App\service\DuesService;
 use App\service\IssuesService;
 use App\service\PaymentService;
 use App\service\ReceiptService;
+use App\service\LoginHistoryService;
 use App\service\Service;
 use App\service\TransactionLogsService;
 use App\service\TransactionService;
@@ -68,6 +69,11 @@ $container->set(ReceiptService::class, static function (Container $c) {
 $container->set(Messages::class, function (Container $container) {
     return new Messages();
 });
+
+$container->set(LoginHistoryService::class, function (Container $c) {
+    return new LoginHistoryService($c->get(EntityManager::class));
+});
+
 
 // Add the services to the container. 
 $container->set(TransactionService::class, static function (Container $c) {

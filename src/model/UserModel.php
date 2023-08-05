@@ -40,6 +40,10 @@ class UserModel{
     #[ORM\OneToMany(targetEntity: TransactionLogsModel::class, mappedBy: 'updatedBy')]
     private Collection|array $logs;
 
+    #[ORM\OneToMany(targetEntity: LoginHistoryModel::class, mappedBy: 'user')]
+    private Collection|array $loginHistory;
+
+
     #[ORM\OneToMany(targetEntity: IssuesModel::class, mappedBy: 'issues')]
     private Collection|array $issues;
 
@@ -267,4 +271,23 @@ class UserModel{
 
         return $this;
     }
+
+    /**
+     * @return array|Collection
+     */
+    public function getLoginHistory(): Collection|array
+    {
+        return $this->loginHistory;
+    }
+
+    /**
+     * @param array|Collection $loginHistory
+     * @return UserModel
+     */
+    public function setLoginHistory(Collection|array $loginHistory): UserModel
+    {
+        $this->loginHistory = $loginHistory;
+        return $this;
+    }
+
 }
