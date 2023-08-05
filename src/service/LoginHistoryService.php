@@ -3,6 +3,7 @@
 namespace App\service;
 
 use App\model\LoginHistoryModel;
+use App\model\UserModel;
 use DateTime;
 
 class LoginHistoryService  extends Service {
@@ -27,4 +28,12 @@ class LoginHistoryService  extends Service {
         $this->entityManager->flush($loginHistoryModel);
     }
 
+    public function  getLogs(UserModel $model): array{
+
+        $em = $this->entityManager;
+
+        $logs = $em->getRepository(LoginHistoryModel::class)->findBy(['user' => $model],['loginDate'=>"desc"],5);
+
+        return $logs;
+    }
 }

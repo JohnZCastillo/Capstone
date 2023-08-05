@@ -15,6 +15,7 @@ use App\lib\Time;
 use App\model\enum\IssuesStatus;
 use App\model\IssuesModel;
 use App\model\TransactionModel;
+use App\service\LoginHistoryService;
 use Slim\Views\Twig;
 
 class UserController extends Controller {
@@ -249,15 +250,21 @@ class UserController extends Controller {
     public function accountSettings($request, $response, $args)
     {
 
+
         $user = $this->getLogin();
         $name = $user->getName();
         $email = $user->getEmail();
         $block = $user->getBlock();
         $lot = $user->getLot();
 
+        $loginHistory = $this->loginHistoryService->getLogs($user);
+        $currentSession = session_id();
+
         $view = Twig::fromRequest($request);
 
         return $view->render($response, 'pages/user-account-settings.html', [
+            "loginHistory" =>$loginHistory,
+            "sessionId" =>$currentSession,
             "name" => $name,
             "email" => $email,
             "block" => $block,

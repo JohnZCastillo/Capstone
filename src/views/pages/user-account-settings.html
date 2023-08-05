@@ -32,20 +32,22 @@
 <div class="container-fluid py-2 border-top">
     <h3 class="heading">Login History</h3>
     <div class="list-group">
+        {% for history in loginHistory %}
         <div class="list-group-item">
-            <div>Session ID: 1</div>
-            <div>Status: Active</div>
-            <div>Login Time: June 16, 2023 - 09:12 AM</div>
-            <div>Logout Time: -</div>
-            <div>Device: Chrome</div>
+
+            {% if history.getSession() == sessionId  %}
+             <div class="badge badge-pill bg-primary p-2">This Device</div>
+            {% endif %}
+            {% if history.isActive() %}
+            <div  class="badge badge-pill bg-success p-2">Status: Active</div>
+            {% else %}
+            <div class="badge badge-pill bg-secondary p-2">Status: Not Active</div>
+            {% endif %}
+            <div>Login Time: {{history.getLoginDate()}}</div>
+            <div>Logout Time: {{history.getLogoutDate()}}</div>
+            <div>Device: {{history.getDevice()}}</div>
         </div>
-        <div class="list-group-item">
-            <div>Session ID: 2</div>
-            <div>Status: Active</div>
-            <div>Login Time: June 16, 2023 - 09:12 AM</div>
-            <div>Logout Time: -</div>
-            <div>Device: Chrome</div>
-        </div>
+        {% endfor %}
     </div>
 
 </div>

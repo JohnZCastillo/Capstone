@@ -2,6 +2,7 @@
 
 namespace App\model;
 
+use App\lib\Time;
 use Doctrine\ORM\Mapping as ORM;
 
 //loginTime and Logout Time should timestamp
@@ -108,7 +109,7 @@ class LoginHistoryModel {
      */
     public function getLoginDate()
     {
-        return $this->loginDate;
+        return Time::convertDateTimeToDateString($this->loginDate);
     }
 
     /**
@@ -126,7 +127,10 @@ class LoginHistoryModel {
      */
     public function getLogoutDate()
     {
-        return $this->logoutDate;
+        if($this->logoutDate != null){
+            return Time::convertDateTimeToDateString($this->logoutDate);
+        }
+        return "-";
     }
 
     /**
@@ -155,6 +159,14 @@ class LoginHistoryModel {
     {
         $this->user = $user;
         return $this;
+    }
+
+    /**
+     * Check if current session is action by checking logoutdate
+     * @return bool
+     */
+    public function  isActive(): bool{
+        return $this->logoutDate == null;
     }
 
 }

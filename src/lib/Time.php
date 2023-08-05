@@ -156,5 +156,15 @@ class Time {
         return DateTime::createFromFormat('Y-m-d', $stringDate);
     }
 
+
+    /**
+     * Convert Date '2023-12-15' to String date
+     * @param string $stringDate
+     * @return string
+     */
+    static function convertDateTimeToDateString(DateTime $date): string{
+        return $date->format('Y-m-d');
+    }
+
 }
 
