@@ -34,6 +34,7 @@ class AuthController extends Controller{
                 throw new Exception("Incorrect Email or Password");
             }
 
+
             Login::login($user->getId());
 
             $loginHistoryModel = new LoginHistoryModel();
@@ -64,11 +65,16 @@ class AuthController extends Controller{
 
     public function logout($request, $response, $args) {
             $this->loginHistoryService->addLogoutLog();
+
+        session_regenerate_id();
+
         session_destroy();
+
 
             return $response
                 ->withHeader('Location', "/login")
                 ->withStatus(302);
+
     }
 
     /**

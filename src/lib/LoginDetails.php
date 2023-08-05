@@ -12,7 +12,10 @@ class LoginDetails {
         $ipAddress = $_SERVER['REMOTE_ADDR'];
 
         // Simulated device login and session ID (Replace these with actual logic)
-        $deviceLogin = "SampleDevice"; // Replace with actual device login retrieval
+        $userAgent = $_SERVER['HTTP_USER_AGENT'];
+        $browserInfo = get_browser($userAgent, true);
+        $deviceLogin = $browserInfo['browser']. " ".$browserInfo['platform'];
+
         $loginTime = new DateTime();
         $sessionId = session_id(); // Current session ID
 
