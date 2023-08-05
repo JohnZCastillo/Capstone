@@ -130,7 +130,7 @@ class LoginHistoryModel {
         if($this->logoutDate != null){
             return Time::convertDateTimeToDateString($this->logoutDate);
         }
-        return "-";
+        return null;
     }
 
     /**
