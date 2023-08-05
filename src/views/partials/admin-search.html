@@ -1,37 +1,48 @@
 <div class="container-fluid py-2">
 
-    <form action="/admin/home" method="GET" id="searchForm" class="form-inline">
-    
-      <div class="form-group w-100 mb-2">
-        <input placeholder="Search" type="text" name="query" value="{{query}}" class="form-control w-100">
-      </div>
-      
-      <div class="d-flex gap mb-2">
+    <form action="/admin/home" class="form-inline" id="searchForm" method="GET">
 
-      <div class="form-group mr-2" style="max-width: 33.33%">
-        <label for="">From</label>
-        <input type="month" name="from" value="{{from}}" class="form-control w-100">
-      </div>
-      
-      <div class="form-group mr-2" style="max-width: 33.33%">
-        <label for="">To</label>
-        <input type="month" name="to" value="{{to}}" class="form-control w-100">
-      </div>
-      
-      <div class="form-group mr-2" style="max-width: 33.33%">
-        <label f>Status</label>
-        <select name="status" class="form-control w-100">
-          <option value="ALL" {% if status == 'ALL' %}selected{% endif %}>ALL</option>
-          <option value="PENDING" {% if status == 'PENDING' %}selected{% endif %}>PENDING</option>
-          <option value="APPROVED" {% if status == 'APPROVED' %}selected{% endif %}>APPROVED</option>
-          <option value="REJECTED" {% if status == 'REJECTED' %}selected{% endif %}>REJECTED</option>
-        </select>
-      </div>
-    </div>
-      
-      <div class="form-group">
-        <button type="submit" class="btn btn-primary">Apply Filter</button>
-      </div>
-      
+        <div aria-label="Basic outlined example" class="btn-group my-2" role="group">
+            <button class="btn border-0 btn-secondary" type="button">All</button>
+            <button class="btn border-0" type="button">Approved</button>
+            <button class="btn border-0" type="button">Pending</button>
+            <button class="btn border-0" type="button">Rejected</button>
+        </div>
+
+        <div class="form-group w-100 mb-2">
+            <input class="form-control w-100" name="query" placeholder="Search" type="text" value="{{query}}">
+        </div>
+
+        <div class="d-flex gap mb-2">
+
+            <div class="form-group mr-2" style="max-width: 33.33%">
+                <label for="">From</label>
+                <input class="form-control w-100" name="from" type="month" value="{{from}}">
+            </div>
+
+            <div class="form-group mr-2" style="max-width: 33.33%">
+                <label for="">To</label>
+                <input class="form-control w-100" name="to" type="month" value="{{to}}">
+            </div>
+
+            <div class="form-group mr-2" style="max-width: 33.33%">
+                <label f>Status</label>
+                <select class="form-control w-100" name="status">
+                    <option if status== value="ALL" {%
+                    'ALL' %}selected{% endif %}>ALL</option>
+                    <option if status== value="PENDING" {%
+                    'PENDING' %}selected{% endif %}>PENDING</option>
+                    <option if status== value="APPROVED" {%
+                    'APPROVED' %}selected{% endif %}>APPROVED</option>
+                    <option if status== value="REJECTED" {%
+                    'REJECTED' %}selected{% endif %}>REJECTED</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <button class="btn btn-primary" type="submit">Apply Filter</button>
+        </div>
+
     </form>
-    </div>
+</div>
