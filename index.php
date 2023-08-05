@@ -62,8 +62,7 @@ $app->group('/admin', function ($app) {
     $app->get('/payment-map', [AdminController::class, 'paymentMap']);
 
     $app->post('/announcement', [AdminController::class, 'announcement']);
-    $app->post('/add-due', [AdminController::class, 'addDue']);
-    
+
     $app->get('/announcement/edit/{id}', [AdminController::class, 'editAnnouncement']);
     $app->get('/announcement/delete/{id}', [AdminController::class, 'deleteAnnouncement']);
     $app->get('/announcement/post/{id}', [AdminController::class, 'postAnnouncement']);

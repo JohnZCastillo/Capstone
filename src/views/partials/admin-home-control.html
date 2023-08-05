@@ -1,38 +1,46 @@
-<div class="container-fluid p-2 d-flex flex-wrap " style="gap:10px">
+<div class="container-fluid">
 
-  <button
-    type="button"
-    class="btn btn-primary"
-    data-toggle="modal"
-    data-target="#dueModal"
-  >
-    Add New Due
-  </button>
+    <a aria-controls="collapseExample"
+       aria-expanded="false"
+       class="small text-secondary text-decoration-none"
+       data-toggle="collapse"
+       href="#collapseExample"
+       role="button">Tool bar
+    </a>
 
-  <a href="/admin/payment-map" class="btn btn-primary">Payment Table</a>
+    <div aria-label="Toolbar with button groups" class="btn-toolbar mt1" id="collapseExample" role="toolbar"
+         style="gap:5px">
+        <div aria-label="Basic example" class="btn-group" role="group">
+            <button
+                    class="btn btn-outline-primary"
+                    data-target="#dueModal"
+                    data-toggle="modal"
+                    type="button"
+            >
+                Add New Due
+            </button>
 
-  <button
-          type="button"
-          class="btn btn-primary"
-          data-toggle="modal"
-          data-target="#manualPaymentModal"
-  >
-    Manual Payment
-  </button>
-  <button
-    type="button"
-    class="btn btn-success"
-    data-toggle="modal"
-    data-target="#exportModal"
-  >
-    Export Excel
-  </button>
+            <a class="btn btn-outline-primary" href="/admin/payment-map">Payment Table</a>
 
-  <button
-          class="btn btn-warning"
-          data-toggle="modal"
-          data-target="#accountModal"
-  >
-    Settings
-  </button>
+            <button
+                    class="btn btn-outline-primary"
+                    data-target="#manualPaymentModal"
+                    data-toggle="modal"
+                    type="button"
+            >
+                Manual Payment
+            </button>
+
+
+        </div>
+        <div aria-label="Third group" class="btn-group" role="group">
+            <button
+                    class="btn btn-outline-primary"
+                    data-target="#accountModal"
+                    data-toggle="modal"
+            >
+                Settings
+            </button>
+        </div>
+    </div>
 </div>
