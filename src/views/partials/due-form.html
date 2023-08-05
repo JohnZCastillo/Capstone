@@ -1,33 +1,143 @@
-<div class="modal fade" id="dueModal" tabindex="-1" role="dialog" aria-labelledby="dueModalLabel" aria-hidden="true">
+<style>
+    .calendar {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 5px;
+        text-align: center;
+    }
+
+    .calendar-box {
+        position: relative;
+        padding: 15px 10px;
+    }
+
+    .calendar-month {
+        position: absolute;
+        top: 2px;
+        left: 3px;
+    }
+
+    .calendar-price {
+        border: none;
+        outline: none;
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 18px;
+    }
+
+</style>
+
+<div aria-hidden="true" aria-labelledby="dueModalLabel" class="modal fade" id="dueModal" role="dialog" tabindex="-1">
     <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="dueModalLabel">Add New Due</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <!-- Previous dues list -->
-          <h6>Previous Dues:</h6>
-          <ul id="previousDuesList"></ul>
-  
-          <!-- New due form -->
-          <form id="newDueForm" method="POST" action="/admin/add-due">
-            <div class="form-group">
-              <label for="dueMonth">Due Month</label>
-              <input type="month" class="form-control" id="dueMonth" name="month">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dueModalLabel">Add New Due</h5>
+                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            <div class="form-group">
-              <label for="dueMonth">Amount</label>
-              <input type="number" class="form-control" id="dueMonth" name="amount">
+            <div class="modal-body">
+
+                <h6>Dues Calendar</h6>
+
+                <div class="small text-secondary ">
+                    <p>Click price to edit.</p>
+                </div>
+
+                <div class="mb-1 d-flex align-items-center" style="gap:5px">
+                    <label>Year</label>
+                    <select class="form-control" id="dueYear" style="max-width: max-content">
+                        <option>{{paymentStart}}</option>
+                    </select>
+                </div>
+                <div class="calendar">
+
+                    {% for due in dues %}
+
+                    {% set month = due.date|date("M") %}
+                    {% set amount = due.amount %}
+                    {% set bg = due.savePoint ? "badge bg-success" : "text-secondary" %}
+                    <span class="calendar-box rounded border">
+                            <span class="calendar-month small {{bg}}">{{month}}</span>
+                            <input class="calendar-price monthControl" name="{{month}}" readonly type="text"
+                                   value="₱{{amount}}">
+                        </span>
+
+                    {% endfor %}
+
+                </div>
+
+                <div class="small text-secondary mt-1">
+                    <p>This <span class="badge bg-success">month</span> symbolizes a designated month. Months not designated serve as intervals and rely on the nearest designated month's pricing.</p>
+                </div>
+
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary">Add Due</button>
+                <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
             </div>
-          </form>
         </div>
-      </div>
     </div>
-  </div>
+</div>
+
+<script>
+
+    const dueYear = document.querySelector("#dueYear");
+
+    const months = document.querySelectorAll(".monthControl");
+
+    months.forEach(target => {
+        const lostFocus = (event) => {
+            let newNumericValue = target.value.replace(/[^0-9]/g, '');
+            target.value = '₱' + newNumericValue; // Add the peso sign back
+            target.setAttribute('readonly', true);
+        }
+
+        const makeEditable = (event) => {
+
+            const currentValue = target.value;
+            let numericValue = currentValue.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+
+            target.removeAttribute('readonly');
+            target.value = numericValue;
+
+            target.removeAttribute('readonly');
+            target.focus();
+        }
+
+        const updateDue = async (event) => {
+
+            const year = dueYear.value;
+            const month = target.name;
+            const due = target.value.replace(/[^0-9]/g, '');
+
+            const currentValue = target.value;
+            let numericValue = currentValue.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+
+            const formattedDate = year + "-" + month;
+            const date = new Date(formattedDate);
+
+            let finalValue = year + "-" + (date.getMonth() + 1);
+
+            const formData = new FormData();
+
+            formData.append('month', finalValue);
+            formData.append('amount', numericValue);
+
+            const data = await fetch('/api/add-due', {
+                method: "POST",
+                body: formData
+            })
+
+            const result = await data.json();
+
+            console.log(result);
+        }
+
+        target.addEventListener('click', makeEditable);
+        target.addEventListener('change', updateDue);
+        target.addEventListener('blur', lostFocus);
+    })
+
+</script>

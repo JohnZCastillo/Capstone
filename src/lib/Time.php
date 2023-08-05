@@ -165,6 +165,23 @@ class Time {
     static function convertDateTimeToDateString(DateTime $date): string{
         return $date->format('Y-m-d');
     }
+    static function getYearFromStringDate (string $stringDate): string{
+        $date =  DateTime::createFromFormat('Y-m-d', $stringDate);
+        return $date->format('Y');
+    }
+
+    static function getDatesForMonthsOfYear($year) {
+
+        $months = array();
+
+        for ($month = 1; $month <= 12; $month++) {
+            $formattedMonth = sprintf('%04d-%02d', $year, $month);
+            $dateObject = new DateTime($formattedMonth . '-01');
+            $months[] = $dateObject;
+        }
+
+        return $months;
+    }
 
 }
 

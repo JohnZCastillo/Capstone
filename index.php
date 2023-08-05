@@ -49,6 +49,10 @@ $app->group('', function ($app) {
 
 })->add(Auth::class);
 
+$app->group('/api', function ($app) {
+    $app->post('/add-due', [ApiController::class, 'addDue']);
+})->add(Auth::class);
+
 $app->group('/admin', function ($app) {
     $app->get('/home', [AdminController::class, 'home']);
     $app->get('/transaction/{id}', [AdminController::class, 'transaction']);
