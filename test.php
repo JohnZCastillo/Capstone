@@ -1,16 +1,21 @@
 <?php
 
-use Respect\Validation\Validator as V;
+function getMonthsOfYear($year) {
+    $months = array();
 
-require './vendor/autoload.php';
-
-$GCASH_KEYWORDS=["amount",'gcash','transaction'];
-$target = "Sent Via Gcash amount : 500 transaction no 1231231";
-
-$target = strtolower($target);
-
-foreach ($GCASH_KEYWORDS as $keyword) {
-    if (!V::contains($keyword)->validate($target)) {
-        echo  "not Gcash";
+    for ($month = 1; $month <= 12; $month++) {
+        $formattedMonth = sprintf('%04d-%02d', $year, $month);
+        $dateObject = new DateTime($formattedMonth . '-01');
+        $months[] = $dateObject;
     }
+
+    return $months;
+}
+
+$currentYear = date('Y');
+$monthsForYear = getMonthsOfYear($currentYear);
+
+// Print the generated month-year pairs
+foreach ($monthsForYear as $month) {
+    var_dump($month);
 }

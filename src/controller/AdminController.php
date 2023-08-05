@@ -38,7 +38,24 @@ class AdminController extends Controller {
 
         $transactions = $result['transactions'];
 
+        $startOfPaymentDate = $this->getPaymentSettings()->getStart();
+        $startOfPaymentYear = Time::getYearFromStringDate($startOfPaymentDate);
+
+        $dues = [];
+
+        $datesForMonths = Time::getDatesForMonthsOfYear($startOfPaymentYear);
+
+        foreach ($datesForMonths as $month => $dates) {
+           $dues[] = [
+               "date" => $dates,
+               "amount" => $this->duesService->getDue($dates),
+               "savePoint" =>  $this->duesService->isSavePoint($dates)
+           ];
+        }
+
         $data = [
+            'paymentStart' => $startOfPaymentYear,
+            'dues'=>$dues,
             'transactions' => $transactions,
             'totalTransaction' => $result['totalTransaction'],
             'transactionPerPage' => $max,

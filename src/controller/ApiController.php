@@ -5,6 +5,7 @@ namespace App\controller;
 use App\lib\Filter;
 use App\lib\Image;
 use App\lib\Time;
+use App\model\DuesModel;
 use App\model\PaymentModel;
 use Slim\Views\Twig;
 
@@ -24,10 +25,27 @@ class ApiController extends Controller {
             ->withHeader('Content-Type', 'application/json');
     }
 
+    public function addDue($request, $response, $args) {
+
+        $month = $request->getParsedBody()['month'];
+        $amount = $request->getParsedBody()['amount'];
+
+        $due = new DuesModel();
+        $due->setAmount($amount);
+        $due->setMonth(Time::startMonth($month));
+
+        $this->duesService->update($due);
+
+        $payload = json_encode(['message' => "ok"]);
+
+        $response->getBody()->write($payload);
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
     public function amount($request, $response, $args) {
-        
+
         $body = $request->getParsedBody();
-        
+
         $fromMonth = $body['fromMonth'];
         $toMonth = $body['toMonth'];
 

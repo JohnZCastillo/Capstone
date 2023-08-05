@@ -32,8 +32,8 @@
         {% if transactions is not empty %} {% for transaction in transactions %}
         <tr>
           <td>{{transaction.getId()}}</td>
-          <td>{{transaction.getFromMonth()}}</td>
-          <td>{{transaction.getToMonth()}}</td>
+          <td>{{transaction.getFromMonth()|date("M d, Y")}}</td>
+          <td>{{transaction.getToMonth()|date("M d, Y")}}</td>
           <td>{{transaction.getStatus()}}</td>
           <td>
             <a
@@ -55,3 +55,4 @@
 
 <!-- Payment Form -->
 {% include './partials/user-payment-form.html' %} {% endblock %}
+
