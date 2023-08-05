@@ -15,7 +15,7 @@
     <tbody>
       {% for item in items %}
       <tr>
-        <td>{{ item.month }}</td>
+        <td>{{ item.month |date("M d, Y")}}</td>
         <td>{{ item.due }}</td>
       </tr>
       {% endfor %}

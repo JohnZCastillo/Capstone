@@ -6,7 +6,7 @@
       <div class="card-body">
         <p class="text-secondary small block">Current Due</p>
         <h2 class="card-amount text-success">{{currentDue}}</h2>
-        <span class="small text-secondary">{{currentMonth}}</span>
+        <span class="small text-secondary">{{currentMonth|date("M d, Y")}}</span>
       </div>
     </div>
 
@@ -21,7 +21,7 @@
       <div class="card-body">
         <p class="text-secondary small block">Next Due</p>
         <h2 class="card-amount text-secondary">{{nextDue}}</h2>
-        <span class="small text-secondary">{{nextMonth}}</span>
+        <span class="small text-secondary">{{nextMonth|date("M d, Y")}}</span>
       </div>
     </div>
   </div>
