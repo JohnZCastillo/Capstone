@@ -11,6 +11,7 @@ use App\model\DuesModel;
 use App\model\enum\AnnouncementStatus;
 use App\model\PaymentModel;
 use Slim\Views\Twig;
+use UMA\DIC\Container;
 
 class AdminController extends Controller {
 
@@ -413,7 +414,6 @@ class AdminController extends Controller {
 
     public function accountSettings($request, $response, $args)
     {
-
 
         $user = $this->getLogin();
         $name = $user->getName();
