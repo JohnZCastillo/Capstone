@@ -23,10 +23,10 @@ class LoginHistoryModel {
     #[ORM\Column(type: 'string')]
     private $session;
 
-    #[ORM\Column(type: 'date')]
+    #[ORM\Column(type: 'datetime')]
     private $loginDate;
 
-    #[ORM\Column(type: 'date',nullable: true)]
+    #[ORM\Column(type: 'datetime',nullable: true)]
     private $logoutDate;
 
     #[ORM\ManyToOne(targetEntity: UserModel::class, inversedBy: 'loginHistory')]
