@@ -22,6 +22,7 @@
         "respect/validation": "^2.2",
         "vlucas/phpdotenv": "^5.5",
         "thiagoalessio/tesseract_ocr": "^2.12",
-        "gabordemooij/redbean": "^5.7"
+        "gabordemooij/redbean": "^5.7",
+        "mobiledetect/mobiledetectlib": "^3.74"
     }
 }

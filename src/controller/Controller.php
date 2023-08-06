@@ -53,10 +53,11 @@ class Controller {
     }
 
     //return default payment settings
-    protected function getPaymentSettings():PaymentModel{
+    protected function getPaymentSettings():PaymentModel|null{
         $id = 1;
         return $this->paymentService->findById($id);
     }
+
 
     /**
      * Wrapper function to get unpaid due for the month.

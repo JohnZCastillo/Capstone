@@ -7,11 +7,10 @@ use App\lib\Helper;
 use App\lib\Image;
 use App\lib\Time;
 use App\model\AnnouncementModel;
-use App\model\DuesModel;
 use App\model\enum\AnnouncementStatus;
 use App\model\PaymentModel;
 use Slim\Views\Twig;
-use UMA\DIC\Container;
+use Exception;
 
 class AdminController extends Controller {
 
@@ -40,25 +39,36 @@ class AdminController extends Controller {
 
         $transactions = $result['transactions'];
 
-        $startOfPaymentDate = $this->getPaymentSettings()->getStart();
-        $startOfPaymentYear = Time::getYearFromStringDate($startOfPaymentDate);
+        try {
 
-        $dues = [];
+            $paymentSettings = $this->getPaymentSettings();
 
-        $datesForMonths = Time::getDatesForMonthsOfYear($startOfPaymentYear);
+            if($paymentSettings == null){
+                throw new Exception("Payment Not Set");
+            }
 
-        foreach ($datesForMonths as $month => $dates) {
-            $dues[] = [
-                "date" => $dates,
-                "amount" => $this->duesService->getDue($dates),
-                "savePoint" => $this->duesService->isSavePoint($dates)
-            ];
+            $startOfPaymentDate = $paymentSettings->getStart();
+            $startOfPaymentYear = Time::getYearFromStringDate($startOfPaymentDate);
+            $dues = [];
+
+            $datesForMonths = Time::getDatesForMonthsOfYear($startOfPaymentYear);
+
+            foreach ($datesForMonths as $month => $dates) {
+                $dues[] = [
+                    "date" => $dates,
+                    "amount" => $this->duesService->getDue($dates),
+                    "savePoint" => $this->duesService->isSavePoint($dates)
+                ];
+            }
+
+        } catch (Exception $e) {
+            var_dump($e->getMessage());
         }
 
 
         $data = [
-            'paymentStart' => $startOfPaymentYear,
-            'dues' => $dues,
+            'paymentStart' => $startOfPaymentYear ?? null,
+            'dues' => $dues ?? null,
             'transactions' => $transactions,
             'totalTransaction' => $result['totalTransaction'],
             'transactionPerPage' => $max,

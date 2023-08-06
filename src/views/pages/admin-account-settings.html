@@ -43,8 +43,9 @@
             {% else %}
             <div class="badge badge-pill bg-secondary p-2">Status: Not Active</div>
             {% endif %}
-            <div>Login Time: {{history.getLoginDate()|date("M d, Y")}}</div>
-            <div>Logout Time: {{ history.getLogoutDate() is empty ? "-" : history.getLogoutDate()|date("M d, Y")}}</div>
+            <div>Device Used: {{history.getDevice()}}</div>
+            <div>Login Time: {{history.getLoginDate()|date("M d, Y h:m:s a")}}</div>
+            <div>Logout Time: {{ history.getLogoutDate() is empty ? "-" : history.getLogoutDate()|date("M d, Y h:m:s a")}}</div>
         </div>
         {% endfor %}
     </div>
