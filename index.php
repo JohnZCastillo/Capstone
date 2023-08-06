@@ -30,7 +30,7 @@ $app->add(TwigMiddleware::create($app, $twig));
 
 $app->get('/', function (Request $request, Response $response) use ($twig) {
     return $twig->render($response, 'homepage.html');
-});
+})->add(\App\middleware\BypassHomepage::class);
 
 // Protected Routes
 $app->group('', function ($app) {
@@ -47,7 +47,7 @@ $app->group('', function ($app) {
 
     $app->get('/account', [UserController::class, 'accountSettings']);
 
-})->add(Auth::class);
+})->add(Auth::class)->add(\App\middleware\UserAuth::class);
 
 $app->group('/api', function ($app) {
     $app->post('/add-due', [ApiController::class, 'addDue']);
@@ -81,7 +81,7 @@ $app->group('/admin', function ($app) use ($twig){
         return $twig->render($response, 'pages/admin-all-logs.html');
     });
 
-})->add(Auth::class);
+})->add(Auth::class)->add(\App\middleware\AdminAuth::class);
 
 $app->post('/upload', [ApiController::class, 'upload']);
 $app->post('/payable-amount', [ApiController::class, 'amount']);
