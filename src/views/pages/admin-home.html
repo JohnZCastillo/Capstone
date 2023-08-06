@@ -14,20 +14,7 @@
 
     <div class="container-fluid bg-light mt-3">
 
-        <div aria-label="Basic outlined example" class="btn-group my-2" role="group">
-            <button class="btn border-0 btn-secondary" type="button">All</button>
-            <button class="btn border-0" type="button">Approved</button>
-            <button class="btn border-0" type="button">Pending</button>
-            <button class="btn border-0" type="button">Rejected</button>
-        </div>
-
-        <form>
-            <div class="input-group mb-3">
-                <input aria-describedby="button-addon2" aria-label="Recipient's username" class="form-control"
-                       placeholder="Recipient's username" type="text">
-                <button class="btn btn-outline-secondary" id="button-addon2" type="button">Filter</button>
-            </div>
-        </form>
+        {% include './partials/admin-search.html' %}
 
         <div>
             <div class="table-responsive">
