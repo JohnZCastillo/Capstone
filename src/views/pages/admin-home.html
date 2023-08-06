@@ -9,72 +9,93 @@
 <!-- Due form -->
 {% include './partials/due-form.html' %}
 
-<!-- Search Form -->
-{% include './partials/admin-search.html' %}
-
 <!-- Main Content -->
 <main>
-  <div class="container-fluid bg-light">
-    <div>
-      <div class="table-responsive">
-        <table class="table thead-dark table-hover">
-          <thead>
-            <tr>
-              <th scope="col">Transaction ID</th>
-              <th scope="col">From</th>
-              <th scope="col">To</th>
-              <th scope="col">Status</th>
-              <th scope="col">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% if transactions is not empty %} {% for transaction in
-            transactions %}
-            <tr>
-              <td>{{transaction.getId()}}</td>
-              <td>{{transaction.getFromMonth()|date("M d, Y")}}</td>
-              <td>{{transaction.getToMonth()|date("M d, Y")}}</td>
-              <td>{{transaction.getStatus()}}</td>
-              <td>
-                <a
-                  class="btn btn-secondary"
-                  href="/admin/transaction/{{transaction.getId()}}"
-                >
-                  View
-                </a>
-              </td>
-            </tr>
-            {% endfor %} {% else %}
-            <td colspan="5" class="text-center">No Data Available</td>
-            {% endif %}
-          </tbody>
-        </table>
-      </div>
 
-      {% if (totalTransaction > transactionPerPage) %}
-      <!-- Pagination Links -->
-      <nav aria-label="...">
-        Page
-        <ul class="pagination pagination-md">
-          {%for page in 1..totalPages%} {% if page == currentPage %}
-          <li class="page-item disabled">
-            <a class="page-link" href="#" tabindex="-1">{{ page }}</a>
-          </li>
-          {% else %}
-          <li class="page-item">
-            <a
-              class="page-link"
-              href="?page={{ page }}&from={{from}}&to={{to}}&status={{status}}"
-            >
-              {{ page }}
-            </a>
-          </li>
-          {% endif %} {% endfor %}
-        </ul>
-      </nav>
-      {% endif %}
+    <style>
+        .rounded-table {
+            border-radius: 10px; /* Adjust the radius value as needed */
+            overflow: hidden; /* Hide overflowing content */
+        }
+        .table-shadow{
+            box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+        }
+        .table td {
+            vertical-align: middle;
+        }
+    </style>
+
+    <div class="container-fluid">
+
+        {% include './partials/admin-search.html' %}
+
+        <div class="container-fluid">
+            <div class="table-responsive">
+                <table class="table thead-dark table-hover rounded-table table-shadow">
+                    <thead class="bg-dark text-white">
+                    <tr>
+                        <th scope="col">Transaction ID</th>
+                        <th scope="col">From</th>
+                        <th scope="col">To</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% if transactions is not empty %} {% for transaction in
+                    transactions %}
+
+                    {% set trStatus = transaction.getStatus() %}
+
+                    {% set bg = trStatus == "PENDING" ? "bg-warning text-dark" : ""%}
+                    {% set bg = trStatus == "APPROVED" ? "bg-success" : bg%}
+                    {% set bg = trStatus == "REJECTED" ? "bg-danger" : bg%}
+
+                    <tr class="bg-white">
+                        <td>{{transaction.getId()}}</td>
+                        <td>{{transaction.getFromMonth()|date("M Y")}}</td>
+                        <td>{{transaction.getToMonth()|date("M Y")}}</td>
+                        <td><span class="p-2 badge badge-pill {{bg}}">{{transaction.getStatus()|lower}}</span></td>
+                        <td>
+                            <a
+                                    class="btn btn-primary"
+                                    href="/admin/transaction/{{transaction.getId()}}"
+                            >
+                                Manage
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %} {% else %}
+                    <td class="text-center" colspan="5">No Data Available</td>
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if (totalTransaction > transactionPerPage) %}
+            <!-- Pagination Links -->
+            <nav aria-label="...">
+                Page
+                <ul class="pagination pagination-md">
+                    {%for page in 1..totalPages%} {% if page == currentPage %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">{{ page }}</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a
+                                class="page-link"
+                                href="?page={{ page }}&from={{from}}&to={{to}}&status={{status}}"
+                        >
+                            {{ page }}
+                        </a>
+                    </li>
+                    {% endif %} {% endfor %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
     </div>
-  </div>
 </main>
 
 <!-- Manual Payment -->

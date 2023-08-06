@@ -22,11 +22,11 @@ class AdminController extends Controller {
         $settings = $this->paymentService->findById(1);
 
         // if page is present then set value to page otherwise to 1
-        $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
+        $page = $queryParams['page'] ?? 1;
 
         $filter = Filter::check($queryParams);
 
-        $id = isset($queryParams['query']) ? $queryParams['query'] : null;
+        $id = $queryParams['query'] ?? null;
 
         // max transaction per page
         $max = 4;
@@ -53,6 +53,7 @@ class AdminController extends Controller {
            ];
         }
 
+
         $data = [
             'paymentStart' => $startOfPaymentYear,
             'dues'=>$dues,
@@ -61,9 +62,9 @@ class AdminController extends Controller {
             'transactionPerPage' => $max,
             'currentPage' => $page,
             'query' => $id,
-            'from' =>  isset($queryParams['from']) ? $queryParams['from'] : null,
-            'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
-            'status' =>  isset($queryParams['status']) ? $queryParams['status'] : null,
+            'from' => $queryParams['from'] ?? null,
+            'to' => $queryParams['to'] ?? null,
+            'status' => $queryParams['status'] ?? null,
             'totalPages' => ceil(($result['totalTransaction']) / $max),
             'settings' => $settings
         ];
@@ -328,25 +329,6 @@ class AdminController extends Controller {
         ]);
     }
 
-    public function addDue($request, $response, $args) {
-
-        $view = Twig::fromRequest($request);
-
-        $month = $request->getParsedBody()['month'];
-        $amount = $request->getParsedBody()['amount'];
-
-        $due = new DuesModel();
-        $due->setAmount($amount);
-        $due->setMonth(Time::startMonth($month));
-
-        $this->duesService->save($due);
-
-        $this->flashMessages->addMessage('Test', 'This is a message');
-
-        return $response
-            ->withHeader('Location', "/admin/home")
-            ->withStatus(302);
-    }
 
     /**
      * View Issues.
