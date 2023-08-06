@@ -34,31 +34,29 @@
             {% set allBg = status is empty ? "btn-secondary" : allBg %}
             {% set allCh = status is empty ? "checked" : allCh %}
 
-            <form action="/admin/home" class="form-inline" id="searchForm" method="GET">
 
-                <span class="text-secondary small d-block">Issue Status</span>
+            <span class="text-secondary small d-block">Issue Status</span>
 
-                <div class="btn-group mb-2" role="group">
-                    <label class="btn border-0 {{allBg}}" for="all">All</label>
-                    <input autocomplete="off" class="btn-check " id="all" name="status" type="radio" value="ALL"
-                           {{allCh}}>
+            <div class="btn-group mb-2" role="group">
+                <label class="btn border-0 {{allBg}}" for="all">All</label>
+                <input autocomplete="off" class="btn-check " id="all" name="status" type="radio" value="ALL"
+                       {{allCh}}>
 
-                    <label class="btn border-0 {{approvedBg}}" for="approved">Resolved</label>
-                    <input autocomplete="off" class="btn-check" id="approved" name="status" type="radio"
-                           value="resolved" {{approvedCh}}>
+                <label class="btn border-0 {{approvedBg}}" for="approved">Resolved</label>
+                <input autocomplete="off" class="btn-check" id="approved" name="status" type="radio"
+                       value="resolved" {{approvedCh}}>
 
-                    <label class="btn border-0 {{pendingBg}}" for="pending">Pending</label>
-                    <input autocomplete="off" class="btn-check" id="pending" name="status" type="radio"
-                           value="pending" {{pendingCh}}>
+                <label class="btn border-0 {{pendingBg}}" for="pending">Pending</label>
+                <input autocomplete="off" class="btn-check" id="pending" name="status" type="radio"
+                       value="pending" {{pendingCh}}>
 
-                    <label class="btn border-0 {{rejectedBg}}" for="rejected">Rejected</label>
-                    <input autocomplete="off" class="btn-check" id="rejected" name="status" type="radio"
-                           value="rejected" {{rejectedCh}}>
-                </div>
+                <label class="btn border-0 {{rejectedBg}}" for="rejected">Rejected</label>
+                <input autocomplete="off" class="btn-check" id="rejected" name="status" type="radio"
+                       value="rejected" {{rejectedCh}}>
+            </div>
 
-                <span class="text-secondary small d-block">Search Bar</span>
-                <input class="form-control" name="query" placeholder="Issue Title" type="text" value="{{query}}">
-            </form>
+            <span class="text-secondary small d-block">Search Bar</span>
+            <input class="form-control" name="query" placeholder="Issue Title" type="text" value="{{query}}">
         </div>
     </form>
 
