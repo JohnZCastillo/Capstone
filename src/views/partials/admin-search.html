@@ -1,6 +1,6 @@
 <div class="py-2">
 
-    {% set allBg = status == "all" ? "btn-secondary" : "" %}
+    {% set allBg = status == "ALL" ? "btn-secondary" : "" %}
     {% set pendingBg = status == "pending" ? "btn-secondary" : "" %}
     {% set approvedBg = status == "approved" ? "btn-secondary" : "" %}
     {% set rejectedBg = status == "rejected" ? "btn-secondary" : "" %}
@@ -13,7 +13,7 @@
         <div aria-label="Basic outlined example" class="btn-group mb-2" role="group">
 
             <label class="btn border-0 {{allBg}}" for="all">All</label>
-            <input autocomplete="off" class="btn-check " id="all" name="status" type="radio" value="all">
+            <input autocomplete="off" class="btn-check " id="all" name="status" type="radio" value="ALL">
 
             <label class="btn border-0 {{approvedBg}}" for="approved">Approved</label>
             <input autocomplete="off" class="btn-check" id="approved" name="status" type="radio" value="approved">
