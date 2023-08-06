@@ -20,6 +20,9 @@
         .table-shadow{
             box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
         }
+        .table td {
+            vertical-align: middle;
+        }
     </style>
 
     <div class="container-fluid">
@@ -41,11 +44,18 @@
                     <tbody>
                     {% if transactions is not empty %} {% for transaction in
                     transactions %}
+
+                    {% set trStatus = transaction.getStatus() %}
+
+                    {% set bg = trStatus == "PENDING" ? "bg-warning text-dark" : ""%}
+                    {% set bg = trStatus == "APPROVED" ? "bg-success" : bg%}
+                    {% set bg = trStatus == "REJECTED" ? "bg-danger" : bg%}
+
                     <tr class="bg-white">
                         <td>{{transaction.getId()}}</td>
                         <td>{{transaction.getFromMonth()|date("M Y")}}</td>
                         <td>{{transaction.getToMonth()|date("M Y")}}</td>
-                        <td>{{transaction.getStatus()|lower}}</td>
+                        <td><span class="p-2 badge badge-pill {{bg}}">{{transaction.getStatus()|lower}}</span></td>
                         <td>
                             <a
                                     class="btn btn-primary"
