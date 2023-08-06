@@ -12,14 +12,24 @@
 <!-- Main Content -->
 <main>
 
-    <div class="container-fluid bg-light mt-3">
+    <style>
+        .rounded-table {
+            border-radius: 10px; /* Adjust the radius value as needed */
+            overflow: hidden; /* Hide overflowing content */
+        }
+        .table-shadow{
+            box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+        }
+    </style>
+
+    <div class="container-fluid">
 
         {% include './partials/admin-search.html' %}
 
-        <div>
+        <div class="container-fluid">
             <div class="table-responsive">
-                <table class="table thead-dark table-hover">
-                    <thead>
+                <table class="table thead-dark table-hover rounded-table table-shadow">
+                    <thead class="bg-dark text-white">
                     <tr>
                         <th scope="col">Transaction ID</th>
                         <th scope="col">From</th>
@@ -31,17 +41,17 @@
                     <tbody>
                     {% if transactions is not empty %} {% for transaction in
                     transactions %}
-                    <tr>
+                    <tr class="bg-white">
                         <td>{{transaction.getId()}}</td>
-                        <td>{{transaction.getFromMonth()|date("M d, Y")}}</td>
-                        <td>{{transaction.getToMonth()|date("M d, Y")}}</td>
-                        <td>{{transaction.getStatus()}}</td>
+                        <td>{{transaction.getFromMonth()|date("M Y")}}</td>
+                        <td>{{transaction.getToMonth()|date("M Y")}}</td>
+                        <td>{{transaction.getStatus()|lower}}</td>
                         <td>
                             <a
-                                    class="btn btn-secondary"
+                                    class="btn btn-primary"
                                     href="/admin/transaction/{{transaction.getId()}}"
                             >
-                                View
+                                Manage
                             </a>
                         </td>
                     </tr>

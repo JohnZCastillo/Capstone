@@ -5,25 +5,30 @@
     {% set approvedBg = status == "approved" ? "btn-secondary" : "" %}
     {% set rejectedBg = status == "rejected" ? "btn-secondary" : "" %}
 
+    {% set allCh = status == "ALL" ? "checked" : "" %}
+    {% set pendingCh = status == "pending" ? "checked" : "" %}
+    {% set approvedCh = status == "approved" ? "checked" : "" %}
+    {% set rejectedCh = status == "rejected" ? "checked" : "" %}
+
     {% set allBg = status is empty ? "btn-secondary" : allBg %}
+    {% set allCh = status is empty ? "checked" : allCh %}
 
     <form action="/admin/home" class="form-inline" id="searchForm" method="GET">
 
         <span class="text-secondary small d-block">Payment Status</span>
-        <div aria-label="Basic outlined example" class="btn-group mb-2" role="group">
 
+        <div aria-label="Basic outlined example" class="btn-group mb-2" role="group">
             <label class="btn border-0 {{allBg}}" for="all">All</label>
-            <input autocomplete="off" class="btn-check " id="all" name="status" type="radio" value="ALL">
+            <input autocomplete="off" class="btn-check " id="all" name="status" type="radio" value="ALL" {{allCh}}>
 
             <label class="btn border-0 {{approvedBg}}" for="approved">Approved</label>
-            <input autocomplete="off" class="btn-check" id="approved" name="status" type="radio" value="approved">
+            <input autocomplete="off" class="btn-check" id="approved" name="status" type="radio" value="approved" {{approvedCh}}>
 
             <label class="btn border-0 {{pendingBg}}" for="pending">Pending</label>
-            <input autocomplete="off" class="btn-check" id="pending" name="status" type="radio" value="pending">
+            <input autocomplete="off" class="btn-check" id="pending" name="status" type="radio" value="pending" {{pendingCh}}>
 
             <label class="btn border-0 {{rejectedBg}}" for="rejected">Rejected</label>
-            <input autocomplete="off" class="btn-check" id="rejected" name="status" type="radio" value="rejected">
-
+            <input autocomplete="off" class="btn-check" id="rejected" name="status" type="radio" value="rejected" {{rejectedCh}}>
         </div>
 
         <span class="text-secondary small d-block">Search Bar</span>
@@ -56,7 +61,8 @@
                                 <input class="form-control" name="to" type="month" value="{{to}}">
                             </div>
                             <div class="small text-secondary mb-2">
-                                <p>Filter payments to show transactions made between the selected start and end dates.</p>
+                                <p>Filter payments to show transactions made between the selected start and end
+                                    dates.</p>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -67,8 +73,7 @@
                 </div>
             </div>
         </div>
-</div>
-</form>
+    </form>
 </div>
 
 <script>
