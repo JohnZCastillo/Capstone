@@ -66,26 +66,38 @@
             <tr>
                 <td>{{announcement.getTitle()}}</td>
                 <td>{{announcement.getUser().getName()}}</td>
-                <td>{{announcement.getCreatedAt()}}</td>
+                <td>{{announcement.getCreatedAt()|date("M d, Y")}}</td>
                 <td>{{announcement.getStatus()}}</td>
                 <td>
-                    <a class="btn btn-warning" href="/admin/announcement/edit/{{announcement.getId()}}">Edit</a>
+                    <div class="gap d-flex flex-wrap" style="max-width: max-content">
 
-                    <button class="btn btn-danger"
-                            onclick="confirm('Are You sure you want to delete this?','/admin/announcement/delete/{{announcement.getId()}}','true')">
-                        Delete
-                    </button>
+                        <a class="btn btn-warning" href="/admin/announcement/edit/{{announcement.getId()}}"
+                           style="flex: 1 1 0px;">Edit</a>
 
-                    {% if announcement.status == 'posted' %}
-                    <a class="btn btn-secondary" href="/admin/announcement/archive/{{announcement.getId()}}">Archive</a>
-                    {% else %}
-                    <a class="btn btn-success" href="/admin/announcement/post/{{announcement.getId()}}">Post</a>
-                    {% endif %}
+                        <button class="btn btn-danger"
+                                onclick="confirm('Are You sure you want to delete this?','/admin/announcement/delete/{{announcement.getId()}}','true')"
+                                style="flex: 1 1 0px;"
+                        >
+                            Delete
+                        </button>
+
+                        {% set announcementId = announcement.getId() %}
+                        {% set status = announcement.status | lower %}
+
+                        {% set displayStatus = status == 'posted' ? 'Archived' : 'Post' %}
+
+                        {% set postValue = "/admin/announcement/archive/#{announcementId}"%}
+                        {% set archiveValue = "/admin/announcement/post/#{announcementId}"%}
+                        {% set action = status == "posted" ? postValue : archiveValue%}
+
+                        <a class="btn btn-secondary" href="{{action}}" style="flex: 1 1 0px;">{{displayStatus}}</a>
+                    </div>
 
                 </td>
             </tr>
             {% endfor %} {% else %}
-            <td class="text-center" colspan="5">No Data Available</td>
+            <td class=" text-center" colspan="5">No Data Available
+            </td>
             {% endif %}
             </tbody>
         </table>
