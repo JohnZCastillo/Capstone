@@ -55,6 +55,8 @@ $app->group('/api', function ($app) {
 
 $app->group('/admin', function ($app) {
     $app->get('/home', [AdminController::class, 'home']);
+    $app->get('/account', [AdminController::class, 'accountSettings']);
+
     $app->get('/transaction/{id}', [AdminController::class, 'transaction']);
     $app->post('/transaction/reject', [AdminController::class, 'rejectPayment']);
     $app->post('/transaction/approve', [AdminController::class, 'approvePayment']);
