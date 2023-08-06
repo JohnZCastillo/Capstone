@@ -1,0 +1,49 @@
+{% extends "./admin.html" %} {% block body %}
+
+<style>
+    .rounded-table {
+        border-radius: 10px; /* Adjust the radius value as needed */
+        overflow: hidden; /* Hide overflowing content */
+    }
+
+    .table-shadow {
+        box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+</style>
+
+<main class="container-fluid">
+
+    <span class="small text-secondary text-decoration-none d-block">Tool Bar</span>
+    <div aria-label="Basic example" class="btn-group mb-2 " role="group">
+        <a class="btn btn-outline-success">Filter Logs</a>
+    </div>
+
+    <table class="table thead-dark table-hover rounded-table table-shadow">
+        <thead class="bg-dark text-white">
+        <tr>
+            <th>User</th>
+            <th>Date</th>
+            <th>Message</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>John Doe</td>
+            <td>{{ "2023-08-06 3:00:00"|date('M d, Y H:i a') }}</td>
+            <td>Logged action A.</td>
+        </tr>
+        <tr>
+            <td>Jane Smith</td>
+            <td>{{ "2023-08-06 11:30:00"|date('M d, Y H:i a')  }}</td>
+            <td>Logged action B.</td>
+        </tr>
+        {# Add more log entries as needed #}
+        </tbody>
+    </table>
+</main>
+
+{% endblock %}
