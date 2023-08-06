@@ -53,8 +53,10 @@ $app->group('/api', function ($app) {
     $app->post('/add-due', [ApiController::class, 'addDue']);
 })->add(Auth::class);
 
-$app->group('/admin', function ($app) {
+$app->group('/admin', function ($app) use ($twig){
     $app->get('/home', [AdminController::class, 'home']);
+    $app->get('/account', [AdminController::class, 'accountSettings']);
+
     $app->get('/transaction/{id}', [AdminController::class, 'transaction']);
     $app->post('/transaction/reject', [AdminController::class, 'rejectPayment']);
     $app->post('/transaction/approve', [AdminController::class, 'approvePayment']);
@@ -70,7 +72,15 @@ $app->group('/admin', function ($app) {
 
     $app->get('/announcements', [AdminController::class, 'announcements']);
     $app->get('/issues', [AdminController::class, 'issues']);
-    
+
+    $app->get('/users', function (Request $request, Response $response) use ($twig) {
+        return $twig->render($response, 'pages/admin-all-users.html');
+    });
+
+    $app->get('/logs', function (Request $request, Response $response) use ($twig) {
+        return $twig->render($response, 'pages/admin-all-logs.html');
+    });
+
 })->add(Auth::class);
 
 $app->post('/upload', [ApiController::class, 'upload']);

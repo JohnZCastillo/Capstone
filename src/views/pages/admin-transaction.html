@@ -30,7 +30,7 @@
           type="text"
           class="form-control"
           id="block"
-          value="{{ transaction.getFromMonth() }}"
+          value="{{ transaction.getFromMonth() | date('M Y')}}"
           readonly
         />
       </div>
@@ -40,7 +40,7 @@
           type="text"
           class="form-control"
           id="lot"
-          value="{{ transaction.getToMonth() }}"
+          value="{{ transaction.getToMonth() | date('M Y')}}"
           readonly
         />
       </div>

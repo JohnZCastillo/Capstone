@@ -14,7 +14,8 @@ use Slim\Views\Twig;
 
 class AdminController extends Controller {
 
-    public function home($request, $response, $args) {
+    public function home($request, $response, $args)
+    {
 
         // get the query params
         $queryParams = $request->getQueryParams();
@@ -46,17 +47,17 @@ class AdminController extends Controller {
         $datesForMonths = Time::getDatesForMonthsOfYear($startOfPaymentYear);
 
         foreach ($datesForMonths as $month => $dates) {
-           $dues[] = [
-               "date" => $dates,
-               "amount" => $this->duesService->getDue($dates),
-               "savePoint" =>  $this->duesService->isSavePoint($dates)
-           ];
+            $dues[] = [
+                "date" => $dates,
+                "amount" => $this->duesService->getDue($dates),
+                "savePoint" => $this->duesService->isSavePoint($dates)
+            ];
         }
 
 
         $data = [
             'paymentStart' => $startOfPaymentYear,
-            'dues'=>$dues,
+            'dues' => $dues,
             'transactions' => $transactions,
             'totalTransaction' => $result['totalTransaction'],
             'transactionPerPage' => $max,
@@ -75,7 +76,8 @@ class AdminController extends Controller {
     /**
      *   Get Transaction Base on id
      */
-    public function transaction($request, $response, $args) {
+    public function transaction($request, $response, $args)
+    {
 
         $view = Twig::fromRequest($request);
 
@@ -90,7 +92,8 @@ class AdminController extends Controller {
         ]);
     }
 
-    public function rejectPayment($request, $response, $args) {
+    public function rejectPayment($request, $response, $args)
+    {
 
         $view = Twig::fromRequest($request);
 
@@ -117,7 +120,8 @@ class AdminController extends Controller {
             ->withStatus(302);
     }
 
-    public function approvePayment($request, $response, $args) {
+    public function approvePayment($request, $response, $args)
+    {
 
         $view = Twig::fromRequest($request);
 
@@ -155,7 +159,8 @@ class AdminController extends Controller {
             ->withStatus(302);
     }
 
-    public function paymentSettings($request, $response, $args) {
+    public function paymentSettings($request, $response, $args)
+    {
 
         $view = Twig::fromRequest($request);
 
@@ -188,7 +193,8 @@ class AdminController extends Controller {
             ->withStatus(302);
     }
 
-    public function announcement($request, $response, $args) {
+    public function announcement($request, $response, $args)
+    {
 
         $view = Twig::fromRequest($request);
 
@@ -220,7 +226,8 @@ class AdminController extends Controller {
             ->withStatus(302);
     }
 
-    public function deleteAnnouncement($request, $response, $args) {
+    public function deleteAnnouncement($request, $response, $args)
+    {
 
         // get the query params
         $queryParams = $request->getQueryParams();
@@ -240,7 +247,8 @@ class AdminController extends Controller {
             ->withStatus(302);
     }
 
-    public function editAnnouncement($request, $response, $args) {
+    public function editAnnouncement($request, $response, $args)
+    {
 
         $view = Twig::fromRequest($request);
 
@@ -255,7 +263,8 @@ class AdminController extends Controller {
         ]);
     }
 
-    public function postAnnouncement($request, $response, $args) {
+    public function postAnnouncement($request, $response, $args)
+    {
 
         $view = Twig::fromRequest($request);
 
@@ -274,7 +283,8 @@ class AdminController extends Controller {
             ->withStatus(302);
     }
 
-    public function archiveAnnouncement($request, $response, $args) {
+    public function archiveAnnouncement($request, $response, $args)
+    {
 
         $view = Twig::fromRequest($request);
 
@@ -293,7 +303,8 @@ class AdminController extends Controller {
             ->withStatus(302);
     }
 
-    public function announcements($request, $response, $args) {
+    public function announcements($request, $response, $args)
+    {
 
         $message = $this->flashMessages->getFirstMessage('message');
 
@@ -321,9 +332,9 @@ class AdminController extends Controller {
             'message' => $message,
             'query' => $id,
             'currentPage' => $page,
-            'from' =>  isset($queryParams['from']) ? $queryParams['from'] : null,
+            'from' => isset($queryParams['from']) ? $queryParams['from'] : null,
             'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
-            'status' =>  isset($queryParams['status']) ? $queryParams['status'] : null,
+            'status' => isset($queryParams['status']) ? $queryParams['status'] : null,
             'totalPages' => ceil(($result['totalAnnouncement']) / $max),
             'status' => $status
         ]);
@@ -333,7 +344,8 @@ class AdminController extends Controller {
     /**
      * View Issues.
      */
-    public function issues($request, $response, $args) {
+    public function issues($request, $response, $args)
+    {
 
         $message = $this->flashMessages->getFirstMessage('message');
 
@@ -358,18 +370,19 @@ class AdminController extends Controller {
             'message' => $message,
             'issues' => $result['issues'],
             'currentPage' => $page,
-            'from' =>  isset($queryParams['from']) ? $queryParams['from'] : null,
+            'from' => isset($queryParams['from']) ? $queryParams['from'] : null,
             'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
-            'status' =>  isset($queryParams['status']) ? $queryParams['status'] : null,
+            'status' => isset($queryParams['status']) ? $queryParams['status'] : null,
             'totalPages' => ceil(($result['totalIssues']) / $max),
         ]);
     }
 
 
-     /**
+    /**
      * View Issues.
      */
-    public function paymentMap($request, $response, $args) {
+    public function paymentMap($request, $response, $args)
+    {
 
         $message = $this->flashMessages->getFirstMessage('message');
 
@@ -391,10 +404,35 @@ class AdminController extends Controller {
             'type' => $type,
             'message' => $message,
             'currentPage' => $page,
-            'from' =>  isset($queryParams['from']) ? $queryParams['from'] : null,
+            'from' => isset($queryParams['from']) ? $queryParams['from'] : null,
             'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
-            'status' =>  isset($queryParams['status']) ? $queryParams['status'] : null,
+            'status' => isset($queryParams['status']) ? $queryParams['status'] : null,
             // 'totalPages' => ceil(($result['totalIssues']) / $max),
+        ]);
+    }
+
+    public function accountSettings($request, $response, $args)
+    {
+
+
+        $user = $this->getLogin();
+        $name = $user->getName();
+        $email = $user->getEmail();
+        $block = $user->getBlock();
+        $lot = $user->getLot();
+
+        $loginHistory = $this->loginHistoryService->getLogs($user);
+        $currentSession = session_id();
+
+        $view = Twig::fromRequest($request);
+
+        return $view->render($response, 'pages/admin-account-settings.html', [
+            "loginHistory" => $loginHistory,
+            "sessionId" => $currentSession,
+            "name" => $name,
+            "email" => $email,
+            "block" => $block,
+            "lot" => $lot,
         ]);
     }
 }
