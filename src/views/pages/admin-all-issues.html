@@ -85,11 +85,13 @@
 
                 <tr>
                     <td>{{issue.id}}</td>
-                    <td>{{issue.title}}</td>
+                    <td>
+                        <p class="text-truncate p-0 m-0" style="max-width: 100px">{{issue.title}}</p
+                    </td>
                     <td><p class="text-truncate p-0 m-0" style="max-width: 150px">{{issue.content}}</p></td>
                     <td>{{issue.getCreatedAt()| date('M d, Y')}}</td>
                     <td><span class="badge p-2 badge-pill {{bg}}">{{issue.status}}</span></td>
-                    <td><a href="issues/{{issue.id}}" class="btn btn-primary">Manage</a></td>
+                    <td><a class="btn btn-primary" href="issues/{{issue.id}}">Manage</a></td>
                 </tr>
                 {% endfor %}
                 </tbody>

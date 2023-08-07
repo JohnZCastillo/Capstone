@@ -45,6 +45,8 @@ class IssuesService extends Service {
             if (Helper::existAndNotNull($user)) {
                 $queryBuilder->andWhere('t.user = :user')
                     ->setParameter('user', $user);
+            }else{
+                $queryBuilder->orWhere('t.user is null');
             }
 
             if (Helper::existAndNotNull($id)) {

@@ -13,12 +13,20 @@
             {% if issue.status != 'pending' %}
             {% set bg = issue.status|lower == 'resolved' ? "bg-success" : "bg-danger" %}
 
-            <p class="bg-light rounded p-2" style="max-width: max-content">You've already <span class="badge badge-pill {{bg}}">{{issue.status|lower}}</span> this issue no further action needed</p>
+            <p class="bg-light rounded p-2" style="max-width: max-content">You've already <span
+                    class="badge badge-pill {{bg}}">{{issue.status|lower}}</span> this issue no further action needed
+            </p>
             {% endif %}
             <h5 class="card-title">Issue: {{issue.title}}</h5>
             <p class="card-text">{{issue.content}}</p>
 
+            {% if issue.user.name is not empty %}
             <p class="mb-0">Sender: {{issue.user.name}} </p>
+            {% else %}
+            <p class="mb-0">Sender: <span class="badge badge-pill bg-dark text-white">Anonymous</span></p>
+            <p class="text-secondary small mb-0">This message was sent anonymously.</p>
+            {% endif %}
+
             <p class="mb-1">Date: {{issue.createdAt|date("M d, Y")}} </p>
             <!-- Resolution form -->
             <form action="/admin/issues/action" id="issueForm" method="POST">
