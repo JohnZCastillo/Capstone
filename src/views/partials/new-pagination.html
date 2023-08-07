@@ -1,0 +1,38 @@
+{%set totalPages = pagination.getTotal() %}
+{% if (totalPages > 1) %}
+<!-- Pagination Links -->
+<nav aria-label="...">
+    <span class="text-secondary small">Page</span>
+    <ul class="pagination pagination-md">
+        {%for page in 1..totalPages%} {% if page == currentPage %}
+        <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1">{{ page }}</a>
+        </li>
+        {% else %}
+        <li class="page-item">
+            {% set url = current_url(true)%}
+            {% if 'page' in url %}
+
+            {% set target = get_uri().query %}
+            {% set onPage = "page="~currentPage %}
+            {% set replacePage = "page="~page %}
+            {% set link = target|replace({(onPage): replacePage}) %}
+            {% set link = current_url() ~ "?" ~link %}
+
+            <a class="page-link" href="{{link}}">{{ page }}</a>
+            {% else %}
+
+            {% if get_uri().query|length > 0%}
+            <a class="page-link" href="{{url ~ '&page='~page }}">{{ page }}</a>
+
+            {% else %}
+            <a class="page-link" href="{{url ~ '?page='~page }}">{{ page }}</a>
+
+            {% endif %}
+
+            {% endif %}
+        </li>
+        {% endif %} {% endfor %}
+    </ul>
+</nav>
+{% endif %}

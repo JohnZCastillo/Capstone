@@ -66,9 +66,7 @@ class UserController extends Controller {
             'to' => Time::toMonth($filter['to']),
             'status' => $filter['status'],
             'settings' => $this->getPaymentSettings(),
-            'pagination'=> $paginator,
-//            '_route'        => $request->attributes->get('_route'),
-//            '_route_params' => $request->attributes->get('_route_params'),
+            'pagination'=> $paginator
         ];
 
         return $view->render($response, 'pages/user-home.html', $data);
