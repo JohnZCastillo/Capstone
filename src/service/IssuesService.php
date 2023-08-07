@@ -2,7 +2,9 @@
 
 namespace App\service;
 
-use App\lib\Helper;
+use App\lib\Paginator;
+use App\lib\QueryHelper;
+use App\lib\Time;
 use App\model\IssuesModel;
 
 // use App\model\IssuesModel;
@@ -13,100 +15,54 @@ class IssuesService extends Service {
 
     /**
      * Save model to database
-     * @param IssuesModel $dues 
+     * @param IssuesModel $dues
      * @return void
      */
-    public function save(IssuesModel $dues) {
+    public function save(IssuesModel $dues)
+    {
         $this->entityManager->persist($dues);
         $this->entityManager->flush($dues);
     }
 
-    public function findById($id): IssuesModel {
+    public function findById($id): IssuesModel
+    {
         $em = $this->entityManager;
         $dues = $em->find(IssuesModel::class, $id);
         return $dues;
     }
 
-    public function getAll($page, $max, $id, $filter, $user = null, $type = 'posted') {
+    public function getAll($page, $max, $id, $filter, $user = null, $type = 'posted', $createdAt = null)
+    {
 
-            // Step 1: Define pagination settings
-            $transactionsPerPage = $max;
-            $currentPage = $page; // Set the current page based on user input or any other criteria
+        $filter['status'] = $filter['status'] == 'ALL' ? null : $filter['status'];
 
-            $em = $this->entityManager;
+        $em = $this->entityManager;
 
-            // Step 3: Fetch paginated issues
-            $queryBuilder = $em->createQueryBuilder();
-            $queryBuilder->select('t')
-                ->from(IssuesModel::class, 't')
-                ->where('t.type = :type')
-                ->setParameter('type',$type);
+        $paginator = new Paginator();
 
-            if (Helper::existAndNotNull($user)) {
-                $queryBuilder->andWhere('t.user = :user')
-                    ->setParameter('user', $user);
-            }else{
-                $queryBuilder->orWhere('t.user is null');
-            }
+        $qb = $em->createQueryBuilder();
 
-            if (Helper::existAndNotNull($id)) {
-                $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
-            }
+        $qb->select('t')
+            ->from(IssuesModel::class, 't');
 
-            if (Helper::existAndNotNull($filter, 'from')) {
-                $queryBuilder->andWhere('t.fromMonth >= :from')->setParameter('from', $filter['from']);
-            }
+        $queryHelper = new QueryHelper($qb);
 
-            if (Helper::existAndNotNull($filter, 'to')) {
-                $queryBuilder->andWhere('t.toMonth <= :to')->setParameter('to', $filter['to']);
-            }
+        if ($createdAt != null) {
+            $createdEnd = Time::convertDateStringToDateTimeEndDay($createdAt);
+            $createdAt = Time::convertDateStringToDateTimeStartDay($createdAt);
+        }
 
-            if (Helper::existAndNotNull($filter, 'status')) {
-                if ($filter['status'] != 'ALL') {
-                    $queryBuilder->andWhere('t.status = :status')->setParameter('status', $filter['status']);
-                }
-            }
+        $queryHelper->Where("t.type = :type", "type", $type)
+            ->andWhere("t.user = :user", "user", $user)
+            ->andWhere("t.id like :id", "id", $id)
+            ->andWhere("t.createdAt >= :createdAt", "createdAt", $createdAt)
+            ->andWhere("t.createdAt <= :createdEnd", "createdEnd", $createdEnd)
+            ->andWhere("t.status = :status", "status", $filter['status']);
 
-            $queryBuilder->setMaxResults($transactionsPerPage)
-                ->setFirstResult(($currentPage - 1) * $transactionsPerPage);
+        $queryHelper->getQuery()->orWhere('t.user is null');
 
-            // Step 4: Execute the query and retrieve issues
-            $issues = $queryBuilder->getQuery()->getResult();
+        var_dump($queryHelper->getQuery()->getQuery()->getSQL());
 
-            $queryBuilder = $em->createQueryBuilder();
-            $queryBuilder->select('count(t.id)')
-                ->from(IssuesModel::class, 't')
-                ->where('t.type = :type')
-                ->setParameter('type',$type);
-
-            if (Helper::existAndNotNull($user)) {
-                $queryBuilder->andWhere('t.user = :user')
-                    ->setParameter('user', $user);
-            }
-
-            if (Helper::existAndNotNull($id)) {
-                $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
-            }
-
-            if (Helper::existAndNotNull($filter, 'from')) {
-                $queryBuilder->andWhere('t.fromMonth >= :from')->setParameter('from', $filter['from']);
-            }
-
-            if (Helper::existAndNotNull($filter, 'to')) {
-                $queryBuilder->andWhere('t.toMonth <= :to')->setParameter('to', $filter['to']);
-            }
-
-            if (Helper::existAndNotNull($filter, 'status')) {
-                if ($filter['status'] != 'ALL') {
-                    $queryBuilder->andWhere('t.status = :status')->setParameter('status', $filter['status']);
-                }
-            }
-
-            $totaIssues = $queryBuilder->getQuery()->getSingleScalarResult();
-
-            return [
-                'issues' => $issues,
-                'totalIssues' => $totaIssues
-            ];
+        return $paginator->paginate($queryHelper->getQuery(), $page, $max);
     }
 }

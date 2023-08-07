@@ -363,26 +363,28 @@ class AdminController extends Controller {
         $queryParams = $request->getQueryParams();
 
         // if page is present then set value to page otherwise to 1
-        $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
+        $page = $queryParams['page'] ?? 1;
 
-        $type = isset($queryParams['type']) ? $queryParams['type'] : 'posted';
+        $type = $queryParams['type'] ?? 'posted';
 
         // max transaction per page
         $max = 5;
 
         $filter = Filter::check($queryParams);
 
-        $result = $this->issuesService->getAll($page, $max, null, $filter, null, $type);
+        $createdAt = empty($queryParams['createdAt']) ? null :$queryParams['createdAt'] ;
+        $query = empty($queryParams['query']) ? null : $queryParams['query'];
+
+        $pagination = $this->issuesService->getAll($page, $max, $query, $filter, null, $type,$createdAt);
 
         return $view->render($response, 'pages/admin-all-issues.html', [
             'type' => $type,
             'message' => $message,
-            'issues' => $result['issues'],
+            'issues' => $pagination->getItems(),
             'currentPage' => $page,
-            'from' => isset($queryParams['from']) ? $queryParams['from'] : null,
-            'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
-            'status' => isset($queryParams['status']) ? $queryParams['status'] : null,
-            'totalPages' => ceil(($result['totalIssues']) / $max),
+            'status' => $queryParams['status'] ?? null,
+            'pagination' => $pagination,
+            'createdAt' => $createdAt
         ]);
     }
 

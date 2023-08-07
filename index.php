@@ -16,6 +16,11 @@ use UMA\DIC\Container;
 
 require './vendor/autoload.php';
 
+date_default_timezone_set("Asia/Manila");
+
+$currentTimezone = date_default_timezone_get();
+var_dump($currentTimezone);
+
 /** @var Container $container */
 $container = require_once __DIR__ . '/bootstrap.php';
 
@@ -26,6 +31,8 @@ $app = AppFactory::create();
 // Configure Twig view renderer
 $twig = Twig::create('./src/views/', ['cache' => false,'debug'=>true]);
 $twig->addExtension(new \Twig\Extension\DebugExtension());
+//$twig->getExtension(\Twig\Extension\CoreExtension::class)->setTimezone('Asia/Manila');
+
 $app->add(TwigMiddleware::create($app, $twig));
 
 $app->get('/', function (Request $request, Response $response) use ($twig) {

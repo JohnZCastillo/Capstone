@@ -56,7 +56,39 @@
             </div>
 
             <span class="text-secondary small d-block">Search Bar</span>
-            <input class="form-control" name="query" placeholder="Issue Title" type="text" value="{{query}}">
+            <div class="input-group mb-3">
+                <input class="form-control" name="query" placeholder="Issue Title" type="text" value="{{query}}">
+                <button class="btn border-0 text-white btn-secondary btn-outline-primary" data-target="#filterModal"
+                        data-toggle="modal" type="button">
+                    Filter
+                </button>
+
+                <!-- Modal -->
+                <div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" id="filterModal"
+                     role="dialog"
+                     tabindex="-1">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Filter Issues</h5>
+                                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group mb-1">
+                                    <label class="form-label">Select Date</label>
+                                    <input class="form-control" name="createdAt" type="date" value="{{createdAt|date('Y-m-d')}}">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+                                <button class="btn btn-primary" type="submit">Apply Filter</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </form>
 
@@ -98,7 +130,7 @@
             </table>
         </div>
 
-        {% include './partials/pagination.html' %}
+        {% include './partials/new-pagination.html' %}
     </div>
 </div>
 
