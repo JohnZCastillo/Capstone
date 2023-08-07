@@ -386,6 +386,46 @@ class AdminController extends Controller {
         ]);
     }
 
+    /**
+     * View Issues.
+     */
+    public function manageIssue($request, $response, $args)
+    {
+
+        $id = $args['id'];
+
+        $view = Twig::fromRequest($request);
+
+        //might throw and error
+        $issue = $this->issuesService->findById($id);
+
+
+        return $view->render($response, 'pages/admin-manage-issue.html', [
+            'issue' => $issue,
+        ]);
+    }
+
+
+    public function actionIssue($request, $response, $args)
+    {
+
+        $content = $request->getParsedBody();
+
+        $id = $content['id'];
+
+        $issue = $this->issuesService->findById($id);
+
+        $issue->setAction($content['action']);
+
+        $issue->setStatus($content['status']);
+
+        $this->issuesService->save($issue);
+
+        return $response
+            ->withHeader('Location', "/admin/issues/$id")
+            ->withStatus(302);
+    }
+
 
     /**
      * View Issues.

@@ -71,7 +71,11 @@ $app->group('/admin', function ($app) use ($twig){
     $app->get('/announcement/archive/{id}', [AdminController::class, 'archiveAnnouncement']);
 
     $app->get('/announcements', [AdminController::class, 'announcements']);
+
     $app->get('/issues', [AdminController::class, 'issues']);
+    $app->get('/issues/{id}', [AdminController::class, 'manageIssue']);
+    $app->post('/issues/action', [AdminController::class, 'actionIssue']);
+
 
     $app->get('/users', function (Request $request, Response $response) use ($twig) {
         return $twig->render($response, 'pages/admin-all-users.html');

@@ -80,7 +80,7 @@
 
 
                 {% set bg = issueStatus == "PENDING" ? "bg-warning text-dark" : ""%}
-                {% set bg = issueStatus == "APPROVED" ? "bg-success" : bg%}
+                {% set bg = issueStatus == "RESOLVED" ? "bg-success" : bg%}
                 {% set bg = issueStatus == "REJECTED" ? "bg-danger" : bg%}
 
                 <tr>
@@ -89,7 +89,7 @@
                     <td><p class="text-truncate p-0 m-0" style="max-width: 150px">{{issue.content}}</p></td>
                     <td>{{issue.getCreatedAt()| date('M d, Y')}}</td>
                     <td><span class="badge p-2 badge-pill {{bg}}">{{issue.status}}</span></td>
-                    <td><a class="btn btn-primary">Manage</a></td>
+                    <td><a href="issues/{{issue.id}}" class="btn btn-primary">Manage</a></td>
                 </tr>
                 {% endfor %}
                 </tbody>

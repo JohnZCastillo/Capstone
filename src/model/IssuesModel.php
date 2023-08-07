@@ -7,6 +7,8 @@ use App\model\enum\IssuesStatus;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 
+//Please add updated at
+//and id who take the action
 #[ORM\Entity]
 #[ORM\Table(name: 'issues')]
 class IssuesModel{

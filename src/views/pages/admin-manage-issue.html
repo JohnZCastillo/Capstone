@@ -1,0 +1,85 @@
+{% extends "./admin.html" %} {% block body %}
+
+{% set readOnly = issue.status != 'pending' ? "readonly" : "" %}
+
+<div class="container-fluid mt-1 pb-2">
+
+    <a class="btn btn-primary mb-2 mt-1 " href="/admin/issues">Back</a>
+    <h1 class="mb-4 display-4">Issue Resolution</h1>
+
+    <div class="card">
+        <div class="card-body">
+
+            {% if issue.status != 'pending' %}
+            {% set bg = issue.status|lower == 'resolved' ? "bg-success" : "bg-danger" %}
+
+            <p class="bg-light rounded p-2" style="max-width: max-content">You've already <span class="badge badge-pill {{bg}}">{{issue.status|lower}}</span> this issue no further action needed</p>
+            {% endif %}
+            <h5 class="card-title">Issue: {{issue.title}}</h5>
+            <p class="card-text">{{issue.content}}</p>
+
+            <p class="mb-0">Sender: {{issue.user.name}} </p>
+            <p class="mb-1">Date: {{issue.createdAt|date("M d, Y")}} </p>
+            <!-- Resolution form -->
+            <form action="/admin/issues/action" id="issueForm" method="POST">
+                <div class="form-group">
+                    <input class="d-none" name="id" type="text" value="{{issue.id}}">
+                    <label class="form-label small text-secondary" for="resolution">Your Message:</label>
+                    <textarea class="form-control" id="resolution" name="action" rows="4"
+                              {{readOnly}}>{{issue.action}}</textarea>
+                </div>
+                <div class="form-group mt-2">
+
+                    {% if issue.status == 'pending' %}
+
+                    <label class="btn btn-success" for="resolved">Resolved</label>
+                    <input autocomplete="off" class="btn-check " id="resolved" name="status"
+                           type="radio"
+                           value="resolved"
+                    >
+
+                    <label class="btn btn-danger" for="rejected">Reject</label>
+                    <input autocomplete="off" class="btn-check " id="rejected" name="status"
+                           onclick="confirm('Your about to reject this issue','test')"
+                           type="radio"
+                           value="rejected"
+                    >
+                    {% endif %}
+
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% if issue.status == 'pending' %}
+
+<script>
+
+    const issueForm = document.querySelector("#issueForm");
+    const resolveBtn = document.querySelector('#resolved');
+    const rejectBtn = document.querySelector('#rejected');
+
+    const resolveMessage = "<p class='text-success font-weight-bold'>You are about to resolve this issue.</p> <p>Resolving the issue will mark it as completed and initiate the necessary actions to address the reported problem. Once resolved, the sender will be notified of the resolution status.</p> <p>Are you sure you want to proceed?</p>";
+    const rejectMessage = "<p class='text-danger font-weight-bold'>You are about to reject this issue.</p> <p>Rejecting the issue will indicate that it will not be addressed further and the sender will be notified of the rejection status.</p> <p>Are you sure you want to proceed with rejection?</p>";
+
+    resolveBtn.addEventListener('click', (event) => {
+        confirm(resolveMessage, submitForm);
+
+    })
+
+    rejectBtn.addEventListener('click', (event) => {
+        confirm(rejectMessage, submitForm);
+    })
+
+    const submitForm = () => {
+        issueForm.submit();
+    }
+
+</script>
+
+{% include './partials/confirmation.html' %}
+{% endif %}
+
+{% endblock %}
