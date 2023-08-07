@@ -37,8 +37,6 @@ class AdminController extends Controller {
         //Get Transaction
         $result = $this->transactionService->getAll($page, $max, $id, $filter);
 
-        $transactions = $result['transactions'];
-
         try {
 
             $paymentSettings = $this->getPaymentSettings();
@@ -69,15 +67,15 @@ class AdminController extends Controller {
         $data = [
             'paymentStart' => $startOfPaymentYear ?? null,
             'dues' => $dues ?? null,
-            'transactions' => $transactions,
-            'totalTransaction' => $result['totalTransaction'],
+            'transactions' => $result->getItems(),
+            'totalTransaction' => $result->getTotal(),
             'transactionPerPage' => $max,
             'currentPage' => $page,
             'query' => $id,
             'from' => $queryParams['from'] ?? null,
             'to' => $queryParams['to'] ?? null,
             'status' => $queryParams['status'] ?? null,
-            'totalPages' => ceil(($result['totalTransaction']) / $max),
+            'totalPages' => ceil(($result->getTotal()) / $max),
             'settings' => $settings
         ];
 

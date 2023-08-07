@@ -23,12 +23,12 @@
 
             {% set allBg = status == "ALL" ? "btn-secondary" : "" %}
             {% set pendingBg = status == "pending" ? "btn-secondary" : "" %}
-            {% set approvedBg = status == "resolve" ? "btn-secondary" : "" %}
+            {% set approvedBg = status == "resolved" ? "btn-secondary" : "" %}
             {% set rejectedBg = status == "rejected" ? "btn-secondary" : "" %}
 
             {% set allCh = status == "ALL" ? "checked" : "" %}
             {% set pendingCh = status == "pending" ? "checked" : "" %}
-            {% set approvedCh = status == "resolve" ? "checked" : "" %}
+            {% set approvedCh = status == "resolved" ? "checked" : "" %}
             {% set rejectedCh = status == "rejected" ? "checked" : "" %}
 
             {% set allBg = status is empty ? "btn-secondary" : allBg %}
