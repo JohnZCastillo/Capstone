@@ -16,6 +16,8 @@ use UMA\DIC\Container;
 
 require './vendor/autoload.php';
 
+date_default_timezone_set("Asia/Manila");
+
 /** @var Container $container */
 $container = require_once __DIR__ . '/bootstrap.php';
 
@@ -83,6 +85,16 @@ $app->group('/admin', function ($app) use ($twig){
 
     $app->get('/logs', function (Request $request, Response $response) use ($twig) {
         return $twig->render($response, 'pages/admin-all-logs.html');
+    });
+
+    $app->get('/system', function (Request $request, Response $response) use ($twig) {
+
+        $timezone = date_default_timezone_get();
+
+        return $twig->render($response, 'pages/admin-system-settings.html',[
+            'timezone'=>$timezone
+        ]);
+
     });
 
 })->add(\App\middleware\AdminAuth::class)->add(Auth::class);

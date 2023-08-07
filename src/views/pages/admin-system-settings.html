@@ -1,0 +1,12 @@
+{% extends "./admin.html" %} {% block body %}
+<div class="container-fluid mt-2">
+    <h1 class="display-6">System Settings</h1>
+    <form>
+        <div class="form-group">
+            <label>Time Zone</label>
+            <input class="form-control" readonly type="text" value="{{timezone}}">
+        </div>
+        <button class="btn btn-primary mt-1" type="submit">Save Settings</button>
+    </form>
+</div>
+{% endblock %}
