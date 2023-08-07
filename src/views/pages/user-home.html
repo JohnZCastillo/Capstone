@@ -2,57 +2,63 @@
 './partials/user-cards.html' %}
 
 <div class="container-fluid bg-light">
-  <button
-    type="button"
-    class="btn-success btn shadow"
-    data-toggle="modal"
-    data-target="#exampleModal"
-  >
-    Pay
-  </button>
+    <button
+            class="btn-success btn shadow"
+            data-target="#exampleModal"
+            data-toggle="modal"
+            type="button"
+    >
+        Pay
+    </button>
 
-  <h2>Payment History</h2>
+    <h2>Payment History</h2>
 
-  <!-- Filter here -->
-  {% include './partials/user-search.html' %}
+    <!-- Filter here -->
+    {% include './partials/user-search.html' %}
 
-  <!-- table -->
-  <div class="table-responsive">
-    <table class="table thead-dark table-hover">
-      <thead>
-        <tr>
-          <th scope="col">Transaction ID</th>
-          <th scope="col">From</th>
-          <th scope="col">To</th>
-          <th scope="col">Status</th>
-          <th scope="col">Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% if transactions is not empty %} {% for transaction in transactions %}
-        <tr>
-          <td>{{transaction.getId()}}</td>
-          <td>{{transaction.getFromMonth()|date("M d, Y")}}</td>
-          <td>{{transaction.getToMonth()|date("M d, Y")}}</td>
-          <td>{{transaction.getStatus()}}</td>
-          <td>
-            <a
-              class="btn btn-secondary"
-              href="/transaction/{{transaction.getId()}}"
-            >
-              View
-            </a>
-          </td>
-        </tr>
-        {% endfor %} {% else %}
-        <td colspan="5" class="text-center">No Data Available</td>
-        {% endif %}
-      </tbody>
-    </table>
-  </div>
-  {% include './partials/pagination.html' %}
+    <!-- table -->
+    <div class="table-responsive">
+        <table class="table thead-dark table-hover">
+            <thead>
+            <tr>
+                <th scope="col">Transaction ID</th>
+                <th scope="col">From</th>
+                <th scope="col">To</th>
+                <th scope="col">Status</th>
+                <th scope="col">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+
+
+            {% set transactions = pagination.items %}
+
+
+            {% if transactions is not empty %} {% for transaction in transactions %}
+            <tr>
+                <td>{{transaction.getId()}}</td>
+                <td>{{transaction.getFromMonth()|date("M d, Y")}}</td>
+                <td>{{transaction.getToMonth()|date("M d, Y")}}</td>
+                <td>{{transaction.getStatus()}}</td>
+                <td>
+                    <a
+                            class="btn btn-secondary"
+                            href="/transaction/{{transaction.getId()}}"
+                    >
+                        View
+                    </a>
+                </td>
+            </tr>
+            {% endfor %} {% else %}
+            <td class="text-center" colspan="5">No Data Available</td>
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    {{ dump(app.request) }}
+
 </div>
 
 <!-- Payment Form -->
 {% include './partials/user-payment-form.html' %} {% endblock %}
-

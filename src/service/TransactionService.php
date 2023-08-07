@@ -2,12 +2,12 @@
 
 namespace App\service;
 
-use App\lib\Helper;
+use App\lib\Paginator;
+use App\lib\QueryHelper;
 use App\lib\Time;
 use App\model\PaymentModel;
 use App\model\TransactionModel;
 use App\model\UserModel;
-use Doctrine\ORM;
 
 class TransactionService extends Service {
 
@@ -16,7 +16,8 @@ class TransactionService extends Service {
      * @param TransactionModel $transaction
      * @return void
      */
-    public function save(TransactionModel $transaction) {
+    public function save(TransactionModel $transaction)
+    {
         $this->entityManager->persist($transaction);
         $this->entityManager->flush($transaction);
     }
@@ -26,105 +27,53 @@ class TransactionService extends Service {
      * @param int $id
      * @return TransactionModel
      */
-    public function findById($id): TransactionModel {
+    public function findById($id): TransactionModel
+    {
         $em = $this->entityManager;
         $transaction = $em->find(TransactionModel::class, $id);
         return $transaction;
     }
 
-   
+
     /**
      * Retrieve user transaction from db
      * @param int $page current page
      * @param int $max max transaction per page
      * @return array An array containing 'transactions' and 'totalTransactions'.
      */
-    public function getAll($page, $max, $id,$filter, $user = null) {
+    public function getAll($page, $max, $id, $filter, $user = null)
+    {
 
-        $result = [];
-
-        // Step 1: Define pagination settings
-        $transactionsPerPage = $max;
-        $currentPage = $page; // Set the current page based on user input or any other criteria
+        $filter['status'] = $filter['status'] == 'ALL' ? null : $filter['status'];
 
         $em = $this->entityManager;
 
-        // Step 3: Fetch paginated transactions
-        $queryBuilder = $em->createQueryBuilder();
-        $queryBuilder->select('t')
+        $paginator = new Paginator();
+
+        $qb = $em->createQueryBuilder();
+
+        $qb->select('t')
             ->from(TransactionModel::class, 't');
 
-        if(Helper::existAndNotNull($user)){
-            $queryBuilder->where('t.user = :user')
-            ->setParameter('user', $user);
-        }
+        $queryHelper = new QueryHelper($qb);
 
-        if (Helper::existAndNotNull($id)) {
-            $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
-        }
+        $queryHelper->Where("t.user = :user", "user", $user)
+            ->andWhere("t.id like :id", "id", $id)
+            ->andWhere("t.fromMonth >= :fromMonth", 'fromMonth', $filter['from'])
+            ->andWhere("t.toMonth <= :toMonth", "toMonth", $filter['to'])
+            ->andWhere("t.status = :status", "status", $filter['status']);
 
-        if (Helper::existAndNotNull($filter,'from')) {
-            $queryBuilder->andWhere('t.fromMonth >= :from')->setParameter('from', $filter['from']);
-        }
-
-        if (Helper::existAndNotNull($filter,'to')) {
-            $queryBuilder->andWhere('t.toMonth <= :to')->setParameter('to', $filter['to']);
-        }
-
-        if (Helper::existAndNotNull($filter,'status')) {
-            if($filter['status'] != 'ALL'){
-                $queryBuilder->andWhere('t.status = :status')->setParameter('status', $filter['status']);
-            }
-        }
-
-        $queryBuilder->setMaxResults($transactionsPerPage)
-            ->setFirstResult(($currentPage - 1) * $transactionsPerPage);
-
-        // Step 4: Execute the query and retrieve transactions
-        $transactions = $queryBuilder->getQuery()->getResult();
-
-        $queryBuilder = $em->createQueryBuilder();
-        $queryBuilder->select('count(t.id)')
-            ->from(TransactionModel::class, 't');
-
-            if(Helper::existAndNotNull($user)){
-                $queryBuilder->where('t.user = :user')
-                ->setParameter('user', $user);
-            }
-    
-            if (Helper::existAndNotNull($id)) {
-                $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
-            }
-    
-            if (Helper::existAndNotNull($filter,'from')) {
-                $queryBuilder->andWhere('t.fromMonth >= :from')->setParameter('from', $filter['from']);
-            }
-    
-            if (Helper::existAndNotNull($filter,'to')) {
-                $queryBuilder->andWhere('t.toMonth <= :to')->setParameter('to', $filter['to']);
-            }
-    
-            if (Helper::existAndNotNull($filter,'status')) {
-                if($filter['status'] != 'ALL'){
-                    $queryBuilder->andWhere('t.status = :status')->setParameter('status', $filter['status']);
-                }
-            }
-
-        $totalTransaction = $queryBuilder->getQuery()->getSingleScalarResult();
-
-        return [
-            'transactions' => $transactions,
-            'totalTransaction' => $totalTransaction
-        ];
+        return $paginator->paginate($queryHelper->getQuery(), $page, $max);
     }
 
-    public function getUnpaid($user, DuesService $dueService, PaymentModel $payment,$startMonth = null, $endMonth = null) {
+    public function getUnpaid($user, DuesService $dueService, PaymentModel $payment, $startMonth = null, $endMonth = null)
+    {
 
         $months = [];
 
-        if($startMonth != null and $endMonth != null){
+        if ($startMonth != null and $endMonth != null) {
             $months = Time::getMonths($startMonth, $endMonth);
-        }else{
+        } else {
             $months = Time::getMonths($payment->getStart(), Time::thisMonth());
         }
 
@@ -161,7 +110,8 @@ class TransactionService extends Service {
      * @param DuesService @dueService
      * @return int
      */
-    public function getBalance($user, $month, DuesService $dueService) {
+    public function getBalance($user, $month, DuesService $dueService)
+    {
         return $this->isPaid($user, $month) ? 0
             : $dueService->getDue($month);
     }
@@ -172,7 +122,8 @@ class TransactionService extends Service {
      * @param Month month to check
      * @return bool values
      */
-    public function isPaid($user, $month) {
+    public function isPaid($user, $month)
+    {
 
         // em - Entity Manager
         // eq - Query Builder

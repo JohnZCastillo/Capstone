@@ -23,27 +23,24 @@ class UserController extends Controller {
     public function home($request, $response, $args)
     {
 
+        // Get the user
+        $user = $this->getLogin();
+
         $view = Twig::fromRequest($request);
         $queryParams = $request->getQueryParams();
 
         $filter = Filter::check($queryParams);
 
-        // Get the user
-        $user = $this->getLogin();
-
-        // Get page and set default value to 1 if not provided
-        $page = Helper::getArrayValue($queryParams, 'page', 1);
+        $page = $queryParams['page'] ?? 1;
+        $query = empty($queryParams['query']) ? null : $queryParams['query'];
 
         $errorMessage = $this->flashMessages->getFirstMessage("ErrorMessage");
 
-        // Get search query
-        $query = Helper::getArrayValue($queryParams, 'query');
-
         // Set max transactions per page
-        $max = 5;
+        $max = 1;
 
         // Get transactions
-        $result = $this->transactionService->getAll($page, $max, $query, $filter, $user);
+        $paginator = $this->transactionService->getAll($page, $max, $query, $filter, $user);
 
         // Get balances
         $currentMonth = Time::thisMonth();
@@ -62,16 +59,16 @@ class UserController extends Controller {
             'currentDue' => Currency::format($currentDue),
             'nextDue' => Currency::format($nextDue),
             'unpaid' => Currency::format($totalDues),
-            'transactions' => $result['transactions'],
-            'totalTransaction' => $result['totalTransaction'],
             'transactionPerPage' => $max,
             'currentPage' => $page,
             'query' => $query,
             'from' => Time::toMonth($filter['from']),
             'to' => Time::toMonth($filter['to']),
             'status' => $filter['status'],
-            'totalPages' => ceil($result['totalTransaction'] / $max),
             'settings' => $this->getPaymentSettings(),
+            'pagination'=> $paginator,
+//            '_route'        => $request->attributes->get('_route'),
+//            '_route_params' => $request->attributes->get('_route_params'),
         ];
 
         return $view->render($response, 'pages/user-home.html', $data);
