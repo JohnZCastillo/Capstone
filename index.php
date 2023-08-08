@@ -89,6 +89,16 @@ $app->group('/admin', function ($app) use ($twig){
         return $twig->render($response, 'pages/admin-all-logs.html');
     });
 
+    $app->get('/system', function (Request $request, Response $response) use ($twig) {
+
+        $timezone = date_default_timezone_get();
+
+        return $twig->render($response, 'pages/admin-system-settings.html',[
+            'timezone'=>$timezone
+        ]);
+
+    });
+
 })->add(\App\middleware\AdminAuth::class)->add(Auth::class);
 
 $app->post('/upload', [ApiController::class, 'upload']);

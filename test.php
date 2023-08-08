@@ -1,21 +1,8 @@
 <?php
 
-function getMonthsOfYear($year) {
-    $months = array();
+date_default_timezone_set("Asia/Manila");
 
-    for ($month = 1; $month <= 12; $month++) {
-        $formattedMonth = sprintf('%04d-%02d', $year, $month);
-        $dateObject = new DateTime($formattedMonth . '-01');
-        $months[] = $dateObject;
-    }
 
-    return $months;
-}
+$date = new DateTime();
 
-$currentYear = date('Y');
-$monthsForYear = getMonthsOfYear($currentYear);
-
-// Print the generated month-year pairs
-foreach ($monthsForYear as $month) {
-    var_dump($month);
-}
+var_dump($date->format("M d, Y h:i:s a"));

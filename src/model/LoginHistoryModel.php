@@ -109,7 +109,7 @@ class LoginHistoryModel {
      */
     public function getLoginDate()
     {
-        return Time::convertDateTimeToDateString($this->loginDate);
+        return $this->loginDate;
     }
 
     /**
@@ -128,7 +128,7 @@ class LoginHistoryModel {
     public function getLogoutDate()
     {
         if($this->logoutDate != null){
-            return Time::convertDateTimeToDateString($this->logoutDate);
+            return $this->logoutDate;
         }
         return null;
     }
