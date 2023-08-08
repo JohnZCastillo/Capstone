@@ -1,25 +1,25 @@
 {% extends "./user.html" %} {% block body %}
 
 <div class="container-fluid py-2">
-    <a href="/logout" class="btn btn-danger mb-1">Logout</a>
+    <a class="btn btn-danger mb-1" href="/logout">Logout</a>
     <h3 class="heading">Account Details</h3>
     <form action="" class="form">
         <div class="form-group">
             <label for="">Name</label>
-            <input type="text" value="{{name}}" class="form-control" readonly/>
+            <input class="form-control" readonly type="text" value="{{name}}"/>
         </div>
         <div class="form-group">
             <label for="">Email</label>
-            <input type="email" value="{{email}}" class="form-control" readonly/>
+            <input class="form-control" readonly type="email" value="{{email}}"/>
         </div>
         <div class="form-group row align-items-center">
             <div class="col-sm">
                 <label for="">Block</label>
-                <input type="number" value="1" class="form-control" readonly/>
+                <input class="form-control" readonly type="number" value="1"/>
             </div>
             <div class="col-sm">
                 <label for="">Lot</label>
-                <input type="number" value="1" class="form-control" readonly/>
+                <input class="form-control" readonly type="number" value="1"/>
             </div>
         </div>
         <div class="d-flex align-items-center p-2" style="gap: 10px">
@@ -35,18 +35,19 @@
         {% for history in loginHistory %}
         <div class="list-group-item">
 
-            {% if history.getSession() == sessionId  %}
-             <div class="badge badge-pill bg-primary p-2">This Device</div>
+            {% if history.getSession() == sessionId %}
+            <div class="badge badge-pill bg-primary p-2">This Device</div>
             {% endif %}
             {% if history.isActive() %}
-            <div  class="badge badge-pill bg-success p-2">Status: Active</div>
+            <div class="badge badge-pill bg-success p-2">Status: Active</div>
             {% else %}
             <div class="badge badge-pill bg-secondary p-2">Status: Not Active</div>
             {% endif %}
             <div>Device Used: {{history.getDevice()}}</div>
-            <div>Login Time: {{history.getLoginDate()|date("M d, Y")}}</div>
-            <div>Logout Time: {{ history.getLogoutDate() is empty ? "-" : history.getLogoutDate()|date("M d, Y")}}</div>
-
+            <div>Login Time: {{history.getLoginDate()|date("M d, Y h:i:s a")}}</div>
+            <div>Logout Time: {{ history.getLogoutDate() is empty ? "-" : history.getLogoutDate()|date("M d, Y h:i:s
+                a")}}
+            </div>
         </div>
         {% endfor %}
     </div>
