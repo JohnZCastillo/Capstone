@@ -18,9 +18,6 @@ require './vendor/autoload.php';
 
 date_default_timezone_set("Asia/Manila");
 
-$currentTimezone = date_default_timezone_get();
-var_dump($currentTimezone);
-
 /** @var Container $container */
 $container = require_once __DIR__ . '/bootstrap.php';
 

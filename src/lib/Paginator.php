@@ -30,7 +30,7 @@ class Paginator {
     {
         $paginator = new OrmPaginator($query);
 
-        $items = $paginator
+        $paginator
             ->getQuery()
             ->setFirstResult($limit * ($page - 1))
             ->setMaxResults($limit);

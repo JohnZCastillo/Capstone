@@ -190,8 +190,7 @@ class Time {
 
     static function convertDateStringToDateTimeEndDay(string $stringDate): string
     {
-        $dateString = "2023-08-08";
-        $dateTime = new DateTime($dateString);
+        $dateTime = new DateTime($stringDate);
 
         $dateTime->setTime(23, 59, 59);
 
@@ -200,8 +199,7 @@ class Time {
 
     static function convertDateStringToDateTimeStartDay(string $stringDate): string
     {
-        $dateString = "2023-08-08";
-        $dateTime = new DateTime($dateString);
+        $dateTime = new DateTime($stringDate);
 
         return $dateTime->format("Y-m-d H:i:s");
     }

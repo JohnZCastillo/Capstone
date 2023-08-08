@@ -368,7 +368,7 @@ class AdminController extends Controller {
         $type = $queryParams['type'] ?? 'posted';
 
         // max transaction per page
-        $max = 5;
+        $max = 3;
 
         $filter = Filter::check($queryParams);
 

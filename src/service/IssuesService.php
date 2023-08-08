@@ -47,21 +47,19 @@ class IssuesService extends Service {
 
         $queryHelper = new QueryHelper($qb);
 
-        if ($createdAt != null) {
-            $createdEnd = Time::convertDateStringToDateTimeEndDay($createdAt);
-            $createdAt = Time::convertDateStringToDateTimeStartDay($createdAt);
-        }
-
         $queryHelper->Where("t.type = :type", "type", $type)
             ->andWhere("t.user = :user", "user", $user)
             ->andWhere("t.id like :id", "id", $id)
-            ->andWhere("t.createdAt >= :createdAt", "createdAt", $createdAt)
-            ->andWhere("t.createdAt <= :createdEnd", "createdEnd", $createdEnd)
             ->andWhere("t.status = :status", "status", $filter['status']);
 
-        $queryHelper->getQuery()->orWhere('t.user is null');
+        if ($createdAt != null) {
+            $createdEnd = Time::convertDateStringToDateTimeEndDay($createdAt);
+            $createdAt = Time::convertDateStringToDateTimeStartDay($createdAt);
 
-        var_dump($queryHelper->getQuery()->getQuery()->getSQL());
+            $queryHelper
+                ->andWhere("t.createdAt >= :createdAt", "createdAt", $createdAt)
+                ->andWhere("t.createdAt <= :createdEnd", "createdEnd", $createdEnd);
+        }
 
         return $paginator->paginate($queryHelper->getQuery(), $page, $max);
     }
