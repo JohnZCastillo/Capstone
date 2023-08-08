@@ -373,6 +373,7 @@ class AdminController extends Controller {
         $filter = Filter::check($queryParams);
 
         $createdAt = empty($queryParams['createdAt']) ? null :$queryParams['createdAt'] ;
+
         $query = empty($queryParams['query']) ? null : $queryParams['query'];
 
         $pagination = $this->issuesService->getAll($page, $max, $query, $filter, null, $type,$createdAt);
@@ -383,7 +384,7 @@ class AdminController extends Controller {
             'issues' => $pagination->getItems(),
             'currentPage' => $page,
             'status' => $queryParams['status'] ?? null,
-            'pagination' => $pagination,
+            'paginator' => $pagination,
             'createdAt' => $createdAt
         ]);
     }

@@ -47,7 +47,13 @@ class IssuesService extends Service {
 
         $queryHelper = new QueryHelper($qb);
 
-        $queryHelper->Where("t.type = :type", "type", $type)
+        $queryHelper->Where("t.type = :type", "type", $type);
+
+        if($user != null){
+            $queryHelper->getQuery()->orWhere($queryHelper->getQuery()->expr()->isNull('t.user'));
+        }
+
+        $queryHelper
             ->andWhere("t.user = :user", "user", $user)
             ->andWhere("t.id like :id", "id", $id)
             ->andWhere("t.status = :status", "status", $filter['status']);
@@ -56,9 +62,9 @@ class IssuesService extends Service {
             $createdEnd = Time::convertDateStringToDateTimeEndDay($createdAt);
             $createdAt = Time::convertDateStringToDateTimeStartDay($createdAt);
 
-            $queryHelper
-                ->andWhere("t.createdAt >= :createdAt", "createdAt", $createdAt)
-                ->andWhere("t.createdAt <= :createdEnd", "createdEnd", $createdEnd);
+            $queryHelper->getQuery()->andWhere( $queryHelper->getQuery()->expr()->between('t.createdAt',":startDate",":endDate"));
+            $queryHelper->getQuery()->setParameter(':startDate',$createdAt);
+            $queryHelper->getQuery()->setParameter(':endDate',$createdEnd);
         }
 
         return $paginator->paginate($queryHelper->getQuery(), $page, $max);

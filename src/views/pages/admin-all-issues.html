@@ -78,7 +78,12 @@
                             <div class="modal-body">
                                 <div class="form-group mb-1">
                                     <label class="form-label">Select Date</label>
+                                    {% if createdAt is not empty %}
+                                    <input class="form-control" name="createdAt" type="date"
+                                           value="{{createdAt|date('Y-m-d')}}">
+                                    {% else %}
                                     <input class="form-control" name="createdAt" type="date">
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -129,8 +134,8 @@
                 </tbody>
             </table>
         </div>
-
         {% include './partials/new-pagination.html' %}
+
     </div>
 </div>
 
