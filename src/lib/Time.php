@@ -152,7 +152,8 @@ class Time {
      * @param string $stringDate
      * @return DateTime
      */
-    static function convertDateStringToDateTime(string $stringDate): DateTime{
+    static function convertDateStringToDateTime(string $stringDate): DateTime
+    {
         return DateTime::createFromFormat('Y-m-d', $stringDate);
     }
 
@@ -162,15 +163,19 @@ class Time {
      * @param string $stringDate
      * @return string
      */
-    static function convertDateTimeToDateString(DateTime $date): string{
+    static function convertDateTimeToDateString(DateTime $date): string
+    {
         return $date->format('Y-m-d');
     }
-    static function getYearFromStringDate (string $stringDate): string{
-        $date =  DateTime::createFromFormat('Y-m-d', $stringDate);
+
+    static function getYearFromStringDate(string $stringDate): string
+    {
+        $date = DateTime::createFromFormat('Y-m-d', $stringDate);
         return $date->format('Y');
     }
 
-    static function getDatesForMonthsOfYear($year) {
+    static function getDatesForMonthsOfYear($year)
+    {
 
         $months = array();
 
@@ -183,5 +188,20 @@ class Time {
         return $months;
     }
 
+    static function convertDateStringToDateTimeEndDay(string $stringDate): string
+    {
+        $dateTime = new DateTime($stringDate);
+
+        $dateTime->setTime(23, 59, 59);
+
+        return $dateTime->format("Y-m-d H:i:s");
+    }
+
+    static function convertDateStringToDateTimeStartDay(string $stringDate): string
+    {
+        $dateTime = new DateTime($stringDate);
+
+        return $dateTime->format("Y-m-d H:i:s");
+    }
 }
 

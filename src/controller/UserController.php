@@ -292,17 +292,17 @@ class UserController extends Controller {
 
         $user = $this->getLogin();
 
-        $result = $this->issuesService->getAll($page, $max, null, $filter, $user, $type);
+        $pagination = $this->issuesService->getAll($page, $max, null, $filter, $user, $type);
 
         return $view->render($response, 'pages/user-all-issues.html', [
             'type' => $type,
             'message' => $message,
-            'issues' => $result['issues'],
+            'issues' => $pagination->getItems(),
             'currentPage' => $page,
-            'from' => isset($queryParams['from']) ? $queryParams['from'] : null,
-            'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
-            'status' => isset($queryParams['status']) ? $queryParams['status'] : null,
-            'totalPages' => ceil(($result['totalIssues']) / $max),
+            'from' => $queryParams['from'] ?? null,
+            'to' => $queryParams['to'] ?? null,
+            'status' => $queryParams['status'] ?? null,
+            'pagination' => $pagination
         ]);
     }
 

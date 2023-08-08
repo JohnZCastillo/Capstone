@@ -50,16 +50,17 @@ class QueryHelper {
         if ($called <= 0) {
             // If this is the first modification, treat it as a regular 'where'.
             return $this->where($andWhereExpression, $setParameterExpression, $value);
-        }
-
-        if (isset($value)) {
-            // Add an AND WHERE condition and set the parameter.
-            $query->andWhere($andWhereExpression)
-                ->setParameter($setParameterExpression, $value);
+        } else {
+            if (isset($value)) {
+                // Add an AND WHERE condition and set the parameter.
+                $query->andWhere($andWhereExpression)
+                    ->setParameter($setParameterExpression, $value);
+            }
         }
 
         return $this;
     }
+
 
     /**
      * Adds a WHERE condition to the query and sets a parameter value.
