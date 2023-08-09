@@ -7,6 +7,9 @@
 <link rel="stylesheet" href="/bootstrap/quill.snow.css" />
 
 <div class="container-fluid py-2">
+
+  <a href="/admin/announcements"  class="btn btn-primary my-2" id="backBtn">Back</a>
+
   <h1>Announcement Page</h1>
   <form id="formSave" class="form" method="POST" action="/admin/announcement">
     <div class="form-group">
@@ -42,6 +45,8 @@
     </div>
   </form>
 </div>
+
+{% include './partials/confirmation.html' %}
 
 <!-- Initialize Quill editor -->
 <script>
@@ -125,6 +130,29 @@
 <!-- set content if its updating -->
 <script>
   quill.root.innerHTML = `{{ announcement.content|raw }}`;
+</script>
+
+<script>
+
+  const backBtn = document.querySelector('#backBtn');
+
+  const backMessage = "<p>If you exit, your unsaved <strong class='text-success'>content</strong> will be lost and cannot be restored. Are you sure you want to leave this page?</p>";
+
+  backBtn.addEventListener('click',(event)=>{
+
+    event.preventDefault();
+
+
+    if(quill.root.innerText.trim().length > 0 || title.value.length > 0){
+      confirm(backMessage,()=>{
+        location.replace(backBtn.getAttribute('href'));
+      })
+    }else{
+      location.replace(backBtn.getAttribute('href'));
+    }
+
+  })
+
 </script>
 
 {% endblock %}
