@@ -1,5 +1,6 @@
 {% extends "./user.html" %} {% block body %}
 
+{% if welcomeMessage is not empty %}
 <div class="container-fluid my-2">
     <div class="alert alert-success position-relative" role="alert">
         <button aria-label="Close" class="border-0 outline-0 bg-transparent close float-end" data-dismiss="alert" type="button">
@@ -10,7 +11,6 @@
 
     </div>
 </div>
-{% if welcomeMessage is not empty %}
 
 {% endif %}
 
