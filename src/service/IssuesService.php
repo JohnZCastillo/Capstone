@@ -55,8 +55,9 @@ class IssuesService extends Service {
 
         $queryHelper
             ->andWhere("t.user = :user", "user", $user)
-            ->andWhere("t.id like :id", "id", $id)
+            ->andWhere( $queryHelper->getQuery()->expr()->like('t.title',':title'), "title", $id)
             ->andWhere("t.status = :status", "status", $filter['status']);
+
 
         if ($createdAt != null) {
             $createdEnd = Time::convertDateStringToDateTimeEndDay($createdAt);
