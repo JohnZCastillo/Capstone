@@ -2,6 +2,10 @@
 
 namespace App\service;
 
+use App\lib\Paginator;
+use App\lib\QueryHelper;
+use App\lib\Time;
+use App\model\IssuesModel;
 use App\model\UserModel;
 use Doctrine\ORM\EntityManager;
 
@@ -35,5 +39,24 @@ class UserService extends Service {
             ->setParameter('password', $password);
 
         return $queryBuilder->getQuery()->getOneOrNullResult();
+    }
+
+    public function getAll($page, $max, $id, $filter, $role = null, $type = '',)
+    {
+
+        $em = $this->entityManager;
+
+        $paginator = new Paginator();
+
+        $qb = $em->createQueryBuilder();
+
+        $qb->select('t')
+            ->from(UserModel::class, 't');
+
+        $queryHelper = new QueryHelper($qb);
+
+        $queryHelper->Where("t.role = :role", "role", $role);
+
+        return $paginator->paginate($queryHelper->getQuery(), $page, $max);
     }
 }

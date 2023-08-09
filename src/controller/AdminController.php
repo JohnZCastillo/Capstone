@@ -389,6 +389,35 @@ class AdminController extends Controller {
         ]);
     }
 
+    public function users($request, $response, $args)
+    {
+
+        $view = Twig::fromRequest($request);
+
+        $queryParams = $request->getQueryParams();
+
+        // if page is present then set value to page otherwise to 1
+        $page = $queryParams['page'] ?? 1;
+
+        $role = $queryParams['role'] ?? 'admin';
+
+        // max transaction per page
+        $max = 3;
+
+        $filter = Filter::check($queryParams);
+
+        $query = empty($queryParams['query']) ? null : $queryParams['query'];
+
+        $pagination = $this->userSerivce->getAll($page, $max, $query, $filter, $role);
+
+        return $view->render($response, 'pages/admin-all-users.html', [
+            'users' => $pagination->getItems(),
+            'currentPage' => $page,
+            'role' => $role,
+            'paginator' => $pagination,
+        ]);
+    }
+
     /**
      * View Issues.
      */
