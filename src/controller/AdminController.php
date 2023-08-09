@@ -27,10 +27,10 @@ class AdminController extends Controller {
 
         $filter = Filter::check($queryParams);
 
-        $id = $queryParams['query'] ?? null;
+        $id = empty($queryParams['query']) ? null : $queryParams['query'];
 
         // max transaction per page
-        $max = 4;
+        $max = 2;
 
         $view = Twig::fromRequest($request);
 
@@ -68,15 +68,13 @@ class AdminController extends Controller {
             'paymentStart' => $startOfPaymentYear ?? null,
             'dues' => $dues ?? null,
             'transactions' => $result->getItems(),
-            'totalTransaction' => $result->getTotal(),
-            'transactionPerPage' => $max,
             'currentPage' => $page,
             'query' => $id,
             'from' => $queryParams['from'] ?? null,
             'to' => $queryParams['to'] ?? null,
             'status' => $queryParams['status'] ?? null,
-            'totalPages' => ceil(($result->getTotal()) / $max),
-            'settings' => $settings
+            'settings' => $settings,
+            'paginator' => $result
         ];
 
         return $view->render($response, 'pages/admin-home.html', $data);
