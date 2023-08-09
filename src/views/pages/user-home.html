@@ -46,9 +46,6 @@
             <tbody>
 
 
-            {% set transactions = pagination.items %}
-
-
             {% if transactions is not empty %} {% for transaction in transactions %}
             <tr>
                 <td>{{transaction.getId()}}</td>

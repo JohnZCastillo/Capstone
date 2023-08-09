@@ -38,7 +38,7 @@ class UserController extends Controller {
         $welcomeMessage = $this->flashMessages->getFirstMessage("welcome");
 
         // Set max transactions per page
-        $max = 1;
+        $max = 4;
 
         // Get transactions
         $paginator = $this->transactionService->getAll($page, $max, $query, $filter, $user);
@@ -60,14 +60,14 @@ class UserController extends Controller {
             'currentDue' => Currency::format($currentDue),
             'nextDue' => Currency::format($nextDue),
             'unpaid' => Currency::format($totalDues),
-            'transactionPerPage' => $max,
+            'transactions'=>$paginator->getItems(),
             'currentPage' => $page,
             'query' => $query,
             'from' => Time::toMonth($filter['from']),
             'to' => Time::toMonth($filter['to']),
             'status' => $filter['status'],
             'settings' => $this->getPaymentSettings(),
-            'pagination'=> $paginator,
+            'paginator'=> $paginator,
             'welcomeMessage' => $welcomeMessage
         ];
 
