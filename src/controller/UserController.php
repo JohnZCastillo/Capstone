@@ -35,6 +35,7 @@ class UserController extends Controller {
         $query = empty($queryParams['query']) ? null : $queryParams['query'];
 
         $errorMessage = $this->flashMessages->getFirstMessage("ErrorMessage");
+        $welcomeMessage = $this->flashMessages->getFirstMessage("welcome");
 
         // Set max transactions per page
         $max = 1;
@@ -66,7 +67,8 @@ class UserController extends Controller {
             'to' => Time::toMonth($filter['to']),
             'status' => $filter['status'],
             'settings' => $this->getPaymentSettings(),
-            'pagination'=> $paginator
+            'pagination'=> $paginator,
+            'welcomeMessage' => $welcomeMessage
         ];
 
         return $view->render($response, 'pages/user-home.html', $data);

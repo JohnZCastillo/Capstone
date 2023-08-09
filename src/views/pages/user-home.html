@@ -1,5 +1,20 @@
-{% extends "./user.html" %} {% block body %} {% include
-'./partials/user-cards.html' %}
+{% extends "./user.html" %} {% block body %}
+
+<div class="container-fluid my-2">
+    <div class="alert alert-success position-relative" role="alert">
+        <button aria-label="Close" class="border-0 outline-0 bg-transparent close float-end" data-dismiss="alert" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="alert-heading">Welcome</h4>
+        <p>{{welcomeMessage}}</p>
+
+    </div>
+</div>
+{% if welcomeMessage is not empty %}
+
+{% endif %}
+
+{% include'./partials/user-cards.html' %}
 
 <div class="container-fluid bg-light">
     <button
