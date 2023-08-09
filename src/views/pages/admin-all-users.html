@@ -23,41 +23,41 @@
         <a class="btn btn-outline-danger">Demote an Admin</a>
     </div>
 
-    <form class="form mb-2" action="/admin/announcements" id="announcementForm" method="GET">
+    <form action="/admin/users" class="form mb-2" id="announcementForm" method="GET">
         <div class="py-2">
 
-            {% set status = status | lower %}
+            {% set status = role | lower %}
+
             {% set userBg = status == "user" ? "btn-secondary" : "" %}
             {% set adminBg = status == "admin" ? "btn-secondary" : "" %}
 
             {% set userCh = status == "user" ? "checked" : "" %}
             {% set adminCh = status == "admin" ? "checked" : "" %}
 
-            {% set userBg = status is empty ? "btn-secondary" : userBg %}
-            {% set adminCh = status is empty ? "checked" : adminCh %}
-
             <span class="text-secondary small d-block">User Role</span>
 
             <div class="btn-group mb-2" role="group">
-                <label class="btn border-0 {{userBg}}" for="user">User</label>
-                <input autocomplete="off" class="btn-check " id="user" name="status" type="radio" value="user"
-                       {{userCh}}>
 
                 <label class="btn border-0 {{adminBg}}" for="admin">Admin</label>
-                <input autocomplete="off" class="btn-check" id="admin" name="status" type="radio"
+                <input autocomplete="off" class="btn-check" id="admin" name="role" type="radio"
                        value="admin" {{adminCh}}>
+
+                <label class="btn border-0 {{userBg}}" for="user">User</label>
+                <input autocomplete="off" class="btn-check " id="user" name="role" type="radio" value="user"
+                       {{userCh}}>
             </div>
         </div>
         <span class="text-secondary small d-block">Search Bar</span>
         <input class="form-control" name="query" placeholder="User Name" type="text" value="{{query}}">
     </form>
 
+
     <div class="table-responsive">
 
         <table class="table thead-dark table-hover rounded-table table-shadow">
             <thead class="bg-dark text-white">
             <tr>
-                <th>#</th>
+                <th>ID</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Role</th>
@@ -67,32 +67,35 @@
             </tr>
             </thead>
             <tbody>
+            {% for user in users %}
             <tr>
-                <td>1</td>
-                <td>John Doe</td>
-                <td>john@example.com</td>
-                <td>User</td>
-                <td>A</td>
-                <td>123</td>
+                <td>{{user.id}}</td>
+                <td>{{user.name}}</td>
+                <td>{{user.email}}</td>
+                <td>{{user.role}}</td>
+                <td>{{user.block}}</td>
+                <td>{{user.lot}}</td>
                 <td>
                     <button class="btn btn-danger block-btn" style="min-width: 85px">Block</button>
                 </td>
             </tr>
-            <tr>
-                <td>2</td>
-                <td>Jane Smith</td>
-                <td>jane@example.com</td>
-                <td>Admin</td>
-                <td>B</td>
-                <td>456</td>
-                <td>
-                    <button class="btn btn-success unblock-btn" style="min-width: 85px">Unblock</button>
-                </td>
-            </tr>
+            {% endfor %}
             </tbody>
         </table>
     </div>
-
+    {% include './partials/new-pagination.html' %}
 </main>
+
+<script>
+
+    const announcementForm = document.querySelector("#announcementForm");
+
+    // Get the input element by its name attribute
+    const roles = document.querySelectorAll('input[name="role"]');
+
+    roles.forEach(role => {
+        role.addEventListener('change', (event) => announcementForm.submit());
+    })
+</script>
 
 {% endblock %}

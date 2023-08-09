@@ -80,10 +80,7 @@ $app->group('/admin', function ($app) use ($twig){
     $app->get('/issues/{id}', [AdminController::class, 'manageIssue']);
     $app->post('/issues/action', [AdminController::class, 'actionIssue']);
 
-
-    $app->get('/users', function (Request $request, Response $response) use ($twig) {
-        return $twig->render($response, 'pages/admin-all-users.html');
-    });
+    $app->get('/users', [AdminController::class, 'users']);
 
     $app->get('/logs', function (Request $request, Response $response) use ($twig) {
         return $twig->render($response, 'pages/admin-all-logs.html');
