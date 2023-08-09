@@ -198,7 +198,7 @@ class AdminController extends Controller {
         $this->paymentService->save($settings);
 
         return $response
-            ->withHeader('Location', "/admin")
+            ->withHeader('Location', "/admin/home")
             ->withStatus(302);
     }
 
