@@ -141,6 +141,22 @@ class UserController extends Controller {
         }
     }
 
+    public function manageIssue($request, $response, $args)
+    {
+
+        $id = $args['id'];
+
+        $view = Twig::fromRequest($request);
+
+        //might throw and error
+        $issue = $this->issuesService->findById($id);
+
+        return $view->render($response, 'pages/user-manage-issue.html', [
+            'issue' => $issue,
+        ]);
+    }
+
+
     public function test($request, $response, $args)
     {
 

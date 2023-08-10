@@ -10,44 +10,51 @@
       </span>
         </div>
         <input
-                id="searchBar"
-                type="text"
-                class="form-control"
-                placeholder="Issue Name"
-                aria-label="Username"
                 aria-describedby="basic-addon1"
+                aria-label="Username"
+                class="form-control"
+                id="searchBar"
+                placeholder="Issue Name"
+                type="text"
         />
     </div>
 
-    <button class="btn btn-success" data-toggle="modal" data-target="#issueModal">
+    <button class="btn btn-success" data-target="#issueModal" data-toggle="modal">
         New Issue
     </button>
 
-    <form action="/issues" method="GET" id="viewForm">
+    <form action="/issues" id="viewForm" method="GET">
 
         <div class="d-flex gap">
 
             <div class="form-group">
-                <label for="">View</label>
-                <select name="type" class="form-control" id="view">
-                    <option value="POSTED" {% if type==
-                    "POSTED" %}selected{% endif %}>Post</option>
-                    <option value="ARCHIVE" {% if type==
-                    'ARCHIVE' %}selected{% endif %}>Archived</option>
+
+                {% set type = type|lower %}
+                {% set postedSelected = type == "posted" ? "selected" : ""%}
+                {% set archivedSelected = type == "archive" ? "selected" : ""%}
+
+                <label>View</label>
+                <select class="form-control" id="view" name="type">
+                    <option value="POSTED" {{postedSelected}}>Post</option>
+                    <option value="ARCHIVE" {{archivedSelected}}>Archived</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="">Status</label>
-                <select name="status" class="form-control" id="status">
-                    <option value="ALL" {% if status==
-                    'ALL' %}selected{% endif %}>All</option>
-                    <option value="Pending" {% if status==
-                    'Pending' %}selected{% endif %}>Pending</option>
-                    <option value="Resolved" {% if status==
-                    'Resolved' %}selected{% endif %}>Resolved</option>
-                    <option value="Rejected" {% if status==
-                    'Rejected' %}selected{% endif %}>Rejected</option>
+                <label>Status</label>
+
+                {% set status = status|lower %}
+                {% set selectPending = status == "pending" ? "selected" : "" %}
+                {% set selectResolved = status == "resolved" ? "selected" : "" %}
+                {% set selectRejected = status == "rejected" ? "selected" : "" %}
+                {% set selectAll = status == "all" ? "selected" : "" %}
+
+
+                <select class="form-control" id="status" name="status">
+                    <option value="ALL" {{selectAll}}>All</option>
+                    <option value="PENDING" {{selectPending}}>Pending</option>
+                    <option value="REJECTED" {{selectRejected}}>Rejected</option>
+                    <option value="RESOLVED" {{selectResolved}}>Resolved</option>
                 </select>
             </div>
 
@@ -57,37 +64,43 @@
 
 
     <div class="py-2 table-responsive">
+
         <table class="table table-hover table-striped table-bordered">
             <thead>
             <tr>
                 <th>ID</th>
                 <th>Title</th>
-                <th>Content</th>
                 <th>Date</th>
                 <th>Status</th>
-                <th>Solution</th>
                 <th>Action</th>
             </tr>
             </thead>
             <tbody>
             {% for issue in issues %}
+
+            {% set status = issue.status|lower %}
+            {% set bg = status == "pending" ? "bg-secondary" : bg %}
+            {% set bg = status == "rejected" ? "bg-danger" : bg %}
+            {% set bg = status == "resolved" ? "bg-success" : bg %}
+
             <tr>
                 <td>{{issue.id}}</td>
-                <td>{{issue.title}}</td>
-                <td>{{issue.content}}</td>
-                <td>{{issue.getCreatedAt()}}</td>
-                <td>{{issue.status}}</td>
-                <td>{{issue.action}}</td>
+                <td> <span class="d-block text-truncate" style="max-width: 20ch">{{issue.title}}</span></td>
+                <td>{{issue.getCreatedAt()|date("M d, Y")}}</td>
+                <td><span class="badge badge-pill {{bg}}">{{issue.status}}</span></td>
                 <td>
-                    {% if issue.type == 'posted' %}
-                    <a href="/issue/archive/{{issue.id}}" class="btn btn-secondary">
-                        Archive
-                    </a>
-                    {% else %}
-                    <a href="/issue/unarchive/{{issue.id}}" class="btn btn-secondary">
-                        Unarchive
-                    </a>
-                    {% endif %}
+                    <div class="d-flex flex-wrap" style="gap: 10px; max-width: max-content" >
+                        {% if issue.type == 'posted' %}
+                        <a class="btn btn-secondary" href="/issue/archive/{{issue.id}}" style="flex: 1 1 0px;">
+                            Archive
+                        </a>
+                        {% else %}
+                        <a class="btn btn-secondary" href="/issue/unarchive/{{issue.id}}" style="flex: 1 1 0px;">
+                            Unarchive
+                        </a>
+                        {% endif %}
+                        <a class="btn btn-primary" style="flex: 1 1 0px" href="/issues/{{issue.id}}">Manage</a>
+                    </div>
                 </td>
             </tr>
             {% endfor %}
@@ -99,51 +112,51 @@
 </div>
 
 <div
+        aria-hidden="true"
+        aria-labelledby="exampleModalLabel"
         class="modal fade"
         id="issueModal"
-        tabindex="-1"
         role="dialog"
-        aria-labelledby="exampleModalLabel"
-        aria-hidden="true"
+        tabindex="-1"
 >
     <div class="modal-dialog" role="document">
         <div class="modal-content" id="issueContent">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Issue</h5>
                 <button
-                        type="button"
+                        aria-label="Close"
                         class="close"
                         data-dismiss="modal"
-                        aria-label="Close"
+                        type="button"
                 >
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form id="issueform" method="POST" action="/issue">
+                <form action="/issue" id="issueform" method="POST">
                     <div class="form-check form-switch">
                         <input
-                                name="type"
                                 class="form-check-input"
-                                value="off"
-                                type="checkbox"
                                 id="anonymous"
+                                name="type"
+                                type="checkbox"
+                                value="off"
                         />
-                        <input type="text" class="d-none" name="anonymous" id="anonymousInput">
+                        <input class="d-none" id="anonymousInput" name="anonymous" type="text">
                         <label class="form-check-label" for="flexSwitchCheckDefault">
                             Submit as Anonymous
                         </label>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Title</label>
-                        <input type="text" class="form-control" name="title"/>
+                        <input class="form-control" name="title" type="text"/>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Content</label>
                         <textarea
-                                name="content"
                                 class="form-control"
                                 cols="30"
+                                name="content"
                                 rows="10"
                         ></textarea>
                     </div>

@@ -51,6 +51,8 @@ $app->group('', function ($app) {
 
     $app->get('/account', [UserController::class, 'accountSettings']);
 
+    $app->get('/issues/{id}', [UserController::class, 'manageIssue']);
+
 })->add(\App\middleware\UserAuth::class)->add(Auth::class);
 
 $app->group('/api', function ($app) {

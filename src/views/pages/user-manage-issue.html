@@ -1,0 +1,40 @@
+{% extends "./admin.html" %} {% block body %}
+
+<div class="container-fluid mt-1 pb-2">
+
+    <a class="btn btn-primary mb-2 mt-1 " href="/issues">Back</a>
+    <h1 class="mb-4 display-4">Issue Resolution</h1>
+
+    <div class="card">
+        <div class="card-body">
+
+            {% if issue.status != 'pending' %}
+
+            {% set bg = issue.status|lower == 'resolved' ? "bg-success" : "bg-danger" %}
+
+            <p class="bg-light rounded p-2" style="max-width: max-content">An admin has <span
+                    class="badge badge-pill {{bg}}">{{issue.status|lower}}</span> this issue
+            </p>
+            {% endif %}
+            <h5 class="card-title">Issue: {{issue.title}}</h5>
+            <p class="card-text">{{issue.content}}</p>
+
+            {% if issue.user.name is empty %}
+            <p class="mb-0">Sender: <span class="badge badge-pill bg-dark text-white">Anonymous</span></p>
+            <p class="text-secondary small mb-0">This message was sent anonymously.</p>
+            {% endif %}
+
+            <!-- Resolution form -->
+            <form action="/admin/issues/action" id="issueForm" method="POST">
+                <div class="form-group">
+                    <input class="d-none" name="id" type="text" value="{{issue.id}}">
+                    <label class="form-label small text-secondary" for="resolution">Reason:</label>
+                    <textarea class="form-control" id="resolution" name="action" readonly
+                              rows="4">{{issue.action}}</textarea>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
