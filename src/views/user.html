@@ -62,6 +62,7 @@
         border-top-left-radius: 0.375rem !important;
         border-bottom-left-radius: 0.375rem !important;
     }
+
 </style>
 <!-- Navigation -->
 <div class="container-fluid bg-dark">
@@ -79,25 +80,32 @@
             <span class="navbar-toggler-icon"></span>
         </button>
 
+        {% set viewPage = current_url(true)%}
+        {% set home = viewPage == "/home" ? "active" : "" %}
+        {% set issues = viewPage == "/issues" ? "active" : "" %}
+        {% set announcements = viewPage == "/announcements" ? "active" : "" %}
+        {% set account = viewPage == "/account" ? "active" : "" %}
+
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="/home">Payments</a>
+                    <a class="nav-link {{home}}" href="/home">Payments</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/issues">Issues</a>
+                    <a class="nav-link {{issues}}" href="/issues">Issues</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/announcements">Announcement</a>
+                    <a class="nav-link {{announcements}}" href="/announcements">Announcement</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/account">Account</a>
+                    <a class="nav-link {{account}}" href="/account">Account</a>
                 </li>
             </ul>
         </div>
     </nav>
 </div>
 <main>
+
     <!-- Add Message Modal -->
     {% include './partials/message-modal.html' %}
 
