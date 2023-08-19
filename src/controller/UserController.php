@@ -189,7 +189,7 @@ class UserController extends Controller {
         //then format it to have peso value / curreny
         $items = Currency::formatArray($data['items'], 'due');
 
-        return $view->render($response, 'pages/dues-breakdown.html', [
+        return $view->render($response, 'pages/user-dues-breakdown.html', [
             'items' => $items,
             'total' => Currency::format($data['total'])
         ]);
