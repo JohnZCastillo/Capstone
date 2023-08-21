@@ -31,12 +31,13 @@
             {% endif %}
 
             <!-- Resolution form -->
+            {% set action = issue.action|lower == "none" ? "" : issue.action %}
             <form action="/admin/issues/action" id="issueForm" method="POST">
                 <div class="form-group">
                     <input class="d-none" name="id" type="text" value="{{issue.id}}">
-                    <label class="form-label small text-secondary" for="resolution">Reason:</label>
+                    <label class="form-label small text-secondary" for="resolution">Resolution:</label>
                     <textarea class="form-control" id="resolution" name="action" readonly
-                              rows="4">{{issue.action}}</textarea>
+                              rows="4">{{action}}</textarea>
                 </div>
             </form>
         </div>
