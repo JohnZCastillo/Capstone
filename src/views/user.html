@@ -67,7 +67,10 @@
 <!-- Navigation -->
 <div class="container-fluid bg-dark sticky-top">
     <nav class="navbar navbar-expand-lg navbar-dark">
-        <a class="navbar-brand" href="#">HOA</a>
+        <a class="navbar-brand" href="#">
+            <img src="./resources/logo.png" width="80" height="50" alt="">
+        </a>
+
         <button
                 aria-controls="navbarSupportedContent"
                 aria-expanded="false"
@@ -86,7 +89,9 @@
         {% set announcementsLink = viewPage == "/announcements" ? "active" : "" %}
         {% set accountLink = viewPage == "/account" ? "active" : "" %}
 
+
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
                     <a class="nav-link {{homeLink}}" href="/home">Payments</a>
