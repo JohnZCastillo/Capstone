@@ -15,11 +15,53 @@
     }
 </style>
 
+
+<div class="modal fade" id="adminModal" tabindex="-1" aria-labelledby="adminModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="adminModalLabel">Grant Admin Privileges</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="username">Email</label>
+                        <input type="text" class="form-control" id="username" placeholder="Enter username">
+                    </div>
+                    <div class="form-group mt-1">
+                        <label>Privileges</label>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="manageAnnouncements">
+                            <label class="form-check-label" for="manageAnnouncements">Manage Announcements</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="managePayments">
+                            <label class="form-check-label" for="managePayments">Manage Payments</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="manageUsers">
+                            <label class="form-check-label" for="manageUsers">Manage Users</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="manageIssues">
+                            <label class="form-check-label" for="manageIssues">Manage Issues</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Grant Admin Privileges</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <main class="container-fluid">
 
     <span class="small text-secondary text-decoration-none d-block">Tool Bar</span>
     <div aria-label="Basic example" class="btn-group" role="group">
-        <a class="btn btn-outline-success">Add New Admin</a>
+        <button class="btn btn-outline-success" data-toggle="modal" data-target="#adminModal">Add New Admin</button>
         <a class="btn btn-outline-danger">Demote an Admin</a>
     </div>
 

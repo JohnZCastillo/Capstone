@@ -186,7 +186,7 @@ class UserController extends Controller
 
         $pdf->Image('./resources/logo.jpeg', 10, 10, 20);
         $pdf->Cell(0, 10, 'Carissa Homes Subdivision Phase 7', 0, 1, 'C', false); // Add 'false' for no border
-        $pdf->Cell(0, 10, 'Monthly Dues Receipt', 0, 1, 'C', false); // Add 'false
+        $pdf->Cell(0, 10, 'Monthly Dues Invoice', 0, 1, 'C', false); // Add 'false
 
         $pdf->SetFont('times', '', 12);
 
