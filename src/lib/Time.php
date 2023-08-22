@@ -131,6 +131,7 @@ class Time {
     static function setToFirstDayOfMonth(string $month): string
     {
         $targetMonth = DateTime::createFromFormat('Y-m', $month);
+        $targetMonth->setDate($targetMonth->format('Y'), $targetMonth->format('m'), 1);
         return $targetMonth->format('Y-m-d');
     }
 
