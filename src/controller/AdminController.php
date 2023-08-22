@@ -30,7 +30,7 @@ class AdminController extends Controller {
         $id = empty($queryParams['query']) ? null : $queryParams['query'];
 
         // max transaction per page
-        $max = 2;
+        $max = 5;
 
         $view = Twig::fromRequest($request);
 
