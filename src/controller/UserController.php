@@ -8,17 +8,17 @@ use App\exception\image\UnsupportedImageException;
 use App\lib\Currency;
 use App\lib\Filter;
 use App\lib\GCashReceiptValidator;
-use App\lib\Helper;
 use App\lib\Image;
 use App\lib\Login;
 use App\lib\Time;
 use App\model\enum\IssuesStatus;
 use App\model\IssuesModel;
 use App\model\TransactionModel;
-use App\service\LoginHistoryService;
 use Slim\Views\Twig;
+use TCPDF;
 
-class UserController extends Controller {
+class UserController extends Controller
+{
 
     public function home($request, $response, $args)
     {
@@ -60,14 +60,14 @@ class UserController extends Controller {
             'currentDue' => Currency::format($currentDue),
             'nextDue' => Currency::format($nextDue),
             'unpaid' => Currency::format($totalDues),
-            'transactions'=>$paginator->getItems(),
+            'transactions' => $paginator->getItems(),
             'currentPage' => $page,
             'query' => $query,
             'from' => Time::toMonth($filter['from']),
             'to' => Time::toMonth($filter['to']),
             'status' => $filter['status'],
             'settings' => $this->getPaymentSettings(),
-            'paginator'=> $paginator,
+            'paginator' => $paginator,
             'welcomeMessage' => $welcomeMessage
         ];
 
@@ -168,6 +168,54 @@ class UserController extends Controller {
         return $response;
     }
 
+    public function receipt($request, $response, $args)
+    {
+
+
+       // Create a new TCPDF instance
+        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+        // Do not print the header line
+        $pdf->SetPrintHeader(false);
+
+
+        // Add a page
+        $pdf->AddPage();
+
+        $pdf->SetFont('times', 'B', 16);
+
+        $pdf->Image('./resources/logo.jpeg', 10, 10, 20);
+        $pdf->Cell(0, 10, 'Carissa Homes Subdivision Phase 7', 0, 1, 'C', false); // Add 'false' for no border
+        $pdf->Cell(0, 10, 'Monthly Dues Receipt', 0, 1, 'C', false); // Add 'false
+
+        $pdf->SetFont('times', '', 12);
+
+        $transactionNumber = 'TRX123456';
+        $homeownerName = 'John Doe';
+        $amount = '150.00';
+        $paymentDate = 'August 1, 2023';
+        $coverage = 'July 2023 - August 2023';
+
+        $pdf->Cell(0, 10, 'Transaction Number: ' . $transactionNumber, 0, 1);
+        $pdf->Cell(0, 10, 'Homeowner: ' . $homeownerName, 0, 1);
+        $pdf->Cell(0, 10, 'Amount: ' . $amount, 0, 1);
+        $pdf->Cell(0, 10, 'Payment Date: ' . $paymentDate, 0, 1);
+        $pdf->Cell(0, 10, 'Coverage: ' . $coverage, 0, 1);
+
+        $pdf->Ln(10); // Add some vertical spacing
+        $pdf->MultiCell(0, 10, 'This invoice serves as proof that the payment has been made.', 0, 'L');
+
+        $pdfContent = $pdf->Output('', 'S');
+
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="monthly_dues_receipt.pdf"');
+        header('Content-Length: ' . strlen($pdfContent));
+
+        echo $pdfContent;
+
+//        return $response;
+    }
+
     /**
      * View unpaid monthly dues and its total.
      */
@@ -196,12 +244,7 @@ class UserController extends Controller {
     }
 
 
-    /**
-     * This function retrieves a transaction from the database
-     * using the provided ID and displays it to the user.
-     *
-     * @return The rendered HTML page displaying the transaction.
-     */
+
     public function transaction($request, $response, $args)
     {
 
@@ -276,8 +319,8 @@ class UserController extends Controller {
         $view = Twig::fromRequest($request);
 
         return $view->render($response, 'pages/user-account-settings.html', [
-            "loginHistory" =>$loginHistory,
-            "sessionId" =>$currentSession,
+            "loginHistory" => $loginHistory,
+            "sessionId" => $currentSession,
             "name" => $name,
             "email" => $email,
             "block" => $block,

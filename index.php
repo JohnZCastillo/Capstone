@@ -39,6 +39,7 @@ $app->get('/', function (Request $request, Response $response) use ($twig) {
 // Protected Routes
 $app->group('', function ($app) {
     $app->get('/home', [UserController::class, 'home']);
+    $app->get('/receipt', [UserController::class, 'receipt']);
     $app->get('/dues', [UserController::class, 'dues']);
     $app->get('/issues', [UserController::class, 'issues']);
     $app->post('/issue', [UserController::class, 'issue']);
