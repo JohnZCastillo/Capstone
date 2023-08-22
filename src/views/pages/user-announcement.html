@@ -17,6 +17,11 @@
     const images = document.querySelectorAll('img');
 
     images.forEach(image => {
+
+        if(image.classList.contains("hoa-logo")){
+            return;
+        }
+        
         image.classList.add('img-fluid')
         image.classList.add('scale')
     })
