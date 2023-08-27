@@ -15,6 +15,4 @@ class AnnouncementStatus extends Enum
         return "archived";
     }
 
-
-
 }

@@ -8,6 +8,7 @@ use App\lib\Image;
 use App\lib\Time;
 use App\model\AnnouncementModel;
 use App\model\enum\AnnouncementStatus;
+use App\model\enum\UserRole;
 use App\model\PaymentModel;
 use Slim\Views\Twig;
 use Exception;
@@ -30,7 +31,7 @@ class AdminController extends Controller {
         $id = empty($queryParams['query']) ? null : $queryParams['query'];
 
         // max transaction per page
-        $max = 2;
+        $max = 5;
 
         $view = Twig::fromRequest($request);
 
@@ -513,4 +514,53 @@ class AdminController extends Controller {
             "lot" => $lot,
         ]);
     }
+
+    public function addAdmin($request, $response, $args)
+    {
+
+        $params = $request->getParsedBody();
+
+        $email = $params['email'];
+
+        $user = $this->userSerivce->findByEmail($email);
+
+        $managePayments = $params['payment'];
+        $manageIssues = $params['issue'];
+        $manageAnnouncements = $params['announcement'];
+        $manageUsers = $params['user'];
+
+        $user->setRole(UserRole::admin());
+
+        $this->userSerivce->save($user);
+
+        return $response
+            ->withHeader('Location', "/admin/users")
+            ->withStatus(302);
+    }
+
+
+    public function removeAdmin($request, $response, $args)
+    {
+
+        $params = $request->getParsedBody();
+
+        $email = $params['email'];
+
+        $user = $this->userSerivce->findByEmail($email);
+
+        $managePayments = $params['payment'];
+        $manageIssues = $params['issue'];
+        $manageAnnouncements = $params['announcement'];
+        $manageUsers = $params['user'];
+
+        $user->setRole(UserRole::user());
+
+        $this->userSerivce->save($user);
+
+        return $response
+            ->withHeader('Location', "/admin/users")
+            ->withStatus(302);
+    }
+
+
 }

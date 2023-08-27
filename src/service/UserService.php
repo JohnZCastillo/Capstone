@@ -27,6 +27,12 @@ class UserService extends Service {
         return $user;
     }
 
+    public function findByEmail($email): UserModel|null {
+        $em = $this->entityManager;
+        return $em->getRepository(UserModel::class)
+            ->findOneBy(['email'=>$email]);
+    }
+
     public function getUser($email, $password) {
 
         $queryBuilder = $this->entityManager->createQueryBuilder();
