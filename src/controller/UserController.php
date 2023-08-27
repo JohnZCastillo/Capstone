@@ -5,6 +5,7 @@ namespace App\controller;
 use App\exception\date\InvalidDateRange;
 use App\exception\image\ImageNotGcashReceiptException;
 use App\exception\image\UnsupportedImageException;
+use App\exception\NotUniqueReferenceException;
 use App\lib\Currency;
 use App\lib\Filter;
 use App\lib\GCashReceiptValidator;
@@ -81,7 +82,7 @@ class UserController extends Controller
     public function pay($request, $response, $args)
     {
 
-//        try {
+       try {
 
             $user = $this->getLogin();
 
@@ -116,35 +117,47 @@ class UserController extends Controller
                 throw new InvalidDateRange();
             }
 
-            // store physically
-            $storedImages = Image::storeAll($path, $images);
-
-            // save transaction
-            $this->transactionService->save($transaction);
-
-            var_dump($images);
-
+          
             $references = ReferenceExtractor::extractReference($images);
 
-            var_dump($references);
+            foreach ($references as $reference) {
 
+                if ($reference == null) {
+                    continue;
+                }
+
+                if (!$this->receiptService->isUniqueReference($reference)) {
+                    throw new NotUniqueReferenceException($reference);
+                }
+            }
+
+            //store physically
+
+            $storedImages = Image::storeAll($path, $images);
+
+            //save transaction
+            $this->transactionService->save($transaction);
+           
             // save image to database
             $this->receiptService->saveAll($storedImages, $transaction, $references);
 
-//        } catch (UnsupportedImageException $imageException) {
-//            $imageExceptionMessage = "Your Attach Receipt was Invalid. Please make sure that it as an image";
-//            $this->flashMessages->addMessage("ErrorMessage", $imageExceptionMessage);
-//        } catch (InvalidDateRange $invalidDateRange) {
-//            $invalidDateRangeMessage = "Your have inputted an invalid date range";
-//            $this->flashMessages->addMessage("ErrorMessage", $invalidDateRangeMessage);
-//        } catch (ImageNotGcashReceiptException $notGcashReceipt) {
-//            $notGcashMessage = "The image that was sent was not a GCash receipt";
-//            $this->flashMessages->addMessage("ErrorMessage", $notGcashMessage);
-//        } finally {
-//            return $response
-//                ->withHeader('Location', "/home")
-//                ->withStatus(302);
-//        }
+        } catch (UnsupportedImageException $imageException) {
+            $imageExceptionMessage = "Your Attach Receipt was Invalid. Please make sure that it as an image";
+            $this->flashMessages->addMessage("ErrorMessage", $imageExceptionMessage);
+        } catch (InvalidDateRange $invalidDateRange) {
+            $invalidDateRangeMessage = "You have inputted an invalid date range";
+            $this->flashMessages->addMessage("ErrorMessage", $invalidDateRangeMessage);
+        } catch (ImageNotGcashReceiptException $notGcashReceipt) {
+            $notGcashMessage = "The image that was sent was not a GCash receipt";
+            $this->flashMessages->addMessage("ErrorMessage", $notGcashMessage);
+        } catch (NotUniqueReferenceException $referenceException) {
+            $this->flashMessages->addMessage("ErrorMessage", $referenceException->getMessage());
+        } finally {
+            return $response
+                ->withHeader('Location', "/home")
+                ->withStatus(302);
+        }
+
     }
 
     public function manageIssue($request, $response, $args)
@@ -178,7 +191,7 @@ class UserController extends Controller
     {
 
 
-       // Create a new TCPDF instance
+        // Create a new TCPDF instance
         $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
         // Do not print the header line
@@ -239,7 +252,7 @@ class UserController extends Controller
         //get arrays of unpaid monhts
         $data = $this->transactionService->getUnpaid($user, $this->duesService, $paymentSettings);
 
-        //since the dues in unpaid month are float. 
+        //since the dues in unpaid month are float.
         //then format it to have peso value / curreny
         $items = Currency::formatArray($data['items'], 'due');
 
@@ -248,7 +261,6 @@ class UserController extends Controller
             'total' => Currency::format($data['total'])
         ]);
     }
-
 
 
     public function transaction($request, $response, $args)
