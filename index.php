@@ -36,6 +36,8 @@ $app->get('/', function (Request $request, Response $response) use ($twig) {
     return $twig->render($response, 'homepage.html');
 })->add(\App\middleware\BypassHomepage::class);
 
+$app->get('/test', [UserController::class, 'test']);
+
 // Protected Routes
 $app->group('', function ($app) {
     $app->get('/home', [UserController::class, 'home']);

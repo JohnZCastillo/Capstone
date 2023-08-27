@@ -19,14 +19,28 @@ class ReceiptService extends Service {
         $this->entityManager->flush($receipt);
     }
 
+    public function isUniqueReference(string $reference):bool {
 
-    public function saveAll($receipts,TransactionModel $transaction) {
+        $em = $this->entityManager;
 
-        foreach($receipts as $imageName){
+        $result = $em->getRepository(ReceiptModel::class)
+            ->findOneBy(['referenceNumber' => $reference]);
+
+        return $result == null;
+    }
+
+
+    public function saveAll($receipts,TransactionModel $transaction, array $references = null) {
+
+        foreach($receipts as $index => $imageName){
 
             $receipt = new ReceiptModel();
             $receipt->setPath($imageName);
             $receipt->setTransaction($transaction);
+
+            if($references[$index] != null){
+                $receipt->setReferenceNumber($references[$index]);
+            }
 
             $this->save($receipt);
         }

@@ -15,11 +15,37 @@
     }
 </style>
 
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModalLabel">Filter Logs</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="user">Email</label>
+                        <input type="text" class="form-control" id="user" placeholder="Enter Email">
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" class="form-control" id="date">
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-1">Apply Filters</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <main class="container-fluid">
 
     <span class="small text-secondary text-decoration-none d-block">Tool Bar</span>
     <div aria-label="Basic example" class="btn-group mb-2 " role="group">
-        <a class="btn btn-outline-success">Filter Logs</a>
+        <button class="btn btn-outline-success" data-toggle="modal" data-target="#filterModal">Filter Logs</button>
     </div>
 
     <table class="table thead-dark table-hover rounded-table table-shadow">
