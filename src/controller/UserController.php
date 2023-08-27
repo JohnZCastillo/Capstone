@@ -10,6 +10,7 @@ use App\lib\Filter;
 use App\lib\GCashReceiptValidator;
 use App\lib\Image;
 use App\lib\Login;
+use App\lib\ReferenceExtractor;
 use App\lib\Time;
 use App\model\enum\IssuesStatus;
 use App\model\IssuesModel;
@@ -108,7 +109,6 @@ class UserController extends Controller
             }
 
             if (!GCashReceiptValidator::isValid($images)) {
-                echo "NOT GCASH";
                 throw new ImageNotGcashReceiptException();
             };
 
@@ -116,14 +116,16 @@ class UserController extends Controller
                 throw new InvalidDateRange();
             }
 
-            // store physicaly
+            $references = ReferenceExtractor::extractReference($images);
+
+            // store physically
             $storedImages = Image::storeAll($path, $images);
 
             // save transaction
             $this->transactionService->save($transaction);
 
             // save image to database
-            $this->receiptService->saveAll($storedImages, $transaction);
+            $this->receiptService->saveAll($storedImages, $transaction, $references);
 
         } catch (UnsupportedImageException $imageException) {
             $imageExceptionMessage = "Your Attach Receipt was Invalid. Please make sure that it as an image";

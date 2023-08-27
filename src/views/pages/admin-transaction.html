@@ -204,7 +204,7 @@
               {% for receipt in receipts %}
               <div class="form-group">
                 <label>Receipt {{ loop.index}}</label>
-                <input type="text" class="form-control" name="field[]" />
+                <input type="text" class="form-control" name="field[]" value="{{receipt.referenceNumber}}" />
               </div>
               {% endfor %}
               <div class="modal-footer">

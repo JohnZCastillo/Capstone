@@ -20,13 +20,17 @@ class ReceiptService extends Service {
     }
 
 
-    public function saveAll($receipts,TransactionModel $transaction) {
+    public function saveAll($receipts,TransactionModel $transaction, array $references = null) {
 
-        foreach($receipts as $imageName){
+        foreach($receipts as $index => $imageName){
 
             $receipt = new ReceiptModel();
             $receipt->setPath($imageName);
             $receipt->setTransaction($transaction);
+
+            if($references[$index] != null){
+                $receipt->setReferenceNumber($references[$index]);
+            }
 
             $this->save($receipt);
         }
