@@ -81,7 +81,7 @@ class UserController extends Controller
     public function pay($request, $response, $args)
     {
 
-        try {
+//        try {
 
             $user = $this->getLogin();
 
@@ -116,31 +116,35 @@ class UserController extends Controller
                 throw new InvalidDateRange();
             }
 
-            $references = ReferenceExtractor::extractReference($images);
-
             // store physically
             $storedImages = Image::storeAll($path, $images);
 
             // save transaction
             $this->transactionService->save($transaction);
 
+            var_dump($images);
+
+            $references = ReferenceExtractor::extractReference($images);
+
+            var_dump($references);
+
             // save image to database
             $this->receiptService->saveAll($storedImages, $transaction, $references);
 
-        } catch (UnsupportedImageException $imageException) {
-            $imageExceptionMessage = "Your Attach Receipt was Invalid. Please make sure that it as an image";
-            $this->flashMessages->addMessage("ErrorMessage", $imageExceptionMessage);
-        } catch (InvalidDateRange $invalidDateRange) {
-            $invalidDateRangeMessage = "Your have inputted an invalid date range";
-            $this->flashMessages->addMessage("ErrorMessage", $invalidDateRangeMessage);
-        } catch (ImageNotGcashReceiptException $notGcashReceipt) {
-            $notGcashMessage = "The image that was sent was not a GCash receipt";
-            $this->flashMessages->addMessage("ErrorMessage", $notGcashMessage);
-        } finally {
-            return $response
-                ->withHeader('Location', "/home")
-                ->withStatus(302);
-        }
+//        } catch (UnsupportedImageException $imageException) {
+//            $imageExceptionMessage = "Your Attach Receipt was Invalid. Please make sure that it as an image";
+//            $this->flashMessages->addMessage("ErrorMessage", $imageExceptionMessage);
+//        } catch (InvalidDateRange $invalidDateRange) {
+//            $invalidDateRangeMessage = "Your have inputted an invalid date range";
+//            $this->flashMessages->addMessage("ErrorMessage", $invalidDateRangeMessage);
+//        } catch (ImageNotGcashReceiptException $notGcashReceipt) {
+//            $notGcashMessage = "The image that was sent was not a GCash receipt";
+//            $this->flashMessages->addMessage("ErrorMessage", $notGcashMessage);
+//        } finally {
+//            return $response
+//                ->withHeader('Location', "/home")
+//                ->withStatus(302);
+//        }
     }
 
     public function manageIssue($request, $response, $args)
