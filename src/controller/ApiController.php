@@ -68,4 +68,31 @@ class ApiController extends Controller {
         return $response->withHeader('Content-Type', 'application/json');
 
     }
+
+    public function user($request, $response, $args) {
+
+        try {
+            $body = $request->getParsedBody();
+
+            $email = $body['email'];
+
+            $user = $this->userSerivce->findByEmail($email);
+
+            if($user == null){
+             throw  new \Exception("User not found");
+            }
+
+            $data = ['name' => $user->getName()];
+
+            $payload = json_encode($data);
+
+            $response->getBody()->write($payload);
+            return $response->withHeader('Content-Type', 'application/json');
+        }catch (\Exception $e){
+            return $response->withStatus(404)
+                ->withHeader('Content-Type', 'application/json');
+        }
+
+
+    }
 }

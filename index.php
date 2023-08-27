@@ -60,7 +60,8 @@ $app->group('', function ($app) {
 
 $app->group('/api', function ($app) {
     $app->post('/add-due', [ApiController::class, 'addDue']);
-})->add(Auth::class);
+    $app->post('/user', [ApiController::class, 'user']);
+});
 
 $app->group('/admin', function ($app) use ($twig){
     $app->get('/home', [AdminController::class, 'home']);
@@ -84,6 +85,10 @@ $app->group('/admin', function ($app) use ($twig){
     $app->get('/issues', [AdminController::class, 'issues']);
     $app->get('/issues/{id}', [AdminController::class, 'manageIssue']);
     $app->post('/issues/action', [AdminController::class, 'actionIssue']);
+
+    $app->post('/add-admin', [AdminController::class, 'addAdmin']);
+
+    $app->post('/demote-admin', [AdminController::class, 'removeAdmin']);
 
     $app->get('/users', [AdminController::class, 'users']);
 

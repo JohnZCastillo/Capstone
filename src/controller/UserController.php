@@ -82,7 +82,7 @@ class UserController extends Controller
     public function pay($request, $response, $args)
     {
 
-        try {
+       try {
 
             $user = $this->getLogin();
 
@@ -100,7 +100,7 @@ class UserController extends Controller
             $transaction->setUser($user);
 
             // upload path
-            $path = './uploads/test/';
+            $path = './uploads/';
 
             // gcash receipts sent by user | multiple files
             $images = $_FILES['receipts'];
@@ -117,6 +117,7 @@ class UserController extends Controller
                 throw new InvalidDateRange();
             }
 
+          
             $references = ReferenceExtractor::extractReference($images);
 
             foreach ($references as $reference) {
@@ -131,12 +132,13 @@ class UserController extends Controller
             }
 
             //store physically
+
             $storedImages = Image::storeAll($path, $images);
 
             //save transaction
             $this->transactionService->save($transaction);
-
-            //save image to database
+           
+            // save image to database
             $this->receiptService->saveAll($storedImages, $transaction, $references);
 
         } catch (UnsupportedImageException $imageException) {
@@ -155,6 +157,7 @@ class UserController extends Controller
                 ->withHeader('Location', "/home")
                 ->withStatus(302);
         }
+
     }
 
     public function manageIssue($request, $response, $args)
