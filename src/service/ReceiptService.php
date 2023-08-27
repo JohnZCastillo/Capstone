@@ -19,6 +19,16 @@ class ReceiptService extends Service {
         $this->entityManager->flush($receipt);
     }
 
+    public function isUniqueReference(string $reference):bool {
+
+        $em = $this->entityManager;
+
+        $result = $em->getRepository(ReceiptModel::class)
+            ->findOneBy(['referenceNumber' => $reference]);
+
+        return $result == null;
+    }
+
 
     public function saveAll($receipts,TransactionModel $transaction, array $references = null) {
 
