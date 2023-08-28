@@ -5,6 +5,7 @@ namespace App\model;
 use App\model\enum\UserRole;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping\JoinColumn;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'user')]
@@ -43,12 +44,25 @@ class UserModel{
     #[ORM\OneToMany(targetEntity: LoginHistoryModel::class, mappedBy: 'user')]
     private Collection|array $loginHistory;
 
-
     #[ORM\OneToMany(targetEntity: IssuesModel::class, mappedBy: 'issues')]
     private Collection|array $issues;
 
+    #[ORM\OneToOne(targetEntity: PrivilegesModel::class, mappedBy: 'user',)]
+    private  PrivilegesModel $privileges;
+
     #[ORM\Column(type: UserRole::class)]
     private $role;
+
+    public function getPrivileges(): PrivilegesModel
+    {
+        return $this->privileges;
+    }
+
+    public function setPrivileges(PrivilegesModel $privileges): UserModel
+    {
+        $this->privileges = $privileges;
+        return $this;
+    }
 
 
     /**

@@ -36,6 +36,10 @@ $app->get('/', function (Request $request, Response $response) use ($twig) {
     return $twig->render($response, 'homepage.html');
 })->add(\App\middleware\BypassHomepage::class);
 
+$app->get('/denied', function (Request $request, Response $response) use ($twig) {
+    return $twig->render($response, 'denied.html');
+});
+
 $app->get('/test', [UserController::class, 'test']);
 
 // Protected Routes
@@ -64,14 +68,21 @@ $app->group('/api', function ($app) {
 });
 
 $app->group('/admin', function ($app) use ($twig){
-    $app->get('/home', [AdminController::class, 'home']);
     $app->get('/account', [AdminController::class, 'accountSettings']);
+})->add(\App\middleware\AdminAuth::class)->add(Auth::class);
+
+$app->group('/admin', function ($app) use ($twig){
+    $app->get('/home', [AdminController::class, 'home']);
 
     $app->get('/transaction/{id}', [AdminController::class, 'transaction']);
     $app->post('/transaction/reject', [AdminController::class, 'rejectPayment']);
     $app->post('/transaction/approve', [AdminController::class, 'approvePayment']);
     $app->post('/payment-settings', [AdminController::class, 'paymentSettings']);
     $app->get('/payment-map', [AdminController::class, 'paymentMap']);
+
+})->add(\App\middleware\AdminPaymentAuth::class)->add(\App\middleware\AdminAuth::class)->add(Auth::class);
+
+$app->group('/admin', function ($app) use ($twig){
 
     $app->post('/announcement', [AdminController::class, 'announcement']);
 
@@ -82,19 +93,23 @@ $app->group('/admin', function ($app) use ($twig){
 
     $app->get('/announcements', [AdminController::class, 'announcements']);
 
+})->add(\App\middleware\AdminAnnouncementAuth::class)->add(\App\middleware\AdminAuth::class)->add(Auth::class);
+
+$app->group('/admin', function ($app) use ($twig){
     $app->get('/issues', [AdminController::class, 'issues']);
     $app->get('/issues/{id}', [AdminController::class, 'manageIssue']);
     $app->post('/issues/action', [AdminController::class, 'actionIssue']);
+})->add(\App\middleware\AdminIssuesAuth::class)->add(\App\middleware\AdminAuth::class)->add(Auth::class);
 
-    $app->post('/add-admin', [AdminController::class, 'addAdmin']);
-
-    $app->post('/demote-admin', [AdminController::class, 'removeAdmin']);
-
+$app->group('/admin', function ($app) use ($twig){
     $app->get('/users', [AdminController::class, 'users']);
+})->add(\App\middleware\AdminUsersAuth::class)->add(\App\middleware\AdminAuth::class)->add(Auth::class);
 
-    $app->get('/logs', function (Request $request, Response $response) use ($twig) {
-        return $twig->render($response, 'pages/admin-all-logs.html');
-    });
+
+$app->group('/admin', function ($app) use ($twig){
+    $app->post('/add-admin', [AdminController::class, 'addAdmin']);
+    $app->post('/demote-admin', [AdminController::class, 'removeAdmin']);
+    $app->get('/logs', [AdminController::class, 'logs']);
 
     $app->get('/system', function (Request $request, Response $response) use ($twig) {
 
@@ -105,8 +120,7 @@ $app->group('/admin', function ($app) use ($twig){
         ]);
 
     });
-
-})->add(\App\middleware\AdminAuth::class)->add(Auth::class);
+})->add(\App\middleware\SuperAdminAuth::class)->add(Auth::class);
 
 $app->post('/upload', [ApiController::class, 'upload']);
 $app->post('/payable-amount', [ApiController::class, 'amount']);

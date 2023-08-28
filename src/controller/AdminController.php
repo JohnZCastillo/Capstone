@@ -75,7 +75,8 @@ class AdminController extends Controller {
             'to' => $queryParams['to'] ?? null,
             'status' => $queryParams['status'] ?? null,
             'settings' => $settings,
-            'paginator' => $result
+            'paginator' => $result,
+            'loginUser' => $this->getLogin(),
         ];
 
         return $view->render($response, 'pages/admin-home.html', $data);
@@ -97,6 +98,7 @@ class AdminController extends Controller {
             'transaction' => $transaction,
             'receipts' => $transaction->getReceipts(),
             'user' => $user,
+            'loginUser' => $this->getLogin(),
         ]);
     }
 
@@ -268,6 +270,7 @@ class AdminController extends Controller {
 
         return $view->render($response, 'pages/admin-announcement.html', [
             'announcement' => $announcement,
+            'loginUser' => $this->getLogin(),
         ]);
     }
 
@@ -344,7 +347,8 @@ class AdminController extends Controller {
             'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
             'status' => isset($queryParams['status']) ? $queryParams['status'] : null,
             'totalPages' => ceil(($result['totalAnnouncement']) / $max),
-            'status' => $status
+            'status' => $status,
+            'loginUser' => $this->getLogin(),
         ]);
     }
 
@@ -384,7 +388,8 @@ class AdminController extends Controller {
             'currentPage' => $page,
             'status' => $queryParams['status'] ?? null,
             'paginator' => $pagination,
-            'createdAt' => $createdAt
+            'createdAt' => $createdAt,
+            'loginUser' => $this->getLogin(),
         ]);
     }
 
@@ -414,6 +419,8 @@ class AdminController extends Controller {
             'currentPage' => $page,
             'role' => $role,
             'paginator' => $pagination,
+            'superAdmin' => $this->getLogin()->getRole() === "super",
+            'loginUser' => $this->getLogin(),
         ]);
     }
 
@@ -512,6 +519,7 @@ class AdminController extends Controller {
             "email" => $email,
             "block" => $block,
             "lot" => $lot,
+            'loginUser' => $this->getLogin(),
         ]);
     }
 
@@ -524,14 +532,31 @@ class AdminController extends Controller {
 
         $user = $this->userSerivce->findByEmail($email);
 
-        $managePayments = $params['payment'];
-        $manageIssues = $params['issue'];
-        $manageAnnouncements = $params['announcement'];
-        $manageUsers = $params['user'];
+        $managePayments = $params['payment'] ?? null;
+        $manageIssues = $params['issue'] ?? null;
+        $manageAnnouncements = $params['announcement'] ?? null;
+        $manageUsers = $params['user'] ?? null;
 
         $user->setRole(UserRole::admin());
-
         $this->userSerivce->save($user);
+
+        if(isset($managePayments)){
+            $user->getPrivileges()->setAdminPayment(true);
+        }
+
+        if(isset($manageIssues)){
+            $user->getPrivileges()->setAdminIssues(true);
+        }
+
+        if(isset($manageAnnouncements)){
+            $user->getPrivileges()->setAdminAnnouncement(true);
+        }
+
+        if(isset($manageUsers)){
+            $user->getPrivileges()->setAdminUser(true);
+        }
+
+        $this->priviligesService->save($user->getPrivileges());
 
         return $response
             ->withHeader('Location', "/admin/users")
@@ -548,19 +573,42 @@ class AdminController extends Controller {
 
         $user = $this->userSerivce->findByEmail($email);
 
-        $managePayments = $params['payment'];
-        $manageIssues = $params['issue'];
-        $manageAnnouncements = $params['announcement'];
-        $manageUsers = $params['user'];
+        $managePayments = $params['payment'] ?? null;
+        $manageIssues = $params['issue'] ?? null;
+        $manageAnnouncements = $params['announcement'] ?? null;
+        $manageUsers = $params['user'] ?? null;
 
-        $user->setRole(UserRole::user());
+        if(!isset($managePayments)){
+            $user->getPrivileges()->setAdminPayment(false);
+        }
 
-        $this->userSerivce->save($user);
+        if(!isset($manageIssues)){
+            $user->getPrivileges()->setAdminIssues(false);
+        }
+
+        if(!isset($manageAnnouncements)){
+            $user->getPrivileges()->setAdminAnnouncement(false);
+        }
+
+        if(!isset($manageUsers)){
+            $user->getPrivileges()->setAdminUser(false);
+        }
+
+        $userPrivilege = $user->getPrivileges();
+
+        $this->priviligesService->save($user->getPrivileges());
 
         return $response
             ->withHeader('Location', "/admin/users")
             ->withStatus(302);
     }
 
+    public function logs($request, $response, $args)
+    {
+        $twig = Twig::fromRequest($request);
 
+        return $twig->render($response, 'pages/admin-all-logs.html',[
+            "loginUser" =>$this->getLogin()
+        ]);
+    }
 }

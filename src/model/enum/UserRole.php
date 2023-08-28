@@ -4,7 +4,7 @@ namespace App\model\enum;
 class UserRole extends Enum
 {
     protected $name = 'role';
-    protected $values = array('admin', 'user');
+    protected $values = array('admin', 'user', 'super');
 
     static function admin(){
         return 'admin';
@@ -12,5 +12,9 @@ class UserRole extends Enum
 
     static function user(){
         return 'user';
+    }
+
+    static function superAdmin(){
+        return 'super';
     }
 }

@@ -6,6 +6,7 @@ use App\lib\Login;
 use App\lib\LoginDetails;
 use App\model\enum\UserRole;
 use App\model\LoginHistoryModel;
+use App\model\PrivilegesModel;
 use App\model\UserModel;
 use Exception;
 use Respect\Validation\Validator as V;
@@ -118,6 +119,18 @@ class AuthController extends Controller {
             }
 
             $this->userSerivce->save($user);
+            $priviliges = new PrivilegesModel();
+            $priviliges->setUserAnnouncement(true)
+                ->setUserIssues(true)
+                ->setUserPayment(true)
+                ->setAdminIssues(false)
+                ->setAdminPayment(false)
+                ->setAdminAnnouncement(false)
+                ->setAdminUser(false);
+
+            $priviliges->setUser($user);
+            $this->priviligesService->save($priviliges);
+
 
             Login::login($user->getId());
 

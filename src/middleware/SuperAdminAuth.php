@@ -5,14 +5,13 @@ namespace App\middleware;
 use App\lib\Login;
 use App\model\UserModel;
 use App\service\UserService;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
-use Slim\Flash\Messages;
 use Slim\Psr7\Response;
 use UMA\DIC\Container;
 
-class AdminAuth{
+class SuperAdminAuth{
 
     private  UserModel $user;
 
@@ -27,7 +26,7 @@ class AdminAuth{
 
         $role = $this->user->getRole();
 
-        if ($role == 'admin' || $role == 'super') {
+        if ($role == 'super') {
             return $handler->handle($request);
         } else {
             $response = new Response();

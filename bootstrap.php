@@ -14,6 +14,7 @@ use App\service\AnnouncementService;
 use App\service\DuesService;
 use App\service\IssuesService;
 use App\service\PaymentService;
+use App\service\PriviligesService;
 use App\service\ReceiptService;
 use App\service\LoginHistoryService;
 use App\service\Service;
@@ -56,6 +57,10 @@ $container->set(EntityManager::class, static function (Container $c): EntityMana
 // Add the services to the container. 
 $container->set(UserService::class, static function (Container $c) {
     return new UserService($c->get(EntityManager::class));
+});
+
+$container->set(PriviligesService::class, static function (Container $c) {
+    return new PriviligesService($c->get(EntityManager::class));
 });
 
 $container->set(DuesService::class, static function (Container $c) {

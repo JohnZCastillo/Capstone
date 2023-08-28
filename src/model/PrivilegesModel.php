@@ -3,6 +3,7 @@
 namespace App\model;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\JoinColumn;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'privileges')]
@@ -13,23 +14,62 @@ class PrivilegesModel{
     #[ORM\GeneratedValue]
     private $id;
 
-    #[ORM\Column(type: 'bit')]
+    #[ORM\Column(type: 'boolean')]
     private $userPayment;
 
-    #[ORM\Column(type: 'bit')]
+    #[ORM\Column(type: 'boolean')]
     private $userAnnouncement;
 
-    #[ORM\Column(type: 'bit')]
+    #[ORM\Column(type: 'boolean')]
     private $userIssues;
 
-    #[ORM\Column(type: 'bit')]
+    #[ORM\Column(type: 'boolean')]
     private $adminPayment;
 
-    #[ORM\Column(type: 'bit')]
+    #[ORM\Column(type: 'boolean')]
     private $adminAnnouncement;
 
-    #[ORM\Column(type: 'bit')]
+    #[ORM\Column(type: 'boolean')]
     private $adminIssues;
+
+    #[ORM\Column(type: 'boolean')]
+    private $adminUser;
+
+
+    #[ORM\OneToOne(targetEntity: UserModel::class)]
+    #[JoinColumn(name: 'user_id', referencedColumnName: 'id')]
+    private UserModel $user;
+
+    public function getUser(): UserModel
+    {
+        return $this->user;
+    }
+
+    public function setUser(UserModel $user): PrivilegesModel
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAdminUser()
+    {
+        return $this->adminUser;
+    }
+
+    /**
+     * @param mixed $adminUser
+     * @return PrivilegesModel
+     */
+    public function setAdminUser($adminUser)
+    {
+        $this->adminUser = $adminUser;
+        return $this;
+    }
+
+
 
     /**
      * @return mixed

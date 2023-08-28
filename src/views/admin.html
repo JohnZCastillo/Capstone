@@ -55,21 +55,36 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
+                {% if loginUser.getPrivileges().getAdminPayment() %}
                 <li class="nav-item">
                     <a class="nav-link" href="/admin/home">Payments</a>
                 </li>
+                {% endif %}
+
+                {% if loginUser.getPrivileges().getAdminIssues() %}
                 <li class="nav-item">
                     <a class="nav-link" href="/admin/issues">Issues</a>
                 </li>
+                {% endif %}
+
+                {% if loginUser.getPrivileges().getAdminAnnouncement() %}
                 <li class="nav-item">
                     <a class="nav-link" href="/admin/announcements">Announcement</a>
                 </li>
+                {% endif %}
+
+                {% if loginUser.getPrivileges().getAdminUser() %}
                 <li class="nav-item">
                     <a class="nav-link" href="/admin/users">Users</a>
                 </li>
+                {% endif %}
+
+                {% if loginUser.getRole() == "super" %}
                 <li class="nav-item">
                     <a class="nav-link" href="/admin/logs">Logs</a>
                 </li>
+                {% endif %}
+
                 <li class="nav-item">
                     <a class="nav-link" href="/admin/account">Account</a>
                 </li>

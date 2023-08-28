@@ -12,6 +12,7 @@ use App\service\DuesService;
 use App\service\IssuesService;
 use App\service\LoginHistoryService;
 use App\service\PaymentService;
+use App\service\PriviligesService;
 use App\service\ReceiptService;
 use App\service\Service;
 use App\service\TransactionLogsService;
@@ -33,6 +34,7 @@ class Controller {
     protected IssuesService $issuesService;
 
     protected LoginHistoryService $loginHistoryService;
+    protected PriviligesService $priviligesService;
 
     public function __construct(Container  $container) {
         //get the userService from dependency container
@@ -46,6 +48,7 @@ class Controller {
         $this->issuesService = $container->get(IssuesService::class);
         $this->flashMessages = $container->get(Messages::class);
         $this->loginHistoryService = $container->get(LoginHistoryService::class);
+        $this->priviligesService = $container->get(PriviligesService::class);
     }
 
     protected function getLogin():UserModel{

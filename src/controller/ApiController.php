@@ -82,7 +82,12 @@ class ApiController extends Controller {
              throw  new \Exception("User not found");
             }
 
-            $data = ['name' => $user->getName()];
+            $data = ['name' => $user->getName(),
+                    'payment' => $user->getPrivileges()->getAdminPayment(),
+                    'issue' => $user->getPrivileges()->getAdminIssues(),
+                    'announcement' => $user->getPrivileges()->getAdminAnnouncement(),
+                    'user' => $user->getPrivileges()->getAdminUser(),
+            ];
 
             $payload = json_encode($data);
 
