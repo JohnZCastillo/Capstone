@@ -2,6 +2,7 @@
 
 namespace App\controller;
 
+use App\exception\AlreadyPaidException;
 use App\exception\date\InvalidDateRange;
 use App\exception\image\ImageNotGcashReceiptException;
 use App\exception\image\UnsupportedImageException;
@@ -117,7 +118,18 @@ class UserController extends Controller
                 throw new InvalidDateRange();
             }
 
-          
+           $fromMonth2 = Time::nowStartMonth( $request->getParsedBody()['startDate']);
+           $toMonth2 = Time::nowStartMonth( $request->getParsedBody()['endDate']);
+
+           $months = Time::getMonths( $fromMonth2, $toMonth2);
+
+            foreach ($months as $month){
+                var_dump($month);
+                if($this->transactionService->isPaid($user,$month)){
+                    throw new AlreadyPaidException($month);
+                }
+            }
+
             $references = ReferenceExtractor::extractReference($images);
 
             foreach ($references as $reference) {
@@ -137,7 +149,7 @@ class UserController extends Controller
 
             //save transaction
             $this->transactionService->save($transaction);
-           
+
             // save image to database
             $this->receiptService->saveAll($storedImages, $transaction, $references);
 
@@ -152,7 +164,9 @@ class UserController extends Controller
             $this->flashMessages->addMessage("ErrorMessage", $notGcashMessage);
         } catch (NotUniqueReferenceException $referenceException) {
             $this->flashMessages->addMessage("ErrorMessage", $referenceException->getMessage());
-        } finally {
+        } catch (AlreadyPaidException $paidException) {
+           $this->flashMessages->addMessage("ErrorMessage", $paidException->getMessage());
+       } finally {
             return $response
                 ->withHeader('Location', "/home")
                 ->withStatus(302);
