@@ -36,7 +36,7 @@ class AdminController extends Controller {
         $view = Twig::fromRequest($request);
 
         //Get Transaction
-        $result = $this->transactionService->getAll($page, $max, $id, $filter);
+        $result = $this->transactionService->adminGetAll($page, $max, $id, $filter);
 
         try {
 

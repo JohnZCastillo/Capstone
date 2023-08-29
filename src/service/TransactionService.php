@@ -41,7 +41,7 @@ class TransactionService extends Service {
      * @param int $max max transaction per page
      * @return array An array containing 'transactions' and 'totalTransactions'.
      */
-    public function getAll($page, $max, $id, $filter, $user = null)
+    public function getAll($page, $max, $id, $filter, UserModel $user = null)
     {
 
         $filter['status'] = $filter['status'] == 'ALL' ? null : $filter['status'];
@@ -53,11 +53,14 @@ class TransactionService extends Service {
         $qb = $em->createQueryBuilder();
 
         $qb->select('t')
-            ->from(TransactionModel::class, 't');
+            ->from(TransactionModel::class, 't')
+            ->innerJoin('t.user', 'u', 'WITH', 'u.block = :block AND u.lot = :lot')
+            ->setParameter('block', $user->getBlock())
+            ->setParameter('lot', $user->getLot());
 
         $queryHelper = new QueryHelper($qb);
 
-        $queryHelper->Where("t.user = :user", "user", $user)
+        $queryHelper
             ->andWhere("t.id like :id", "id", $id)
             ->andWhere("t.fromMonth >= :fromMonth", 'fromMonth', $filter['from'])
             ->andWhere("t.toMonth <= :toMonth", "toMonth", $filter['to'])
@@ -65,6 +68,34 @@ class TransactionService extends Service {
 
         return $paginator->paginate($queryHelper->getQuery(), $page, $max);
     }
+
+    public function adminGetAll($page, $max, $id, $filter, $user = null)
+{
+
+    $filter['status'] = $filter['status'] == 'ALL' ? null : $filter['status'];
+
+    $em = $this->entityManager;
+
+    $paginator = new Paginator();
+
+    $qb = $em->createQueryBuilder();
+
+    $qb->select('t')
+        ->from(TransactionModel::class, 't');
+
+    $queryHelper = new QueryHelper($qb);
+
+    $queryHelper->Where("t.user = :user", "user", $user)
+        ->andWhere("t.id like :id", "id", $id)
+        ->andWhere("t.fromMonth >= :fromMonth", 'fromMonth', $filter['from'])
+        ->andWhere("t.toMonth <= :toMonth", "toMonth", $filter['to'])
+        ->andWhere("t.status = :status", "status", $filter['status']);
+
+    return $paginator->paginate($queryHelper->getQuery(), $page, $max);
+}
+
+
+
 
     public function getUnpaid($user, DuesService $dueService, PaymentModel $payment, $startMonth = null, $endMonth = null)
     {
@@ -134,13 +165,14 @@ class TransactionService extends Service {
 
         $qb = $em->createQueryBuilder();
 
-        $qb->select('COUNT(u.id)')
-            ->from(TransactionModel::class, 'u')
-            ->where($qb->expr()->between(':month', 'u.fromMonth', 'u.toMonth'))
-            ->andWhere($qb->expr()->eq('u.status', ':status'))
-            ->andWhere($qb->expr()->eq('u.user', ':user'))
+        $qb->select('COUNT(t.id)')
+            ->from(TransactionModel::class, 't')
+            ->innerJoin('t.user', 'u', 'WITH', 'u.block = :block AND u.lot = :lot')
+            ->setParameter('block', $user->getBlock())
+            ->setParameter('lot', $user->getLot())
+            ->where($qb->expr()->between(':month', 't.fromMonth', 't.toMonth'))
+            ->andWhere($qb->expr()->eq('t.status', ':status'))
             ->setParameter('month', $month)
-            ->setParameter('user', $user)
             ->setParameter('status', 'APPROVED');
 
         $query = $qb->getQuery();
