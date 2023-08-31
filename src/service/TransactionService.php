@@ -94,6 +94,29 @@ class TransactionService extends Service {
     return $paginator->paginate($queryHelper->getQuery(), $page, $max);
 }
 
+    public function getApprovedPayments(string $fromMonth,$toMonth)
+    {
+
+        $em = $this->entityManager;
+
+        $paginator = new Paginator();
+
+        $qb = $em->createQueryBuilder();
+
+        $qb->select('t')
+            ->from(TransactionModel::class, 't');
+
+        $queryHelper = new QueryHelper($qb);
+
+        $queryHelper
+            ->where("t.status = :status", "status","APPROVED")
+            ->andWhere("t.fromMonth >= :fromMonth", 'fromMonth', $fromMonth)
+            ->andWhere("t.toMonth <= :toMonth", "toMonth", $toMonth);
+
+        $query = $qb->getQuery();
+        return $query->getResult();
+    }
+
 
 
 
@@ -156,11 +179,6 @@ class TransactionService extends Service {
     public function isPaid($user, $month)
     {
 
-        // em - Entity Manager
-        // eq - Query Builder
-        // lte - Least than expression
-        // gte - Greather than expression
-
         $em = $this->entityManager;
 
         $qb = $em->createQueryBuilder();
@@ -181,4 +199,24 @@ class TransactionService extends Service {
         // Returns t// Returns true if the user has paid for the specified month, false otherwise
         return ($count > 0);
     }
+
+    public function getTotal(string $status,string $fromMonth,string $toMonth): float{
+
+        $em = $this->entityManager;
+
+        $qb = $em->createQueryBuilder();
+
+        $qb->select('sum(t.amount)')
+            ->from(TransactionModel::class, 't')
+            ->where($qb->expr()->eq('t.status', ':status'))
+            ->andWhere($qb->expr()->gte('t.fromMonth', ':fromMonth'))
+            ->andWhere($qb->expr()->lte('t.toMonth', ':toMonth'))
+            ->setParameter('fromMonth',$fromMonth)
+            ->setParameter('toMonth',$toMonth)
+            ->setParameter('status', $status);
+
+        $query = $qb->getQuery();
+        return $query->getSingleScalarResult();
+    }
+
 }
