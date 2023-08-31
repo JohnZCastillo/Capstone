@@ -10,10 +10,13 @@ use App\model\AnnouncementModel;
 use App\model\enum\AnnouncementStatus;
 use App\model\enum\UserRole;
 use App\model\PaymentModel;
-use Slim\Views\Twig;
 use Exception;
+use Slim\Views\Twig;
+use TCPDF;
+use thiagoalessio\TesseractOCR\Tests\Common\SkipException;
 
-class AdminController extends Controller {
+class AdminController extends Controller
+{
 
     public function home($request, $response, $args)
     {
@@ -36,13 +39,13 @@ class AdminController extends Controller {
         $view = Twig::fromRequest($request);
 
         //Get Transaction
-        $result = $this->transactionService->getAll($page, $max, $id, $filter);
+        $result = $this->transactionService->adminGetAll($page, $max, $id, $filter);
 
         try {
 
             $paymentSettings = $this->getPaymentSettings();
 
-            if($paymentSettings == null){
+            if ($paymentSettings == null) {
                 throw new Exception("Payment Not Set");
             }
 
@@ -375,11 +378,11 @@ class AdminController extends Controller {
 
         $filter = Filter::check($queryParams);
 
-        $createdAt = empty($queryParams['createdAt']) ? null :$queryParams['createdAt'] ;
+        $createdAt = empty($queryParams['createdAt']) ? null : $queryParams['createdAt'];
 
         $query = empty($queryParams['query']) ? null : $queryParams['query'];
 
-        $pagination = $this->issuesService->getAll($page, $max, $query, $filter, null, $type,$createdAt);
+        $pagination = $this->issuesService->getAll($page, $max, $query, $filter, null, $type, $createdAt);
 
         return $view->render($response, 'pages/admin-all-issues.html', [
             'type' => $type,
@@ -540,19 +543,19 @@ class AdminController extends Controller {
         $user->setRole(UserRole::admin());
         $this->userSerivce->save($user);
 
-        if(isset($managePayments)){
+        if (isset($managePayments)) {
             $user->getPrivileges()->setAdminPayment(true);
         }
 
-        if(isset($manageIssues)){
+        if (isset($manageIssues)) {
             $user->getPrivileges()->setAdminIssues(true);
         }
 
-        if(isset($manageAnnouncements)){
+        if (isset($manageAnnouncements)) {
             $user->getPrivileges()->setAdminAnnouncement(true);
         }
 
-        if(isset($manageUsers)){
+        if (isset($manageUsers)) {
             $user->getPrivileges()->setAdminUser(true);
         }
 
@@ -578,19 +581,19 @@ class AdminController extends Controller {
         $manageAnnouncements = $params['announcement'] ?? null;
         $manageUsers = $params['user'] ?? null;
 
-        if(!isset($managePayments)){
+        if (!isset($managePayments)) {
             $user->getPrivileges()->setAdminPayment(false);
         }
 
-        if(!isset($manageIssues)){
+        if (!isset($manageIssues)) {
             $user->getPrivileges()->setAdminIssues(false);
         }
 
-        if(!isset($manageAnnouncements)){
+        if (!isset($manageAnnouncements)) {
             $user->getPrivileges()->setAdminAnnouncement(false);
         }
 
-        if(!isset($manageUsers)){
+        if (!isset($manageUsers)) {
             $user->getPrivileges()->setAdminUser(false);
         }
 
@@ -607,8 +610,145 @@ class AdminController extends Controller {
     {
         $twig = Twig::fromRequest($request);
 
-        return $twig->render($response, 'pages/admin-all-logs.html',[
-            "loginUser" =>$this->getLogin()
+        return $twig->render($response, 'pages/admin-all-logs.html', [
+            "loginUser" => $this->getLogin()
         ]);
+    }
+
+    public function test($request, $response, $args)
+    {
+        $twig = Twig::fromRequest($request);
+
+        $total = $this->transactionService->getTotal("APPROVED", "2023-01-01", "2023-01-31");
+        var_dump($total);
+    }
+
+    public function report($request, $response, $args)
+    {
+
+        $params = $request->getParsedBody();
+        $fromMonth = $params['from'];
+        $toMonth =  $params['to'];
+
+        $fromMonth = Time::setToFirstDayOfMonth($fromMonth);
+        $toMonth =  Time::setToLastDayOfMonth($toMonth);
+
+        // Create a new TCPDF instance
+        $pdf = new TCPDF('L', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        // Do not print the header line
+        $pdf->SetPrintHeader(false);
+
+        // Add a page
+        $pdf->AddPage();
+
+        // Set font for title and headings
+        $pdf->SetFont('helvetica', 'B', 24);
+        $pdf->SetTextColor(0, 51, 102); // Dark blue color
+        $pdf->Image('./resources/logo.jpeg', 10, 10, 30);
+        $pdf->Cell(0, 20, 'Carissa Homes Subdivision Phase 7', 0, 1, 'C');
+
+        // Set font for report details
+        $pdf->SetFont('helvetica', 'B', 14);
+        $pdf->SetTextColor(0); // Reset text color to black
+
+        // Display coverage date
+        $dateCoverage = 'Coverage Period: '. Time::toStringMonthYear($fromMonth)." - ".Time::toStringMonthYear($toMonth);
+
+        $pdf->Cell(0, 10, $dateCoverage, 0, 1, 'C');
+
+        // Display report generation date
+        $generationDate = 'Report Generated On: ' . date('F j, Y, g:i a'); // Current date and time
+        $pdf->Cell(0, 10, $generationDate, 0, 1, 'C');
+
+        // Display administrator information
+        $generatedBy = 'Generated by: '.$this->getLogin()->getName();
+        $pdf->Cell(0, 10, $generatedBy, 0, 1, 'C');
+
+        $pdf->Ln(10); // Add some vertical space
+
+        $totalCollection = $this->transactionService->getTotal("APPROVED", $fromMonth, $toMonth);
+        $results = $this->transactionService->getApprovedPayments($fromMonth, $toMonth);
+
+        $content = [
+            array("Transaction No.", "Name", "Unit", "Amount", "Approved By", "Receipt Ref.", "Payment Coverage", "Payment Date"),
+        ];
+
+        foreach ($results as $result){
+
+            $receipts = $result->getReceipts();
+
+            $references = "";
+
+            $fromMonthCoverage = Time::toStringMonthYear($result->getFromMonth());
+            $toMonthCoverage = Time::toStringMonthYear($result->getToMonth());
+
+            $paymentCoverage = $fromMonthCoverage . " - " . $toMonthCoverage;
+
+            foreach ($receipts as $receipt){
+                    $references = $references . $receipt->getReferenceNumber()  . "\n";
+            }
+
+            $content[] = [
+                    $result->getId(),
+                    $result->getUser()->getName(),
+                    "B".$result->getUser()->getBlock() . " L" . $result->getUser()->getLot(),
+                    $result->getAmount(),
+                    $result->getLogs()[0]->getUpdatedBy()->getName(),
+                   $references,
+                   $paymentCoverage,
+                Time::convertDateTimeToDateString($result->getCreatedAt())
+
+            ];
+        }
+
+        $report_data = array(
+            "Financial Overview" => array(
+                "Total Collected Dues: $totalCollection",
+            ),
+            "Approved Transaction Breakdown" => $content
+        );
+
+        foreach ($report_data as $section_title => $section_content) {
+            $pdf->SetFont('helvetica', 'B', 16);
+            $pdf->SetFillColor(230, 230, 230); // Light gray background for section title
+            $pdf->Cell(0, 10, $section_title, 1, 1, 'L', 1, '', true);
+
+            if ($section_title === "Approved Transaction Breakdown") {
+                $pdf->SetFont('helvetica', '', 12);
+                $colWidths = array(37, 40, 25, 25, 40, 30, 40, 40); // Adjusted column widths
+                // Add header row
+                for ($i = 0; $i < count($section_content[0]); $i++) {
+                    $pdf->Cell($colWidths[$i], 10, $section_content[0][$i], 1, 0, 'C', 1);
+                }
+                $pdf->Ln(); // Move to the next row
+
+                // Add data rows
+                for ($rowIdx = 1; $rowIdx < count($section_content); $rowIdx++) {
+                    for ($colIdx = 0; $colIdx < count($section_content[$rowIdx]); $colIdx++) {
+                        $pdf->Cell($colWidths[$colIdx], 10, $section_content[$rowIdx][$colIdx], 1, 0, 'C');
+                    }
+                    $pdf->Ln(); // Move to the next row
+                }
+
+            } else {
+                foreach ($section_content as $line) {
+                    $pdf->SetFont('helvetica', '', 12);
+                    $pdf->MultiCell(0, 10, $line, 0, 'L');
+                }
+            }
+
+            // Add some space between sections
+            $pdf->Ln(10);
+        }
+
+
+        $pdfContent = $pdf->Output('', 'S');
+
+        $response->getBody()->write($pdf->Output('', 'S'));
+
+        return $response
+            ->withHeader('Content-Type', 'application/pdf')
+            ->withHeader('Content-Disposition', 'inline; filename="filename.pdf"');
+
     }
 }

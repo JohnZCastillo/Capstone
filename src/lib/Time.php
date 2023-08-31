@@ -59,6 +59,12 @@ class Time {
         }
     }
 
+    static function toStringMonthYear($date):string
+    {
+            $date = DateTime::createFromFormat('Y-m-d', $date);
+            return $date->format('M Y');
+    }
+
 
     /**
      * Create a timestamp at now time

@@ -9,7 +9,8 @@ use App\model\PaymentModel;
 use App\model\TransactionModel;
 use App\model\UserModel;
 
-class TransactionService extends Service {
+class TransactionService extends Service
+{
 
     /**
      * Save model to database
@@ -41,7 +42,35 @@ class TransactionService extends Service {
      * @param int $max max transaction per page
      * @return array An array containing 'transactions' and 'totalTransactions'.
      */
-    public function getAll($page, $max, $id, $filter, $user = null)
+    public function getAll($page, $max, $id, $filter, UserModel $user = null)
+    {
+
+        $filter['status'] = $filter['status'] == 'ALL' ? null : $filter['status'];
+
+        $em = $this->entityManager;
+
+        $paginator = new Paginator();
+
+        $qb = $em->createQueryBuilder();
+
+        $qb->select('t')
+            ->from(TransactionModel::class, 't')
+            ->innerJoin('t.user', 'u', 'WITH', 'u.block = :block AND u.lot = :lot')
+            ->setParameter('block', $user->getBlock())
+            ->setParameter('lot', $user->getLot());
+
+        $queryHelper = new QueryHelper($qb);
+
+        $queryHelper
+            ->andWhere("t.id like :id", "id", $id)
+            ->andWhere("t.fromMonth >= :fromMonth", 'fromMonth', $filter['from'])
+            ->andWhere("t.toMonth <= :toMonth", "toMonth", $filter['to'])
+            ->andWhere("t.status = :status", "status", $filter['status']);
+
+        return $paginator->paginate($queryHelper->getQuery(), $page, $max);
+    }
+
+    public function adminGetAll($page, $max, $id, $filter, $user = null)
     {
 
         $filter['status'] = $filter['status'] == 'ALL' ? null : $filter['status'];
@@ -65,6 +94,30 @@ class TransactionService extends Service {
 
         return $paginator->paginate($queryHelper->getQuery(), $page, $max);
     }
+
+    public function getApprovedPayments(string $fromMonth, $toMonth)
+    {
+
+        $em = $this->entityManager;
+
+        $paginator = new Paginator();
+
+        $qb = $em->createQueryBuilder();
+
+        $qb->select('t')
+            ->from(TransactionModel::class, 't');
+
+        $queryHelper = new QueryHelper($qb);
+
+        $queryHelper
+            ->where("t.status = :status", "status", "APPROVED")
+            ->andWhere("t.fromMonth >= :fromMonth", 'fromMonth', $fromMonth)
+            ->andWhere("t.toMonth <= :toMonth", "toMonth", $toMonth);
+
+        $query = $qb->getQuery();
+        return $query->getResult();
+    }
+
 
     public function getUnpaid($user, DuesService $dueService, PaymentModel $payment, $startMonth = null, $endMonth = null)
     {
@@ -125,22 +178,18 @@ class TransactionService extends Service {
     public function isPaid($user, $month)
     {
 
-        // em - Entity Manager
-        // eq - Query Builder
-        // lte - Least than expression
-        // gte - Greather than expression
-
         $em = $this->entityManager;
 
         $qb = $em->createQueryBuilder();
 
-        $qb->select('COUNT(u.id)')
-            ->from(TransactionModel::class, 'u')
-            ->where($qb->expr()->between(':month', 'u.fromMonth', 'u.toMonth'))
-            ->andWhere($qb->expr()->eq('u.status', ':status'))
-            ->andWhere($qb->expr()->eq('u.user', ':user'))
+        $qb->select('COUNT(t.id)')
+            ->from(TransactionModel::class, 't')
+            ->innerJoin('t.user', 'u', 'WITH', 'u.block = :block AND u.lot = :lot')
+            ->setParameter('block', $user->getBlock())
+            ->setParameter('lot', $user->getLot())
+            ->where($qb->expr()->between(':month', 't.fromMonth', 't.toMonth'))
+            ->andWhere($qb->expr()->eq('t.status', ':status'))
             ->setParameter('month', $month)
-            ->setParameter('user', $user)
             ->setParameter('status', 'APPROVED');
 
         $query = $qb->getQuery();
@@ -149,4 +198,31 @@ class TransactionService extends Service {
         // Returns t// Returns true if the user has paid for the specified month, false otherwise
         return ($count > 0);
     }
+
+    public function getTotal(string $status, string $fromMonth, string $toMonth): float
+    {
+
+        $em = $this->entityManager;
+
+        $qb = $em->createQueryBuilder();
+
+        $qb->select('sum(t.amount)')
+            ->from(TransactionModel::class, 't')
+            ->where($qb->expr()->eq('t.status', ':status'))
+            ->andWhere($qb->expr()->gte('t.fromMonth', ':fromMonth'))
+            ->andWhere($qb->expr()->lte('t.toMonth', ':toMonth'))
+            ->setParameter('fromMonth', $fromMonth)
+            ->setParameter('toMonth', $toMonth)
+            ->setParameter('status', $status);
+
+        $query = $qb->getQuery();
+
+        $result = $query->getSingleScalarResult();
+        if ($result == null) {
+            return 0;
+        }
+        return $result;
+
+    }
+
 }

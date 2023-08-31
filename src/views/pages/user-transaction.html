@@ -9,6 +9,7 @@
     {% endif %}
 
     <h1>Transaction ID: {{ transaction.id }}</h1>
+    <p>Paid by: {{ transaction.getUser().getName() }}</p>
     <p>From Due: {{ transaction.getFromMonth()|date("M Y") }}</p>
     <p>To Due: {{ transaction.getToMonth()|date("M Y") }}</p>
     <p>Status: {{ transaction.status }}</p>
