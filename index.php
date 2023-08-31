@@ -81,7 +81,7 @@ $app->group('/admin', function ($app) use ($twig){
     $app->post('/transaction/approve', [AdminController::class, 'approvePayment']);
     $app->post('/payment-settings', [AdminController::class, 'paymentSettings']);
     $app->get('/payment-map', [AdminController::class, 'paymentMap']);
-    $app->get('/report', [AdminController::class, 'report']);
+    $app->post('/report', [AdminController::class, 'report']);
 
 })->add(\App\middleware\AdminPaymentAuth::class)->add(\App\middleware\AdminAuth::class)->add(Auth::class);
 
