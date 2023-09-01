@@ -28,7 +28,8 @@
                 >
                     <div class="form-group row py-2">
                         <h6>Report Coverage Date</h6>
-                        <p class="small text-secondary">This form allows you to generate a <strong>Approved Payments Report</strong> by
+                        <p class="small text-secondary">This form allows you to generate a <strong>Approved Payments
+                            Report</strong> by
                             selecting a date range. Please provide the starting and ending dates for which you want to
                             generate the report.</p>
 
@@ -51,6 +52,52 @@
                             />
                         </div>
                     </div>
+                    <div class="d-flex gap-3">
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="status[]" id="approved"
+                                   value="approved">
+                            <label class="form-check-label" for="approved">Approved</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="status[]" id="pending"
+                                   value="pending">
+                            <label class="form-check-label" for="pending">Pending</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="status[]" id="rejected"
+                                   value="rejected">
+                            <label class="form-check-label" for="rejected">Rejected</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="status[]" id="unpaid"
+                                   value="unpaid">
+                            <label class="form-check-label" for="unpaid">Unpaid</label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <!-- Dropdown for Block -->
+                        <div class="form-group">
+                            <label for="block">Block:</label>
+                            <select class="form-control" id="block" name="block">
+                                <option value="ALL">ALL</option>
+                                <option value="block1">Block 1</option>
+                                <option value="block2">Block 2</option>
+                            </select>
+                        </div>
+
+                        <!-- Dropdown for Lot -->
+                        <div class="form-group">
+                            <label for="lot">Lot:</label>
+                            <select class="form-control" id="lot" name="lot">
+                                <option value="ALL">ALL</option>
+                                <option value="lotA">Lot A</option>
+                                <option value="lotB">Lot B</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="d-flex gap">
                         <button
                                 type="button"
