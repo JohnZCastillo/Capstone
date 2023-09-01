@@ -95,12 +95,10 @@ class TransactionService extends Service
         return $paginator->paginate($queryHelper->getQuery(), $page, $max);
     }
 
-    public function getApprovedPayments(string $fromMonth, $toMonth)
+    public function getApprovedPayments(string $fromMonth, $toMonth,$status = ["APPROVED"])
     {
 
         $em = $this->entityManager;
-
-        $paginator = new Paginator();
 
         $qb = $em->createQueryBuilder();
 
@@ -110,7 +108,7 @@ class TransactionService extends Service
         $queryHelper = new QueryHelper($qb);
 
         $queryHelper
-            ->where("t.status = :status", "status", "APPROVED")
+            ->where($qb->expr()->in('t.status', ':status'), "status", $status)
             ->andWhere("t.fromMonth >= :fromMonth", 'fromMonth', $fromMonth)
             ->andWhere("t.toMonth <= :toMonth", "toMonth", $toMonth);
 
