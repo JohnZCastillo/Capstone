@@ -630,8 +630,12 @@ class AdminController extends Controller
         $fromMonth = $params['from'];
         $toMonth =  $params['to'];
 
+        $status = $params['reportStatus'];
+
         $fromMonth = Time::setToFirstDayOfMonth($fromMonth);
         $toMonth =  Time::setToLastDayOfMonth($toMonth);
+
+        var_dump($status);
 
         // Create a new TCPDF instance
         $pdf = new TCPDF('L', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -667,7 +671,7 @@ class AdminController extends Controller
         $pdf->Ln(10); // Add some vertical space
 
         $totalCollection = $this->transactionService->getTotal("APPROVED", $fromMonth, $toMonth);
-        $results = $this->transactionService->getApprovedPayments($fromMonth, $toMonth);
+        $results = $this->transactionService->getApprovedPayments($fromMonth, $toMonth,$status);
 
         $content = [
             array("Transaction No.", "Name", "Unit", "Amount", "Approved By", "Receipt Ref.", "Payment Coverage", "Payment Date"),

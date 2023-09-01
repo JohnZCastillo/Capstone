@@ -28,7 +28,8 @@
                 >
                     <div class="form-group row py-2">
                         <h6>Report Coverage Date</h6>
-                        <p class="small text-secondary">This form allows you to generate a <strong>Approved Payments Report</strong> by
+                        <p class="small text-secondary">This form allows you to generate <strong>Approved Payments
+                            Report</strong> by
                             selecting a date range. Please provide the starting and ending dates for which you want to
                             generate the report.</p>
 
@@ -51,6 +52,52 @@
                             />
                         </div>
                     </div>
+                    <div class="d-flex gap-3">
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="reportStatus[]" id="reportApproved"
+                                   value="APPROVED">
+                            <label class="form-check-label" for="reportApproved">Approved</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="reportStatus[]" id="reportPending"
+                                   value="PENDING">
+                            <label class="form-check-label" for="reportPending">Pending</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="reportStatus[]" id="reportRejected"
+                                   value="REJECTED">
+                            <label class="form-check-label" for="reportRejected">Rejected</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="unpaid" id="reportUnpaid"
+                                   value="UNPAID">
+                            <label class="form-check-label" for="reportUnpaid">Unpaid</label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <!-- Dropdown for Block -->
+                        <div class="form-group">
+                            <label for="block">Block:</label>
+                            <select class="form-control" id="block" name="block">
+                                <option value="ALL">ALL</option>
+                                <option value="block1">Block 1</option>
+                                <option value="block2">Block 2</option>
+                            </select>
+                        </div>
+
+                        <!-- Dropdown for Lot -->
+                        <div class="form-group">
+                            <label for="lot">Lot:</label>
+                            <select class="form-control" id="lot" name="lot">
+                                <option value="ALL">ALL</option>
+                                <option value="lotA">Lot A</option>
+                                <option value="lotB">Lot B</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="d-flex gap">
                         <button
                                 type="button"
