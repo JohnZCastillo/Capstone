@@ -53,23 +53,24 @@
         <tr>
             <th>User</th>
             <th>Date</th>
+            <th>Tag</th>
             <th>Message</th>
         </tr>
         </thead>
         <tbody>
+        {% for log in logs %}
         <tr>
-            <td>John Doe</td>
-            <td>{{ "2023-08-06 3:00:00"|date('M d, Y H:i a') }}</td>
-            <td>Logged action A.</td>
+            <td>{{log.getUser().getName()}}</td>
+            <td>{{log.getCreatedAt()|date('M d, Y H:i a') }}</td>
+            <td>{{log.getTag()}}</td>
+            <td>{{log.getAction()}}</td>
         </tr>
-        <tr>
-            <td>Jane Smith</td>
-            <td>{{ "2023-08-06 11:30:00"|date('M d, Y H:i a')  }}</td>
-            <td>Logged action B.</td>
-        </tr>
-        {# Add more log entries as needed #}
+        {% endfor %}
         </tbody>
     </table>
+
+    {% include './partials/new-pagination.html' %}
+
 </main>
 
 {% endblock %}

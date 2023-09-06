@@ -5,12 +5,14 @@ namespace App\controller;
 use App\lib\Helper;
 use App\lib\Login;
 use App\model\AnnouncementModel;
+use App\model\LogsModel;
 use App\model\PaymentModel;
 use App\model\UserModel;
 use App\service\AnnouncementService;
 use App\service\DuesService;
 use App\service\IssuesService;
 use App\service\LoginHistoryService;
+use App\service\LogsService;
 use App\service\PaymentService;
 use App\service\PriviligesService;
 use App\service\ReceiptService;
@@ -36,6 +38,8 @@ class Controller {
     protected LoginHistoryService $loginHistoryService;
     protected PriviligesService $priviligesService;
 
+    protected  LogsService $actionLogs;
+
     public function __construct(Container  $container) {
         //get the userService from dependency container
         $this->userSerivce = $container->get(UserService::class);
@@ -49,6 +53,7 @@ class Controller {
         $this->flashMessages = $container->get(Messages::class);
         $this->loginHistoryService = $container->get(LoginHistoryService::class);
         $this->priviligesService = $container->get(PriviligesService::class);
+        $this->actionLogs = $container->get(LogsService::class);
     }
 
     protected function getLogin():UserModel{

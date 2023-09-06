@@ -9,6 +9,7 @@ use App\lib\Time;
 use App\model\AnnouncementModel;
 use App\model\enum\AnnouncementStatus;
 use App\model\enum\UserRole;
+use App\model\LogsModel;
 use App\model\PaymentModel;
 use Exception;
 use Slim\Views\Twig;
@@ -67,6 +68,13 @@ class AdminController extends Controller
             var_dump($e->getMessage());
         }
 
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction("User Requested for home");
+        $actionLog->setTag("Home");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(Time::timestamp());
+        $this->actionLogs->addLog($actionLog);
 
         $data = [
             'paymentStart' => $startOfPaymentYear ?? null,
@@ -127,6 +135,14 @@ class AdminController extends Controller
 
         //save logs
         $this->logsService->log($transaction, $user, $message, 'REJECTED');
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction("Payment Rejection");
+        $actionLog->setTag("Payment Rejected");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(Time::timestamp());
+
+        $this->actionLogs->addLog($actionLog);
 
         return $response
             ->withHeader('Location', "/admin/transaction/$id")
@@ -610,9 +626,32 @@ class AdminController extends Controller
     {
         $twig = Twig::fromRequest($request);
 
-        return $twig->render($response, 'pages/admin-all-logs.html', [
-            "loginUser" => $this->getLogin()
-        ]);
+        $queryParams = $request->getQueryParams();
+
+        // if page is present then set value to page otherwise to 1
+        $page = $queryParams['page'] ?? 1;
+
+        $filter = Filter::check($queryParams);
+        $filter['tag'] = null;
+
+        // max transaction per page
+        $max = 5;
+
+        //Get Transaction
+        $result = $this->actionLogs->getAll($page, $max, $filter);
+
+
+        $data = [
+            'logs' => $result->getItems(),
+            'currentPage' => $page,
+            'from' => $queryParams['from'] ?? null,
+            'to' => $queryParams['to'] ?? null,
+            'status' => $queryParams['status'] ?? null,
+            'paginator' => $result,
+            'loginUser' => $this->getLogin(),
+        ];
+
+        return $twig->render($response, 'pages/admin-all-logs.html', $data);
     }
 
     public function test($request, $response, $args)

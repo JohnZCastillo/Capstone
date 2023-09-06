@@ -13,6 +13,7 @@ use App\model\enum\UserRole;
 use App\service\AnnouncementService;
 use App\service\DuesService;
 use App\service\IssuesService;
+use App\service\LogsService;
 use App\service\PaymentService;
 use App\service\PriviligesService;
 use App\service\ReceiptService;
@@ -69,6 +70,10 @@ $container->set(DuesService::class, static function (Container $c) {
 
 $container->set(ReceiptService::class, static function (Container $c) {
     return new ReceiptService($c->get(EntityManager::class));
+});
+
+$container->set(LogsService::class, static function (Container $c) {
+    return new LogsService($c->get(EntityManager::class));
 });
 
 $container->set(Messages::class, function (Container $container) {
