@@ -32,9 +32,14 @@ class LogsService  extends Service {
         $queryHelper = new QueryHelper($qb);
 
         $queryHelper->Where("t.user = :user", "user", $user)
-            ->andWhere($qb->expr()->in('t.status', ':status'), "status", $filter['tag'])
-            ->andWhere("t.fromMonth >= :fromMonth", 'fromMonth', $filter['from'])
-            ->andWhere("t.toMonth <= :toMonth", "toMonth", $filter['to']);
+                ->andWhere($qb->expr()->in('t.status', ':status'), "status", $filter['tag'])
+                ->andWhereIn($qb->expr()->between('t.created_at', ":from",":to"),[
+                    "key"=>"from",
+                    "value"=>$filter['from']
+                ],[
+                    "key"=>"to",
+                    "value"=>$filter['to']
+                ]);
 
         return $paginator->paginate($queryHelper->getQuery(), $page, $max);
     }

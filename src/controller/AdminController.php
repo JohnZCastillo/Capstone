@@ -11,7 +11,9 @@ use App\model\enum\AnnouncementStatus;
 use App\model\enum\UserRole;
 use App\model\LogsModel;
 use App\model\PaymentModel;
+use DateTime;
 use Exception;
+use Respect\Validation\Rules\Date;
 use Slim\Views\Twig;
 use TCPDF;
 use thiagoalessio\TesseractOCR\Tests\Common\SkipException;
@@ -73,7 +75,7 @@ class AdminController extends Controller
         $actionLog->setAction("User Requested for home");
         $actionLog->setTag("Home");
         $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(Time::timestamp());
+        $actionLog->setCreatedAt(new DateTime());
         $this->actionLogs->addLog($actionLog);
 
         $data = [
@@ -631,15 +633,15 @@ class AdminController extends Controller
         // if page is present then set value to page otherwise to 1
         $page = $queryParams['page'] ?? 1;
 
-        $filter = Filter::check($queryParams);
+        $filter['from'] = empty($queryParams['from']) ? null : (new DateTime($queryParams['from']))->format('Y-m-d H:i:s');
+        $filter['to'] = empty($queryParams['to']) ? null :  (new DateTime($queryParams['to']))->format('Y-m-d H:i:s');
         $filter['tag'] = null;
 
         // max transaction per page
-        $max = 5;
+        $max = 10;
 
-        //Get Transaction
+//        Get Transaction
         $result = $this->actionLogs->getAll($page, $max, $filter);
-
 
         $data = [
             'logs' => $result->getItems(),
