@@ -346,11 +346,11 @@ class AdminController extends Controller
         $queryParams = $request->getQueryParams();
 
         // if page is present then set value to page otherwise to 1
-        $page = empty($queryParams['page']) ? $queryParams['page'] : 1;
+        $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
 
-        $id = empty($queryParams['query']) ? $queryParams['query'] : null;
+        $id = isset($queryParams['query']) ? $queryParams['query'] : null;
 
-        $status = empty($queryParams['status']) ? $queryParams['status'] : 'posted';
+        $status = isset($queryParams['status']) ? $queryParams['status'] : 'posted';
 
         // max transaction per page
         $max = 5;
@@ -364,8 +364,8 @@ class AdminController extends Controller
             'message' => $message,
             'query' => $id,
             'currentPage' => $page,
-            'from' => empty($queryParams['from']) ? $queryParams['from'] : null,
-            'to' => empty($queryParams['to']) ? $queryParams['to'] : null,
+            'from' => isset($queryParams['from']) ? $queryParams['from'] : null,
+            'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
             'totalPages' => ceil(($result['totalAnnouncement']) / $max),
             'status' => $status,
             'loginUser' => $this->getLogin(),
