@@ -11,12 +11,13 @@ use App\model\enum\AnnouncementStatus;
 use App\model\enum\UserRole;
 use App\model\LogsModel;
 use App\model\PaymentModel;
+use App\model\PrivilegesModel;
+use App\model\TransactionModel;
+use App\model\UserModel;
 use DateTime;
 use Exception;
-use Respect\Validation\Rules\Date;
 use Slim\Views\Twig;
 use TCPDF;
-use thiagoalessio\TesseractOCR\Tests\Common\SkipException;
 
 class AdminController extends Controller
 {
@@ -335,6 +336,112 @@ class AdminController extends Controller
             ->withStatus(302);
     }
 
+
+    public function manualPayment($request, $response, $args)
+    {
+
+        $user = new UserModel();
+
+        $content = $request->getParsedBody();
+
+        $user = $this->userSerivce->findByEmail($content['block'] . $content['block'] . "@manual.payment");
+
+        //only create new user when manual payment user has not been created
+        if (!isset($user)) {
+            // update user information from post request parameters
+            $user->setName("manual payment")
+                ->setBlock($content['block'])
+                ->setLot($content['lot'])
+                ->setRole(UserRole::user())
+                ->setPassword("")
+                ->setEmail($content['block'] . $content['block'] . "@manual.payment");
+
+            $this->userSerivce->save($user);
+
+            //create privileges
+            $privileges = new PrivilegesModel();
+            $privileges->setUserAnnouncement(true)
+                ->setUserIssues(true)
+                ->setUserPayment(true)
+                ->setAdminIssues(false)
+                ->setAdminPayment(false)
+                ->setAdminAnnouncement(false)
+                ->setAdminUser(false);
+
+            $privileges->setUser($user);
+            $this->priviligesService->save($privileges);
+        }
+
+
+        $fromMonth = $content['from'];
+        $fromMonth = Time::setToFirstDayOfMonth($fromMonth);
+
+        $toMonth = $content['to'];
+        $toMonth = Time::setToLastDayOfMonth($toMonth);
+
+        $transaction = new TransactionModel();
+        $transaction->setAmount($content["amount"]);
+        $transaction->setFromMonth(Time::convertDateStringToDateTime($fromMonth));
+        $transaction->setToMonth(Time::convertDateStringToDateTime($toMonth));
+        $transaction->setCreatedAt(Time::timestamp());
+        $transaction->setUser($user);
+
+        $message = "Payment was approved";
+
+        //login admin who approved the payment
+        $admin = $this->getLogin();
+
+        //set transaction
+        $transaction->setStatus('APPROVED');
+
+        // save transaction
+        $this->transactionService->save($transaction);
+
+        //save logs
+        $this->logsService->log($transaction, $admin, $message, 'APPROVED');
+
+        // Create a new TCPDF instance
+        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+        // Do not print the header line
+        $pdf->SetPrintHeader(false);
+
+        // Add a page
+        $pdf->AddPage();
+
+        $pdf->SetFont('times', 'B', 16);
+
+        $pdf->Image('./resources/logo.jpeg', 10, 10, 20);
+        $pdf->Cell(0, 10, 'Carissa Homes Subdivision Phase 7', 0, 1, 'C', false); // Add 'false' for no border
+        $pdf->Cell(0, 10, 'Monthly Dues Invoice', 0, 1, 'C', false); // Add 'false
+
+        $pdf->SetFont('times', '', 12);
+
+        $transactionNumber = 'TRX123456';
+        $homeownerName = 'John Doe';
+        $amount = '150.00';
+        $paymentDate = 'August 1, 2023';
+        $coverage = 'July 2023 - August 2023';
+
+        $pdf->Cell(0, 10, 'Transaction Number: ' . $transactionNumber, 0, 1);
+        $pdf->Cell(0, 10, 'Homeowner: ' . $homeownerName, 0, 1);
+        $pdf->Cell(0, 10, 'Amount: ' . $amount, 0, 1);
+        $pdf->Cell(0, 10, 'Payment Date: ' . $paymentDate, 0, 1);
+        $pdf->Cell(0, 10, 'Coverage: ' . $coverage, 0, 1);
+
+        $pdf->Ln(10); // Add some vertical spacing
+        $pdf->MultiCell(0, 10, 'This invoice serves as proof that the payment has been made.', 0, 'L');
+
+        $pdfContent = $pdf->Output('', 'S');
+
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="monthly_dues_receipt.pdf"');
+        header('Content-Length: ' . strlen($pdfContent));
+
+        echo $pdfContent;
+
+    }
+
     public function announcements($request, $response, $args)
     {
 
@@ -633,7 +740,7 @@ class AdminController extends Controller
         $page = $queryParams['page'] ?? 1;
 
         $filter['from'] = empty($queryParams['from']) ? null : (new DateTime($queryParams['from']))->format('Y-m-d H:i:s');
-        $filter['to'] = empty($queryParams['to']) ? null :  (new DateTime($queryParams['to']))->format('Y-m-d H:i:s');
+        $filter['to'] = empty($queryParams['to']) ? null : (new DateTime($queryParams['to']))->format('Y-m-d H:i:s');
         $filter['tag'] = null;
 
         // max transaction per page
@@ -668,12 +775,12 @@ class AdminController extends Controller
 
         $params = $request->getParsedBody();
         $fromMonth = $params['from'];
-        $toMonth =  $params['to'];
+        $toMonth = $params['to'];
 
         $status = $params['reportStatus'];
 
         $fromMonth = Time::setToFirstDayOfMonth($fromMonth);
-        $toMonth =  Time::setToLastDayOfMonth($toMonth);
+        $toMonth = Time::setToLastDayOfMonth($toMonth);
 
         var_dump($status);
 
@@ -696,7 +803,7 @@ class AdminController extends Controller
         $pdf->SetTextColor(0); // Reset text color to black
 
         // Display coverage date
-        $dateCoverage = 'Coverage Period: '. Time::toStringMonthYear($fromMonth)." - ".Time::toStringMonthYear($toMonth);
+        $dateCoverage = 'Coverage Period: ' . Time::toStringMonthYear($fromMonth) . " - " . Time::toStringMonthYear($toMonth);
 
         $pdf->Cell(0, 10, $dateCoverage, 0, 1, 'C');
 
@@ -705,19 +812,19 @@ class AdminController extends Controller
         $pdf->Cell(0, 10, $generationDate, 0, 1, 'C');
 
         // Display administrator information
-        $generatedBy = 'Generated by: '.$this->getLogin()->getName();
+        $generatedBy = 'Generated by: ' . $this->getLogin()->getName();
         $pdf->Cell(0, 10, $generatedBy, 0, 1, 'C');
 
         $pdf->Ln(10); // Add some vertical space
 
         $totalCollection = $this->transactionService->getTotal("APPROVED", $fromMonth, $toMonth);
-        $results = $this->transactionService->getApprovedPayments($fromMonth, $toMonth,$status);
+        $results = $this->transactionService->getApprovedPayments($fromMonth, $toMonth, $status);
 
         $content = [
             array("Transaction No.", "Name", "Unit", "Amount", "Approved By", "Receipt Ref.", "Payment Coverage", "Payment Date"),
         ];
 
-        foreach ($results as $result){
+        foreach ($results as $result) {
 
             $receipts = $result->getReceipts();
 
@@ -728,18 +835,18 @@ class AdminController extends Controller
 
             $paymentCoverage = $fromMonthCoverage . " - " . $toMonthCoverage;
 
-            foreach ($receipts as $receipt){
-                    $references = $references . $receipt->getReferenceNumber()  . "\n";
+            foreach ($receipts as $receipt) {
+                $references = $references . $receipt->getReferenceNumber() . "\n";
             }
 
             $content[] = [
-                    $result->getId(),
-                    $result->getUser()->getName(),
-                    "B".$result->getUser()->getBlock() . " L" . $result->getUser()->getLot(),
-                    $result->getAmount(),
-                    $result->getLogs()[0]->getUpdatedBy()->getName(),
-                   $references,
-                   $paymentCoverage,
+                $result->getId(),
+                $result->getUser()->getName(),
+                "B" . $result->getUser()->getBlock() . " L" . $result->getUser()->getLot(),
+                $result->getAmount(),
+                $result->getLogs()[0]->getUpdatedBy()->getName(),
+                $references,
+                $paymentCoverage,
                 Time::convertDateTimeToDateString($result->getCreatedAt())
 
             ];
