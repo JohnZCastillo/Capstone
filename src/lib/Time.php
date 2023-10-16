@@ -210,5 +210,21 @@ class Time {
 
         return $dateTime->format("Y-m-d H:i:s");
     }
+
+    static  function  getYearSpan(int $from,int $add = 2, int $to = null): array{
+
+        if(!isset($to)){
+            $to = $currentYear = date("Y");
+        }
+
+        $span = [];
+
+        for ($i = $from; $i <= $to + $add; $i++) {
+            $span[] = $i;
+        }
+
+        return $span;
+
+    }
 }
 

@@ -49,7 +49,9 @@
                 <div class="mb-1 d-flex align-items-center" style="gap:5px">
                     <label>Year</label>
                     <select class="form-control" id="dueYear" style="max-width: max-content">
-                        <option>{{paymentStart}}</option>
+                        {% for year in paymentYear %}
+                        <option>{{year}}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="calendar">

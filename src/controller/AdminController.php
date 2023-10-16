@@ -72,14 +72,9 @@ class AdminController extends Controller
         }
 
 
-        $actionLog = new LogsModel();
-        $actionLog->setAction("User Requested for home");
-        $actionLog->setTag("Home");
-        $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(new DateTime());
-        $this->actionLogs->addLog($actionLog);
 
         $data = [
+            'paymentYear' => Time::getYearSpan($startOfPaymentYear),
             'paymentStart' => $startOfPaymentYear ?? null,
             'dues' => $dues ?? null,
             'transactions' => $result->getItems(),
@@ -139,9 +134,11 @@ class AdminController extends Controller
         //save logs
         $this->logsService->log($transaction, $user, $message, 'REJECTED');
 
+        $action = "Payment with id of ". $transaction->getId(). " was rejected";
+
         $actionLog = new LogsModel();
-        $actionLog->setAction("Payment Rejection");
-        $actionLog->setTag("Payment Rejected");
+        $actionLog->setAction($action);
+        $actionLog->setTag("Payment");
         $actionLog->setUser($this->getLogin());
         $actionLog->setCreatedAt(Time::timestamp());
 
@@ -186,6 +183,16 @@ class AdminController extends Controller
         //save logs
         $this->logsService->log($transaction, $user, $message, 'APPROVED');
 
+        $action = "Payment with id of ". $transaction->getId(). " was approved";
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction($action);
+        $actionLog->setTag("Payment");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(Time::timestamp());
+
+        $this->actionLogs->addLog($actionLog);
+
         return $response
             ->withHeader('Location', "/admin/transaction/$id")
             ->withStatus(302);
@@ -219,6 +226,15 @@ class AdminController extends Controller
         $settings->setStart(Time::startMonth($start));
 
         $this->paymentService->save($settings);
+
+        $action = "Payment settings was update";
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction($action);
+        $actionLog->setTag("Payment Settings");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(Time::timestamp());
+        $this->actionLogs->addLog($actionLog);
 
         return $response
             ->withHeader('Location', "/admin/home")
@@ -254,6 +270,15 @@ class AdminController extends Controller
             $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . 'Posting Error');
         }
 
+        $action = "Announcement with id of ".$post->getId()." was created";
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction($action);
+        $actionLog->setTag("Announcement");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(Time::timestamp());
+        $this->actionLogs->addLog($actionLog);
+
         return $response->withHeader('Location', "/admin/announcements")
             ->withStatus(302);
     }
@@ -272,6 +297,15 @@ class AdminController extends Controller
 
         $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . ' deleted');
 
+        $action = "Announcement with id of ".$post->getId()." was deleted";
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction($action);
+        $actionLog->setTag("Announcement");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(Time::timestamp());
+        $this->actionLogs->addLog($actionLog);
+
         $this->announcementService->delete($post);
 
         return $response
@@ -288,7 +322,7 @@ class AdminController extends Controller
 
         $announcement = $this->announcementService->findById($id);
 
-        $this->flashMessages->addMessage('Test', 'This is a message');
+        $this->flashMessages->addMessage('Announcement', 'Changes was successfully saved');
 
         return $view->render($response, 'pages/admin-announcement.html', [
             'announcement' => $announcement,
@@ -311,6 +345,15 @@ class AdminController extends Controller
 
         $this->flashMessages->addMessage('Test', 'This is a message');
 
+        $action = "Announcement with id of ".$announcement->getId()." status was set to posted";
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction($action);
+        $actionLog->setTag("Announcement");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(Time::timestamp());
+        $this->actionLogs->addLog($actionLog);
+
         return $response
             ->withHeader('Location', "/admin/announcements?status=ARCHIVED")
             ->withStatus(302);
@@ -330,6 +373,16 @@ class AdminController extends Controller
         $this->announcementService->save($announcement);
 
         $this->flashMessages->addMessage('Test', 'This is a message');
+
+        $action = "Announcement with id of ".$announcement->getId()." status was set to archived";
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction($action);
+        $actionLog->setTag("Announcement");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(Time::timestamp());
+        $this->actionLogs->addLog($actionLog);
+
 
         return $response
             ->withHeader('Location', "/admin/announcements?status=POSTED")
@@ -399,6 +452,18 @@ class AdminController extends Controller
 
         //save logs
         $this->logsService->log($transaction, $admin, $message, 'APPROVED');
+
+
+        $action = "Manual payment for transaction with id of ".$transaction->getId()." was created";
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction($action);
+        $actionLog->setTag("Manual Payment");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(Time::timestamp());
+        $this->actionLogs->addLog($actionLog);
+
+
 
         // Create a new TCPDF instance
         $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -683,6 +748,15 @@ class AdminController extends Controller
             $user->getPrivileges()->setAdminUser(true);
         }
 
+        $action = "User with id of ".$user->getId()." was added as an admin";
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction($action);
+        $actionLog->setTag("Admin");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(Time::timestamp());
+        $this->actionLogs->addLog($actionLog);
+
         $this->priviligesService->save($user->getPrivileges());
 
         return $response
@@ -721,9 +795,23 @@ class AdminController extends Controller
             $user->getPrivileges()->setAdminUser(false);
         }
 
-        $userPrivilege = $user->getPrivileges();
+        if (!isset($managePayments,$manageIssues,$manageAnnouncements,$manageUsers)) {
+            $user->setRole(UserRole::user());
+            $this->userSerivce->save($user);
+        }
 
+        $userPrivilege = $user->getPrivileges();
         $this->priviligesService->save($user->getPrivileges());
+
+
+        $action = "User with id of ".$user->getId()." was demoted of admin privileges";
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction($action);
+        $actionLog->setTag("Admin");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(Time::timestamp());
+        $this->actionLogs->addLog($actionLog);
 
         return $response
             ->withHeader('Location', "/admin/users")
@@ -743,17 +831,25 @@ class AdminController extends Controller
         $filter['to'] = empty($queryParams['to']) ? null : (new DateTime($queryParams['to']))->format('Y-m-d H:i:s');
         $filter['tag'] = null;
 
+
+        $user = null;
+
+        if(isset($queryParams['email'])){
+            $user = $this->userSerivce->findByEmail($queryParams['email']);
+        }
+
         // max transaction per page
         $max = 10;
 
 //        Get Transaction
-        $result = $this->actionLogs->getAll($page, $max, $filter);
+        $result = $this->actionLogs->getAll($page, $max, $filter,$user);
 
         $data = [
             'logs' => $result->getItems(),
             'currentPage' => $page,
             'from' => $queryParams['from'] ?? null,
             'to' => $queryParams['to'] ?? null,
+            'user' => $user,
             'status' => $queryParams['status'] ?? null,
             'paginator' => $result,
             'loginUser' => $this->getLogin(),
@@ -782,7 +878,16 @@ class AdminController extends Controller
         $fromMonth = Time::setToFirstDayOfMonth($fromMonth);
         $toMonth = Time::setToLastDayOfMonth($toMonth);
 
-        var_dump($status);
+
+        $action = "User with id of ".$this->getLogin()->getId()." generated a report";
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction($action);
+        $actionLog->setTag("Admin");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(Time::timestamp());
+        $this->actionLogs->addLog($actionLog);
+
 
         // Create a new TCPDF instance
         $pdf = new TCPDF('L', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);

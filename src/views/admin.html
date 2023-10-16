@@ -61,11 +61,6 @@
                 </li>
                 {% endif %}
 
-                {% if loginUser.getPrivileges().getAdminIssues() %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/admin/issues">Issues</a>
-                </li>
-                {% endif %}
 
                 {% if loginUser.getPrivileges().getAdminAnnouncement() %}
                 <li class="nav-item">
