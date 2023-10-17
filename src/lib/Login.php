@@ -22,6 +22,12 @@ class Login {
         return isset($_SESSION['user']);
     }
 
+
+    static function forceLogout() {
+        session_regenerate_id();
+        session_destroy();
+    }
+
     static function getLogin(){
         return  $_SESSION['user'];
     }

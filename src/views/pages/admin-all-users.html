@@ -16,11 +16,8 @@
 </style>
 
 
-
-
-
 <main class="container-fluid mt-3">
-    {% if superAdmin  %}
+    {% if superAdmin %}
 
     <div class="modal fade" id="adminModal" tabindex="-1" aria-labelledby="adminModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -34,7 +31,7 @@
                 <div class="modal-body">
                     <form id="newAdmin" method="POST" action="/admin/add-admin">
                         <div class="form-group">
-                            <label  for="email">Email</label>
+                            <label for="email">Email</label>
                             <input name="email" type="text" class="form-control" id="email" placeholder="Enter Email">
                         </div>
                         <div class="form-group" id="userDetail">
@@ -42,7 +39,8 @@
                         <div class="form-group mt-1">
                             <label>Privileges</label>
                             <div class="form-check">
-                                <input name="announcement" type="checkbox" class="form-check-input" id="manageAnnouncements">
+                                <input name="announcement" type="checkbox" class="form-check-input"
+                                       id="manageAnnouncements">
                                 <label class="form-check-label" for="manageAnnouncements">Manage Announcements</label>
                             </div>
                             <div class="form-check">
@@ -77,7 +75,7 @@
                 <div class="modal-body">
                     <form id="demoteAdmin" method="POST" action="/admin/demote-admin">
                         <div class="form-group">
-                            <label  for="email">Email</label>
+                            <label for="email">Email</label>
                             <input name="email" type="text" class="form-control" id="email2" placeholder="Enter Email">
                         </div>
                         <div class="form-group" id="userDetail2">
@@ -86,19 +84,20 @@
                             <label>Privileges</label>
                             <small class="d-block small text-secondary">Unchecked to remove privilege</small>
                             <div class="form-check" id="announcementContainer">
-                                <input  id="announcementDemote" name="announcement" type="checkbox" class="form-check-input" >
+                                <input id="announcementDemote" name="announcement" type="checkbox"
+                                       class="form-check-input">
                                 <label class="form-check-label" for="announcementDemote">Manage Announcements</label>
                             </div>
                             <div class="form-check" id="paymentContainer">
-                                <input  id="paymentDemote" name="payment" type="checkbox" class="form-check-input">
-                                <label  class="form-check-label" for="paymentDemote">Manage Payments</label>
+                                <input id="paymentDemote" name="payment" type="checkbox" class="form-check-input">
+                                <label class="form-check-label" for="paymentDemote">Manage Payments</label>
                             </div>
                             <div class="form-check" id="userContainer">
-                                <input  id="userDemote"  name="user" type="checkbox" class="form-check-input" >
+                                <input id="userDemote" name="user" type="checkbox" class="form-check-input">
                                 <label class="form-check-label" for="userDemote">Manage Users</label>
                             </div>
                             <div class="form-check" id="issueContainer">
-                                <input  id="issueDemote"  name="issue" type="checkbox" class="form-check-input">
+                                <input id="issueDemote" name="issue" type="checkbox" class="form-check-input">
                                 <label class="form-check-label" for="issueDemote">Manage Issues</label>
                             </div>
                         </div>
@@ -120,7 +119,7 @@
 
     <form action="/admin/users" class="form mb-2" id="announcementForm" method="GET">
 
-        {% if superAdmin  %}
+        {% if superAdmin %}
 
         <div class="py-2">
 
@@ -147,7 +146,7 @@
         </div>
         {% endif %}
         <span class="text-secondary small d-block">Search Bar</span>
-        <input class="form-control" name="query" placeholder="User Name" type="text" value="{{query}}">
+        <input id="searchBar" class="form-control" name="query" placeholder="User Name" type="text" value="{{query}}">
     </form>
 
 
@@ -162,20 +161,33 @@
                 <th>Role</th>
                 <th>Block</th>
                 <th>Lot</th>
+                <th>Restricted</th>
                 <th>Actions</th>
             </tr>
             </thead>
             <tbody>
             {% for user in users %}
             <tr>
+                {% set restricted = user.isBlocked ? "Yes" : "No" %}
+
                 <td>{{user.id}}</td>
                 <td>{{user.name}}</td>
                 <td>{{user.email}}</td>
                 <td>{{user.role}}</td>
                 <td>{{user.block}}</td>
                 <td>{{user.lot}}</td>
+                <td id="restricted{{user.id}}">{{restricted}}</td>
                 <td>
-                    <button class="btn btn-danger block-btn" style="min-width: 85px">Block</button>
+                    <div class="d-flex gap-2 h-100">
+
+                        <button type="button" onclick="unblockUser('{{user.id}}')" class="btn btn-success block-btn"
+                                style="min-width: 85px">Unblock
+                        </button>
+                        <button type="button" onclick="blockUser('{{user.id}}')" class="btn btn-danger block-btn"
+                                style="min-width: 85px">Block
+                        </button>
+                    </div>
+
                 </td>
             </tr>
             {% endfor %}
@@ -201,91 +213,136 @@
 {% if superAdmin  %}
 <script>
 
-const userDetail = document.querySelector("#userDetail");
-const userDetail2 = document.querySelector("#userDetail2");
-const emailField = document.querySelector('#email');
-const emailField2 = document.querySelector('#email2');
+    const userDetail = document.querySelector("#userDetail");
+    const userDetail2 = document.querySelector("#userDetail2");
+    const emailField = document.querySelector('#email');
+    const emailField2 = document.querySelector('#email2');
 
-//container
-const issueContainer = document.querySelector("#issueContainer");
-const userContainer = document.querySelector("#userContainer");
-const paymentContainer = document.querySelector("#paymentContainer");
-const announcementContainer = document.querySelector("#announcementContainer");
+    //container
+    const issueContainer = document.querySelector("#issueContainer");
+    const userContainer = document.querySelector("#userContainer");
+    const paymentContainer = document.querySelector("#paymentContainer");
+    const announcementContainer = document.querySelector("#announcementContainer");
 
-const issueDemote = document.querySelector("#issueDemote");
-const userDemote = document.querySelector("#userDemote");
-const paymentDemote = document.querySelector("#paymentDemote");
-const announcementDemote = document.querySelector("#announcementDemote");
+    const issueDemote = document.querySelector("#issueDemote");
+    const userDemote = document.querySelector("#userDemote");
+    const paymentDemote = document.querySelector("#paymentDemote");
+    const announcementDemote = document.querySelector("#announcementDemote");
 
-emailField.addEventListener('keyup',async (event)=>{
+    const userFilterForm = document.querySelector("#announcementForm")
 
+    const searchBar = document.querySelector("#searchBar");
 
+    searchBar.addEventListener('change', (event) => {
 
-    const formData = new FormData();
-    formData.append("email",emailField.value);
-
-    const data = await fetch('/api/user',{
-        method: "POST",
-        body: formData
+        if (searchBar.value.length <= 0) {
+            userFilterForm.submit();
+        }
     })
+    emailField.addEventListener('keyup', async (event) => {
 
-    if(data.ok){
-        const user = await data.json();
-        userDetail.innerHTML = user.name;
-    }else{
-        console.log("An error has occurred");
+        const formData = new FormData();
+        formData.append("email", emailField.value);
+
+        const data = await fetch('/api/user', {
+            method: "POST",
+            body: formData
+        })
+
+        if (data.ok) {
+            const user = await data.json();
+            userDetail.innerHTML = user.name;
+        } else {
+            console.log("An error has occurred");
+        }
+
+    });
+
+
+    emailField2.addEventListener('keyup', async (event) => {
+
+        issueContainer.classList.add('d-none');
+        userContainer.classList.add('d-none');
+        paymentContainer.classList.add('d-none');
+        announcementContainer.classList.add('d-none');
+
+        if (!emailField2.value.includes("@")) {
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("email", emailField2.value);
+
+        const data = await fetch('/api/user', {
+            method: "POST",
+            body: formData
+        })
+
+        if (data.ok) {
+            const user = await data.json();
+            userDetail2.innerHTML = user.name;
+            console.log(user);
+
+            if (user.payment) {
+                paymentContainer.classList.remove('d-none');
+                paymentDemote.checked = true;
+            }
+
+            if (user.issue) {
+                issueContainer.classList.remove('d-none');
+                issueDemote.checked = true;
+            }
+
+            if (user.user) {
+                userContainer.classList.remove('d-none');
+                userDemote.checked = true;
+            }
+
+            if (user.announcement) {
+                announcementContainer.classList.remove('d-none');
+                announcementDemote.checked = true
+            }
+        }
+
+
+    });
+
+    async function blockUser(id) {
+
+        let formData = new FormData();
+        formData.append("userId", id);
+
+        const data = await fetch('/admin/block-user', {
+            method: "POST",
+            body: formData
+        })
+
+        if (data.ok) {
+            document.querySelector("#restricted"+id).innerHTML = "Yes";
+            console.log('user has been block')
+        } else {
+            console.log("something went wrong")
+        }
+
     }
+    async function unblockUser(id) {
 
-});
+        let formData = new FormData();
+        formData.append("userId", id);
 
-emailField2.addEventListener('keyup',async (event)=>{
+        const data = await fetch('/admin/unblock-user', {
+            method: "POST",
+            body: formData
+        })
 
-    issueContainer.classList.add('d-none');
-    userContainer.classList.add('d-none');
-    paymentContainer.classList.add('d-none');
-    announcementContainer.classList.add('d-none');
+        if (data.ok) {
+            document.querySelector("#restricted"+id).innerHTML = "No";
+            console.log('user has been unblock')
+        } else {
+            console.log("something went wrong")
+        }
 
-    if(!emailField2.value.includes("@")){
-      return;
     }
-
-    const formData = new FormData();
-    formData.append("email",emailField2.value);
-
-    const data = await fetch('/api/user',{
-        method: "POST",
-        body: formData
-    })
-
-    if(data.ok){
-        const user = await data.json();
-        userDetail2.innerHTML = user.name;
-        console.log(user);
-
-        if(user.payment){
-            paymentContainer.classList.remove('d-none');
-            paymentDemote.checked = true;
-        }
-
-        if(user.issue){
-            issueContainer.classList.remove('d-none');
-            issueDemote.checked = true;
-        }
-
-        if(user.user){
-            userContainer.classList.remove('d-none');
-            userDemote.checked = true;
-        }
-
-        if(user.announcement){
-            announcementContainer.classList.remove('d-none');
-            announcementDemote.checked = true
-        }
-    }
-
-});
-
-
 </script>
 {% endif %}
 

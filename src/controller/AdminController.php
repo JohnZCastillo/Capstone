@@ -602,7 +602,7 @@ class AdminController extends Controller
 
         $filter = Filter::check($queryParams);
 
-        $query = empty($queryParams['query']) ? null : $queryParams['query'];
+        $query = empty($queryParams['query']) ? "" : $queryParams['query'];
 
         $pagination = $this->userSerivce->getAll($page, $max, $query, $filter, $role);
 
@@ -613,6 +613,7 @@ class AdminController extends Controller
             'paginator' => $pagination,
             'superAdmin' => $this->getLogin()->getRole() === "super",
             'loginUser' => $this->getLogin(),
+            'query' => $query,
         ]);
     }
 
@@ -628,7 +629,6 @@ class AdminController extends Controller
 
         //might throw and error
         $issue = $this->issuesService->findById($id);
-
 
         return $view->render($response, 'pages/admin-manage-issue.html', [
             'issue' => $issue,

@@ -40,6 +40,10 @@ $app->get('/denied', function (Request $request, Response $response) use ($twig)
     return $twig->render($response, 'denied.html');
 });
 
+$app->get('/blocked', function (Request $request, Response $response) use ($twig) {
+    return $twig->render($response, 'blockpage.html');
+});
+
 $app->get('/test', [UserController::class, 'test']);
 
 // Protected Routes
@@ -83,6 +87,8 @@ $app->group('/admin', function ($app) use ($twig){
     $app->get('/payment-map', [AdminController::class, 'paymentMap']);
     $app->post('/report', [AdminController::class, 'report']);
     $app->post('/manual-payment', [AdminController::class, 'manualPayment']);
+    $app->post('/block-user', [ApiController::class, 'blockUser']);
+    $app->post('/unblock-user', [ApiController::class, 'unblockUser']);
 
 })->add(\App\middleware\AdminPaymentAuth::class)->add(\App\middleware\AdminAuth::class)->add(Auth::class);
 

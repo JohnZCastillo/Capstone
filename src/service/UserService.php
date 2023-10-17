@@ -57,12 +57,18 @@ class UserService extends Service {
         $qb = $em->createQueryBuilder();
 
         $qb->select('t')
-            ->from(UserModel::class, 't');
+            ->from(UserModel::class, 't')
+            ->where("t.role = :role")
+            ->andWhere(
+                $qb->expr()->orX(
+                    $qb->expr()->like('t.name', ':queryParam'),
+                    $qb->expr()->like('t.email', ':queryParam'),
+                    $qb->expr()->like('t.id', ':queryParam')
+                )
+            )
+            ->setParameter('queryParam', '%' . $id . '%')
+            ->setParameter('role', $role);
 
-        $queryHelper = new QueryHelper($qb);
-
-        $queryHelper->Where("t.role = :role", "role", $role);
-
-        return $paginator->paginate($queryHelper->getQuery(), $page, $max);
+        return $paginator->paginate($qb, $page, $max);
     }
 }

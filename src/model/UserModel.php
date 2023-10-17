@@ -30,7 +30,10 @@ class UserModel{
     private string $email; 
 
     #[ORM\Column(type: 'string')]
-    private string $password; 
+    private string $password;
+
+    #[ORM\Column(type: 'boolean')]
+    private string $isBlocked;
 
     #[ORM\OneToMany(targetEntity: TransactionModel::class, mappedBy: 'user')]
     private Collection|array $transactions;
@@ -55,6 +58,28 @@ class UserModel{
 
     #[ORM\Column(type: UserRole::class)]
     private $role;
+
+    public function getIsBlocked(): string
+    {
+        return $this->isBlocked;
+    }
+
+    public function setIsBlocked(string $isBlocked): UserModel
+    {
+        $this->isBlocked = $isBlocked;
+        return $this;
+    }
+
+    public function getActionLogs(): Collection|array
+    {
+        return $this->actionLogs;
+    }
+
+    public function setActionLogs(Collection|array $actionLogs): UserModel
+    {
+        $this->actionLogs = $actionLogs;
+        return $this;
+    }
 
     public function getPrivileges(): PrivilegesModel
     {

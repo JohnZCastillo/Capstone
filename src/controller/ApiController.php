@@ -97,7 +97,61 @@ class ApiController extends Controller {
             return $response->withStatus(404)
                 ->withHeader('Content-Type', 'application/json');
         }
+    }
 
+    public function blockUser($request, $response, $args) {
 
+        try {
+
+            $body = $request->getParsedBody();
+
+            $userId = $body['userId'];
+
+            $user = $this->userSerivce->findById($userId);
+
+            if($user == null){
+                throw  new \Exception("User not found");
+            }
+
+            $user->setIsBlocked(true);
+
+            $this->userSerivce->save($user);
+
+            $payload = json_encode(["message" => "user has been blocked"]);
+
+            $response->getBody()->write($payload);
+            return $response->withHeader('Content-Type', 'application/json');
+        }catch (\Exception $e){
+            return $response->withStatus(400)
+                ->withHeader('Content-Type', 'application/json');
+        }
+    }
+
+    public function unblockUser($request, $response, $args) {
+
+        try {
+
+            $body = $request->getParsedBody();
+
+            $userId = $body['userId'];
+
+            $user = $this->userSerivce->findById($userId);
+
+            if($user == null){
+                throw  new \Exception("User not found");
+            }
+
+            $user->setIsBlocked(false);
+
+            $this->userSerivce->save($user);
+
+            $payload = json_encode(["message" => "user has been blocked"]);
+
+            $response->getBody()->write($payload);
+            return $response->withHeader('Content-Type', 'application/json');
+        }catch (\Exception $e){
+            return $response->withStatus(400)
+                ->withHeader('Content-Type', 'application/json');
+        }
     }
 }
