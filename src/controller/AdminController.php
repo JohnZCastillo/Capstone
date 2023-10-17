@@ -255,8 +255,14 @@ class AdminController extends Controller
         $post->setCreatedAt(Time::timestamp());
         $post->setUser($this->getLogin());
 
+        $action = "Announcement with id of ".$post->getId()." was created";
+
         if (Helper::existAndNotNull($id)) {
             $post = $this->announcementService->findById($id);
+            $action = "Announcement with id of ".$post->getId()." was edited";
+            $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . ' edited');
+        }else{
+            $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . ' Posted');
         }
 
         $post->setTitle($title);
@@ -265,12 +271,10 @@ class AdminController extends Controller
 
         try {
             $this->announcementService->save($post);
-            $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . 'Posted');
         } catch (\Throwable $th) {
             $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . 'Posting Error');
         }
 
-        $action = "Announcement with id of ".$post->getId()." was created";
 
         $actionLog = new LogsModel();
         $actionLog->setAction($action);
@@ -321,8 +325,6 @@ class AdminController extends Controller
         $id = $args['id'];
 
         $announcement = $this->announcementService->findById($id);
-
-        $this->flashMessages->addMessage('Announcement', 'Changes was successfully saved');
 
         return $view->render($response, 'pages/admin-announcement.html', [
             'announcement' => $announcement,
