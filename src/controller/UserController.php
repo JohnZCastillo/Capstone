@@ -357,6 +357,7 @@ class UserController extends Controller
             "email" => $email,
             "block" => $block,
             "lot" => $lot,
+            "user" => $user,
         ]);
     }
 
