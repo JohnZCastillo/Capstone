@@ -696,10 +696,6 @@ class AdminController extends Controller
     {
 
         $user = $this->getLogin();
-        $name = $user->getName();
-        $email = $user->getEmail();
-        $block = $user->getBlock();
-        $lot = $user->getLot();
 
         $loginHistory = $this->loginHistoryService->getLogs($user);
         $currentSession = session_id();
@@ -709,11 +705,8 @@ class AdminController extends Controller
         return $view->render($response, 'pages/admin-account-settings.html', [
             "loginHistory" => $loginHistory,
             "sessionId" => $currentSession,
-            "name" => $name,
-            "email" => $email,
-            "block" => $block,
-            "lot" => $lot,
             'loginUser' => $this->getLogin(),
+            "user" => $user,
         ]);
     }
 

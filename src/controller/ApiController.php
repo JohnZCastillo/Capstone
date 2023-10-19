@@ -2,19 +2,18 @@
 
 namespace App\controller;
 
-use App\lib\Filter;
 use App\lib\Image;
 use App\lib\Time;
 use App\model\DuesModel;
-use App\model\PaymentModel;
-use Slim\Views\Twig;
 
-class ApiController extends Controller {
+class ApiController extends Controller
+{
 
     /**
-     * End point to save image. 
+     * End point to save image.
      */
-    public function upload($request, $response, $args) {
+    public function upload($request, $response, $args)
+    {
         $uploadPath = './uploads/';
         $imageName = Image::store($uploadPath, $_FILES['image']);
 
@@ -25,7 +24,8 @@ class ApiController extends Controller {
             ->withHeader('Content-Type', 'application/json');
     }
 
-    public function addDue($request, $response, $args) {
+    public function addDue($request, $response, $args)
+    {
 
         $month = $request->getParsedBody()['month'];
         $amount = $request->getParsedBody()['amount'];
@@ -42,7 +42,8 @@ class ApiController extends Controller {
         return $response->withHeader('Content-Type', 'application/json');
     }
 
-    public function amount($request, $response, $args) {
+    public function amount($request, $response, $args)
+    {
 
         $body = $request->getParsedBody();
 
@@ -60,7 +61,7 @@ class ApiController extends Controller {
             $toMonth
         );
 
-        $months = Time::getMonths($fromMonth,$toMonth);
+        $months = Time::getMonths($fromMonth, $toMonth);
 
         $payload = json_encode(['amount' => $amount['total']]);
 
@@ -69,7 +70,8 @@ class ApiController extends Controller {
 
     }
 
-    public function user($request, $response, $args) {
+    public function user($request, $response, $args)
+    {
 
         try {
             $body = $request->getParsedBody();
@@ -78,28 +80,29 @@ class ApiController extends Controller {
 
             $user = $this->userSerivce->findByEmail($email);
 
-            if($user == null){
-             throw  new \Exception("User not found");
+            if ($user == null) {
+                throw  new \Exception("User not found");
             }
 
             $data = ['name' => $user->getName(),
-                    'payment' => $user->getPrivileges()->getAdminPayment(),
-                    'issue' => $user->getPrivileges()->getAdminIssues(),
-                    'announcement' => $user->getPrivileges()->getAdminAnnouncement(),
-                    'user' => $user->getPrivileges()->getAdminUser(),
+                'payment' => $user->getPrivileges()->getAdminPayment(),
+                'issue' => $user->getPrivileges()->getAdminIssues(),
+                'announcement' => $user->getPrivileges()->getAdminAnnouncement(),
+                'user' => $user->getPrivileges()->getAdminUser(),
             ];
 
             $payload = json_encode($data);
 
             $response->getBody()->write($payload);
             return $response->withHeader('Content-Type', 'application/json');
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             return $response->withStatus(404)
                 ->withHeader('Content-Type', 'application/json');
         }
     }
 
-    public function blockUser($request, $response, $args) {
+    public function blockUser($request, $response, $args)
+    {
 
         try {
 
@@ -109,7 +112,7 @@ class ApiController extends Controller {
 
             $user = $this->userSerivce->findById($userId);
 
-            if($user == null){
+            if ($user == null) {
                 throw  new \Exception("User not found");
             }
 
@@ -121,13 +124,14 @@ class ApiController extends Controller {
 
             $response->getBody()->write($payload);
             return $response->withHeader('Content-Type', 'application/json');
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             return $response->withStatus(400)
                 ->withHeader('Content-Type', 'application/json');
         }
     }
 
-    public function unblockUser($request, $response, $args) {
+    public function unblockUser($request, $response, $args)
+    {
 
         try {
 
@@ -137,7 +141,7 @@ class ApiController extends Controller {
 
             $user = $this->userSerivce->findById($userId);
 
-            if($user == null){
+            if ($user == null) {
                 throw  new \Exception("User not found");
             }
 
@@ -149,9 +153,60 @@ class ApiController extends Controller {
 
             $response->getBody()->write($payload);
             return $response->withHeader('Content-Type', 'application/json');
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             return $response->withStatus(400)
                 ->withHeader('Content-Type', 'application/json');
         }
     }
+
+    public function changePassword($request, $response, $args)
+    {
+
+        try {
+
+            $body = $request->getParsedBody();
+
+            $payload = json_encode($body);
+            if (!isset($body['currentPassword'], $body['newPassword'], $body['confirmPassword'], $body['userId'])) {
+                throw new \Exception("missing inputs");
+            }
+
+            $userId = $body['userId'];
+
+            $user = $this->userSerivce->findById($userId);
+
+            if ($user == null) {
+                throw  new \Exception("User not found");
+            }
+
+            $password = $body['currentPassword'];
+            $newPassword = $body['newPassword'];
+            $confirmPassword = $body['confirmPassword'];
+
+            if ($user->getPassword() != $password) {
+                throw new \Exception("Incorrect Password");
+            }
+
+            if ($newPassword != $confirmPassword) {
+                throw new \Exception("New Password does not match");
+            }
+
+            $user->setPassword($newPassword);
+
+            $this->userSerivce->save($user);
+
+            $payload = json_encode(["message" => "password update"]);
+            $response->getBody()->write($payload);
+            return $response->withHeader('Content-Type', 'application/json');
+        } catch (\Exception $e) {
+
+            $payload = json_encode(["message" => $e->getMessage()]);
+
+            $response->getBody()->write($payload);
+
+            return $response->withStatus(400)
+                ->withHeader('Content-Type', 'application/json');
+        }
+    }
+
 }
