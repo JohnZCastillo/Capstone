@@ -6,11 +6,11 @@
     <form action="" class="form">
         <div class="form-group">
             <label for="">Name</label>
-            <input type="text" value="{{user.name}}" class="form-control" readonly/>
+            <input id="nameView" type="text" value="{{user.name}}" class="form-control" readonly/>
         </div>
         <div class="form-group">
             <label for="">Email</label>
-            <input type="email" value="{{user.email}}" class="form-control" readonly/>
+            <input id="emailView" type="email" value="{{user.email}}" class="form-control" readonly/>
         </div>
         <div class="form-group row align-items-center">
             <div class="col-sm">
@@ -27,7 +27,9 @@
             <button type="button" class="btn btn-success" data-toggle="modal" data-target="#changePasswordFormModal">
                 New Password
             </button>
-            <button class="btn btn-secondary" type="submit">Edit</button>
+            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#changeDetailsModal">
+                Update Details
+            </button>
         </div>
     </form>
 </div>
@@ -40,7 +42,7 @@
         <div class="modal-content">
             <form id="changePasswordForm">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Change Password</h5>
+                    <h5 class="modal-title" id="changePasswordFormModalLabel">Change Password</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -65,6 +67,44 @@
                     <div class="text-center">
                         <p id="changePassSuccess" class="text-success"></p>
                         <p id="changePassError" class="text-danger"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="changeDetailsModal" tabindex="-1" role="dialog" aria-labelledby="changeDetailsModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="changeDetailsForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changeDetailsModalLabel">Change Account Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" name="userId" value="{{user.id}}" class="d-none" readonly required>
+                    <div class="mb-3">
+                        <label for="nameChange" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="nameChange"
+                               name="name" value="{{user.name}}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="emailChange" class="form-label">Email</label>
+                        <input value="{{user.email}}" type="text" class="form-control" id="emailChange" name="email"
+                               required>
+                    </div>
+                    <div class="text-center">
+                        <p id="changeDetailsSuccess" class="text-success"></p>
+                        <p id="changeDetailsError" class="text-danger"></p>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -132,6 +172,7 @@
 <script>
 
     const changePassForm = document.getElementById("changePasswordForm");
+    const changeDetailsForm = document.getElementById("changeDetailsForm");
 
     changePassForm.addEventListener("submit", async function (e) {
 
@@ -152,6 +193,31 @@
         }else{
             document.getElementById("changePassSuccess").innerHTML = "";
             document.getElementById("changePassError").innerHTML = data.message;
+        }
+
+    });
+
+    changeDetailsForm.addEventListener("submit", async function (e) {
+
+        e.preventDefault();
+
+        const formData = new FormData(changeDetailsForm);
+
+        const result = await fetch('/api/change-details', {
+            method: "POST",
+            body: formData,
+        })
+
+        const data = await result.json();
+
+        if (result.ok) {
+            document.getElementById("emailView").value = data.email;
+            document.getElementById("nameView").value = data.name;
+            document.getElementById("changeDetailsError").innerHTML = "";
+            document.getElementById("changeDetailsSuccess").innerHTML = "Changes Saved!";
+        }else{
+            document.getElementById("changeDetailsSuccess").innerHTML = "";
+            document.getElementById("changeDetailsError").innerHTML = data.message;
         }
 
     });
