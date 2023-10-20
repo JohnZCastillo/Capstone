@@ -12,7 +12,8 @@ use Exception;
 use Respect\Validation\Validator as V;
 use Slim\Views\Twig;
 
-class AuthController extends Controller {
+class AuthController extends Controller
+{
 
 
     private function log()
@@ -101,20 +102,84 @@ class AuthController extends Controller {
         $user->setBlock($content['block']);
         $user->setLot($content['lot']);
         $user->setRole(UserRole::user());
+        $user->setIsBlocked(false);
+
 
         try {
 
-            $userValidator = V::attribute('name', V::stringType()->length(1, 32))
-                ->attribute('email', V::email());
+            if (!V::key("agree")->validate($content)) {
+                $data['conditionError'] = "You must agree to our terms and condition to continue";
+                throw new Exception('use must agree.');
+            }
+
+            if (!V::notEmpty()->validate($content['agree'])) {
+                $data['conditionError'] = "You must agree to our terms and condition to continue";
+                throw new Exception('use must agree.');
+            }
+
+            if (!V::notEmpty()->validate($content['name'])) {
+                $data['nameError'] = "Name is required";
+                throw new Exception('Name is required.');
+            }
+
+            // Validation for the "email" field
+            if (!V::notEmpty()->validate($content['email'])) {
+                $data['emailError'] = "Email is required";
+                throw new Exception('Email is required.');
+            }
+
+            // Validation for the "block" field
+            if (!V::notEmpty()->validate($content['block'])) {
+                $data['blockError'] = "Block is required";
+                throw new Exception('Block is required.');
+            }
+
+            // Validation for the "lot" field
+            if (!V::notEmpty()->validate($content['lot'])) {
+                $data['lotError'] = "Lot is required";
+                throw new Exception('Lot is required.');
+            }
+
+            // Validation for the "password" field
+            if (!V::notEmpty()->validate($content['password'])) {
+                $data['passwordError'] = "Password is required";
+                throw new Exception('Password is required.');
+            }
+
+            // Validation for the "password2" field (password confirmation)
+            if (!V::notEmpty()->validate($content['password2'])) {
+                $data['password2Error'] = "Password confirmation is required";
+                throw new Exception('Password confirmation is required.');
+            }
+
+            if (!V::equals($content['password'])->validate($content['password2'])) {
+                $data['password2Error'] = "Confirm password does not match password";
+                throw new Exception('');
+            }
 
 
             if (!V::stringType()->length(2, 30)->validate($user->getName())) {
-                $data['nameError'] = "Name lenght must be within 3 - 30";
+                $data['nameError'] = "Name length must be within 3 - 30";
+                throw new Exception('');
+            }
+
+            if (!V::stringType()->length(8, 30)->validate($user->getPassword())) {
+                $data['passwordError'] = "Password length must be within 8 - 30";
+                throw new Exception('');
+            }
+
+            if (!V::stringType()->validate($user->getBlock())) {
+                $data['blockError'] = "Block must be an string";
+                throw new Exception('');
+            }
+
+            if (!V::stringType()->validate($user->getLot())) {
+                $data['lotError'] = "lot must be an string";
                 throw new Exception('');
             }
 
             if (!V::email()->validate($user->getEmail())) {
-                $data['emailError'] = "not an email";
+                $data['emailError'] = "Please use a valid email";
                 throw new Exception('');
             }
 
@@ -130,7 +195,6 @@ class AuthController extends Controller {
 
             $priviliges->setUser($user);
             $this->priviligesService->save($priviliges);
-
 
             Login::login($user->getId());
 
@@ -149,12 +213,12 @@ class AuthController extends Controller {
 
         } catch (Exception $e) {
 
-            $data['error'] = "Something Went Wrong";
-
             //error code for duplicate entry
             if ($e->getCode() == 1062) {
-                $data['error'] = "Email Is Already In Used";
+                $data['emailError'] = "Email Is Already In Used";
             }
+
+            $data['content'] = $content;
 
             $response->withStatus(500);
             return $view->render($response, 'pages/register.html', $data);

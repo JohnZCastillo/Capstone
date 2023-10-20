@@ -1,80 +1,101 @@
 {% extends "./user.html" %} {% block body %}
 <div
-  class="container-fluid vh-100 d-flex justify-content-center align-items-center py-4"
+        class="container-fluid vh-100 d-flex justify-content-center align-items-center py-4"
 >
-  <form
-    class="form w-md-50 mx-auto border shadow p-3 rounded"
-    action="/register"
-    method="POST"
-  >
-    <h1 class="header">Sign Up</h1>
-    <div class="form-group">
-      <label class="form-label" for="">
-        Full Name
-        <span class="text-danger">*</span>
-      </label>
-      <input class="form-control" type="text" name="name" />
-      {{nameError}}
-    </div>
-    <div class="form-group row">
-      <div class="col-sm">
-        <label class="form-label" for="">
-          Block
-          <span class="text-danger">*</span>
-        </label>
-        <input class="form-control" type="text" name="block" />
-      </div>
-      <div class="col-sm">
-        <label class="form-label" for="">
-          Lot
-          <span class="text-danger">*</span>
-        </label>
-        <input class="form-control" type="text" name="lot" />
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="">
-        Email
-        <span class="text-danger">*</span>
-      </label>
-      <input class="form-control {% if emailError %} is-invalid {% endif %}" type="email" name="email" />
-      <div class="invalid-feedback">
-        {{emailError}}
-      </div>
-    </div>
-    <div class="form-group row">
-      <div class="col-sm">
-        <label class="form-label" for="email">
-          Password
-          <span class="text-danger">*</span>
-        </label>
-        <input class="form-control" type="password" name="password" />
-      </div>
-      <div class="col-sm">
-        <label class="form-label" for="email">
-          Confirm Password
-          <span class="text-danger">*</span>
-        </label>
-        <input class="form-control" type="password" name="password2" />
-      </div>
-    </div>
-    <div class="form-group mt-2 d-flex align-items-center gap">
-      <input type="checkbox" name="agree" />
-      <a href="" class="text-decoration-none">
-        Terms And Condition
-        <span class="text-danger">*</span>
-      </a>
-    </div>
-    <small class="small text-secondary">
-      By signing up you agree on our terms and condition
-    </small>
-    <div class="form-group">
-      <button class="btn btn-success mt-3" type="submit">Sign Up</button>
-    </div>
-    <div class="form-group mt-2 d-flex align-items-center gap">
-      <a href="/login" class="text-decoration-none small">Have an account?</a>
-    </div>
-    <div class="form-group text-danger text-center">{{error}}</div>
-  </form>
+    <form
+            class="form w-md-50 mx-auto border shadow p-3 rounded"
+            action="/register"
+            method="POST"
+    >
+        <h1 class="header">Sign Up</h1>
+        <div class="form-group">
+            <label class="form-label" for="">
+                Full Name
+                <span class="text-danger">*</span>
+            </label>
+            <input value="{{content.name}}" class="form-control  {% if nameError %} is-invalid {% endif %}" type="text" name="name"/>
+            <div class="invalid-feedback">
+                {{nameError}}
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm">
+                <label class="form-label" for="">
+                    Block
+                    <span class="text-danger">*</span>
+                </label>
+                <input value="{{content.block}}" class="form-control  {% if blockError %} is-invalid {% endif %}" type="text" name="block"/>
+                <div class="invalid-feedback">
+                    {{blockError}}
+                </div>
+            </div>
+            <div class="col-sm">
+                <label class="form-label" for="">
+                    Lot
+                    <span class="text-danger">*</span>
+                </label>
+                <input value="{{content.lot}}" class="form-control  {% if lotError %} is-invalid {% endif %}" type="text" name="lot"/>
+                <div class="invalid-feedback">
+                    {{lotError}}
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="">
+                Email
+                <span class="text-danger">*</span>
+            </label>
+            <input value="{{content.email}}" class="form-control {% if emailError %} is-invalid {% endif %}" type="email" name="email"/>
+            <div class="invalid-feedback">
+                {{emailError}}
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm">
+                <label class="form-label" for="email">
+                    Password
+                    <span class="text-danger">*</span>
+                </label>
+                <input value="{{content.password}}" class="form-control {% if passwordError %} is-invalid {% endif %}" type="password"
+                       name="password"/>
+                <div class="invalid-feedback">
+                    {{passwordError}}
+                </div>
+            </div>
+            <div class="col-sm">
+                <label class="form-label" for="email">
+                    Confirm Password
+                    <span class="text-danger">*</span>
+                </label>
+                <input value="{{content.password2}}" class="form-control {% if password2Error %} is-invalid {% endif %}" type="password"
+                       name="password2"/>
+                <div class="invalid-feedback">
+                    {{password2Error}}
+                </div>
+            </div>
+        </div>
+        <div class="form-group mt-2 d-flex align-items-center gap">
+
+            {% set agreeCheck = content.agree == null ? "" : "checked" %}
+            <input type="checkbox" name="agree" class="{% if conditionError %} is-invalid {% endif %}" {{agreeCheck}}/>
+            <a href="" class="text-decoration-none">
+                Terms And Condition
+                <span class="text-danger">*</span>
+            </a>
+            <div class="invalid-feedback">
+                {{conditionError}}
+            </div>
+        </div>
+        <small class="small text-secondary">
+            By signing up you agree on our terms and condition
+        </small>
+        <div class="form-group">
+            <button class="btn btn-success mt-3" type="submit">Sign Up</button>
+        </div>
+        <div class="form-group mt-2 d-flex align-items-center gap">
+            <a href="/login" class="text-decoration-none small">Have an account?</a>
+        </div>
+        <div class="form-group text-danger text-center">{{error}}</div>
+    </form>
 </div>
 {% endblock %}
