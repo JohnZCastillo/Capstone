@@ -36,6 +36,23 @@ class AuthController extends Controller
 
         try {
 
+            $content = $request->getParsedBody();
+
+            // Validation for the "email" field
+            if (!V::notEmpty()->validate($content['email'])) {
+                throw new Exception('Email is required.');
+            }
+
+            // Validation for the "email" field
+            if (!V::notEmpty()->validate($content['password'])) {
+                throw new Exception('Password is required.');
+            }
+
+            if (!V::email()->validate($content['email'])) {
+                throw new Exception("Please use a valid email");
+            }
+
+
             if (!Login::isLogin()) {
                 $email = $request->getParsedBody()['email'];
                 $password = $request->getParsedBody()['password'];
@@ -49,6 +66,7 @@ class AuthController extends Controller
                 Login::login($user->getId());
 
             }
+
 
             $this->log();
 
@@ -90,20 +108,7 @@ class AuthController extends Controller
 
         $view = Twig::fromRequest($request);
 
-        // Creat user model
-        $user = new UserModel();
-
         $content = $request->getParsedBody();
-
-        // update user information from post request parameters
-        $user->setName($content['name']);
-        $user->setEmail($content['email']);
-        $user->setPassword($content['password']);
-        $user->setBlock($content['block']);
-        $user->setLot($content['lot']);
-        $user->setRole(UserRole::user());
-        $user->setIsBlocked(false);
-
 
         try {
 
@@ -158,30 +163,41 @@ class AuthController extends Controller
             }
 
 
-            if (!V::stringType()->length(2, 30)->validate($user->getName())) {
+            if (!V::stringType()->length(2, 30)->validate($content['name'])) {
                 $data['nameError'] = "Name length must be within 3 - 30";
                 throw new Exception('');
             }
 
-            if (!V::stringType()->length(8, 30)->validate($user->getPassword())) {
+            if (!V::stringType()->length(8, 30)->validate($content['password'])) {
                 $data['passwordError'] = "Password length must be within 8 - 30";
                 throw new Exception('');
             }
 
-            if (!V::stringType()->validate($user->getBlock())) {
+            if (!V::stringType()->validate($content['block'])) {
                 $data['blockError'] = "Block must be an string";
                 throw new Exception('');
             }
 
-            if (!V::stringType()->validate($user->getLot())) {
+            if (!V::stringType()->validate($content['lot'])) {
                 $data['lotError'] = "lot must be an string";
                 throw new Exception('');
             }
 
-            if (!V::email()->validate($user->getEmail())) {
+            if (!V::email()->validate($content['email'])) {
                 $data['emailError'] = "Please use a valid email";
                 throw new Exception('');
             }
+
+
+            // Creat user model
+            $user = new UserModel();
+            $user->setName($content['name']);
+            $user->setEmail($content['email']);
+            $user->setPassword($content['password']);
+            $user->setBlock($content['block']);
+            $user->setLot($content['lot']);
+            $user->setRole(UserRole::user());
+            $user->setIsBlocked(false);
 
             $this->userSerivce->save($user);
             $priviliges = new PrivilegesModel();
