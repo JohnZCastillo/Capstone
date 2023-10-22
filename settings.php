@@ -48,7 +48,7 @@ return [
                 'driver' => 'pdo_mysql',
                 'host' => $_ENV["DB_HOST"],
                 'port' => 3306,
-                'dbname' => $_ENV["DB_NAME"],
+                'dbname' => "testing",
                 'user' => $_ENV["DB_USER"],
                 'password' => $_ENV["DB_PASS"],
                 // 'charset' => 'utf-8'

@@ -1,9 +1,11 @@
 <?php
 namespace App\model\enum;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 class IssuesStatus extends Enum
 {
-    protected $name = 'role';
+    protected $name = IssuesStatus::class;
     protected $values = array('resolved', 'rejected','pending');
 
     static function resolve(){
@@ -17,4 +19,6 @@ class IssuesStatus extends Enum
     static function pending(){
         return 'pending';
     }
+
+
 }

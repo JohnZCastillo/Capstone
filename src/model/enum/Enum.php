@@ -38,4 +38,9 @@ abstract class Enum extends Type
     {
         return true;
     }
+
+    public function getMappedDatabaseTypes(AbstractPlatform $platform){
+        // Map your custom type to the appropriate database type (e.g., 'string' for MySQL ENUMs)
+        return ['string'];
+    }
 }

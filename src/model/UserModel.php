@@ -53,6 +53,9 @@ class UserModel{
     #[ORM\OneToMany(targetEntity: LogsModel::class, mappedBy: 'user')]
     private Collection|array $actionLogs;
 
+    #[ORM\OneToMany(targetEntity: UserLogsModel::class, mappedBy: 'user')]
+    private Collection|array $myLogs;
+
     #[ORM\OneToOne(targetEntity: PrivilegesModel::class, mappedBy: 'user',)]
     private  PrivilegesModel $privileges;
 

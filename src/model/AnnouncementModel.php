@@ -31,7 +31,6 @@ class AnnouncementModel {
     private ?UserModel $user = null;
 
 
-
     /**
      * Get the value of title
      */
