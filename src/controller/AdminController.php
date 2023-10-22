@@ -25,6 +25,7 @@ class AdminController extends Controller
     public function home($request, $response, $args)
     {
 
+
         // get the query params
         $queryParams = $request->getQueryParams();
 

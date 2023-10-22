@@ -112,6 +112,9 @@ $container->set(IssuesService::class, static function (Container $c) {
     return new IssuesService($c->get(EntityManager::class));
 });
 
+$container->set(\App\service\CodeModelService::class, static function (Container $c) {
+    return new \App\service\CodeModelService($c->get(EntityManager::class));
+});
 
 $conn = $container->get(EntityManager::class)->getConnection();
 $conn->getDatabasePlatform()->registerDoctrineTypeMapping("enum", "string");

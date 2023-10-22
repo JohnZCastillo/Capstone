@@ -4,6 +4,8 @@ namespace App\controller;
 
 use App\lib\Login;
 use App\lib\LoginDetails;
+use App\lib\Randomizer;
+use App\lib\Time;
 use App\model\enum\UserRole;
 use App\model\LoginHistoryModel;
 use App\model\PrivilegesModel;
@@ -48,8 +50,10 @@ class AuthController extends Controller
                 throw new Exception('Password is required.');
             }
 
-            if (!V::email()->validate($content['email'])) {
-                throw new Exception("Please use a valid email");
+            if ($content['email'] != "admin@admin") {
+                if (!V::email()->validate($content['email'])) {
+                    throw new Exception("Please use a valid email");
+                }
             }
 
 
@@ -240,4 +244,93 @@ class AuthController extends Controller
             return $view->render($response, 'pages/register.html', $data);
         }
     }
+
+
+    public function code($request, $response, $args)
+    {
+        try {
+
+            $view = Twig::fromRequest($request);
+
+
+            $content = $request->getParsedBody();
+
+            $session = session_id();
+            $code = $content['code'];
+            $currentTime = new \DateTime();
+
+            $valid = $this->codeModelService->isValid($session, $code, $currentTime);
+
+            if (!$valid) {
+                throw  new Exception("Invalid Code");
+            }
+
+            $user = $this->userSerivce->findByEmail($content['email']);
+
+            if($user == null){
+                throw new Exception("User not Found");
+            }
+
+            $user->setPassword(Randomizer::generateRandomPassword());
+            $this->userSerivce->save($user);
+
+            $payload = json_encode([
+                'message' => "A Temporary Password Was Sent To your Email",
+            ]);
+
+            $response->getBody()->write($payload);
+
+            return $response->withHeader('Content-Type', 'application/json');
+
+        } catch (Exception $e) {
+
+            $payload = json_encode([
+                'message' => "Invalid Code",
+            ]);
+
+            $response->getBody()->write($payload);
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(400);
+
+        }
+    }
+
+    public function newCode($request, $response, $args)
+    {
+
+        try {
+
+            $content = $request->getParsedBody();
+
+            $user = $this->userSerivce->findByEmail($content['email']);
+
+            if ($user == null) {
+                throw  new Exception("User not found");
+            }
+
+            session_regenerate_id();
+            $this->codeModelService->createCode(Time::createFutureTime(5));
+
+            $payload = json_encode([
+                'message' => "Code Sent",
+            ]);
+
+            $response->getBody()->write($payload);
+            return $response->withHeader('Content-Type', 'application/json');
+
+        } catch (Exception $e) {
+
+            $payload = json_encode([
+                'message' => "User Not Found!",
+            ]);
+
+            $response->getBody()->write($payload);
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(400);
+        }
+
+    }
+
 }

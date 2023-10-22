@@ -9,6 +9,7 @@ use App\model\LogsModel;
 use App\model\PaymentModel;
 use App\model\UserModel;
 use App\service\AnnouncementService;
+use App\service\CodeModelService;
 use App\service\DuesService;
 use App\service\IssuesService;
 use App\service\LoginHistoryService;
@@ -38,6 +39,9 @@ class Controller {
     protected LoginHistoryService $loginHistoryService;
     protected PriviligesService $priviligesService;
 
+    protected CodeModelService $codeModelService;
+
+
     protected  LogsService $actionLogs;
 
     public function __construct(Container  $container) {
@@ -54,6 +58,7 @@ class Controller {
         $this->loginHistoryService = $container->get(LoginHistoryService::class);
         $this->priviligesService = $container->get(PriviligesService::class);
         $this->actionLogs = $container->get(LogsService::class);
+        $this->codeModelService = $container->get(CodeModelService::class);
     }
 
     protected function getLogin():UserModel{

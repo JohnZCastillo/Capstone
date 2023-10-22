@@ -7,11 +7,11 @@ use App\controller\ApiController;
 use App\controller\AuthController;
 use App\controller\UserController;
 use App\middleware\Auth;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use UMA\DIC\Container;
 
 require './vendor/autoload.php';
@@ -26,7 +26,7 @@ AppFactory::setContainer($container);
 $app = AppFactory::create();
 
 // Configure Twig view renderer
-$twig = Twig::create('./src/views/', ['cache' => false,'debug'=>true]);
+$twig = Twig::create('./src/views/', ['cache' => false, 'debug' => true]);
 $twig->addExtension(new \Twig\Extension\DebugExtension());
 //$twig->getExtension(\Twig\Extension\CoreExtension::class)->setTimezone('Asia/Manila');
 
@@ -42,6 +42,17 @@ $app->get('/denied', function (Request $request, Response $response) use ($twig)
 
 $app->get('/blocked', function (Request $request, Response $response) use ($twig) {
     return $twig->render($response, 'blockpage.html');
+});
+
+$app->get('/forgot-password', function (Request $request, Response $response) use ($twig) {
+
+    if (\App\lib\Login::isLogin()) {
+        return $response
+            ->withHeader('Location', "/")
+            ->withStatus(302);
+    }
+
+    return $twig->render($response, '/pages/forgotten-password.html');
 });
 
 $app->get('/test', [UserController::class, 'test']);
@@ -73,11 +84,11 @@ $app->group('/api', function ($app) {
     $app->post('/change-details', [ApiController::class, 'changeDetails']);
 });
 
-$app->group('/admin', function ($app) use ($twig){
+$app->group('/admin', function ($app) use ($twig) {
     $app->get('/account', [AdminController::class, 'accountSettings']);
 })->add(\App\middleware\AdminAuth::class)->add(Auth::class);
 
-$app->group('/admin', function ($app) use ($twig){
+$app->group('/admin', function ($app) use ($twig) {
     $app->get('/home', [AdminController::class, 'home']);
 
     $app->get('/test', [AdminController::class, 'test']);
@@ -94,7 +105,7 @@ $app->group('/admin', function ($app) use ($twig){
 
 })->add(\App\middleware\AdminPaymentAuth::class)->add(\App\middleware\AdminAuth::class)->add(Auth::class);
 
-$app->group('/admin', function ($app) use ($twig){
+$app->group('/admin', function ($app) use ($twig) {
 
     $app->post('/announcement', [AdminController::class, 'announcement']);
 
@@ -107,18 +118,18 @@ $app->group('/admin', function ($app) use ($twig){
 
 })->add(\App\middleware\AdminAnnouncementAuth::class)->add(\App\middleware\AdminAuth::class)->add(Auth::class);
 
-$app->group('/admin', function ($app) use ($twig){
+$app->group('/admin', function ($app) use ($twig) {
     $app->get('/issues', [AdminController::class, 'issues']);
     $app->get('/issues/{id}', [AdminController::class, 'manageIssue']);
     $app->post('/issues/action', [AdminController::class, 'actionIssue']);
 })->add(\App\middleware\AdminIssuesAuth::class)->add(\App\middleware\AdminAuth::class)->add(Auth::class);
 
-$app->group('/admin', function ($app) use ($twig){
+$app->group('/admin', function ($app) use ($twig) {
     $app->get('/users', [AdminController::class, 'users']);
 })->add(\App\middleware\AdminUsersAuth::class)->add(\App\middleware\AdminAuth::class)->add(Auth::class);
 
 
-$app->group('/admin', function ($app) use ($twig){
+$app->group('/admin', function ($app) use ($twig) {
     $app->post('/add-admin', [AdminController::class, 'addAdmin']);
     $app->post('/demote-admin', [AdminController::class, 'removeAdmin']);
     $app->get('/logs', [AdminController::class, 'logs']);
@@ -127,8 +138,8 @@ $app->group('/admin', function ($app) use ($twig){
 
         $timezone = date_default_timezone_get();
 
-        return $twig->render($response, 'pages/admin-system-settings.html',[
-            'timezone'=>$timezone
+        return $twig->render($response, 'pages/admin-system-settings.html', [
+            'timezone' => $timezone
         ]);
 
     });
@@ -140,6 +151,8 @@ $app->post('/payable-amount', [ApiController::class, 'amount']);
 // Public Routes
 $app->post('/login', [AuthController::class, 'login']);
 $app->get('/logout', [AuthController::class, 'logout']);
+$app->post('/forgot-password', [AuthController::class, 'code']);
+$app->post('/new-code', [AuthController::class, 'newCode']);
 
 $app->post('/register', [AuthController::class, 'register']);
 
@@ -150,10 +163,10 @@ $app->get('/register', function (Request $request, Response $response) use ($twi
 
 
 // Return Login View
-$app->get('/login', function (Request $request, Response $response) use ($twig,$container) {
+$app->get('/login', function (Request $request, Response $response) use ($twig, $container) {
     $flash = $container->get(\Slim\Flash\Messages::class);
     $message = $flash->getFirstMessage('AuthFailedMessage');
-    return $twig->render($response, 'pages/login.html',[
+    return $twig->render($response, 'pages/login.html', [
         'loginErrorMessage' => $message
     ]);
 });

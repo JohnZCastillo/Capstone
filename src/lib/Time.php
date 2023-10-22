@@ -2,9 +2,11 @@
 
 namespace App\lib;
 
+use DateInterval;
 use DateTime;
 
-class Time {
+class Time
+{
 
     /**
      * Create a date with the starting day set to 1.
@@ -59,10 +61,10 @@ class Time {
         }
     }
 
-    static function toStringMonthYear($date):string
+    static function toStringMonthYear($date): string
     {
-            $date = DateTime::createFromFormat('Y-m-d', $date);
-            return $date->format('M Y');
+        $date = DateTime::createFromFormat('Y-m-d', $date);
+        return $date->format('M Y');
     }
 
 
@@ -211,9 +213,10 @@ class Time {
         return $dateTime->format("Y-m-d H:i:s");
     }
 
-    static  function  getYearSpan(int $from,int $add = 2, int $to = null): array{
+    static function getYearSpan(int $from, int $add = 2, int $to = null): array
+    {
 
-        if(!isset($to)){
+        if (!isset($to)) {
             $to = $currentYear = date("Y");
         }
 
@@ -225,6 +228,14 @@ class Time {
 
         return $span;
 
+    }
+
+    static function createFutureTime(int $minutes): DateTime
+    {
+        $dateTime = new DateTime();
+        $newDateTime = clone $dateTime;
+        $newDateTime->add(new DateInterval("PT{$minutes}M"));
+        return $newDateTime;
     }
 }
 
