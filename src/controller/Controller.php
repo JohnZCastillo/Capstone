@@ -6,6 +6,7 @@ use App\lib\Helper;
 use App\lib\Login;
 use App\lib\Time;
 use App\model\PaymentModel;
+use App\model\UserLogsModel;
 use App\model\UserModel;
 use App\service\AnnouncementService;
 use App\service\CodeModelService;
@@ -18,6 +19,7 @@ use App\service\PriviligesService;
 use App\service\ReceiptService;
 use App\service\TransactionLogsService;
 use App\service\TransactionService;
+use App\service\UserLogsService;
 use App\service\UserService;
 use Slim\Flash\Messages;
 use UMA\DIC\Container;
@@ -40,6 +42,8 @@ class Controller
 
     protected CodeModelService $codeModelService;
 
+    protected UserLogsService $userLogsService;
+
 
     protected LogsService $actionLogs;
 
@@ -59,6 +63,7 @@ class Controller
         $this->priviligesService = $container->get(PriviligesService::class);
         $this->actionLogs = $container->get(LogsService::class);
         $this->codeModelService = $container->get(CodeModelService::class);
+        $this->userLogsService = $container->get(UserLogsService::class);
     }
 
     protected function getLogin(): UserModel
@@ -141,6 +146,17 @@ class Controller
         } catch (Exception $e) {
             return [];
         }
+    }
+
+    public function saveUserLog($action, $user)
+    {
+        $userLog = new UserLogsModel();
+
+        $userLog->setUser($user);
+        $userLog->setAction($action);
+        $userLog->setCreatedAt(new \DateTime());
+
+        $this->userLogsService->addLog($userLog);
     }
 
 }

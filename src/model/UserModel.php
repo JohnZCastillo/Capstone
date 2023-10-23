@@ -62,6 +62,17 @@ class UserModel{
     #[ORM\Column(type: UserRole::class)]
     private $role;
 
+    public function getMyLogs(): Collection|array
+    {
+        return $this->myLogs;
+    }
+
+    public function setMyLogs(Collection|array $myLogs): UserModel
+    {
+        $this->myLogs = $myLogs;
+        return $this;
+    }
+
     public function getIsBlocked(): string
     {
         return $this->isBlocked;

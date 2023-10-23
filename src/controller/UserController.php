@@ -153,6 +153,8 @@ class UserController extends Controller
             // save image to database
             $this->receiptService->saveAll($storedImages, $transaction, $references);
 
+            $this->saveUserLog("User Had made a payment with id of ".$transaction->getId(),$user);
+
         } catch (UnsupportedImageException $imageException) {
             $imageExceptionMessage = "Your Attach Receipt was Invalid. Please make sure that it as an image";
             $this->flashMessages->addMessage("ErrorMessage", $imageExceptionMessage);
@@ -358,6 +360,7 @@ class UserController extends Controller
             "block" => $block,
             "lot" => $lot,
             "user" => $user,
+            "logs" => $user->getMyLogs(),
         ]);
     }
 

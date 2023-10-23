@@ -60,7 +60,8 @@
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="changePasswordFormModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordFormModalLabel"
+<div class="modal fade" id="changePasswordFormModal" tabindex="-1" role="dialog"
+     aria-labelledby="changePasswordFormModalLabel"
      aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -147,12 +148,15 @@
 
     <div>
         <ul class="list-group">
+            {% for log in logs %}
             <li class="list-group-item">
-                Cras justo odio
+                {{log.action}}
                 <small class="mx-2 text-secondary small">
                     June 16, 2023 - 09:12 AM
+                    {{log.created_at|date('M d, Y - h:i A')}}
                 </small>
             </li>
+            {% endfor %}
         </ul>
     </div>
 </div>
@@ -178,7 +182,7 @@
         if (result.ok) {
             document.getElementById("changePassError").innerHTML = "";
             document.getElementById("changePassSuccess").innerHTML = "Password Udpated";
-        }else{
+        } else {
             document.getElementById("changePassSuccess").innerHTML = "";
             document.getElementById("changePassError").innerHTML = data.message;
         }
@@ -203,7 +207,7 @@
             document.getElementById("nameView").value = data.name;
             document.getElementById("changeDetailsError").innerHTML = "";
             document.getElementById("changeDetailsSuccess").innerHTML = "Changes Saved!";
-        }else{
+        } else {
             document.getElementById("changeDetailsSuccess").innerHTML = "";
             document.getElementById("changeDetailsError").innerHTML = data.message;
         }

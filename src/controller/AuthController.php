@@ -9,6 +9,7 @@ use App\lib\Time;
 use App\model\enum\UserRole;
 use App\model\LoginHistoryModel;
 use App\model\PrivilegesModel;
+use App\model\UserLogsModel;
 use App\model\UserModel;
 use Exception;
 use Respect\Validation\Validator as V;
@@ -274,6 +275,10 @@ class AuthController extends Controller
             $user->setPassword(Randomizer::generateRandomPassword());
             $this->userSerivce->save($user);
 
+
+           $this->saveUserLog("Password was changed using forgot password",$user);
+
+
             $payload = json_encode([
                 'message' => "A Temporary Password Was Sent To your Email",
             ]);
@@ -315,6 +320,7 @@ class AuthController extends Controller
             $payload = json_encode([
                 'message' => "Code Sent",
             ]);
+
 
             $response->getBody()->write($payload);
             return $response->withHeader('Content-Type', 'application/json');

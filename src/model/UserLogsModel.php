@@ -13,7 +13,7 @@ class UserLogsModel {
     #[ORM\GeneratedValue]
     private $id;
 
-    #[ORM\ManyToOne(targetEntity: UserModel::class, inversedBy: 'actionLogs')]
+    #[ORM\ManyToOne(targetEntity: UserModel::class, inversedBy: 'myLogs')]
     private ?UserModel $user = null;
 
     #[ORM\Column(type: 'string')]
@@ -21,6 +21,8 @@ class UserLogsModel {
 
     #[ORM\Column(type: 'datetime')]
     private $created_at;
+
+
 
     /**
      * @return mixed
