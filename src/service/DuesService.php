@@ -6,6 +6,7 @@ use App\model\DuesModel;
 use App\model\UserModel;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\NotSupported;
+use Exception;
 
 class DuesService extends Service {
 
@@ -20,24 +21,19 @@ class DuesService extends Service {
         $this->entityManager->flush($dues);
     }
 
-    public function update(DuesModel $dues): void
-    {
 
-        $month = $dues->getMonth();
-        $amount = $dues->getAmount();
+    public  function createDue($month): DuesModel{
 
-        try {
+        $em = $this->entityManager;
 
-            $em = $this->entityManager;
-            $dues = $em->getRepository(DuesModel::class)->findOneBy(['month' => $month]);
+         $due = $em->getRepository(DuesModel::class)
+            ->findOneBy(['month' => $month]);
 
-            $dues->setAmount($amount);
-            $this->entityManager->persist($dues);
-            $this->entityManager->flush($dues);
-        } catch (NotSupported $e) {
-            $this->save($dues);
-        }
+         if($due == null){
+             return new DuesModel();
+         }
 
+         return  $due;
     }
 
 

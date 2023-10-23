@@ -79,6 +79,7 @@ $app->group('', function ($app) {
 
 $app->group('/api', function ($app) {
     $app->post('/add-due', [ApiController::class, 'addDue']);
+    $app->post('/year-dues', [ApiController::class, 'yearDues']);
     $app->post('/user', [ApiController::class, 'user']);
     $app->post('/change-password', [ApiController::class, 'changePassword']);
     $app->post('/change-details', [ApiController::class, 'changeDetails']);

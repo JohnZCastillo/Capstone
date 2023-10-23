@@ -18,6 +18,7 @@ class Time
         return DateTime::createFromFormat('Y-m-d', $date . '-01');
     }
 
+
     static function nowStartMonth($date)
     {
         return self::convert(self::startMonth($date));

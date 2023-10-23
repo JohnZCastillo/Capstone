@@ -45,37 +45,13 @@ class AdminController extends Controller
         //Get Transaction
         $result = $this->transactionService->adminGetAll($page, $max, $id, $filter);
 
-        try {
+        $startOfPaymentYear = Time::getYearFromStringDate($this->getPaymentSettings()->getStart());
 
-            $paymentSettings = $this->getPaymentSettings();
-
-            if ($paymentSettings == null) {
-                throw new Exception("Payment Not Set");
-            }
-
-            $startOfPaymentDate = $paymentSettings->getStart();
-            $startOfPaymentYear = Time::getYearFromStringDate($startOfPaymentDate);
-            $dues = [];
-
-            $datesForMonths = Time::getDatesForMonthsOfYear($startOfPaymentYear);
-
-            foreach ($datesForMonths as $month => $dates) {
-                $dues[] = [
-                    "date" => $dates,
-                    "amount" => $this->duesService->getDue($dates),
-                    "savePoint" => $this->duesService->isSavePoint($dates)
-                ];
-            }
-
-        } catch (Exception $e) {
-            var_dump($e->getMessage());
-        }
-
-
+        $dues = $this->getDues($startOfPaymentYear);
 
         $data = [
             'paymentYear' => Time::getYearSpan($startOfPaymentYear),
-            'paymentStart' => $startOfPaymentYear ?? null,
+            'paymentStart' => $startOfPaymentYear,
             'dues' => $dues ?? null,
             'transactions' => $result->getItems(),
             'currentPage' => $page,

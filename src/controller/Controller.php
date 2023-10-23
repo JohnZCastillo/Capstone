@@ -4,8 +4,7 @@ namespace App\controller;
 
 use App\lib\Helper;
 use App\lib\Login;
-use App\model\AnnouncementModel;
-use App\model\LogsModel;
+use App\lib\Time;
 use App\model\PaymentModel;
 use App\model\UserModel;
 use App\service\AnnouncementService;
@@ -17,14 +16,14 @@ use App\service\LogsService;
 use App\service\PaymentService;
 use App\service\PriviligesService;
 use App\service\ReceiptService;
-use App\service\Service;
 use App\service\TransactionLogsService;
-use App\service\UserService;
 use App\service\TransactionService;
+use App\service\UserService;
 use Slim\Flash\Messages;
 use UMA\DIC\Container;
 
-class Controller {
+class Controller
+{
 
     protected UserService $userSerivce;
     protected TransactionService $transactionService;
@@ -42,9 +41,10 @@ class Controller {
     protected CodeModelService $codeModelService;
 
 
-    protected  LogsService $actionLogs;
+    protected LogsService $actionLogs;
 
-    public function __construct(Container  $container) {
+    public function __construct(Container $container)
+    {
         //get the userService from dependency container
         $this->userSerivce = $container->get(UserService::class);
         $this->transactionService = $container->get(TransactionService::class);
@@ -61,12 +61,14 @@ class Controller {
         $this->codeModelService = $container->get(CodeModelService::class);
     }
 
-    protected function getLogin():UserModel{
+    protected function getLogin(): UserModel
+    {
         return $this->userSerivce->findById(Login::getLogin());
     }
 
     //return default payment settings
-    protected function getPaymentSettings():PaymentModel|null{
+    protected function getPaymentSettings(): PaymentModel|null
+    {
         $id = 1;
         return $this->paymentService->findById($id);
     }
@@ -76,9 +78,10 @@ class Controller {
      * Wrapper function to get unpaid due for the month.
      * user to find balance. (Default: login user).
      */
-    protected function getBalance($month,$user = null){
+    protected function getBalance($month, $user = null)
+    {
         // if user null then set to login user otherwise passed user
-        $user = Helper::getValue($user,$this->getLogin());
+        $user = Helper::getValue($user, $this->getLogin());
 
         // dues service
         $dues = $this->duesService;
@@ -86,15 +89,16 @@ class Controller {
         //return the balance of the user for the month
         return $this->transactionService->getBalance($user, $month, $dues);
     }
-    
-     /**
+
+    /**
      * Wrapper function to get total dues of user for the unpaid months
      * @return float total dues
      */
-    protected function getTotalDues($user = null){
+    protected function getTotalDues($user = null)
+    {
 
         // if user null then set to login user otherwise passed user
-        $user = Helper::getValue($user,$this->getLogin());
+        $user = Helper::getValue($user, $this->getLogin());
 
         // dues service
         $dues = $this->duesService;
@@ -102,15 +106,41 @@ class Controller {
         $paymentSettings = $this->getPaymentSettings();
 
         //return the balance of the user for the month
-        return $this->transactionService->getUnpaid($user,$dues,$paymentSettings)['total'];
+        return $this->transactionService->getUnpaid($user, $dues, $paymentSettings)['total'];
     }
 
     /**
      * Add Message to the flashMessages.
      * Note: this doest show flashmessage on the view.
      */
-    protected function flashMessage(string $key, string $message): void{
-        $this->flashMessages->addMessage($key,$message);
+    protected function flashMessage(string $key, string $message): void
+    {
+        $this->flashMessages->addMessage($key, $message);
+    }
+
+
+    protected function getDues($startOfPaymentYear): array
+    {
+        try {
+
+            $dues = [];
+
+            $datesForMonths = Time::getDatesForMonthsOfYear($startOfPaymentYear);
+
+            foreach ($datesForMonths as $month => $dates) {
+                $dues[] = [
+                    "date" => $dates,
+                    "amount" => $this->duesService->getDue($dates),
+                    "savePoint" => $this->duesService->isSavePoint($dates),
+                    "month" => $dates->format('M'),
+                ];
+            }
+
+            return $dues;
+
+        } catch (Exception $e) {
+            return [];
+        }
     }
 
 }

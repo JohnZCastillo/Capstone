@@ -5,7 +5,7 @@ namespace App\controller;
 use App\lib\Image;
 use App\lib\Time;
 use App\model\DuesModel;
-use Doctrine\DBAL\Driver\PDO\Exception;
+use Exception;
 
 class ApiController extends Controller
 {
@@ -28,19 +28,57 @@ class ApiController extends Controller
     public function addDue($request, $response, $args)
     {
 
-        $month = $request->getParsedBody()['month'];
-        $amount = $request->getParsedBody()['amount'];
+        try {
+            $month = $request->getParsedBody()['month'];
+            $amount = $request->getParsedBody()['amount'];
+            $year = $request->getParsedBody()['dueYear'];
 
-        $due = new DuesModel();
-        $due->setAmount($amount);
-        $due->setMonth(Time::startMonth($month));
+            $due = $this->duesService->createDue(Time::startMonth($month));
+            $due->setAmount($amount);
+            $due->setMonth(Time::startMonth($month));
 
-        $this->duesService->update($due);
+            $this->duesService->save($due);
 
-        $payload = json_encode(['message' => "ok"]);
+            $dues = $this->getDues($year);
 
-        $response->getBody()->write($payload);
-        return $response->withHeader('Content-Type', 'application/json');
+            $payload = json_encode($dues);
+
+            $response->getBody()->write($payload);
+            return $response->withHeader('Content-Type', 'application/json');
+
+        } catch (Exception $e) {
+
+            $payload = json_encode(['message' => $e->getMessage()]);
+
+            $response->getBody()->write($payload);
+            return $response->withHeader('Content-Type', 'application/json')
+                ->withStatus(400);
+        }
+    }
+
+
+    public function yearDues($request, $response, $args)
+    {
+
+        try {
+
+            $year = $request->getParsedBody()['dueYear'];
+
+            $dues = $this->getDues($year);
+
+            $payload = json_encode($dues);
+
+            $response->getBody()->write($payload);
+            return $response->withHeader('Content-Type', 'application/json');
+
+        } catch (Exception $e) {
+
+            $payload = json_encode(['message' => $e->getMessage()]);
+
+            $response->getBody()->write($payload);
+            return $response->withHeader('Content-Type', 'application/json')
+                ->withStatus(400);
+        }
     }
 
     public function amount($request, $response, $args)
@@ -191,7 +229,7 @@ class ApiController extends Controller
                 throw new \Exception("New Password does not match");
             }
 
-            if($this->getLogin()->getId() != $userId){
+            if ($this->getLogin()->getId() != $userId) {
                 throw new Exception("Cannot Change others password");
             }
 
@@ -228,7 +266,7 @@ class ApiController extends Controller
                 throw  new \Exception("User not found");
             }
 
-            if($this->getLogin()->getId() != $userId){
+            if ($this->getLogin()->getId() != $userId) {
                 throw new Exception("Cannot Change others Details");
             }
 
