@@ -6,6 +6,7 @@ use App\model\enum\UserRole;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\JoinColumn;
+use thiagoalessio\TesseractOCR\Option;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'user')]
@@ -32,8 +33,11 @@ class UserModel{
     #[ORM\Column(type: 'string')]
     private string $password;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: 'boolean', options: ["default"=> false])]
     private string $isBlocked;
+
+    #[ORM\Column(type: 'boolean', options: ["default"=> true])]
+    private string $sharedPayments;
 
     #[ORM\OneToMany(targetEntity: TransactionModel::class, mappedBy: 'user')]
     private Collection|array $transactions;
