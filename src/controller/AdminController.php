@@ -2,6 +2,7 @@
 
 namespace App\controller;
 
+use App\exception\AlreadyPaidException;
 use App\lib\Filter;
 use App\lib\Helper;
 use App\lib\Image;
@@ -50,6 +51,8 @@ class AdminController extends Controller
 
         $dues = $this->getDues($startOfPaymentYear);
 
+        $errorMessage = $this->flashMessages->getFirstMessage('errorMessage');
+
         $data = [
             'paymentYear' => Time::getYearSpan($startOfPaymentYear),
             'paymentStart' => $startOfPaymentYear,
@@ -63,6 +66,7 @@ class AdminController extends Controller
             'settings' => $settings,
             'paginator' => $result,
             'loginUser' => $this->getLogin(),
+            "errorMessage" => $errorMessage,
         ];
 
         return $view->render($response, 'pages/admin-home.html', $data);
@@ -372,116 +376,142 @@ class AdminController extends Controller
     public function manualPayment($request, $response, $args)
     {
 
-        $user = new UserModel();
+        try {
 
-        $content = $request->getParsedBody();
 
-        $user = $this->userSerivce->findByEmail($content['block'] . $content['block'] . "@manual.payment");
+            $content = $request->getParsedBody();
 
-        //only create new user when manual payment user has not been created
-        if (!isset($user)) {
-            // update user information from post request parameters
-            $user->setName("manual payment")
-                ->setBlock($content['block'])
-                ->setLot($content['lot'])
-                ->setRole(UserRole::user())
-                ->setPassword("")
-                ->setEmail($content['block'] . $content['block'] . "@manual.payment");
+            $user = $this->userSerivce->findByEmail($content['block'] . $content['block'] . "@manual.payment");
 
-            $this->userSerivce->save($user);
+            //only create new user when manual payment user has not been created
+            if ($user == null) {
 
-            //create privileges
-            $privileges = new PrivilegesModel();
-            $privileges->setUserAnnouncement(true)
-                ->setUserIssues(true)
-                ->setUserPayment(true)
-                ->setAdminIssues(false)
-                ->setAdminPayment(false)
-                ->setAdminAnnouncement(false)
-                ->setAdminUser(false);
+                $user = new UserModel();
 
-            $privileges->setUser($user);
-            $this->priviligesService->save($privileges);
+                // update user information from post request parameters
+                $user->setName("manual payment")
+                    ->setBlock($content['block'])
+                    ->setLot($content['lot'])
+                    ->setRole(UserRole::user())
+                    ->setPassword("")
+                    ->setEmail($content['block'] . $content['block'] . "@manual.payment")
+                    ->setIsBlocked(false);
+
+                $this->userSerivce->save($user);
+
+                //create privileges
+                $privileges = new PrivilegesModel();
+                $privileges->setUserAnnouncement(true)
+                    ->setUserIssues(true)
+                    ->setUserPayment(true)
+                    ->setAdminIssues(false)
+                    ->setAdminPayment(false)
+                    ->setAdminAnnouncement(false)
+                    ->setAdminUser(false);
+
+                $privileges->setUser($user);
+                $this->priviligesService->save($privileges);
+            }
+
+
+            $fromMonth = $content['from'];
+            $fromMonth = Time::setToFirstDayOfMonth($fromMonth);
+
+            $toMonth = $content['to'];
+            $toMonth = Time::setToLastDayOfMonth($toMonth);
+
+            $fromMonth2 = Time::nowStartMonth($content['from']);
+            $toMonth2 = Time::nowStartMonth($content['to']);
+
+            $months = Time::getMonths($fromMonth2, $toMonth2);
+
+            foreach ($months as $month) {
+                if ($this->transactionService->isPaid($user, $month)) {
+                    throw new Exception("Monthly due was already paid for this property for month "
+                    .$fromMonth2." - ".$toMonth2);
+                }
+            }
+
+            $transaction = new TransactionModel();
+            $transaction->setAmount($content["amount"]);
+            $transaction->setFromMonth(Time::convertDateStringToDateTime($fromMonth));
+            $transaction->setToMonth(Time::convertDateStringToDateTime($toMonth));
+            $transaction->setCreatedAt(Time::timestamp());
+            $transaction->setUser($user);
+
+            $message = "Payment was approved";
+
+            //login admin who approved the payment
+            $admin = $this->getLogin();
+
+            //set transaction
+            $transaction->setStatus('APPROVED');
+
+            // save transaction
+            $this->transactionService->save($transaction);
+
+            //save logs
+            $this->logsService->log($transaction, $admin, $message, 'APPROVED');
+
+
+            $action = "Manual payment for transaction with id of " . $transaction->getId() . " was created";
+
+            $actionLog = new LogsModel();
+            $actionLog->setAction($action);
+            $actionLog->setTag("Manual Payment");
+            $actionLog->setUser($this->getLogin());
+            $actionLog->setCreatedAt(Time::timestamp());
+            $this->actionLogs->addLog($actionLog);
+
+
+            // Create a new TCPDF instance
+            $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+            // Do not print the header line
+            $pdf->SetPrintHeader(false);
+
+            // Add a page
+            $pdf->AddPage();
+
+            $pdf->SetFont('times', 'B', 16);
+
+            $pdf->Image('./resources/logo.jpeg', 10, 10, 20);
+            $pdf->Cell(0, 10, 'Carissa Homes Subdivision Phase 7', 0, 1, 'C', false); // Add 'false' for no border
+            $pdf->Cell(0, 10, 'Monthly Dues Invoice', 0, 1, 'C', false); // Add 'false
+
+            $pdf->SetFont('times', '', 12);
+
+            $transactionNumber = 'TRX123456';
+            $homeownerName = 'John Doe';
+            $amount = '150.00';
+            $paymentDate = 'August 1, 2023';
+            $coverage = 'July 2023 - August 2023';
+
+            $pdf->Cell(0, 10, 'Transaction Number: ' . $transactionNumber, 0, 1);
+            $pdf->Cell(0, 10, 'Homeowner: ' . $homeownerName, 0, 1);
+            $pdf->Cell(0, 10, 'Amount: ' . $amount, 0, 1);
+            $pdf->Cell(0, 10, 'Payment Date: ' . $paymentDate, 0, 1);
+            $pdf->Cell(0, 10, 'Coverage: ' . $coverage, 0, 1);
+
+            $pdf->Ln(10); // Add some vertical spacing
+            $pdf->MultiCell(0, 10, 'This invoice serves as proof that the payment has been made.', 0, 'L');
+
+            $pdfContent = $pdf->Output('', 'S');
+
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="monthly_dues_receipt.pdf"');
+            header('Content-Length: ' . strlen($pdfContent));
+
+            echo $pdfContent;
+
+        } catch (Exception $e) {
+
+            $this->flashMessages->addMessage("errorMessage",$e->getMessage());
+
+            return $response
+                ->withHeader('Location', "/admin/home")
+                ->withStatus(302);
         }
-
-
-        $fromMonth = $content['from'];
-        $fromMonth = Time::setToFirstDayOfMonth($fromMonth);
-
-        $toMonth = $content['to'];
-        $toMonth = Time::setToLastDayOfMonth($toMonth);
-
-        $transaction = new TransactionModel();
-        $transaction->setAmount($content["amount"]);
-        $transaction->setFromMonth(Time::convertDateStringToDateTime($fromMonth));
-        $transaction->setToMonth(Time::convertDateStringToDateTime($toMonth));
-        $transaction->setCreatedAt(Time::timestamp());
-        $transaction->setUser($user);
-
-        $message = "Payment was approved";
-
-        //login admin who approved the payment
-        $admin = $this->getLogin();
-
-        //set transaction
-        $transaction->setStatus('APPROVED');
-
-        // save transaction
-        $this->transactionService->save($transaction);
-
-        //save logs
-        $this->logsService->log($transaction, $admin, $message, 'APPROVED');
-
-
-        $action = "Manual payment for transaction with id of " . $transaction->getId() . " was created";
-
-        $actionLog = new LogsModel();
-        $actionLog->setAction($action);
-        $actionLog->setTag("Manual Payment");
-        $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(Time::timestamp());
-        $this->actionLogs->addLog($actionLog);
-
-
-        // Create a new TCPDF instance
-        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-
-        // Do not print the header line
-        $pdf->SetPrintHeader(false);
-
-        // Add a page
-        $pdf->AddPage();
-
-        $pdf->SetFont('times', 'B', 16);
-
-        $pdf->Image('./resources/logo.jpeg', 10, 10, 20);
-        $pdf->Cell(0, 10, 'Carissa Homes Subdivision Phase 7', 0, 1, 'C', false); // Add 'false' for no border
-        $pdf->Cell(0, 10, 'Monthly Dues Invoice', 0, 1, 'C', false); // Add 'false
-
-        $pdf->SetFont('times', '', 12);
-
-        $transactionNumber = 'TRX123456';
-        $homeownerName = 'John Doe';
-        $amount = '150.00';
-        $paymentDate = 'August 1, 2023';
-        $coverage = 'July 2023 - August 2023';
-
-        $pdf->Cell(0, 10, 'Transaction Number: ' . $transactionNumber, 0, 1);
-        $pdf->Cell(0, 10, 'Homeowner: ' . $homeownerName, 0, 1);
-        $pdf->Cell(0, 10, 'Amount: ' . $amount, 0, 1);
-        $pdf->Cell(0, 10, 'Payment Date: ' . $paymentDate, 0, 1);
-        $pdf->Cell(0, 10, 'Coverage: ' . $coverage, 0, 1);
-
-        $pdf->Ln(10); // Add some vertical spacing
-        $pdf->MultiCell(0, 10, 'This invoice serves as proof that the payment has been made.', 0, 'L');
-
-        $pdfContent = $pdf->Output('', 'S');
-
-        header('Content-Type: application/pdf');
-        header('Content-Disposition: attachment; filename="monthly_dues_receipt.pdf"');
-        header('Content-Length: ' . strlen($pdfContent));
-
-        echo $pdfContent;
 
     }
 
@@ -705,7 +735,7 @@ class AdminController extends Controller
             if (!V::email()->validate($email)) {
                 throw new Exception('Invalid Email');
             }
-            
+
             $user = $this->userSerivce->findByEmail($email);
 
             if ($user == null) {
