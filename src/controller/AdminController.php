@@ -16,6 +16,7 @@ use App\model\TransactionModel;
 use App\model\UserModel;
 use DateTime;
 use Exception;
+use Respect\Validation\Validator as V;
 use Slim\Views\Twig;
 use TCPDF;
 
@@ -110,7 +111,7 @@ class AdminController extends Controller
         //save logs
         $this->logsService->log($transaction, $user, $message, 'REJECTED');
 
-        $action = "Payment with id of ". $transaction->getId(). " was rejected";
+        $action = "Payment with id of " . $transaction->getId() . " was rejected";
 
         $actionLog = new LogsModel();
         $actionLog->setAction($action);
@@ -159,7 +160,7 @@ class AdminController extends Controller
         //save logs
         $this->logsService->log($transaction, $user, $message, 'APPROVED');
 
-        $action = "Payment with id of ". $transaction->getId(). " was approved";
+        $action = "Payment with id of " . $transaction->getId() . " was approved";
 
         $actionLog = new LogsModel();
         $actionLog->setAction($action);
@@ -231,13 +232,13 @@ class AdminController extends Controller
         $post->setCreatedAt(Time::timestamp());
         $post->setUser($this->getLogin());
 
-        $action = "Announcement with id of ".$post->getId()." was created";
+        $action = "Announcement with id of " . $post->getId() . " was created";
 
         if (Helper::existAndNotNull($id)) {
             $post = $this->announcementService->findById($id);
-            $action = "Announcement with id of ".$post->getId()." was edited";
+            $action = "Announcement with id of " . $post->getId() . " was edited";
             $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . ' edited');
-        }else{
+        } else {
             $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . ' Posted');
         }
 
@@ -277,7 +278,7 @@ class AdminController extends Controller
 
         $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . ' deleted');
 
-        $action = "Announcement with id of ".$post->getId()." was deleted";
+        $action = "Announcement with id of " . $post->getId() . " was deleted";
 
         $actionLog = new LogsModel();
         $actionLog->setAction($action);
@@ -323,7 +324,7 @@ class AdminController extends Controller
 
         $this->flashMessages->addMessage('Test', 'This is a message');
 
-        $action = "Announcement with id of ".$announcement->getId()." status was set to posted";
+        $action = "Announcement with id of " . $announcement->getId() . " status was set to posted";
 
         $actionLog = new LogsModel();
         $actionLog->setAction($action);
@@ -352,7 +353,7 @@ class AdminController extends Controller
 
         $this->flashMessages->addMessage('Test', 'This is a message');
 
-        $action = "Announcement with id of ".$announcement->getId()." status was set to archived";
+        $action = "Announcement with id of " . $announcement->getId() . " status was set to archived";
 
         $actionLog = new LogsModel();
         $actionLog->setAction($action);
@@ -432,7 +433,7 @@ class AdminController extends Controller
         $this->logsService->log($transaction, $admin, $message, 'APPROVED');
 
 
-        $action = "Manual payment for transaction with id of ".$transaction->getId()." was created";
+        $action = "Manual payment for transaction with id of " . $transaction->getId() . " was created";
 
         $actionLog = new LogsModel();
         $actionLog->setAction($action);
@@ -440,7 +441,6 @@ class AdminController extends Controller
         $actionLog->setUser($this->getLogin());
         $actionLog->setCreatedAt(Time::timestamp());
         $this->actionLogs->addLog($actionLog);
-
 
 
         // Create a new TCPDF instance
@@ -570,6 +570,8 @@ class AdminController extends Controller
 
         $queryParams = $request->getQueryParams();
 
+        $errorMessage = $this->flashMessages->getFirstMessage('errorMessage');
+
         // if page is present then set value to page otherwise to 1
         $page = $queryParams['page'] ?? 1;
 
@@ -592,6 +594,7 @@ class AdminController extends Controller
             'superAdmin' => $this->getLogin()->getRole() === "super",
             'loginUser' => $this->getLogin(),
             'query' => $query,
+            "errorMessage" => $errorMessage,
         ]);
     }
 
@@ -691,102 +694,148 @@ class AdminController extends Controller
 
         $params = $request->getParsedBody();
 
-        $email = $params['email'];
+        try {
 
-        $user = $this->userSerivce->findByEmail($email);
+            if (!isset($params['email'])) {
+                throw  new Exception("Email is required");
+            }
 
-        $managePayments = $params['payment'] ?? null;
-        $manageIssues = $params['issue'] ?? null;
-        $manageAnnouncements = $params['announcement'] ?? null;
-        $manageUsers = $params['user'] ?? null;
+            $email = $params['email'];
 
-        $user->setRole(UserRole::admin());
-        $this->userSerivce->save($user);
+            if (!V::email()->validate($email)) {
+                throw new Exception('Invalid Email');
+            }
+            
+            $user = $this->userSerivce->findByEmail($email);
 
-        if (isset($managePayments)) {
-            $user->getPrivileges()->setAdminPayment(true);
+            if ($user == null) {
+                throw  new Exception("User not Found!");
+            }
+
+            $managePayments = $params['payment'] ?? null;
+            $manageIssues = $params['issue'] ?? null;
+            $manageAnnouncements = $params['announcement'] ?? null;
+            $manageUsers = $params['user'] ?? null;
+
+            $user->setRole(UserRole::admin());
+            $this->userSerivce->save($user);
+
+            if (isset($managePayments)) {
+                $user->getPrivileges()->setAdminPayment(true);
+            }
+
+            if (isset($manageIssues)) {
+                $user->getPrivileges()->setAdminIssues(true);
+            }
+
+            if (isset($manageAnnouncements)) {
+                $user->getPrivileges()->setAdminAnnouncement(true);
+            }
+
+            if (isset($manageUsers)) {
+                $user->getPrivileges()->setAdminUser(true);
+            }
+
+            $action = "User with id of " . $user->getId() . " was added as an admin";
+
+            $actionLog = new LogsModel();
+            $actionLog->setAction($action);
+            $actionLog->setTag("Admin");
+            $actionLog->setUser($this->getLogin());
+            $actionLog->setCreatedAt(Time::timestamp());
+            $this->actionLogs->addLog($actionLog);
+
+            $this->priviligesService->save($user->getPrivileges());
+
+            return $response
+                ->withHeader('Location', "/admin/users")
+                ->withStatus(302);
+        } catch (Exception $e) {
+            $this->flashMessages->addMessage('errorMessage', $e->getMessage());
+
+            return $response
+                ->withHeader('Location', "/admin/users")
+                ->withStatus(302);
         }
 
-        if (isset($manageIssues)) {
-            $user->getPrivileges()->setAdminIssues(true);
-        }
-
-        if (isset($manageAnnouncements)) {
-            $user->getPrivileges()->setAdminAnnouncement(true);
-        }
-
-        if (isset($manageUsers)) {
-            $user->getPrivileges()->setAdminUser(true);
-        }
-
-        $action = "User with id of ".$user->getId()." was added as an admin";
-
-        $actionLog = new LogsModel();
-        $actionLog->setAction($action);
-        $actionLog->setTag("Admin");
-        $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(Time::timestamp());
-        $this->actionLogs->addLog($actionLog);
-
-        $this->priviligesService->save($user->getPrivileges());
-
-        return $response
-            ->withHeader('Location', "/admin/users")
-            ->withStatus(302);
     }
 
 
     public function removeAdmin($request, $response, $args)
     {
 
-        $params = $request->getParsedBody();
+        try {
+            $params = $request->getParsedBody();
 
-        $email = $params['email'];
+            if (!isset($params['email'])) {
+                throw new Exception("User not Found");
+            }
 
-        $user = $this->userSerivce->findByEmail($email);
+            $email = $params['email'];
 
-        $managePayments = $params['payment'] ?? null;
-        $manageIssues = $params['issue'] ?? null;
-        $manageAnnouncements = $params['announcement'] ?? null;
-        $manageUsers = $params['user'] ?? null;
+            if (!V::email()->validate($email)) {
+                throw new Exception('Invalid Email');
+            }
 
-        if (!isset($managePayments)) {
-            $user->getPrivileges()->setAdminPayment(false);
+            $user = $this->userSerivce->findByEmail($email);
+
+            if ($user == null) {
+                throw new Exception("User not found!");
+            }
+
+            $managePayments = $params['payment'] ?? null;
+            $manageIssues = $params['issue'] ?? null;
+            $manageAnnouncements = $params['announcement'] ?? null;
+            $manageUsers = $params['user'] ?? null;
+
+            if (!isset($managePayments)) {
+                $user->getPrivileges()->setAdminPayment(false);
+            }
+
+            if (!isset($manageIssues)) {
+                $user->getPrivileges()->setAdminIssues(false);
+            }
+
+            if (!isset($manageAnnouncements)) {
+                $user->getPrivileges()->setAdminAnnouncement(false);
+            }
+
+            if (!isset($manageUsers)) {
+                $user->getPrivileges()->setAdminUser(false);
+            }
+
+            if (!isset($managePayments, $manageIssues, $manageAnnouncements, $manageUsers)) {
+                $user->setRole(UserRole::user());
+                $this->userSerivce->save($user);
+            }
+
+            $userPrivilege = $user->getPrivileges();
+            $this->priviligesService->save($user->getPrivileges());
+
+
+            $action = "User with id of " . $user->getId() . " was demoted of admin privileges";
+
+            $actionLog = new LogsModel();
+            $actionLog->setAction($action);
+            $actionLog->setTag("Admin");
+            $actionLog->setUser($this->getLogin());
+            $actionLog->setCreatedAt(Time::timestamp());
+            $this->actionLogs->addLog($actionLog);
+
+            return $response
+                ->withHeader('Location', "/admin/users")
+                ->withStatus(302);
+
+        } catch (Exception $e) {
+
+            $this->flashMessages->addMessage('errorMessage', $e->getMessage());
+
+            return $response
+                ->withHeader('Location', "/admin/users")
+                ->withStatus(302);
+
         }
 
-        if (!isset($manageIssues)) {
-            $user->getPrivileges()->setAdminIssues(false);
-        }
-
-        if (!isset($manageAnnouncements)) {
-            $user->getPrivileges()->setAdminAnnouncement(false);
-        }
-
-        if (!isset($manageUsers)) {
-            $user->getPrivileges()->setAdminUser(false);
-        }
-
-        if (!isset($managePayments,$manageIssues,$manageAnnouncements,$manageUsers)) {
-            $user->setRole(UserRole::user());
-            $this->userSerivce->save($user);
-        }
-
-        $userPrivilege = $user->getPrivileges();
-        $this->priviligesService->save($user->getPrivileges());
-
-
-        $action = "User with id of ".$user->getId()." was demoted of admin privileges";
-
-        $actionLog = new LogsModel();
-        $actionLog->setAction($action);
-        $actionLog->setTag("Admin");
-        $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(Time::timestamp());
-        $this->actionLogs->addLog($actionLog);
-
-        return $response
-            ->withHeader('Location', "/admin/users")
-            ->withStatus(302);
     }
 
     public function logs($request, $response, $args)
@@ -805,7 +854,7 @@ class AdminController extends Controller
 
         $user = null;
 
-        if(isset($queryParams['email'])){
+        if (isset($queryParams['email'])) {
             $user = $this->userSerivce->findByEmail($queryParams['email']);
         }
 
@@ -813,7 +862,7 @@ class AdminController extends Controller
         $max = 10;
 
 //        Get Transaction
-        $result = $this->actionLogs->getAll($page, $max, $filter,$user);
+        $result = $this->actionLogs->getAll($page, $max, $filter, $user);
 
         $data = [
             'logs' => $result->getItems(),
@@ -850,7 +899,7 @@ class AdminController extends Controller
         $toMonth = Time::setToLastDayOfMonth($toMonth);
 
 
-        $action = "User with id of ".$this->getLogin()->getId()." generated a report";
+        $action = "User with id of " . $this->getLogin()->getId() . " generated a report";
 
         $actionLog = new LogsModel();
         $actionLog->setAction($action);

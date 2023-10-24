@@ -34,7 +34,10 @@
                             <label for="email">Email</label>
                             <input name="email" type="text" class="form-control" id="email" placeholder="Enter Email">
                         </div>
-                        <div class="form-group" id="userDetail">
+
+                        <div id="userDetailHolder" class="d-none rounded mt-2 bg-light form-group p-2 d-flex gap-2 align-items-center">
+                            <img class="p-1 bg-dark rounded-circle" style="width: 40px; height: 40px" src="/resources/user.svg">
+                            <p class="m-0"  id="userDetail"></p>
                         </div>
                         <div class="form-group mt-1">
                             <label>Privileges</label>
@@ -78,7 +81,9 @@
                             <label for="email">Email</label>
                             <input name="email" type="text" class="form-control" id="email2" placeholder="Enter Email">
                         </div>
-                        <div class="form-group" id="userDetail2">
+                        <div id="userDetail2Holder" class="d-none rounded mt-2 bg-light form-group p-2 d-flex gap-2 align-items-center">
+                            <img class="p-1 bg-dark rounded-circle" style="width: 40px; height: 40px" src="/resources/user.svg">
+                            <p class="m-0"  id="userDetail2"></p>
                         </div>
                         <div class="form-group mt-1">
                             <label>Privileges</label>
@@ -214,7 +219,11 @@
 <script>
 
     const userDetail = document.querySelector("#userDetail");
+    const userDetailHolder = document.querySelector("#userDetailHolder");
+
     const userDetail2 = document.querySelector("#userDetail2");
+    const userDetail2Holder = document.querySelector("#userDetail2Holder");
+
     const emailField = document.querySelector('#email');
     const emailField2 = document.querySelector('#email2');
 
@@ -241,6 +250,8 @@
     })
     emailField.addEventListener('keyup', async (event) => {
 
+        userDetailHolder.classList.add('d-none');
+
         const formData = new FormData();
         formData.append("email", emailField.value);
 
@@ -249,9 +260,11 @@
             body: formData
         })
 
+        const user = await data.json();
+
         if (data.ok) {
-            const user = await data.json();
             userDetail.innerHTML = user.name;
+            userDetailHolder.classList.remove('d-none');
         } else {
             console.log("An error has occurred");
         }
@@ -260,6 +273,9 @@
 
 
     emailField2.addEventListener('keyup', async (event) => {
+
+        userDetail2Holder.classList.add('d-none');
+
 
         issueContainer.classList.add('d-none');
         userContainer.classList.add('d-none');
@@ -279,9 +295,10 @@
         })
 
         if (data.ok) {
+
             const user = await data.json();
             userDetail2.innerHTML = user.name;
-            console.log(user);
+            userDetail2Holder.classList.remove('d-none');
 
             if (user.payment) {
                 paymentContainer.classList.remove('d-none');
