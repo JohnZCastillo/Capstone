@@ -4,7 +4,7 @@ namespace App\controller;
 
 use App\lib\Image;
 use App\lib\Time;
-use App\model\DuesModel;
+use DateTime;
 use Exception;
 
 class ApiController extends Controller
@@ -107,6 +107,39 @@ class ApiController extends Controller
         $response->getBody()->write($payload);
         return $response->withHeader('Content-Type', 'application/json');
 
+    }
+
+    public function forceLogout($request, $response, $args)
+    {
+
+        $body = $request->getParsedBody();
+
+        try {
+            $session = $body['session'];
+
+            $login = $this->loginHistoryService->getBySession($session);
+
+            if ($login == null) {
+                throw new Exception("Login Not Found!");
+            }
+
+            if($login->getUser()->getId() != $this->getLogin()->getId()){
+                throw new Exception("Access Denied");
+            }
+
+            $login->setLogoutDate(new DateTime());
+            $this->loginHistoryService->save($login);
+
+            $payload = json_encode(['logout' => $login->getLogoutDate()->format("M d, Y h:i:s a")]);
+
+            $response->getBody()->write($payload);
+            return $response->withHeader('Content-Type', 'application/json');
+        } catch (Exception $e) {
+            $payload = json_encode(['message' => $e->getMessage()]);
+            $response->getBody()->write($payload);
+            return $response->withHeader('Content-Type', 'application/json')
+                ->withStatus(400);
+        }
     }
 
     public function user($request, $response, $args)
