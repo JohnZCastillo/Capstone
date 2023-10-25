@@ -44,6 +44,12 @@ $app->get('/blocked', function (Request $request, Response $response) use ($twig
     return $twig->render($response, 'blockpage.html');
 });
 
+
+$app->get('/uploads/{image}', function ($request, $response, $args) {
+    return $response->withStatus(404)->write('Image not found');
+});
+
+
 $app->get('/forgot-password', function (Request $request, Response $response) use ($twig) {
 
     if (\App\lib\Login::isLogin()) {

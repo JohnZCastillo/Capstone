@@ -2,3 +2,6 @@ RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [QSA,L]
+
+#RewriteCond %{HTTP_REFERER} !^http://(www\.)?myserver\.com/ [NC]
+#RewriteRule ^(.+?\.(?:png|gif|jpe?g))$ img.php?path=$1 [L,NC]

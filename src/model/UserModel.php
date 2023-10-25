@@ -3,6 +3,7 @@
 namespace App\model;
 
 use App\model\enum\UserRole;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\JoinColumn;
@@ -39,32 +40,47 @@ class UserModel{
     #[ORM\Column(type: 'boolean', options: ["default"=> true])]
     private string $sharedPayments;
 
-    #[ORM\OneToMany(targetEntity: TransactionModel::class, mappedBy: 'user')]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: TransactionModel::class)]
     private Collection|array $transactions;
 
-    #[ORM\OneToMany(targetEntity: AnnouncementModel::class, mappedBy: 'user')]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: AnnouncementModel::class)]
     private Collection|array $posts;
 
-    #[ORM\OneToMany(targetEntity: TransactionLogsModel::class, mappedBy: 'updatedBy')]
+    #[ORM\OneToMany(mappedBy: 'updatedBy', targetEntity: TransactionLogsModel::class)]
     private Collection|array $logs;
 
-    #[ORM\OneToMany(targetEntity: LoginHistoryModel::class, mappedBy: 'user')]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: LoginHistoryModel::class)]
     private Collection|array $loginHistory;
 
-    #[ORM\OneToMany(targetEntity: IssuesModel::class, mappedBy: 'issues')]
+    #[ORM\OneToMany(mappedBy: 'issues', targetEntity: IssuesModel::class)]
     private Collection|array $issues;
 
-    #[ORM\OneToMany(targetEntity: LogsModel::class, mappedBy: 'user')]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: LogsModel::class)]
     private Collection|array $actionLogs;
 
-    #[ORM\OneToMany(targetEntity: UserLogsModel::class, mappedBy: 'user')]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserLogsModel::class)]
     private Collection|array $myLogs;
 
-    #[ORM\OneToOne(targetEntity: PrivilegesModel::class, mappedBy: 'user',)]
+    #[ORM\OneToOne(mappedBy: 'user', targetEntity: PrivilegesModel::class,)]
     private  PrivilegesModel $privileges;
 
     #[ORM\Column(type: UserRole::class)]
     private $role;
+
+    /**
+     * @param int|null $id
+     */
+    public function __construct()
+    {
+        $this->myLogs = new ArrayCollection();
+        $this->actionLogs = new ArrayCollection();
+        $this->issues = new ArrayCollection();
+        $this->loginHistory = new ArrayCollection();
+        $this->logs = new ArrayCollection();
+        $this->posts = new ArrayCollection();
+        $this->transactions = new ArrayCollection();
+    }
+
 
     public function getMyLogs(): Collection|array
     {
