@@ -2,7 +2,6 @@
 
 namespace App\controller;
 
-use App\exception\AlreadyPaidException;
 use App\lib\Filter;
 use App\lib\Helper;
 use App\lib\Image;
@@ -428,7 +427,7 @@ class AdminController extends Controller
             foreach ($months as $month) {
                 if ($this->transactionService->isPaid($user, $month)) {
                     throw new Exception("Monthly due was already paid for this property for month "
-                    .$fromMonth2." - ".$toMonth2);
+                        . $fromMonth2 . " - " . $toMonth2);
                 }
             }
 
@@ -506,7 +505,7 @@ class AdminController extends Controller
 
         } catch (Exception $e) {
 
-            $this->flashMessages->addMessage("errorMessage",$e->getMessage());
+            $this->flashMessages->addMessage("errorMessage", $e->getMessage());
 
             return $response
                 ->withHeader('Location', "/admin/home")
@@ -865,6 +864,35 @@ class AdminController extends Controller
                 ->withStatus(302);
 
         }
+
+    }
+
+    public function systemSettings($request, $response, $args)
+    {
+
+        $twig = Twig::fromRequest($request);
+
+        $user = $this->getLogin();
+
+        $timezone = date_default_timezone_get();
+
+        return $twig->render($response, 'pages/admin-system-settings.html', [
+            'timezone' => $timezone,
+            "loginUser" => $user
+        ]);
+
+    }
+
+    public function announcementPage($request, $response, $args)
+    {
+
+        $twig = Twig::fromRequest($request);
+
+        $user = $this->getLogin();
+
+        return $twig->render($response, 'pages/admin-announcement.html', [
+            "loginUser" => $user
+        ]);
 
     }
 

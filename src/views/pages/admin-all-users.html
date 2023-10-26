@@ -59,7 +59,7 @@
                                 <label class="form-check-label" for="manageIssues">Manage Issues</label>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Grant Admin Privileges</button>
+                        <button type="submit" class="btn btn-primary">Grant Staff Privileges</button>
                     </form>
                 </div>
             </div>
@@ -106,7 +106,7 @@
                                 <label class="form-check-label" for="issueDemote">Manage Issues</label>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Demote Admin</button>
+                        <button type="submit" class="btn btn-primary">Remove Staff Privileges</button>
                     </form>
                 </div>
             </div>
@@ -115,12 +115,11 @@
 
     <span class="small text-secondary text-decoration-none d-block">Tool Bar</span>
     <div aria-label="Basic example" class="btn-group" role="group">
-        <button class="btn btn-outline-success" data-toggle="modal" data-target="#adminModal">Add New Admin</button>
-        <button class="btn btn-outline-danger" data-toggle="modal" data-target="#demoteAdminModal">Demote Admin</button>
+        <button class="btn btn-outline-success" data-toggle="modal" data-target="#adminModal">Add New Staff</button>
+        <button class="btn btn-outline-danger" data-toggle="modal" data-target="#demoteAdminModal">Demote Staff</button>
     </div>
 
     {% endif %}
-
 
     <form action="/admin/users" class="form mb-2" id="announcementForm" method="GET">
 
@@ -141,7 +140,7 @@
             <div class="btn-group mb-2" role="group">
 
 
-                <label class="btn border-0 {{adminBg}}" for="admin">Admin</label>
+                <label class="btn border-0 {{adminBg}}" for="admin">Staff</label>
                 <input autocomplete="off" class="btn-check" id="admin" name="role" type="radio"
                        value="admin" {{adminCh}}>
                 <label class="btn border-0 {{userBg}}" for="user">User</label>

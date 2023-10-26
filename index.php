@@ -147,16 +147,7 @@ $app->group('', function ($app)  use ($twig) {
         $app->post('/add-admin', [AdminController::class, 'addAdmin']);
         $app->post('/demote-admin', [AdminController::class, 'removeAdmin']);
         $app->get('/logs', [AdminController::class, 'logs']);
-
-        $app->get('/system', function (Request $request, Response $response) use ($twig) {
-
-            $timezone = date_default_timezone_get();
-
-            return $twig->render($response, 'pages/admin-system-settings.html', [
-                'timezone' => $timezone
-            ]);
-
-        });
+        $app->get('/system',[AdminController::class, 'systemSettings']);
     })->add(\App\middleware\SuperAdminAuth::class)->add(Auth::class);
 
     $app->post('/upload', [ApiController::class, 'upload']);
@@ -164,9 +155,7 @@ $app->group('', function ($app)  use ($twig) {
 
     $app->post('/api/force-logout', [ApiController::class, 'forceLogout']);
 
-    $app->get('/admin/announcement', function (Request $request, Response $response) use ($twig) {
-        return $twig->render($response, 'pages/admin-announcement.html');
-    });
+    $app->get('/admin/announcement',[AdminController::class,'announcementPage']);
 
 })->add(ForceLogout::class)->add(Auth::class);
 
