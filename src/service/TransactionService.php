@@ -56,10 +56,8 @@ class TransactionService extends Service
         $qb->select('t')
             ->from(TransactionModel::class, 't')
             ->innerJoin('t.user', 'u', 'WITH', 'u.block = :block AND u.lot = :lot')
-            ->where('u.sharedPayments = :sharedPayment')
             ->setParameter('block', $user->getBlock())
-            ->setParameter('lot', $user->getLot())
-            ->setParameter('sharedPayment', true);
+            ->setParameter('lot', $user->getLot());
 
         $queryHelper = new QueryHelper($qb);
 
