@@ -112,7 +112,7 @@ $app->group('', function ($app)  use ($twig) {
         $app->post('/transaction/approve', [AdminController::class, 'approvePayment']);
         $app->post('/payment-settings', [AdminController::class, 'paymentSettings']);
         $app->get('/payment-map', [AdminController::class, 'paymentMap']);
-        $app->post('/report', [AdminController::class, 'report']);
+        $app->post('/report', [AdminController::class, 'reportUnpaid']);
         $app->post('/manual-payment', [AdminController::class, 'manualPayment']);
         $app->post('/block-user', [ApiController::class, 'blockUser']);
         $app->post('/unblock-user', [ApiController::class, 'unblockUser']);

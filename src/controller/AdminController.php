@@ -5,6 +5,7 @@ namespace App\controller;
 use App\lib\Filter;
 use App\lib\Helper;
 use App\lib\Image;
+use App\lib\ReportMaker;
 use App\lib\Time;
 use App\model\AnnouncementModel;
 use App\model\enum\AnnouncementStatus;
@@ -19,6 +20,7 @@ use Exception;
 use Respect\Validation\Validator as V;
 use Slim\Views\Twig;
 use TCPDF;
+use thiagoalessio\TesseractOCR\Command;
 
 class AdminController extends Controller
 {
@@ -951,11 +953,13 @@ class AdminController extends Controller
         $fromMonth = $params['from'];
         $toMonth = $params['to'];
 
+        $block = $params['block'];
+        $lot = $params['lot'];
+
         $status = $params['reportStatus'];
 
         $fromMonth = Time::setToFirstDayOfMonth($fromMonth);
         $toMonth = Time::setToLastDayOfMonth($toMonth);
-
 
         $action = "User with id of " . $this->getLogin()->getId() . " generated a report";
 
@@ -965,7 +969,6 @@ class AdminController extends Controller
         $actionLog->setUser($this->getLogin());
         $actionLog->setCreatedAt(Time::timestamp());
         $this->actionLogs->addLog($actionLog);
-
 
         // Create a new TCPDF instance
         $pdf = new TCPDF('L', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -1079,6 +1082,71 @@ class AdminController extends Controller
         $pdfContent = $pdf->Output('', 'S');
 
         $response->getBody()->write($pdf->Output('', 'S'));
+
+        return $response
+            ->withHeader('Content-Type', 'application/pdf')
+            ->withHeader('Content-Disposition', 'inline; filename="filename.pdf"');
+
+    }
+
+    public function reportUnpaid($request, $response, $args)
+    {
+
+        $params = $request->getParsedBody();
+        $fromMonth = $params['from'];
+        $toMonth = $params['to'];
+
+        $block = $params['block'] == "ALL" ? null : $params['block'];
+        $lot = $params['lot'] == "ALL" ? null : $params['lot'];
+
+        $status = $params['reportStatus'];
+
+        $fromMonth = Time::setToFirstDayOfMonth($fromMonth);
+        $toMonth = Time::setToLastDayOfMonth($toMonth);
+
+        $loginUser = $this->getLogin();
+
+        $action = "User with id of " . $loginUser->getId() . " generated a report";
+
+        $this->addActionLog($action);
+
+        $reportMaker = new ReportMaker($loginUser,$fromMonth,$toMonth);
+
+        $users = $this->userSerivce->findUsers($block,$lot);
+
+        $content = array(
+            ReportMaker::$UNPAID_HEADER,
+        );
+
+        $total = 0;
+
+        foreach ($users as $user){
+
+            $unpaidData = $this->transactionService->getUnpaid($user,
+                $this->duesService,
+                $this->getPaymentSettings(),
+                 Time::setToFirstDayOfMonth($params['from']),
+                 Time::setToFirstDayOfMonth($params['to']),
+            );
+
+            $total =+ $unpaidData['total'];
+
+            $unpaids = ReportMaker::unpaid($user,$unpaidData);
+
+            foreach ($unpaids as $unpaid){
+                $content[] = $unpaid;
+            }
+
+        }
+
+        $report_data = array(
+            "Total Unpaid Due" => [$total],
+            "Unpaid Due Breakdown" => $content,
+        );
+
+        $reportMaker->addBody($report_data,[100,50,50,77],"Unpaid Due Breakdown");
+
+        $response->getBody()->write($reportMaker->output());
 
         return $response
             ->withHeader('Content-Type', 'application/pdf')

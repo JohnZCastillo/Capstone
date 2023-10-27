@@ -5,6 +5,7 @@ namespace App\service;
 use App\lib\Paginator;
 use App\lib\QueryHelper;
 use App\lib\Time;
+use App\model\enum\UserRole;
 use App\model\IssuesModel;
 use App\model\UserModel;
 use Doctrine\ORM\EntityManager;
@@ -25,6 +26,30 @@ class UserService extends Service {
         $em = $this->entityManager;
         $user = $em->find(UserModel::class, $id);
         return $user;
+    }
+
+    public function findUsers($block = null, $lot = null): array {
+
+        $queryBuilder = $this->entityManager->createQueryBuilder();
+        $queryBuilder
+            ->select('u')
+            ->from(UserModel::class, 'u')
+            ->where('u.name != :name')
+            ->andWhere("u.role  = :role")
+            ->setParameter('name', 'manual payment')
+            ->setParameter('role', UserRole::user());
+
+        if(isset($block)){
+           $queryBuilder =  $queryBuilder->andWhere('u.block = :block')
+               ->setParameter("block",$block);
+        }
+
+        if(isset($lot)){
+            $queryBuilder =  $queryBuilder->andWhere('u.lot = :lot')
+                ->setParameter("lot",$lot);
+        }
+
+        return $queryBuilder->getQuery()->getResult();
     }
 
     public function findByEmail($email): UserModel|null {

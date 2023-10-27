@@ -95,7 +95,7 @@ class Time
      * @param string $startMonth
      * @param string $endMonth
      */
-    static function getMonths($startMonth, $endMonth)
+    static function getMonths(string $startMonth, string $endMonth)
     {
 
         // Create DateTime objects for the start and end months

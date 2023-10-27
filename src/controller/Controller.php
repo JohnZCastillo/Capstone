@@ -5,6 +5,7 @@ namespace App\controller;
 use App\lib\Helper;
 use App\lib\Login;
 use App\lib\Time;
+use App\model\LogsModel;
 use App\model\PaymentModel;
 use App\model\UserLogsModel;
 use App\model\UserModel;
@@ -159,4 +160,13 @@ class Controller
         $this->userLogsService->addLog($userLog);
     }
 
+    public function addActionLog($action){
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction($action);
+        $actionLog->setTag("Admin");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(Time::timestamp());
+        $this->actionLogs->addLog($actionLog);
+    }
 }
