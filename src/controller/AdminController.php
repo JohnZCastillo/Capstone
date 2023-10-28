@@ -1153,4 +1153,5 @@ class AdminController extends Controller
             ->withHeader('Content-Disposition', 'inline; filename="filename.pdf"');
 
     }
+
 }

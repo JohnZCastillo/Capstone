@@ -12,6 +12,8 @@ class ReportMaker
     private TCPDF $pdf;
 
     public static $UNPAID_HEADER = ["Name", "Unit", "Balance", "Due Month"];
+    public static $PAID_HEADER =  array("No.", "Name", "Unit", "Amount", "Approved By", "Receipt Ref.", "Payment Coverage", "Payment Date");
+
 
     public function __construct(UserModel $user,$fromMonth,$toMonth)
     {
@@ -67,6 +69,41 @@ class ReportMaker
 
         return $content;
 
+    }
+
+    static  function  paid(UserModel $User, array $results):array{
+
+        $content = [];
+
+        foreach ($results as $result) {
+
+            $receipts = $result->getReceipts();
+
+            $references = "";
+
+            $fromMonthCoverage = Time::toStringMonthYear($result->getFromMonth());
+            $toMonthCoverage = Time::toStringMonthYear($result->getToMonth());
+
+            $paymentCoverage = $fromMonthCoverage . " - " . $toMonthCoverage;
+
+            foreach ($receipts as $receipt) {
+                $references = $references . $receipt->getReferenceNumber() . "\n";
+            }
+
+            $content[] = [
+                $result->getId(),
+                $result->getUser()->getName(),
+                "B" . $result->getUser()->getBlock() . " L" . $result->getUser()->getLot(),
+                $result->getAmount(),
+                $result->getLogs()[0]->getUpdatedBy()->getName(),
+                $references,
+                $paymentCoverage,
+                Time::convertDateTimeToDateString($result->getCreatedAt())
+
+            ];
+        }
+
+        return $content;
     }
 
     public function addBody(array $report_data, array $width,$content_title){
