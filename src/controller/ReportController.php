@@ -43,6 +43,9 @@ class ReportController extends Controller
             case "UNPAID":
                 $reportData = $this->unpaid($users, $params['from'], $params['to']);
                 break;
+            case "PENDING":
+                $reportData = $this->pending($users, $params['from'], $params['to']);
+                break;
 
         }
 
@@ -133,23 +136,29 @@ class ReportController extends Controller
     {
 
         $content = array(
-            ReportMaker::$UNPAID_HEADER,
+            ReportMaker::$PENDING_HEADER,
         );
 
         $total = 0;
 
         foreach ($users as $user) {
 
-            $unpaidData = $this->transactionService->getUnpaid($user,
-                $this->duesService,
-                $this->getPaymentSettings(),
+            $unpaidData = $this->transactionService->getPendingPayments(
                 Time::setToFirstDayOfMonth($from),
                 Time::setToFirstDayOfMonth($to),
+                $user
             );
 
-            $total = +$unpaidData['total'];
+            if(count($unpaidData) <= 0){
+                continue;
+            }
 
-            $unpaids = ReportMaker::unpaid($user, $unpaidData);
+            foreach ($unpaidData as $transaction ){
+                $total += $transaction->getAmount();
+
+            }
+
+            $unpaids = ReportMaker::pending($user, $unpaidData);
 
             foreach ($unpaids as $unpaid) {
                 $content[] = $unpaid;
@@ -158,11 +167,11 @@ class ReportController extends Controller
         }
 
         $report_data = array(
-            "Total Unpaid Due" => [$total],
-            "Unpaid Due Breakdown" => $content,
+            "Total Pending Due" => [$total],
+            "Pending Due Breakdown" => $content,
         );
 
-        return array($report_data, [100, 50, 50, 77], "Unpaid Due Breakdown");
+        return array($report_data, [100, 50, 50, 77], "Pending Due Breakdown");
 
     }
 

@@ -12,10 +12,12 @@ class ReportMaker
     private TCPDF $pdf;
 
     public static $UNPAID_HEADER = ["Name", "Unit", "Balance", "Due Month"];
-    public static $PAID_HEADER =  array("No.", "Name", "Unit", "Amount", "Approved By", "Receipt Ref.", "Payment Coverage", "Payment Date");
+    public static $PENDING_HEADER = ["Name", "Unit", "Amount", "Coverage"];
+
+    public static $PAID_HEADER = array("No.", "Name", "Unit", "Amount", "Approved By", "Receipt Ref.", "Payment Coverage", "Payment Date");
 
 
-    public function __construct(UserModel $user,$fromMonth,$toMonth)
+    public function __construct(UserModel $user, $fromMonth, $toMonth)
     {
 
         $pdf = new TCPDF('L', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -71,7 +73,26 @@ class ReportMaker
 
     }
 
-    static  function  paid(UserModel $User, array $results):array{
+    static function pending(UserModel $user, $data): array
+    {
+
+        $content = [];
+
+        foreach ($data as $item) {
+            $content[] = [
+                $user->getName(),
+                "B" . $user->getBlock() . " L" . $user->getLot(),
+                $item->getAmount(),
+                $item->getFromMonth() . " - " . $item->getToMonth(),
+            ];
+        }
+
+        return $content;
+
+    }
+
+    static function paid(UserModel $User, array $results): array
+    {
 
         $content = [];
 
@@ -106,7 +127,8 @@ class ReportMaker
         return $content;
     }
 
-    public function addBody(array $report_data, array $width,$content_title){
+    public function addBody(array $report_data, array $width, $content_title)
+    {
 
         $pdf = $this->pdf;
 
@@ -151,7 +173,8 @@ class ReportMaker
         return $this->pdf;
     }
 
-    public function output(){
-       return $this->pdf->Output('', 'S');
+    public function output()
+    {
+        return $this->pdf->Output('', 'S');
     }
 }
