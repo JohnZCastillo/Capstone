@@ -194,7 +194,10 @@ class ReportController extends Controller
                 $user,
             );
 
-            $total = +$unpaidData['total'];
+            foreach ($unpaidData as $transaction ){
+                $total += $transaction->getAmount();
+
+            }
 
             $unpaids = ReportMaker::rejected($user, $unpaidData);
 

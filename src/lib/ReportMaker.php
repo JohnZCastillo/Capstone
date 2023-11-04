@@ -152,6 +152,7 @@ class ReportMaker
                 $result->getId(),
                 $result->getUser()->getName(),
                 "B" . $result->getUser()->getBlock() . " L" . $result->getUser()->getLot(),
+                $paymentCoverage,
                 $result->getLogs()[0]->getUpdatedBy()->getName(),
                 $result->getLogs()[0]->getMessage(),
             ];
