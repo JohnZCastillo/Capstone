@@ -14,8 +14,9 @@ class ReportMaker
     public static $UNPAID_HEADER = ["Name", "Unit", "Balance", "Due Month"];
     public static $PENDING_HEADER = ["Name", "Unit", "Amount", "Coverage"];
 
-    public static $PAID_HEADER = array("No.", "Name", "Unit", "Amount", "Approved By", "Receipt Ref.", "Payment Coverage", "Payment Date");
+    public static $REJECTED_HEADER = ["ID","Name", "Unit", "Coverage","Rejected By","Reason"];
 
+    public static $PAID_HEADER = array("No.", "Name", "Unit", "Amount", "Approved By", "Receipt Ref.", "Payment Coverage", "Payment Date");
 
     public function __construct(UserModel $user, $fromMonth, $toMonth)
     {
@@ -121,6 +122,38 @@ class ReportMaker
                 $paymentCoverage,
                 Time::convertDateTimeToDateString($result->getCreatedAt())
 
+            ];
+        }
+
+        return $content;
+    }
+
+    static function rejected(UserModel $User, array $results): array
+    {
+
+        $content = [];
+
+        foreach ($results as $result) {
+
+            $receipts = $result->getReceipts();
+
+            $references = "";
+
+            $fromMonthCoverage = Time::toStringMonthYear($result->getFromMonth());
+            $toMonthCoverage = Time::toStringMonthYear($result->getToMonth());
+
+            $paymentCoverage = $fromMonthCoverage . " - " . $toMonthCoverage;
+
+            foreach ($receipts as $receipt) {
+                $references = $references . $receipt->getReferenceNumber() . "\n";
+            }
+
+            $content[] = [
+                $result->getId(),
+                $result->getUser()->getName(),
+                "B" . $result->getUser()->getBlock() . " L" . $result->getUser()->getLot(),
+                $result->getLogs()[0]->getUpdatedBy()->getName(),
+                $result->getLogs()[0]->getMessage(),
             ];
         }
 

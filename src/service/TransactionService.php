@@ -142,6 +142,32 @@ class TransactionService extends Service
         return $qb->getQuery()->getResult();
     }
 
+    public function getRejectedPayments(string $fromMonth, $toMonth, $user, bool $strict = false): array
+    {
+
+        $em = $this->entityManager;
+
+        $qb = $em->createQueryBuilder();
+
+        if ($strict) {
+            $qb->select('t')
+                ->from(TransactionModel::class, 't')
+                ->where('t.user = :user')
+                ->andWhere('t.status = REJECTED')
+                ->setParameter('user', $user);
+        } else {
+            $qb->select('t')
+                ->from(TransactionModel::class, 't')
+                ->innerJoin('t.user', 'u', 'WITH', 'u.block = :block AND u.lot = :lot')
+                ->where("t.status = 'REJECTED'")
+                ->setParameter('block', $user->getBlock())
+                ->setParameter('lot', $user->getLot());
+        }
+
+
+        return $qb->getQuery()->getResult();
+    }
+
 
     public function getUnpaid($user, DuesService $dueService, PaymentModel $payment, $startMonth = null, $endMonth = null)
     {

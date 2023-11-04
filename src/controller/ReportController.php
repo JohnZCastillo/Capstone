@@ -46,7 +46,9 @@ class ReportController extends Controller
             case "PENDING":
                 $reportData = $this->pending($users, $params['from'], $params['to']);
                 break;
-
+            case "REJECTED":
+                $reportData = $this->rejected($users, $params['from'], $params['to']);
+                break;
         }
 
 
@@ -175,27 +177,26 @@ class ReportController extends Controller
 
     }
 
-    public function approve(array $users, string $from, string $to): array
+    public function rejected(array $users, string $from, string $to): array
     {
 
         $content = array(
-            ReportMaker::$UNPAID_HEADER,
+            ReportMaker::$REJECTED_HEADER,
         );
 
         $total = 0;
 
         foreach ($users as $user) {
 
-            $unpaidData = $this->transactionService->getUnpaid($user,
-                $this->duesService,
-                $this->getPaymentSettings(),
+            $unpaidData = $this->transactionService->getRejectedPayments(
                 Time::setToFirstDayOfMonth($from),
                 Time::setToFirstDayOfMonth($to),
+                $user,
             );
 
             $total = +$unpaidData['total'];
 
-            $unpaids = ReportMaker::unpaid($user, $unpaidData);
+            $unpaids = ReportMaker::rejected($user, $unpaidData);
 
             foreach ($unpaids as $unpaid) {
                 $content[] = $unpaid;
@@ -204,11 +205,11 @@ class ReportController extends Controller
         }
 
         $report_data = array(
-            "Total Unpaid Due" => [$total],
-            "Unpaid Due Breakdown" => $content,
+            "Total Rejected Due" => [$total],
+            "Rejected Due Breakdown" => $content,
         );
 
-        return array($report_data, [100, 50, 50, 77], "Unpaid Due Breakdown");
+        return array($report_data, [20, 50, 30, 50,60,67], "Rejected Due Breakdown");
 
     }
 }
