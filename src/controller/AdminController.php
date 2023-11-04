@@ -122,7 +122,7 @@ class AdminController extends Controller
         $actionLog->setAction($action);
         $actionLog->setTag("Payment");
         $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(Time::timestamp());
+        $actionLog->setCreatedAt(new DateTime());
 
         $this->actionLogs->addLog($actionLog);
 
@@ -171,7 +171,7 @@ class AdminController extends Controller
         $actionLog->setAction($action);
         $actionLog->setTag("Payment");
         $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(Time::timestamp());
+        $actionLog->setCreatedAt(new DateTime());
 
         $this->actionLogs->addLog($actionLog);
 
@@ -215,7 +215,7 @@ class AdminController extends Controller
         $actionLog->setAction($action);
         $actionLog->setTag("Payment Settings");
         $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(Time::timestamp());
+        $actionLog->setCreatedAt(new DateTime());
         $this->actionLogs->addLog($actionLog);
 
         return $response
@@ -262,7 +262,7 @@ class AdminController extends Controller
         $actionLog->setAction($action);
         $actionLog->setTag("Announcement");
         $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(Time::timestamp());
+        $actionLog->setCreatedAt(new DateTime());
         $this->actionLogs->addLog($actionLog);
 
         return $response->withHeader('Location', "/admin/announcements")
@@ -289,7 +289,7 @@ class AdminController extends Controller
         $actionLog->setAction($action);
         $actionLog->setTag("Announcement");
         $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(Time::timestamp());
+        $actionLog->setCreatedAt(new DateTime());
         $this->actionLogs->addLog($actionLog);
 
         $this->announcementService->delete($post);
@@ -335,7 +335,7 @@ class AdminController extends Controller
         $actionLog->setAction($action);
         $actionLog->setTag("Announcement");
         $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(Time::timestamp());
+        $actionLog->setCreatedAt(new DateTime());
         $this->actionLogs->addLog($actionLog);
 
         return $response
@@ -364,7 +364,7 @@ class AdminController extends Controller
         $actionLog->setAction($action);
         $actionLog->setTag("Announcement");
         $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(Time::timestamp());
+        $actionLog->setCreatedAt(new DateTime());
         $this->actionLogs->addLog($actionLog);
 
 
@@ -461,7 +461,7 @@ class AdminController extends Controller
             $actionLog->setAction($action);
             $actionLog->setTag("Manual Payment");
             $actionLog->setUser($this->getLogin());
-            $actionLog->setCreatedAt(Time::timestamp());
+            $actionLog->setCreatedAt(new DateTime());
             $this->actionLogs->addLog($actionLog);
 
 
@@ -773,7 +773,7 @@ class AdminController extends Controller
             $actionLog->setAction($action);
             $actionLog->setTag("Admin");
             $actionLog->setUser($this->getLogin());
-            $actionLog->setCreatedAt(Time::timestamp());
+            $actionLog->setCreatedAt(new DateTime());
             $this->actionLogs->addLog($actionLog);
 
             $this->priviligesService->save($user->getPrivileges());
@@ -850,7 +850,7 @@ class AdminController extends Controller
             $actionLog->setAction($action);
             $actionLog->setTag("Admin");
             $actionLog->setUser($this->getLogin());
-            $actionLog->setCreatedAt(Time::timestamp());
+            $actionLog->setCreatedAt(new DateTime());
             $this->actionLogs->addLog($actionLog);
 
             return $response
@@ -967,7 +967,7 @@ class AdminController extends Controller
         $actionLog->setAction($action);
         $actionLog->setTag("Admin");
         $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(Time::timestamp());
+        $actionLog->setCreatedAt(new DateTime());
         $this->actionLogs->addLog($actionLog);
 
         // Create a new TCPDF instance

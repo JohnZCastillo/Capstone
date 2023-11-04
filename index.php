@@ -32,7 +32,7 @@ $app = AppFactory::create();
 // Configure Twig view renderer
 $twig = Twig::create('./src/views/', ['cache' => false, 'debug' => true]);
 $twig->addExtension(new \Twig\Extension\DebugExtension());
-//$twig->getExtension(\Twig\Extension\CoreExtension::class)->setTimezone('Asia/Manila');
+$twig->getEnvironment()->getExtension(\Twig\Extension\CoreExtension::class)->setTimezone('Asia/Manila');
 
 $app->add(TwigMiddleware::create($app, $twig));
 

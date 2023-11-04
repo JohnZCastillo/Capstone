@@ -22,6 +22,7 @@ use App\service\TransactionLogsService;
 use App\service\TransactionService;
 use App\service\UserLogsService;
 use App\service\UserService;
+use DateTime;
 use Slim\Flash\Messages;
 use UMA\DIC\Container;
 
@@ -166,7 +167,7 @@ class Controller
         $actionLog->setAction($action);
         $actionLog->setTag("Admin");
         $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(Time::timestamp());
+        $actionLog->setCreatedAt(new DateTime());
         $this->actionLogs->addLog($actionLog);
     }
 }

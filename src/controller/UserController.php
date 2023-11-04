@@ -16,7 +16,9 @@ use App\lib\ReferenceExtractor;
 use App\lib\Time;
 use App\model\enum\IssuesStatus;
 use App\model\IssuesModel;
+use App\model\LogsModel;
 use App\model\TransactionModel;
+use DateTime;
 use Slim\Views\Twig;
 use TCPDF;
 
@@ -195,10 +197,15 @@ class UserController extends Controller
     public function test($request, $response, $args)
     {
 
-        var_dump(Login::isLogin());
-        // var_dump($this->duesService->getDue('2023-12-01'));
-        // var_dump($this->transactionService->findById(1)->getFromMonth());
-        // var_dump($this->transactionService->isPaid('2023-01-03'));
+        $actionLog = new LogsModel();
+        $actionLog->setAction("TEST");
+        $actionLog->setTag("Payment");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(new DateTime());
+
+//        $this->actionLogs->addLog($actionLog);
+
+        var_dump($actionLog->getCreatedAt()->format("M d, Y h:i a"));
 
         return $response;
     }
