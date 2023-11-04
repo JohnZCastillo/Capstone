@@ -41,6 +41,8 @@ class LogsService  extends Service {
                     "value"=>$filter['to']
                 ]);
 
+        $queryHelper->getQuery()->addOrderBy("t.id", "DESC");
+
         return $paginator->paginate($queryHelper->getQuery(), $page, $max);
     }
 
