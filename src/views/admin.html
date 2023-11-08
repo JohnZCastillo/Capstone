@@ -68,6 +68,12 @@
                 </li>
                 {% endif %}
 
+                {% if loginUser.getPrivileges().getUserIssues() %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/issues">Issues</a>
+                </li>
+                {% endif %}
+
                 {% if loginUser.getPrivileges().getAdminUser() %}
                 <li class="nav-item">
                     <a class="nav-link" href="/admin/users">Users</a>
@@ -82,9 +88,6 @@
 
                 <li class="nav-item">
                     <a class="nav-link" href="/admin/account">Account</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/admin/system">System Settings</a>
                 </li>
             </ul>
         </div>
