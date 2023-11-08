@@ -3,6 +3,7 @@
 namespace App\middleware;
 
 use App\lib\Login;
+use App\lib\Redirector;
 use App\model\UserModel;
 use App\service\UserService;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -30,8 +31,9 @@ class UserAuth{
         if ($role == 'user') {
             return $handler->handle($request);
         } else {
+            $location = Redirector::redirectToHome($this->user->getPrivileges());
             $response = new Response();
-            return $response->withHeader('Location', '/admin/home')->withStatus(302);
+            return $response->withHeader('Location', $location)->withStatus(302);
         }
     }
 }
