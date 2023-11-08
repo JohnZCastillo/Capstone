@@ -44,6 +44,10 @@ $app->get('/denied', function (Request $request, Response $response) use ($twig)
     return $twig->render($response, 'denied.html');
 });
 
+$app->get('/terms-and-conditions', function (Request $request, Response $response) use ($twig) {
+    return $twig->render($response, 'terms-and-condition.html');
+});
+
 $app->get('/blocked', function (Request $request, Response $response) use ($twig) {
     return $twig->render($response, 'blockpage.html');
 });
