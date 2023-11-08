@@ -146,8 +146,7 @@ $app->group('', function ($app)  use ($twig) {
 
 
     $app->group('/admin', function ($app) use ($twig) {
-        $app->post('/add-admin', [AdminController::class, 'addAdmin']);
-        $app->post('/demote-admin', [AdminController::class, 'removeAdmin']);
+        $app->post('/manage-privileges', [AdminController::class, 'managePrivileges']);
         $app->get('/logs', [AdminController::class, 'logs']);
         $app->get('/system',[AdminController::class, 'systemSettings']);
     })->add(\App\middleware\SuperAdminAuth::class)->add(Auth::class);

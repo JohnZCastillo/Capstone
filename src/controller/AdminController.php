@@ -20,7 +20,6 @@ use Exception;
 use Respect\Validation\Validator as V;
 use Slim\Views\Twig;
 use TCPDF;
-use thiagoalessio\TesseractOCR\Command;
 
 class AdminController extends Controller
 {
@@ -720,7 +719,7 @@ class AdminController extends Controller
         ]);
     }
 
-    public function addAdmin($request, $response, $args)
+    public function managePrivileges($request, $response, $args)
     {
 
         $params = $request->getParsedBody();
@@ -743,6 +742,8 @@ class AdminController extends Controller
                 throw  new Exception("User not Found!");
             }
 
+            $admin = false;
+
             $managePayments = $params['payment'] ?? null;
             $manageIssues = $params['issue'] ?? null;
             $manageAnnouncements = $params['announcement'] ?? null;
@@ -753,98 +754,45 @@ class AdminController extends Controller
 
             if (isset($managePayments)) {
                 $user->getPrivileges()->setAdminPayment(true);
+                $admin = true;
+            } else {
+                $user->getPrivileges()->setAdminPayment(false);
             }
 
             if (isset($manageIssues)) {
                 $user->getPrivileges()->setAdminIssues(true);
+                $admin = true;
+
+            } else {
+                $user->getPrivileges()->setAdminIssues(false);
             }
 
             if (isset($manageAnnouncements)) {
                 $user->getPrivileges()->setAdminAnnouncement(true);
+                $admin = true;
+
+            } else {
+                $user->getPrivileges()->setAdminAnnouncement(false);
+
             }
 
             if (isset($manageUsers)) {
                 $user->getPrivileges()->setAdminUser(true);
-            }
+                $admin = true;
 
-            $action = "User with id of " . $user->getId() . " was added as an admin";
-
-            $actionLog = new LogsModel();
-            $actionLog->setAction($action);
-            $actionLog->setTag("Admin");
-            $actionLog->setUser($this->getLogin());
-            $actionLog->setCreatedAt(new DateTime());
-            $this->actionLogs->addLog($actionLog);
-
-            $this->priviligesService->save($user->getPrivileges());
-
-            return $response
-                ->withHeader('Location', "/admin/users")
-                ->withStatus(302);
-        } catch (Exception $e) {
-            $this->flashMessages->addMessage('errorMessage', $e->getMessage());
-
-            return $response
-                ->withHeader('Location', "/admin/users")
-                ->withStatus(302);
-        }
-
-    }
-
-
-    public function removeAdmin($request, $response, $args)
-    {
-
-        try {
-            $params = $request->getParsedBody();
-
-            if (!isset($params['email'])) {
-                throw new Exception("User not Found");
-            }
-
-            $email = $params['email'];
-
-            if (!V::email()->validate($email)) {
-                throw new Exception('Invalid Email');
-            }
-
-            $user = $this->userSerivce->findByEmail($email);
-
-            if ($user == null) {
-                throw new Exception("User not found!");
-            }
-
-            $managePayments = $params['payment'] ?? null;
-            $manageIssues = $params['issue'] ?? null;
-            $manageAnnouncements = $params['announcement'] ?? null;
-            $manageUsers = $params['user'] ?? null;
-
-            if (!isset($managePayments)) {
-                $user->getPrivileges()->setAdminPayment(false);
-            }
-
-            if (!isset($manageIssues)) {
-                $user->getPrivileges()->setAdminIssues(false);
-            }
-
-            if (!isset($manageAnnouncements)) {
-                $user->getPrivileges()->setAdminAnnouncement(false);
-            }
-
-            if (!isset($manageUsers)) {
+            } else {
                 $user->getPrivileges()->setAdminUser(false);
             }
 
-            if (!isset($managePayments, $manageIssues, $manageAnnouncements, $manageUsers)) {
+            if ($admin) {
+                $user->setRole(UserRole::admin());
+            } else {
                 $user->setRole(UserRole::user());
-                $this->userSerivce->save($user);
             }
 
-            $userPrivilege = $user->getPrivileges();
-            $this->priviligesService->save($user->getPrivileges());
+            $this->userSerivce->save($user);
 
-
-            $action = "User with id of " . $user->getId() . " was demoted of admin privileges";
+            $action = "User with id of " . $user->getId() . " update privileges";
 
             $actionLog = new LogsModel();
             $actionLog->setAction($action);
@@ -853,21 +801,21 @@ class AdminController extends Controller
             $actionLog->setCreatedAt(new DateTime());
             $this->actionLogs->addLog($actionLog);
 
+            $this->priviligesService->save($user->getPrivileges());
+
             return $response
                 ->withHeader('Location', "/admin/users")
                 ->withStatus(302);
-
         } catch (Exception $e) {
-
             $this->flashMessages->addMessage('errorMessage', $e->getMessage());
 
             return $response
                 ->withHeader('Location', "/admin/users")
                 ->withStatus(302);
-
         }
 
     }
+
 
     public function systemSettings($request, $response, $args)
     {
@@ -1110,9 +1058,9 @@ class AdminController extends Controller
 
         $this->addActionLog($action);
 
-        $reportMaker = new ReportMaker($loginUser,$fromMonth,$toMonth);
+        $reportMaker = new ReportMaker($loginUser, $fromMonth, $toMonth);
 
-        $users = $this->userSerivce->findUsers($block,$lot);
+        $users = $this->userSerivce->findUsers($block, $lot);
 
         $content = array(
             ReportMaker::$UNPAID_HEADER,
@@ -1120,20 +1068,20 @@ class AdminController extends Controller
 
         $total = 0;
 
-        foreach ($users as $user){
+        foreach ($users as $user) {
 
             $unpaidData = $this->transactionService->getUnpaid($user,
                 $this->duesService,
                 $this->getPaymentSettings(),
-                 Time::setToFirstDayOfMonth($params['from']),
-                 Time::setToFirstDayOfMonth($params['to']),
+                Time::setToFirstDayOfMonth($params['from']),
+                Time::setToFirstDayOfMonth($params['to']),
             );
 
-            $total =+ $unpaidData['total'];
+            $total = +$unpaidData['total'];
 
-            $unpaids = ReportMaker::unpaid($user,$unpaidData);
+            $unpaids = ReportMaker::unpaid($user, $unpaidData);
 
-            foreach ($unpaids as $unpaid){
+            foreach ($unpaids as $unpaid) {
                 $content[] = $unpaid;
             }
 
@@ -1144,7 +1092,7 @@ class AdminController extends Controller
             "Unpaid Due Breakdown" => $content,
         );
 
-        $reportMaker->addBody($report_data,[100,50,50,77],"Unpaid Due Breakdown");
+        $reportMaker->addBody($report_data, [100, 50, 50, 77], "Unpaid Due Breakdown");
 
         $response->getBody()->write($reportMaker->output());
 

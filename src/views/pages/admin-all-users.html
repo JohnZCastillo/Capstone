@@ -29,7 +29,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="newAdmin" method="POST" action="/admin/add-admin">
+                    <form id="newAdmin" method="POST" action="/admin/manage-privileges">
                         <div class="form-group">
                             <label for="email">Email</label>
                             <input name="email" type="text" class="form-control" id="email" placeholder="Enter Email">
@@ -41,72 +41,25 @@
                         </div>
                         <div class="form-group mt-1">
                             <label>Privileges</label>
-                            <div class="form-check">
+                            <div class="form-check" id="grantAnnouncements">
                                 <input name="announcement" type="checkbox" class="form-check-input"
                                        id="manageAnnouncements">
                                 <label class="form-check-label" for="manageAnnouncements">Manage Announcements</label>
                             </div>
-                            <div class="form-check">
+                            <div class="form-check" id="grantPayments">
                                 <input name="payment" type="checkbox" class="form-check-input" id="managePayments">
                                 <label class="form-check-label" for="managePayments">Manage Payments</label>
                             </div>
-                            <div class="form-check">
+                            <div class="form-check" id="grantUsers">
                                 <input name="user" type="checkbox" class="form-check-input" id="manageUsers">
                                 <label class="form-check-label" for="manageUsers">Manage Users</label>
                             </div>
-                            <div class="form-check">
+                            <div class="form-check" id="grantIssues">
                                 <input name="issue" type="checkbox" class="form-check-input" id="manageIssues">
                                 <label class="form-check-label" for="manageIssues">Manage Issues</label>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Grant Staff Privileges</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="demoteAdminModal" tabindex="-1" aria-labelledby="adminModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="removeAdminModalLabel">Remove Admin Privileges</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="demoteAdmin" method="POST" action="/admin/demote-admin">
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input name="email" type="text" class="form-control" id="email2" placeholder="Enter Email">
-                        </div>
-                        <div id="userDetail2Holder" class="d-none rounded mt-2 bg-light form-group p-2 d-flex gap-2 align-items-center">
-                            <img class="p-1 bg-dark rounded-circle" style="width: 40px; height: 40px" src="/resources/user.svg">
-                            <p class="m-0"  id="userDetail2"></p>
-                        </div>
-                        <div class="form-group mt-1">
-                            <label>Privileges</label>
-                            <small class="d-block small text-secondary">Unchecked to remove privilege</small>
-                            <div class="form-check" id="announcementContainer">
-                                <input id="announcementDemote" name="announcement" type="checkbox"
-                                       class="form-check-input">
-                                <label class="form-check-label" for="announcementDemote">Manage Announcements</label>
-                            </div>
-                            <div class="form-check" id="paymentContainer">
-                                <input id="paymentDemote" name="payment" type="checkbox" class="form-check-input">
-                                <label class="form-check-label" for="paymentDemote">Manage Payments</label>
-                            </div>
-                            <div class="form-check" id="userContainer">
-                                <input id="userDemote" name="user" type="checkbox" class="form-check-input">
-                                <label class="form-check-label" for="userDemote">Manage Users</label>
-                            </div>
-                            <div class="form-check" id="issueContainer">
-                                <input id="issueDemote" name="issue" type="checkbox" class="form-check-input">
-                                <label class="form-check-label" for="issueDemote">Manage Issues</label>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Remove Staff Privileges</button>
+                        <button type="submit" class="btn btn-primary">Update Privileges</button>
                     </form>
                 </div>
             </div>
@@ -115,8 +68,7 @@
 
     <span class="small text-secondary text-decoration-none d-block">Tool Bar</span>
     <div aria-label="Basic example" class="btn-group" role="group">
-        <button class="btn btn-outline-success" data-toggle="modal" data-target="#adminModal">Add New Staff</button>
-        <button class="btn btn-outline-danger" data-toggle="modal" data-target="#demoteAdminModal">Demote Staff</button>
+        <button class="btn btn-outline-success" data-toggle="modal" data-target="#adminModal">Manage Privileges</button>
     </div>
 
     {% endif %}
@@ -220,22 +172,12 @@
     const userDetail = document.querySelector("#userDetail");
     const userDetailHolder = document.querySelector("#userDetailHolder");
 
-    const userDetail2 = document.querySelector("#userDetail2");
-    const userDetail2Holder = document.querySelector("#userDetail2Holder");
-
     const emailField = document.querySelector('#email');
-    const emailField2 = document.querySelector('#email2');
 
-    //container
-    const issueContainer = document.querySelector("#issueContainer");
-    const userContainer = document.querySelector("#userContainer");
-    const paymentContainer = document.querySelector("#paymentContainer");
-    const announcementContainer = document.querySelector("#announcementContainer");
-
-    const issueDemote = document.querySelector("#issueDemote");
-    const userDemote = document.querySelector("#userDemote");
-    const paymentDemote = document.querySelector("#paymentDemote");
-    const announcementDemote = document.querySelector("#announcementDemote");
+    const manageIssues = document.querySelector("#manageIssues");
+    const manageUsers = document.querySelector("#manageUsers");
+    const managePayments = document.querySelector("#managePayments");
+    const manageAnnouncements = document.querySelector("#manageAnnouncements");
 
     const userFilterForm = document.querySelector("#announcementForm")
 
@@ -247,6 +189,7 @@
             userFilterForm.submit();
         }
     })
+
     emailField.addEventListener('keyup', async (event) => {
 
         userDetailHolder.classList.add('d-none');
@@ -264,62 +207,25 @@
         if (data.ok) {
             userDetail.innerHTML = user.name;
             userDetailHolder.classList.remove('d-none');
-        } else {
-            console.log("An error has occurred");
-        }
-
-    });
-
-
-    emailField2.addEventListener('keyup', async (event) => {
-
-        userDetail2Holder.classList.add('d-none');
-
-
-        issueContainer.classList.add('d-none');
-        userContainer.classList.add('d-none');
-        paymentContainer.classList.add('d-none');
-        announcementContainer.classList.add('d-none');
-
-        if (!emailField2.value.includes("@")) {
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append("email", emailField2.value);
-
-        const data = await fetch('/api/user', {
-            method: "POST",
-            body: formData
-        })
-
-        if (data.ok) {
-
-            const user = await data.json();
-            userDetail2.innerHTML = user.name;
-            userDetail2Holder.classList.remove('d-none');
 
             if (user.payment) {
-                paymentContainer.classList.remove('d-none');
-                paymentDemote.checked = true;
+                managePayments.checked = true;
             }
 
             if (user.issue) {
-                issueContainer.classList.remove('d-none');
-                issueDemote.checked = true;
+                manageIssues.checked = true;
             }
 
             if (user.user) {
-                userContainer.classList.remove('d-none');
-                userDemote.checked = true;
+                manageUsers.checked = true;
             }
 
             if (user.announcement) {
-                announcementContainer.classList.remove('d-none');
-                announcementDemote.checked = true
+                manageAnnouncements.checked = true
             }
+        } else {
+            console.log("An error has occurred");
         }
-
 
     });
 
@@ -341,6 +247,7 @@
         }
 
     }
+
     async function unblockUser(id) {
 
         let formData = new FormData();
