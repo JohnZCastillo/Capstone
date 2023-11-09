@@ -32,6 +32,7 @@ class LoginHistoryModel {
     #[ORM\ManyToOne(targetEntity: UserModel::class, inversedBy: 'loginHistory')]
     private ?UserModel $user = null;
 
+
     /**
      * @return int|null
      */

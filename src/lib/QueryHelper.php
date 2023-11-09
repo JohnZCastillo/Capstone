@@ -61,6 +61,34 @@ class QueryHelper {
         return $this;
     }
 
+    public function andWhereIn(string $andWhereExpression, $value1,$value2): QueryHelper
+    {
+        $query = $this->query;
+
+        $called = $this->called;
+
+        if ($called <= 0) {
+            if ( isset($value1['value'],$value2['value'])) {
+                // If this is the first modification, treat it as a regular 'where'.
+                $query->where($andWhereExpression)
+                    ->setParameter($value1['key'],$value1['value'])
+                    ->setParameter($value2['key'],$value2['value']);
+
+                      $this->alreadyCalled();
+            }
+
+        } else {
+            if (isset($value1['value'],$value2['value']) ) {
+                // Add an AND WHERE condition and set the parameter.
+                $query->andWhere($andWhereExpression)
+                    ->setParameter($value1['key'],$value1['value'])
+                    ->setParameter($value2['key'],$value2['value']);
+            }
+        }
+
+        return $this;
+    }
+
 
     /**
      * Adds a WHERE condition to the query and sets a parameter value.

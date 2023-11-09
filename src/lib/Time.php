@@ -2,9 +2,11 @@
 
 namespace App\lib;
 
+use DateInterval;
 use DateTime;
 
-class Time {
+class Time
+{
 
     /**
      * Create a date with the starting day set to 1.
@@ -15,6 +17,7 @@ class Time {
     {
         return DateTime::createFromFormat('Y-m-d', $date . '-01');
     }
+
 
     static function nowStartMonth($date)
     {
@@ -59,10 +62,10 @@ class Time {
         }
     }
 
-    static function toStringMonthYear($date):string
+    static function toStringMonthYear($date): string
     {
-            $date = DateTime::createFromFormat('Y-m-d', $date);
-            return $date->format('M Y');
+        $date = DateTime::createFromFormat('Y-m-d', $date);
+        return $date->format('M Y');
     }
 
 
@@ -92,7 +95,7 @@ class Time {
      * @param string $startMonth
      * @param string $endMonth
      */
-    static function getMonths($startMonth, $endMonth)
+    static function getMonths(string $startMonth, string $endMonth)
     {
 
         // Create DateTime objects for the start and end months
@@ -165,6 +168,12 @@ class Time {
     }
 
 
+    static  function convertStringDateMonthToStringDateTime(string $month):String{
+        $date = DateTime::createFromFormat('Y-m', $month);
+        $date->modify('first day of this month');
+        return $date->format('Y-m-d');
+    }
+
     /**
      * Convert Date '2023-12-15' to String date
      * @param string $stringDate
@@ -209,6 +218,31 @@ class Time {
         $dateTime = new DateTime($stringDate);
 
         return $dateTime->format("Y-m-d H:i:s");
+    }
+
+    static function getYearSpan(int $from, int $add = 2, int $to = null): array
+    {
+
+        if (!isset($to)) {
+            $to = $currentYear = date("Y");
+        }
+
+        $span = [];
+
+        for ($i = $from; $i <= $to + $add; $i++) {
+            $span[] = $i;
+        }
+
+        return $span;
+
+    }
+
+    static function createFutureTime(int $minutes): DateTime
+    {
+        $dateTime = new DateTime();
+        $newDateTime = clone $dateTime;
+        $newDateTime->add(new DateInterval("PT{$minutes}M"));
+        return $newDateTime;
     }
 }
 

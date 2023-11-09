@@ -95,7 +95,7 @@ class TransactionService extends Service
         return $paginator->paginate($queryHelper->getQuery(), $page, $max);
     }
 
-    public function getApprovedPayments(string $fromMonth, $toMonth,$status = ["APPROVED"])
+    public function getApprovedPayments(string $fromMonth, $toMonth, $status = ["APPROVED"], $user = null)
     {
 
         $em = $this->entityManager;
@@ -114,6 +114,58 @@ class TransactionService extends Service
 
         $query = $qb->getQuery();
         return $query->getResult();
+    }
+
+    public function getPendingPayments(string $fromMonth, $toMonth, $user, bool $strict = false): array
+    {
+
+        $em = $this->entityManager;
+
+        $qb = $em->createQueryBuilder();
+
+        if ($strict) {
+            $qb->select('t')
+                ->from(TransactionModel::class, 't')
+                ->where('t.user = :user')
+                ->andWhere('t.status = PENDING')
+                ->setParameter('user', $user);
+        } else {
+            $qb->select('t')
+                ->from(TransactionModel::class, 't')
+                ->innerJoin('t.user', 'u', 'WITH', 'u.block = :block AND u.lot = :lot')
+                ->where("t.status = 'PENDING'")
+                ->setParameter('block', $user->getBlock())
+                ->setParameter('lot', $user->getLot());
+        }
+
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function getRejectedPayments(string $fromMonth, $toMonth, $user, bool $strict = false): array
+    {
+
+        $em = $this->entityManager;
+
+        $qb = $em->createQueryBuilder();
+
+        if ($strict) {
+            $qb->select('t')
+                ->from(TransactionModel::class, 't')
+                ->where('t.user = :user')
+                ->andWhere('t.status = REJECTED')
+                ->setParameter('user', $user);
+        } else {
+            $qb->select('t')
+                ->from(TransactionModel::class, 't')
+                ->innerJoin('t.user', 'u', 'WITH', 'u.block = :block AND u.lot = :lot')
+                ->where("t.status = 'REJECTED'")
+                ->setParameter('block', $user->getBlock())
+                ->setParameter('lot', $user->getLot());
+        }
+
+
+        return $qb->getQuery()->getResult();
     }
 
 
@@ -193,9 +245,9 @@ class TransactionService extends Service
         $query = $qb->getQuery();
         $count = $query->getSingleScalarResult();
 
-        // Returns t// Returns true if the user has paid for the specified month, false otherwise
         return ($count > 0);
     }
+
 
     public function getTotal(string $status, string $fromMonth, string $toMonth): float
     {

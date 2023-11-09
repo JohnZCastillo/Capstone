@@ -36,8 +36,29 @@ class IssuesModel{
     #[ORM\Column(type: 'text')]
     private $action;
 
+    #[ORM\Column(type: 'string')]
+    private $target;
+
     #[ORM\ManyToOne(targetEntity: UserModel::class, inversedBy: 'issues',)]
     private ?UserModel $user = null;
+
+    /**
+     * @return mixed
+     */
+    public function getTarget()
+    {
+        return $this->target;
+    }
+
+    /**
+     * @param mixed $target
+     * @return IssuesModel
+     */
+    public function setTarget($target)
+    {
+        $this->target = $target;
+        return $this;
+    }
 
     /**
      * Get the value of id

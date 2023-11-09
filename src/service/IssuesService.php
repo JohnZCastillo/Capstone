@@ -5,6 +5,7 @@ namespace App\service;
 use App\lib\Paginator;
 use App\lib\QueryHelper;
 use App\lib\Time;
+use App\model\DuesModel;
 use App\model\IssuesModel;
 
 // use App\model\IssuesModel;
@@ -29,6 +30,16 @@ class IssuesService extends Service {
         $em = $this->entityManager;
         $dues = $em->find(IssuesModel::class, $id);
         return $dues;
+    }
+
+    public function findByTarget($target): IssuesModel|null
+    {
+        $em = $this->entityManager;
+
+        $due = $em->getRepository(IssuesModel::class)
+            ->findOneBy(['target' => $target]);
+
+        return  $due;
     }
 
     public function getAll($page, $max, $id, $filter, $user = null, $type = 'posted', $createdAt = null)

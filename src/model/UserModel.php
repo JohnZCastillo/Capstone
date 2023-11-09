@@ -2,10 +2,13 @@
 
 namespace App\model;
 
+use App\lib\Encryptor;
 use App\model\enum\UserRole;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\JoinColumn;
+use thiagoalessio\TesseractOCR\Option;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'user')]
@@ -30,28 +33,88 @@ class UserModel{
     private string $email; 
 
     #[ORM\Column(type: 'string')]
-    private string $password; 
+    private string $password;
 
-    #[ORM\OneToMany(targetEntity: TransactionModel::class, mappedBy: 'user')]
+    #[ORM\Column(type: 'boolean', options: ["default"=> false])]
+    private string $isBlocked;
+
+    #[ORM\Column(type: 'boolean', options: ["default"=> true])]
+    private bool $sharedPayments;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: TransactionModel::class)]
     private Collection|array $transactions;
 
-    #[ORM\OneToMany(targetEntity: AnnouncementModel::class, mappedBy: 'user')]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: AnnouncementModel::class)]
     private Collection|array $posts;
 
-    #[ORM\OneToMany(targetEntity: TransactionLogsModel::class, mappedBy: 'updatedBy')]
+    #[ORM\OneToMany(mappedBy: 'updatedBy', targetEntity: TransactionLogsModel::class)]
     private Collection|array $logs;
 
-    #[ORM\OneToMany(targetEntity: LoginHistoryModel::class, mappedBy: 'user')]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: LoginHistoryModel::class)]
     private Collection|array $loginHistory;
 
-    #[ORM\OneToMany(targetEntity: IssuesModel::class, mappedBy: 'issues')]
+    #[ORM\OneToMany(mappedBy: 'issues', targetEntity: IssuesModel::class)]
     private Collection|array $issues;
 
-    #[ORM\OneToOne(targetEntity: PrivilegesModel::class, mappedBy: 'user',)]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: LogsModel::class)]
+    private Collection|array $actionLogs;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserLogsModel::class)]
+    private Collection|array $myLogs;
+
+    #[ORM\OneToOne(mappedBy: 'user', targetEntity: PrivilegesModel::class,)]
     private  PrivilegesModel $privileges;
 
     #[ORM\Column(type: UserRole::class)]
     private $role;
+
+    /**
+     * @param int|null $id
+     */
+    public function __construct()
+    {
+        $this->myLogs = new ArrayCollection();
+        $this->actionLogs = new ArrayCollection();
+        $this->issues = new ArrayCollection();
+        $this->loginHistory = new ArrayCollection();
+        $this->logs = new ArrayCollection();
+        $this->posts = new ArrayCollection();
+        $this->transactions = new ArrayCollection();
+        $this->sharedPayments = true;
+    }
+
+    public function getMyLogs(): Collection|array
+    {
+        return $this->myLogs;
+    }
+
+    public function setMyLogs(Collection|array $myLogs): UserModel
+    {
+        $this->myLogs = $myLogs;
+        return $this;
+    }
+
+    public function getIsBlocked(): string
+    {
+        return $this->isBlocked;
+    }
+
+    public function setIsBlocked(string $isBlocked): UserModel
+    {
+        $this->isBlocked = $isBlocked;
+        return $this;
+    }
+
+    public function getActionLogs(): Collection|array
+    {
+        return $this->actionLogs;
+    }
+
+    public function setActionLogs(Collection|array $actionLogs): UserModel
+    {
+        $this->actionLogs = $actionLogs;
+        return $this;
+    }
 
     public function getPrivileges(): PrivilegesModel
     {
@@ -171,7 +234,7 @@ class UserModel{
      */ 
     public function getPassword()
     {
-        return $this->password;
+        return Encryptor::decrypt($this->password);
     }
 
     /**
@@ -181,7 +244,7 @@ class UserModel{
      */ 
     public function setPassword($password)
     {
-        $this->password = $password;
+        $this->password = Encryptor::encrypt($password);
 
         return $this;
     }

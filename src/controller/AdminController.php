@@ -2,18 +2,26 @@
 
 namespace App\controller;
 
+use App\lib\Encryptor;
 use App\lib\Filter;
 use App\lib\Helper;
 use App\lib\Image;
+use App\lib\ReportMaker;
 use App\lib\Time;
 use App\model\AnnouncementModel;
 use App\model\enum\AnnouncementStatus;
 use App\model\enum\UserRole;
+use App\model\LogsModel;
 use App\model\PaymentModel;
+use App\model\PrivilegesModel;
+use App\model\TransactionModel;
+use App\model\UserModel;
+use DateTime;
+use Defuse\Crypto\Key;
 use Exception;
+use Respect\Validation\Validator as V;
 use Slim\Views\Twig;
 use TCPDF;
-use thiagoalessio\TesseractOCR\Tests\Common\SkipException;
 
 class AdminController extends Controller
 {
@@ -41,35 +49,15 @@ class AdminController extends Controller
         //Get Transaction
         $result = $this->transactionService->adminGetAll($page, $max, $id, $filter);
 
-        try {
+        $startOfPaymentYear = Time::getYearFromStringDate($this->getPaymentSettings()->getStart());
 
-            $paymentSettings = $this->getPaymentSettings();
+        $dues = $this->getDues($startOfPaymentYear);
 
-            if ($paymentSettings == null) {
-                throw new Exception("Payment Not Set");
-            }
-
-            $startOfPaymentDate = $paymentSettings->getStart();
-            $startOfPaymentYear = Time::getYearFromStringDate($startOfPaymentDate);
-            $dues = [];
-
-            $datesForMonths = Time::getDatesForMonthsOfYear($startOfPaymentYear);
-
-            foreach ($datesForMonths as $month => $dates) {
-                $dues[] = [
-                    "date" => $dates,
-                    "amount" => $this->duesService->getDue($dates),
-                    "savePoint" => $this->duesService->isSavePoint($dates)
-                ];
-            }
-
-        } catch (Exception $e) {
-            var_dump($e->getMessage());
-        }
-
+        $errorMessage = $this->flashMessages->getFirstMessage('errorMessage');
 
         $data = [
-            'paymentStart' => $startOfPaymentYear ?? null,
+            'paymentYear' => Time::getYearSpan($startOfPaymentYear),
+            'paymentStart' => $startOfPaymentYear,
             'dues' => $dues ?? null,
             'transactions' => $result->getItems(),
             'currentPage' => $page,
@@ -80,14 +68,12 @@ class AdminController extends Controller
             'settings' => $settings,
             'paginator' => $result,
             'loginUser' => $this->getLogin(),
+            "errorMessage" => $errorMessage,
         ];
 
         return $view->render($response, 'pages/admin-home.html', $data);
     }
 
-    /**
-     *   Get Transaction Base on id
-     */
     public function transaction($request, $response, $args)
     {
 
@@ -128,6 +114,16 @@ class AdminController extends Controller
         //save logs
         $this->logsService->log($transaction, $user, $message, 'REJECTED');
 
+        $action = "Payment with id of " . $transaction->getId() . " was rejected";
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction($action);
+        $actionLog->setTag("Payment");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(new DateTime());
+
+        $this->actionLogs->addLog($actionLog);
+
         return $response
             ->withHeader('Location', "/admin/transaction/$id")
             ->withStatus(302);
@@ -167,6 +163,16 @@ class AdminController extends Controller
         //save logs
         $this->logsService->log($transaction, $user, $message, 'APPROVED');
 
+        $action = "Payment with id of " . $transaction->getId() . " was approved";
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction($action);
+        $actionLog->setTag("Payment");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(new DateTime());
+
+        $this->actionLogs->addLog($actionLog);
+
         return $response
             ->withHeader('Location', "/admin/transaction/$id")
             ->withStatus(302);
@@ -201,6 +207,15 @@ class AdminController extends Controller
 
         $this->paymentService->save($settings);
 
+        $action = "Payment settings was update";
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction($action);
+        $actionLog->setTag("Payment Settings");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(new DateTime());
+        $this->actionLogs->addLog($actionLog);
+
         return $response
             ->withHeader('Location', "/admin/home")
             ->withStatus(302);
@@ -220,8 +235,14 @@ class AdminController extends Controller
         $post->setCreatedAt(Time::timestamp());
         $post->setUser($this->getLogin());
 
+        $action = "Announcement with id of " . $post->getId() . " was created";
+
         if (Helper::existAndNotNull($id)) {
             $post = $this->announcementService->findById($id);
+            $action = "Announcement with id of " . $post->getId() . " was edited";
+            $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . ' edited');
+        } else {
+            $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . ' Posted');
         }
 
         $post->setTitle($title);
@@ -230,10 +251,17 @@ class AdminController extends Controller
 
         try {
             $this->announcementService->save($post);
-            $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . 'Posted');
         } catch (\Throwable $th) {
             $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . 'Posting Error');
         }
+
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction($action);
+        $actionLog->setTag("Announcement");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(new DateTime());
+        $this->actionLogs->addLog($actionLog);
 
         return $response->withHeader('Location', "/admin/announcements")
             ->withStatus(302);
@@ -253,6 +281,15 @@ class AdminController extends Controller
 
         $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . ' deleted');
 
+        $action = "Announcement with id of " . $post->getId() . " was deleted";
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction($action);
+        $actionLog->setTag("Announcement");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(new DateTime());
+        $this->actionLogs->addLog($actionLog);
+
         $this->announcementService->delete($post);
 
         return $response
@@ -268,8 +305,6 @@ class AdminController extends Controller
         $id = $args['id'];
 
         $announcement = $this->announcementService->findById($id);
-
-        $this->flashMessages->addMessage('Test', 'This is a message');
 
         return $view->render($response, 'pages/admin-announcement.html', [
             'announcement' => $announcement,
@@ -292,6 +327,15 @@ class AdminController extends Controller
 
         $this->flashMessages->addMessage('Test', 'This is a message');
 
+        $action = "Announcement with id of " . $announcement->getId() . " status was set to posted";
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction($action);
+        $actionLog->setTag("Announcement");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(new DateTime());
+        $this->actionLogs->addLog($actionLog);
+
         return $response
             ->withHeader('Location', "/admin/announcements?status=ARCHIVED")
             ->withStatus(302);
@@ -312,10 +356,21 @@ class AdminController extends Controller
 
         $this->flashMessages->addMessage('Test', 'This is a message');
 
+        $action = "Announcement with id of " . $announcement->getId() . " status was set to archived";
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction($action);
+        $actionLog->setTag("Announcement");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(new DateTime());
+        $this->actionLogs->addLog($actionLog);
+
+
         return $response
             ->withHeader('Location', "/admin/announcements?status=POSTED")
             ->withStatus(302);
     }
+
 
     public function announcements($request, $response, $args)
     {
@@ -348,7 +403,6 @@ class AdminController extends Controller
             'currentPage' => $page,
             'from' => isset($queryParams['from']) ? $queryParams['from'] : null,
             'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
-            'status' => isset($queryParams['status']) ? $queryParams['status'] : null,
             'totalPages' => ceil(($result['totalAnnouncement']) / $max),
             'status' => $status,
             'loginUser' => $this->getLogin(),
@@ -403,6 +457,8 @@ class AdminController extends Controller
 
         $queryParams = $request->getQueryParams();
 
+        $errorMessage = $this->flashMessages->getFirstMessage('errorMessage');
+
         // if page is present then set value to page otherwise to 1
         $page = $queryParams['page'] ?? 1;
 
@@ -413,7 +469,7 @@ class AdminController extends Controller
 
         $filter = Filter::check($queryParams);
 
-        $query = empty($queryParams['query']) ? null : $queryParams['query'];
+        $query = empty($queryParams['query']) ? "" : $queryParams['query'];
 
         $pagination = $this->userSerivce->getAll($page, $max, $query, $filter, $role);
 
@@ -424,6 +480,8 @@ class AdminController extends Controller
             'paginator' => $pagination,
             'superAdmin' => $this->getLogin()->getRole() === "super",
             'loginUser' => $this->getLogin(),
+            'query' => $query,
+            "errorMessage" => $errorMessage,
         ]);
     }
 
@@ -439,7 +497,6 @@ class AdminController extends Controller
 
         //might throw and error
         $issue = $this->issuesService->findById($id);
-
 
         return $view->render($response, 'pages/admin-manage-issue.html', [
             'issue' => $issue,
@@ -505,10 +562,6 @@ class AdminController extends Controller
     {
 
         $user = $this->getLogin();
-        $name = $user->getName();
-        $email = $user->getEmail();
-        $block = $user->getBlock();
-        $lot = $user->getLot();
 
         $loginHistory = $this->loginHistoryService->getLogs($user);
         $currentSession = session_id();
@@ -518,241 +571,217 @@ class AdminController extends Controller
         return $view->render($response, 'pages/admin-account-settings.html', [
             "loginHistory" => $loginHistory,
             "sessionId" => $currentSession,
-            "name" => $name,
-            "email" => $email,
-            "block" => $block,
-            "lot" => $lot,
             'loginUser' => $this->getLogin(),
+            "user" => $user,
         ]);
     }
 
-    public function addAdmin($request, $response, $args)
+    public function managePrivileges($request, $response, $args)
     {
 
         $params = $request->getParsedBody();
 
-        $email = $params['email'];
+        try {
 
-        $user = $this->userSerivce->findByEmail($email);
+            if (!isset($params['email'])) {
+                throw  new Exception("Email is required");
+            }
 
-        $managePayments = $params['payment'] ?? null;
-        $manageIssues = $params['issue'] ?? null;
-        $manageAnnouncements = $params['announcement'] ?? null;
-        $manageUsers = $params['user'] ?? null;
+            $email = $params['email'];
 
-        $user->setRole(UserRole::admin());
-        $this->userSerivce->save($user);
+            if (!V::email()->validate($email)) {
+                throw new Exception('Invalid Email');
+            }
 
-        if (isset($managePayments)) {
-            $user->getPrivileges()->setAdminPayment(true);
+            $user = $this->userSerivce->findByEmail($email);
+
+            if ($user == null) {
+                throw  new Exception("User not Found!");
+            }
+
+            $admin = false;
+
+            $managePayments = $params['payment'] ?? null;
+            $manageIssues = $params['issue'] ?? null;
+            $manageAnnouncements = $params['announcement'] ?? null;
+            $manageUsers = $params['user'] ?? null;
+
+            $user->setRole(UserRole::admin());
+            $this->userSerivce->save($user);
+
+            if (isset($managePayments)) {
+                $user->getPrivileges()->setAdminPayment(true);
+                $admin = true;
+            } else {
+                $user->getPrivileges()->setAdminPayment(false);
+            }
+
+            if (isset($manageIssues)) {
+                $user->getPrivileges()->setAdminIssues(true);
+                $admin = true;
+
+            } else {
+                $user->getPrivileges()->setAdminIssues(false);
+            }
+
+            if (isset($manageAnnouncements)) {
+                $user->getPrivileges()->setAdminAnnouncement(true);
+                $admin = true;
+
+            } else {
+                $user->getPrivileges()->setAdminAnnouncement(false);
+
+            }
+
+            if (isset($manageUsers)) {
+                $user->getPrivileges()->setAdminUser(true);
+                $admin = true;
+
+            } else {
+                $user->getPrivileges()->setAdminUser(false);
+            }
+
+            if ($admin) {
+                $user->setRole(UserRole::admin());
+            } else {
+                $user->setRole(UserRole::user());
+            }
+
+            $this->userSerivce->save($user);
+
+            $action = "User with id of " . $user->getId() . " update privileges";
+
+            $actionLog = new LogsModel();
+            $actionLog->setAction($action);
+            $actionLog->setTag("Admin");
+            $actionLog->setUser($this->getLogin());
+            $actionLog->setCreatedAt(new DateTime());
+            $this->actionLogs->addLog($actionLog);
+
+            $this->priviligesService->save($user->getPrivileges());
+
+            return $response
+                ->withHeader('Location', "/admin/users")
+                ->withStatus(302);
+        } catch (Exception $e) {
+            $this->flashMessages->addMessage('errorMessage', $e->getMessage());
+
+            return $response
+                ->withHeader('Location', "/admin/users")
+                ->withStatus(302);
         }
 
-        if (isset($manageIssues)) {
-            $user->getPrivileges()->setAdminIssues(true);
-        }
-
-        if (isset($manageAnnouncements)) {
-            $user->getPrivileges()->setAdminAnnouncement(true);
-        }
-
-        if (isset($manageUsers)) {
-            $user->getPrivileges()->setAdminUser(true);
-        }
-
-        $this->priviligesService->save($user->getPrivileges());
-
-        return $response
-            ->withHeader('Location', "/admin/users")
-            ->withStatus(302);
     }
 
 
-    public function removeAdmin($request, $response, $args)
+    public function systemSettings($request, $response, $args)
     {
 
-        $params = $request->getParsedBody();
+        $systemSettings = $this->systemSettingService->findById();
 
-        $email = $params['email'];
+        $twig = Twig::fromRequest($request);
 
-        $user = $this->userSerivce->findByEmail($email);
+        $user = $this->getLogin();
 
-        $managePayments = $params['payment'] ?? null;
-        $manageIssues = $params['issue'] ?? null;
-        $manageAnnouncements = $params['announcement'] ?? null;
-        $manageUsers = $params['user'] ?? null;
+        $timezone = date_default_timezone_get();
 
-        if (!isset($managePayments)) {
-            $user->getPrivileges()->setAdminPayment(false);
-        }
+        return $twig->render($response, 'pages/admin-system-settings.html', [
+            'timezone' => $timezone,
+            "loginUser" => $user,
+            "systemSettings" => $systemSettings,
+        ]);
 
-        if (!isset($manageIssues)) {
-            $user->getPrivileges()->setAdminIssues(false);
-        }
+    }
 
-        if (!isset($manageAnnouncements)) {
-            $user->getPrivileges()->setAdminAnnouncement(false);
-        }
+    public function announcementPage($request, $response, $args)
+    {
 
-        if (!isset($manageUsers)) {
-            $user->getPrivileges()->setAdminUser(false);
-        }
+        $twig = Twig::fromRequest($request);
 
-        $userPrivilege = $user->getPrivileges();
+        $user = $this->getLogin();
 
-        $this->priviligesService->save($user->getPrivileges());
+        return $twig->render($response, 'pages/admin-announcement.html', [
+            "loginUser" => $user
+        ]);
 
-        return $response
-            ->withHeader('Location', "/admin/users")
-            ->withStatus(302);
     }
 
     public function logs($request, $response, $args)
     {
         $twig = Twig::fromRequest($request);
 
-        return $twig->render($response, 'pages/admin-all-logs.html', [
-            "loginUser" => $this->getLogin()
-        ]);
+        $queryParams = $request->getQueryParams();
+
+        // if page is present then set value to page otherwise to 1
+        $page = $queryParams['page'] ?? 1;
+
+        $filter['from'] = empty($queryParams['from']) ? null : (new DateTime($queryParams['from']))->format('Y-m-d H:i:s');
+        $filter['to'] = empty($queryParams['to']) ? null : (new DateTime($queryParams['to']))->format('Y-m-d H:i:s');
+        $filter['tag'] = null;
+
+
+        $user = null;
+
+        if (isset($queryParams['email'])) {
+            $user = $this->userSerivce->findByEmail($queryParams['email']);
+        }
+
+        // max transaction per page
+        $max = 10;
+
+//        Get Transaction
+        $result = $this->actionLogs->getAll($page, $max, $filter, $user);
+
+        $data = [
+            'logs' => $result->getItems(),
+            'currentPage' => $page,
+            'from' => $queryParams['from'] ?? null,
+            'to' => $queryParams['to'] ?? null,
+            'user' => $user,
+            'status' => $queryParams['status'] ?? null,
+            'paginator' => $result,
+            'loginUser' => $this->getLogin(),
+        ];
+
+        return $twig->render($response, 'pages/admin-all-logs.html', $data);
     }
 
     public function test($request, $response, $args)
     {
-        $twig = Twig::fromRequest($request);
+        $user = new UserModel();
+        $user->setPassword('admin');
 
-        $total = $this->transactionService->getTotal("APPROVED", "2023-01-01", "2023-01-31");
-        var_dump($total);
+        var_dump($user->getPassword());
     }
 
-    public function report($request, $response, $args)
+
+    public function updateSystemSettings($request, $response, $args)
     {
 
-        $params = $request->getParsedBody();
-        $fromMonth = $params['from'];
-        $toMonth =  $params['to'];
+        $content = $request->getParsedBody();
 
-        $status = $params['reportStatus'];
+        $systemSettings = $this->systemSettingService->findById();
 
-        $fromMonth = Time::setToFirstDayOfMonth($fromMonth);
-        $toMonth =  Time::setToLastDayOfMonth($toMonth);
+        $systemSettings->setTermsAndCondition($content['termsAndCondition']);
+        $systemSettings->setMailHost($content['mailHost']);
+        $systemSettings->setMailUsername($content['mailUsername']);
 
-        var_dump($status);
-
-        // Create a new TCPDF instance
-        $pdf = new TCPDF('L', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        // Do not print the header line
-        $pdf->SetPrintHeader(false);
-
-        // Add a page
-        $pdf->AddPage();
-
-        // Set font for title and headings
-        $pdf->SetFont('helvetica', 'B', 24);
-        $pdf->SetTextColor(0, 51, 102); // Dark blue color
-        $pdf->Image('./resources/logo.jpeg', 10, 10, 30);
-        $pdf->Cell(0, 20, 'Carissa Homes Subdivision Phase 7', 0, 1, 'C');
-
-        // Set font for report details
-        $pdf->SetFont('helvetica', 'B', 14);
-        $pdf->SetTextColor(0); // Reset text color to black
-
-        // Display coverage date
-        $dateCoverage = 'Coverage Period: '. Time::toStringMonthYear($fromMonth)." - ".Time::toStringMonthYear($toMonth);
-
-        $pdf->Cell(0, 10, $dateCoverage, 0, 1, 'C');
-
-        // Display report generation date
-        $generationDate = 'Report Generated On: ' . date('F j, Y, g:i a'); // Current date and time
-        $pdf->Cell(0, 10, $generationDate, 0, 1, 'C');
-
-        // Display administrator information
-        $generatedBy = 'Generated by: '.$this->getLogin()->getName();
-        $pdf->Cell(0, 10, $generatedBy, 0, 1, 'C');
-
-        $pdf->Ln(10); // Add some vertical space
-
-        $totalCollection = $this->transactionService->getTotal("APPROVED", $fromMonth, $toMonth);
-        $results = $this->transactionService->getApprovedPayments($fromMonth, $toMonth,$status);
-
-        $content = [
-            array("Transaction No.", "Name", "Unit", "Amount", "Approved By", "Receipt Ref.", "Payment Coverage", "Payment Date"),
-        ];
-
-        foreach ($results as $result){
-
-            $receipts = $result->getReceipts();
-
-            $references = "";
-
-            $fromMonthCoverage = Time::toStringMonthYear($result->getFromMonth());
-            $toMonthCoverage = Time::toStringMonthYear($result->getToMonth());
-
-            $paymentCoverage = $fromMonthCoverage . " - " . $toMonthCoverage;
-
-            foreach ($receipts as $receipt){
-                    $references = $references . $receipt->getReferenceNumber()  . "\n";
-            }
-
-            $content[] = [
-                    $result->getId(),
-                    $result->getUser()->getName(),
-                    "B".$result->getUser()->getBlock() . " L" . $result->getUser()->getLot(),
-                    $result->getAmount(),
-                    $result->getLogs()[0]->getUpdatedBy()->getName(),
-                   $references,
-                   $paymentCoverage,
-                Time::convertDateTimeToDateString($result->getCreatedAt())
-
-            ];
+//        only update password if not empty
+        if (!empty($content['mailPassword'])) {
+            $systemSettings->setMailPassword($content['mailPassword']);
         }
 
-        $report_data = array(
-            "Financial Overview" => array(
-                "Total Collected Dues: $totalCollection",
-            ),
-            "Approved Transaction Breakdown" => $content
-        );
-
-        foreach ($report_data as $section_title => $section_content) {
-            $pdf->SetFont('helvetica', 'B', 16);
-            $pdf->SetFillColor(230, 230, 230); // Light gray background for section title
-            $pdf->Cell(0, 10, $section_title, 1, 1, 'L', 1, '', true);
-
-            if ($section_title === "Approved Transaction Breakdown") {
-                $pdf->SetFont('helvetica', '', 12);
-                $colWidths = array(37, 40, 25, 25, 40, 30, 40, 40); // Adjusted column widths
-                // Add header row
-                for ($i = 0; $i < count($section_content[0]); $i++) {
-                    $pdf->Cell($colWidths[$i], 10, $section_content[0][$i], 1, 0, 'C', 1);
-                }
-                $pdf->Ln(); // Move to the next row
-
-                // Add data rows
-                for ($rowIdx = 1; $rowIdx < count($section_content); $rowIdx++) {
-                    for ($colIdx = 0; $colIdx < count($section_content[$rowIdx]); $colIdx++) {
-                        $pdf->Cell($colWidths[$colIdx], 10, $section_content[$rowIdx][$colIdx], 1, 0, 'C');
-                    }
-                    $pdf->Ln(); // Move to the next row
-                }
-
-            } else {
-                foreach ($section_content as $line) {
-                    $pdf->SetFont('helvetica', '', 12);
-                    $pdf->MultiCell(0, 10, $line, 0, 'L');
-                }
-            }
-
-            // Add some space between sections
-            $pdf->Ln(10);
+        if(isset($content['allowSignup'])){
+            $systemSettings->setAllowSignup(true);
+        }else{
+            $systemSettings->setAllowSignup(false);
         }
 
-
-        $pdfContent = $pdf->Output('', 'S');
-
-        $response->getBody()->write($pdf->Output('', 'S'));
+        $this->systemSettingService->save($systemSettings);
 
         return $response
-            ->withHeader('Content-Type', 'application/pdf')
-            ->withHeader('Content-Disposition', 'inline; filename="filename.pdf"');
-
+            ->withHeader('Location', "/admin/system")
+            ->withStatus(302);
     }
+
 }

@@ -4,24 +4,31 @@ namespace App\controller;
 
 use App\lib\Helper;
 use App\lib\Login;
-use App\model\AnnouncementModel;
+use App\lib\Time;
+use App\model\LogsModel;
 use App\model\PaymentModel;
+use App\model\UserLogsModel;
 use App\model\UserModel;
 use App\service\AnnouncementService;
+use App\service\CodeModelService;
 use App\service\DuesService;
 use App\service\IssuesService;
 use App\service\LoginHistoryService;
+use App\service\LogsService;
 use App\service\PaymentService;
 use App\service\PriviligesService;
 use App\service\ReceiptService;
-use App\service\Service;
+use App\service\SystemSettingService;
 use App\service\TransactionLogsService;
-use App\service\UserService;
 use App\service\TransactionService;
+use App\service\UserLogsService;
+use App\service\UserService;
+use DateTime;
 use Slim\Flash\Messages;
 use UMA\DIC\Container;
 
-class Controller {
+class Controller
+{
 
     protected UserService $userSerivce;
     protected TransactionService $transactionService;
@@ -36,7 +43,17 @@ class Controller {
     protected LoginHistoryService $loginHistoryService;
     protected PriviligesService $priviligesService;
 
-    public function __construct(Container  $container) {
+    protected CodeModelService $codeModelService;
+
+    protected UserLogsService $userLogsService;
+
+    protected SystemSettingService $systemSettingService;
+
+
+    protected LogsService $actionLogs;
+
+    public function __construct(Container $container)
+    {
         //get the userService from dependency container
         $this->userSerivce = $container->get(UserService::class);
         $this->transactionService = $container->get(TransactionService::class);
@@ -49,14 +66,20 @@ class Controller {
         $this->flashMessages = $container->get(Messages::class);
         $this->loginHistoryService = $container->get(LoginHistoryService::class);
         $this->priviligesService = $container->get(PriviligesService::class);
+        $this->actionLogs = $container->get(LogsService::class);
+        $this->codeModelService = $container->get(CodeModelService::class);
+        $this->userLogsService = $container->get(UserLogsService::class);
+        $this->systemSettingService = $container->get(SystemSettingService::class);
     }
 
-    protected function getLogin():UserModel{
+    protected function getLogin(): UserModel
+    {
         return $this->userSerivce->findById(Login::getLogin());
     }
 
     //return default payment settings
-    protected function getPaymentSettings():PaymentModel|null{
+    protected function getPaymentSettings(): PaymentModel|null
+    {
         $id = 1;
         return $this->paymentService->findById($id);
     }
@@ -66,9 +89,10 @@ class Controller {
      * Wrapper function to get unpaid due for the month.
      * user to find balance. (Default: login user).
      */
-    protected function getBalance($month,$user = null){
+    protected function getBalance($month, $user = null)
+    {
         // if user null then set to login user otherwise passed user
-        $user = Helper::getValue($user,$this->getLogin());
+        $user = Helper::getValue($user, $this->getLogin());
 
         // dues service
         $dues = $this->duesService;
@@ -76,15 +100,16 @@ class Controller {
         //return the balance of the user for the month
         return $this->transactionService->getBalance($user, $month, $dues);
     }
-    
-     /**
+
+    /**
      * Wrapper function to get total dues of user for the unpaid months
      * @return float total dues
      */
-    protected function getTotalDues($user = null){
+    protected function getTotalDues($user = null)
+    {
 
         // if user null then set to login user otherwise passed user
-        $user = Helper::getValue($user,$this->getLogin());
+        $user = Helper::getValue($user, $this->getLogin());
 
         // dues service
         $dues = $this->duesService;
@@ -92,15 +117,61 @@ class Controller {
         $paymentSettings = $this->getPaymentSettings();
 
         //return the balance of the user for the month
-        return $this->transactionService->getUnpaid($user,$dues,$paymentSettings)['total'];
+        return $this->transactionService->getUnpaid($user, $dues, $paymentSettings)['total'];
     }
 
     /**
      * Add Message to the flashMessages.
      * Note: this doest show flashmessage on the view.
      */
-    protected function flashMessage(string $key, string $message): void{
-        $this->flashMessages->addMessage($key,$message);
+    protected function flashMessage(string $key, string $message): void
+    {
+        $this->flashMessages->addMessage($key, $message);
     }
 
+
+    protected function getDues($startOfPaymentYear): array
+    {
+        try {
+
+            $dues = [];
+
+            $datesForMonths = Time::getDatesForMonthsOfYear($startOfPaymentYear);
+
+            foreach ($datesForMonths as $month => $dates) {
+                $dues[] = [
+                    "date" => $dates,
+                    "amount" => $this->duesService->getDue($dates),
+                    "savePoint" => $this->duesService->isSavePoint($dates),
+                    "month" => $dates->format('M'),
+                ];
+            }
+
+            return $dues;
+
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
+    public function saveUserLog($action, $user)
+    {
+        $userLog = new UserLogsModel();
+
+        $userLog->setUser($user);
+        $userLog->setAction($action);
+        $userLog->setCreatedAt(new \DateTime());
+
+        $this->userLogsService->addLog($userLog);
+    }
+
+    public function addActionLog($action){
+
+        $actionLog = new LogsModel();
+        $actionLog->setAction($action);
+        $actionLog->setTag("Admin");
+        $actionLog->setUser($this->getLogin());
+        $actionLog->setCreatedAt(new DateTime());
+        $this->actionLogs->addLog($actionLog);
+    }
 }

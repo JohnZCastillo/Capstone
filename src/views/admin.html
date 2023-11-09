@@ -61,15 +61,16 @@
                 </li>
                 {% endif %}
 
-                {% if loginUser.getPrivileges().getAdminIssues() %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/admin/issues">Issues</a>
-                </li>
-                {% endif %}
 
                 {% if loginUser.getPrivileges().getAdminAnnouncement() %}
                 <li class="nav-item">
                     <a class="nav-link" href="/admin/announcements">Announcement</a>
+                </li>
+                {% endif %}
+
+                {% if loginUser.getPrivileges().getAdminIssues() %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/issues">Issues</a>
                 </li>
                 {% endif %}
 
@@ -85,12 +86,15 @@
                 </li>
                 {% endif %}
 
+                {% if loginUser.getRole() == "super" %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/system">System Settings</a>
+                </li>
+                {% endif %}
+
                 <li class="nav-item">
                     <a class="nav-link" href="/admin/account">Account</a>
                 </li>
-<!--                <li class="nav-item">-->
-<!--                    <a class="nav-link" href="/admin/system">System Settings</a>-->
-<!--                </li>-->
             </ul>
         </div>
     </nav>
@@ -101,5 +105,8 @@
     <!-- This block will be replaced by the content from the child template -->
     {% endblock %}
 </main>
+
+{% include './partials/error-modal.html' %}
+
 </body>
 </html>

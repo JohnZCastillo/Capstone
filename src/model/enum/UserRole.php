@@ -1,9 +1,11 @@
 <?php
 namespace App\model\enum;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 class UserRole extends Enum
 {
-    protected $name = 'role';
+    protected $name = UserRole::class;
     protected $values = array('admin', 'user', 'super');
 
     static function admin(){
@@ -17,4 +19,6 @@ class UserRole extends Enum
     static function superAdmin(){
         return 'super';
     }
+
+
 }
