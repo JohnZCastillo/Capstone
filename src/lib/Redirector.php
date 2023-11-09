@@ -25,6 +25,6 @@ class Redirector
             return  "/admin/users";
         }
 
-        return "/";
+        return "/home";
     }
 }

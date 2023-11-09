@@ -31,8 +31,7 @@ class BypassHomepage
             return $handler->handle($request);
         } else {
             $loginId = Login::getLogin();
-
-            $userService = $this->get(UserService::class);
+            $userService = $this->container->get(UserService::class);
             $this->user = $userService->findById($loginId);
             $location = Redirector::redirectToHome($this->user->getPrivileges());
             $response = new Response();
