@@ -82,7 +82,7 @@ $app->group('', function ($app)  use ($twig) {
     $app->group('', function ($app) {
 
         $app->get('/home', [UserController::class, 'home']);
-        $app->get('/receipt/{id}', [UserController::class, 'receipt']);
+        $app->get('/receipt/{id}', [PaymentController::class, 'getReceipt']);
         $app->get('/dues', [UserController::class, 'dues']);
         $app->get('/issues', [UserController::class, 'issues']);
         $app->post('/issue', [UserController::class, 'issue']);

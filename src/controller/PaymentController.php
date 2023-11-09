@@ -128,7 +128,18 @@ class PaymentController extends Controller
         return $transaction;
     }
 
-    /**
+
+    public function getReceipt($request, $response, $args)
+    {
+
+        $transactionId = $args['id'];
+        $transaction = $this->transactionService->findById($transactionId);
+
+        $this->generateTransactionReceipt($transaction);
+
+    }
+
+        /**
      * @throws UnsupportedImageException
      * @throws ImageNotGcashReceiptException
      * @throws NotUniqueReferenceException
@@ -188,12 +199,15 @@ class PaymentController extends Controller
 
         $transactionNumber = $transaction->getId();
         $homeownerName = $transaction->getUser()->getName();
+        $property = "B". $transaction->getUser()->getBlock(). " L". $transaction->getUser()->getLot() ;
+
         $amount = $transaction->getAmount();
         $paymentDate = Time::convertDateTimeToDateString($transaction->getCreatedAt());
         $coverage = $transaction->getFromMonth() . ' - ' . $transaction->getToMonth();
 
         $pdf->Cell(0, 10, 'Transaction Number: ' . $transactionNumber, 0, 1);
         $pdf->Cell(0, 10, 'Homeowner: ' . $homeownerName, 0, 1);
+        $pdf->Cell(0, 10, 'Property: ' . $property, 0, 1);
         $pdf->Cell(0, 10, 'Amount: ' . $amount, 0, 1);
         $pdf->Cell(0, 10, 'Payment Date: ' . $paymentDate, 0, 1);
         $pdf->Cell(0, 10, 'Coverage: ' . $coverage, 0, 1);
