@@ -2,6 +2,7 @@
 
 namespace App\controller;
 
+use App\lib\Encryptor;
 use App\lib\Filter;
 use App\lib\Helper;
 use App\lib\Image;
@@ -892,7 +893,10 @@ class AdminController extends Controller
 
     public function test($request, $response, $args)
     {
-        var_dump(Key::createNewRandomKey()->saveToAsciiSafeString());
+        $user = new UserModel();
+        $user->setPassword('admin');
+
+        var_dump($user->getPassword());
     }
 
     public function report($request, $response, $args)

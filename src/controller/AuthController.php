@@ -59,10 +59,12 @@ class AuthController extends Controller
 
 
             if (!Login::isLogin()) {
-                $email = $request->getParsedBody()['email'];
-                $password = $request->getParsedBody()['password'];
 
-                $user = $this->userSerivce->getUser($email, $password);
+                $user = new UserModel();
+                $user->setEmail( $request->getParsedBody()['email']);
+                $user->setPassword( $request->getParsedBody()['password']);
+
+                $user = $this->userSerivce->getUser($user->getEmail(),$user->getPassword());
 
                 if ($user == null) {
                     throw new Exception("Incorrect Email or Password");

@@ -2,6 +2,7 @@
 
 namespace App\model;
 
+use App\lib\Encryptor;
 use App\model\enum\UserRole;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -233,7 +234,7 @@ class UserModel{
      */ 
     public function getPassword()
     {
-        return $this->password;
+        return Encryptor::decrypt($this->password);
     }
 
     /**
@@ -243,7 +244,7 @@ class UserModel{
      */ 
     public function setPassword($password)
     {
-        $this->password = $password;
+        $this->password = Encryptor::encrypt($password);
 
         return $this;
     }

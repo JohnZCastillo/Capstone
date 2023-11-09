@@ -65,11 +65,20 @@ class UserService extends Service {
             ->select('u')
             ->from(UserModel::class, 'u')
             ->where('u.email = :email')
-            ->andWhere('u.password = :password')
-            ->setParameter('email', $email)
-            ->setParameter('password', $password);
+            ->setParameter('email', $email);
 
-        return $queryBuilder->getQuery()->getOneOrNullResult();
+        $user =  $queryBuilder->getQuery()->getOneOrNullResult();
+
+
+        if(!isset($user)){
+            return null;
+        }
+
+        if($user->getPassword() !== $password){
+            return null;
+        }
+
+        return $user;
     }
 
     public function getAll($page, $max, $id, $filter, $role = null, $type = '',)
