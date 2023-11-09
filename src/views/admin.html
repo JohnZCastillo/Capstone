@@ -84,6 +84,8 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/admin/logs">Logs</a>
                 </li>
+                {% endif %}
+
                 {% if loginUser.getRole() == "super" %}
                 <li class="nav-item">
                     <a class="nav-link" href="/admin/system">System Settings</a>

@@ -153,6 +153,7 @@ $app->group('', function ($app)  use ($twig) {
         $app->post('/manage-privileges', [AdminController::class, 'managePrivileges']);
         $app->get('/logs', [AdminController::class, 'logs']);
         $app->get('/system',[AdminController::class, 'systemSettings']);
+        $app->post('/system',[AdminController::class, 'updateSystemSettings']);
     })->add(\App\middleware\SuperAdminAuth::class)->add(Auth::class);
 
     $app->post('/upload', [ApiController::class, 'upload']);

@@ -38,7 +38,7 @@ class UserModel{
     private string $isBlocked;
 
     #[ORM\Column(type: 'boolean', options: ["default"=> true])]
-    private string $sharedPayments;
+    private bool $sharedPayments;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: TransactionModel::class)]
     private Collection|array $transactions;
@@ -79,8 +79,8 @@ class UserModel{
         $this->logs = new ArrayCollection();
         $this->posts = new ArrayCollection();
         $this->transactions = new ArrayCollection();
+        $this->sharedPayments = true;
     }
-
 
     public function getMyLogs(): Collection|array
     {

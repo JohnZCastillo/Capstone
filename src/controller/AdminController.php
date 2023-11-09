@@ -820,6 +820,8 @@ class AdminController extends Controller
     public function systemSettings($request, $response, $args)
     {
 
+        $systemSettings = $this->systemSettingService->findById();
+
         $twig = Twig::fromRequest($request);
 
         $user = $this->getLogin();
@@ -828,7 +830,8 @@ class AdminController extends Controller
 
         return $twig->render($response, 'pages/admin-system-settings.html', [
             'timezone' => $timezone,
-            "loginUser" => $user
+            "loginUser" => $user,
+            "systemSettings" => $systemSettings,
         ]);
 
     }
@@ -1100,6 +1103,30 @@ class AdminController extends Controller
             ->withHeader('Content-Type', 'application/pdf')
             ->withHeader('Content-Disposition', 'inline; filename="filename.pdf"');
 
+    }
+
+    public function updateSystemSettings($request, $response, $args)
+    {
+
+        $content = $request->getParsedBody();
+
+        $systemSettings = $this->systemSettingService->findById();
+
+        $systemSettings->setAllowSignup($content['allowSignup']);
+        $systemSettings->setTermsAndCondition($content['termsAndCondition']);
+        $systemSettings->setMailHost($content['mailHost']);
+        $systemSettings->setMailUsername($content['mailUsername']);
+
+//        only update password if not empty
+        if (!empty($content['mailPassword'])) {
+            $systemSettings->setMailPassword($content['mailPassword']);
+        }
+
+        $this->systemSettingService->save($systemSettings);
+
+        return $response
+            ->withHeader('Location', "/admin/system")
+            ->withStatus(302);
     }
 
 }

@@ -18,6 +18,7 @@ use App\service\LogsService;
 use App\service\PaymentService;
 use App\service\PriviligesService;
 use App\service\ReceiptService;
+use App\service\SystemSettingService;
 use App\service\TransactionLogsService;
 use App\service\TransactionService;
 use App\service\UserLogsService;
@@ -46,6 +47,8 @@ class Controller
 
     protected UserLogsService $userLogsService;
 
+    protected SystemSettingService $systemSettingService;
+
 
     protected LogsService $actionLogs;
 
@@ -66,6 +69,7 @@ class Controller
         $this->actionLogs = $container->get(LogsService::class);
         $this->codeModelService = $container->get(CodeModelService::class);
         $this->userLogsService = $container->get(UserLogsService::class);
+        $this->systemSettingService = $container->get(SystemSettingService::class);
     }
 
     protected function getLogin(): UserModel

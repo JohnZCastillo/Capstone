@@ -4,12 +4,12 @@ namespace App\controller;
 
 use App\lib\Login;
 use App\lib\LoginDetails;
+use App\Lib\Mail;
 use App\lib\Randomizer;
 use App\lib\Time;
 use App\model\enum\UserRole;
 use App\model\LoginHistoryModel;
 use App\model\PrivilegesModel;
-use App\model\UserLogsModel;
 use App\model\UserModel;
 use Exception;
 use Respect\Validation\Validator as V;
@@ -240,6 +240,7 @@ class AuthController extends Controller
             }
 
             $data['content'] = $content;
+            $data['error'] =  $e->getMessage();
 
             $response->withStatus(500);
             return $view->render($response, 'pages/register.html', $data);
@@ -268,16 +269,37 @@ class AuthController extends Controller
 
             $user = $this->userSerivce->findByEmail($content['email']);
 
-            if($user == null){
+            if ($user == null) {
                 throw new Exception("User not Found");
             }
 
             $user->setPassword(Randomizer::generateRandomPassword());
             $this->userSerivce->save($user);
 
+            $userName = $user->getName();
+            $settings = $this->systemSettingService->findById();
+            $tempPass = $user->getPassword();
 
-           $this->saveUserLog("Password was changed using forgot password",$user);
+            $emailBody = "
+            Hello $userName,
+            
+            We have received a request to reset your password. Your temporary password : $tempPass.
+            
+            If you did not request a password reset, please secure your account.";
 
+            $mailContent = [
+                "senderEmail" => $settings->getMailUsername(),
+                "senderName" => "Carrisa Homes Portal",
+                "recieverEmail" => $user->getEmail(),
+                "recieverName" => $user->getName(),
+                "emailBody" => $emailBody,
+                "emailSubject" => "Reset Password"
+            ];
+
+            Mail::setConfig($settings);
+            $sent = Mail::send($mailContent);
+
+            $this->saveUserLog("Password was changed using forgot password", $user);
 
             $payload = json_encode([
                 'message' => "A Temporary Password Was Sent To your Email",
@@ -315,12 +337,41 @@ class AuthController extends Controller
             }
 
             session_regenerate_id();
-            $this->codeModelService->createCode(Time::createFutureTime(5));
+
+            $codeModel = $this->codeModelService->createCode(Time::createFutureTime(5));
+
+            $settings = $this->systemSettingService->findById();
+
+            $userName = $user->getName();
+            $code = $codeModel->getCode();
+
+            $emailBody = "
+            Hello $userName,
+            
+            We have received a request to reset your password. Your verification code is: $code.
+            
+            If you did not request a password reset, please disregard this message.";
+
+            $mailContent = [
+                "senderEmail" => $settings->getMailUsername(),
+                "senderName" => "Carrisa Homes Portal",
+                "recieverEmail" => $user->getEmail(),
+                "recieverName" => $user->getName(),
+                "emailBody" => $emailBody,
+                "emailSubject" => "Reset Password"
+            ];
+
+            Mail::setConfig($settings);
+            $sent = Mail::send($mailContent);
+
+
+            if(!$sent){
+                throw new Exception("Code was not sent");
+            }
 
             $payload = json_encode([
                 'message' => "Code Sent",
             ]);
-
 
             $response->getBody()->write($payload);
             return $response->withHeader('Content-Type', 'application/json');

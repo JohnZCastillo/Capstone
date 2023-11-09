@@ -18,6 +18,7 @@ use App\service\PaymentService;
 use App\service\PriviligesService;
 use App\service\ReceiptService;
 use App\service\Service;
+use App\service\SystemSettingService;
 use App\service\TransactionLogsService;
 use App\service\TransactionService;
 use App\service\UserService;
@@ -62,6 +63,11 @@ $container->set(UserService::class, static function (Container $c) {
 $container->set(PriviligesService::class, static function (Container $c) {
     return new PriviligesService($c->get(EntityManager::class));
 });
+
+$container->set(SystemSettingService::class, static function (Container $c) {
+    return new SystemSettingService($c->get(EntityManager::class));
+});
+
 
 $container->set(DuesService::class, static function (Container $c) {
     return new DuesService($c->get(EntityManager::class));
