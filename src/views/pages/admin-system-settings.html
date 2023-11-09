@@ -1,22 +1,11 @@
 {% extends "./admin.html" %} {% block body %}
-<div class="container-fluid mt-2">
+<div class="container-fluid mt-2 py-2">
     <h1 class="display-6">System Settings</h1>
     <form method="POST" action="/admin/system">
 
-        <div class="form-group">
-
-            {% set checked = systemSettings.allowSignup ? "checked" : "" %}
-
-            <div class="form-check">
-                <input class="form-check-input" name="allowSignup" type="checkbox" value="true" id="signup" {{checked}}>
-                <label class="form-check-label" for="signup">
-                    Enable User Signup
-                </label>
-            </div>
-
-        </div>
         <div class="form-group row">
             <p class="m-0">Email Settings</p>
+            <p class="m-0 text-secondary small">Configure your email settings by specifying the host, email address, and password associated with your email service.</p>
             <div class="col">
                 <label>Host</label>
                 <input class="form-control"  name="mailHost" type="text" value="{{systemSettings.mailHost}}">
@@ -30,7 +19,23 @@
                 <input class="form-control"  name="mailPassword" type="password" >
             </div>
         </div>
+
+        <hr>
+
         <div class="form-group">
+
+            {% set checked = systemSettings.allowSignup ? "checked" : "" %}
+            <p class="m-0">Sign Up Settings</p>
+            <small class="text-secondary">By selecting this option, you authorize the registration of new users.</small>
+            <div class="form-check mb-2">
+                <input class="form-check-input" name="allowSignup" type="checkbox" value="true" id="signup" {{checked}}>
+                <label class="form-check-label" for="signup">
+                    Enable User Signup
+                </label>
+            </div>
+
+            <small class="text-secondary">Define the terms and conditions that users must agree to for registration.</small>
+            <br>
             <label for="termsAndCondition">Terms And Condition</label>
             <textarea name="termsAndCondition" class="form-control" id="termsAndCondition" rows="12">{{systemSettings.termsAndCondition}}</textarea>
         </div>
