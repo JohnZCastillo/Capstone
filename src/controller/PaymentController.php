@@ -237,22 +237,12 @@ class PaymentController extends Controller
 
         $this->logsService->log($transaction, $admin, $message, 'APPROVED');
 
-    }
+        $message = 'Transaction with id of '.$transaction->getId()." was approved";
 
-    private function rejectTransaction(TransactionModel $transaction): void
-    {
-
-        $message = "Payment was rejected";
-
-        $admin = $this->getLogin();
-
-        $transaction->setStatus('REJECTED');
-
-        $this->transactionService->save($transaction);
-
-        $this->logsService->log($transaction, $admin, $message, 'REJECTED');
+        $this->addActionLog($message);
 
     }
+
 
     private function isPaymentLacking(UserModel $user,float $paidAmount, string $fromMonth, string $toMonth): bool
     {
