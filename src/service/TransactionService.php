@@ -245,9 +245,9 @@ class TransactionService extends Service
         $query = $qb->getQuery();
         $count = $query->getSingleScalarResult();
 
-        // Returns t// Returns true if the user has paid for the specified month, false otherwise
         return ($count > 0);
     }
+
 
     public function getTotal(string $status, string $fromMonth, string $toMonth): float
     {

@@ -168,6 +168,12 @@ class Time
     }
 
 
+    static  function convertStringDateMonthToStringDateTime(string $month):String{
+        $date = DateTime::createFromFormat('Y-m', $month);
+        $date->modify('first day of this month');
+        return $date->format('Y-m-d');
+    }
+
     /**
      * Convert Date '2023-12-15' to String date
      * @param string $stringDate

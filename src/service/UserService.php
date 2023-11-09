@@ -3,32 +3,32 @@
 namespace App\service;
 
 use App\lib\Paginator;
-use App\lib\QueryHelper;
-use App\lib\Time;
 use App\model\enum\UserRole;
-use App\model\IssuesModel;
 use App\model\UserModel;
-use Doctrine\ORM\EntityManager;
 
-class UserService extends Service {
+class UserService extends Service
+{
 
     /**
      * Save model to database
      * @param UserModel user model
      * @return void
      */
-    public function save(UserModel $user) {
+    public function save(UserModel $user)
+    {
         $this->entityManager->persist($user);
         $this->entityManager->flush($user);
     }
 
-    public function findById($id): UserModel {
+    public function findById($id): UserModel
+    {
         $em = $this->entityManager;
         $user = $em->find(UserModel::class, $id);
         return $user;
     }
 
-    public function findUsers($block = null, $lot = null): array {
+    public function findUsers($block = null, $lot = null): array
+    {
 
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $queryBuilder
@@ -39,26 +39,57 @@ class UserService extends Service {
             ->setParameter('name', 'manual payment')
             ->setParameter('role', UserRole::user());
 
-        if(isset($block)){
-           $queryBuilder =  $queryBuilder->andWhere('u.block = :block')
-               ->setParameter("block",$block);
+        if (isset($block)) {
+            $queryBuilder = $queryBuilder->andWhere('u.block = :block')
+                ->setParameter("block", $block);
         }
 
-        if(isset($lot)){
-            $queryBuilder =  $queryBuilder->andWhere('u.lot = :lot')
-                ->setParameter("lot",$lot);
+        if (isset($lot)) {
+            $queryBuilder = $queryBuilder->andWhere('u.lot = :lot')
+                ->setParameter("lot", $lot);
         }
 
         return $queryBuilder->getQuery()->getResult();
     }
 
-    public function findByEmail($email): UserModel|null {
+    public function findByEmail($email): UserModel|null
+    {
         $em = $this->entityManager;
         return $em->getRepository(UserModel::class)
-            ->findOneBy(['email'=>$email]);
+            ->findOneBy(['email' => $email]);
     }
 
-    public function getUser($email, $password) {
+    public function findManualPayment(string $block, string $lot): UserModel|null
+    {
+
+        $email = $block . $lot . "@manual.payment";
+
+        $em = $this->entityManager;
+
+        $user = $em->getRepository(UserModel::class)
+            ->findOneBy(['email' => $email]);
+
+        if (!isset($user)) {
+
+            $user = new UserModel();
+
+            $user->setName("manual payment")
+                ->setBlock($block)
+                ->setLot($lot)
+                ->setRole(UserRole::user())
+                ->setPassword("")
+                ->setEmail($email)
+                ->setIsBlocked(false);
+
+            $this->save($user);
+        }
+
+        return $user;
+    }
+
+
+    public function getUser($email, $password)
+    {
 
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $queryBuilder
@@ -67,14 +98,14 @@ class UserService extends Service {
             ->where('u.email = :email')
             ->setParameter('email', $email);
 
-        $user =  $queryBuilder->getQuery()->getOneOrNullResult();
+        $user = $queryBuilder->getQuery()->getOneOrNullResult();
 
 
-        if(!isset($user)){
+        if (!isset($user)) {
             return null;
         }
 
-        if($user->getPassword() !== $password){
+        if ($user->getPassword() !== $password) {
             return null;
         }
 

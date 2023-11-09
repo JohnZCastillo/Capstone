@@ -5,6 +5,7 @@ session_start();
 use App\controller\AdminController;
 use App\controller\ApiController;
 use App\controller\AuthController;
+use App\controller\PaymentController;
 use App\controller\ReportController;
 use App\controller\UserController;
 use App\lib\Login;
@@ -89,7 +90,7 @@ $app->group('', function ($app)  use ($twig) {
         $app->get('/issue/unarchive/{id}', [UserController::class, 'unArchiveIssue']);
 
         $app->get('/transaction/{id}', [UserController::class, 'transaction']);
-        $app->post('/pay', [UserController::class, 'pay']);
+        $app->post('/pay', [PaymentController::class, 'userPay']);
         $app->get('/announcements', [UserController::class, 'announcements']);
 
         $app->get('/account', [UserController::class, 'accountSettings']);
@@ -122,7 +123,7 @@ $app->group('', function ($app)  use ($twig) {
         $app->post('/payment-settings', [AdminController::class, 'paymentSettings']);
         $app->get('/payment-map', [AdminController::class, 'paymentMap']);
         $app->post('/report', [ReportController::class, 'report']);
-        $app->post('/manual-payment', [AdminController::class, 'manualPayment']);
+        $app->post('/manual-payment', [PaymentController::class, 'manualPayment']);
         $app->post('/block-user', [ApiController::class, 'blockUser']);
         $app->post('/unblock-user', [ApiController::class, 'unblockUser']);
 
