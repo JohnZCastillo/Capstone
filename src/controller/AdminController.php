@@ -383,7 +383,7 @@ class AdminController extends Controller
 
             $content = $request->getParsedBody();
 
-            $user = $this->userSerivce->findByEmail($content['block'] . $content['block'] . "@manual.payment");
+            $user = $this->userSerivce->findByEmail($content['block'] . $content['lot'] . "@manual.payment");
 
             //only create new user when manual payment user has not been created
             if ($user == null) {
@@ -396,7 +396,7 @@ class AdminController extends Controller
                     ->setLot($content['lot'])
                     ->setRole(UserRole::user())
                     ->setPassword("")
-                    ->setEmail($content['block'] . $content['block'] . "@manual.payment")
+                    ->setEmail($content['block'] . $content['lot'] . "@manual.payment")
                     ->setIsBlocked(false);
 
                 $this->userSerivce->save($user);
@@ -414,7 +414,6 @@ class AdminController extends Controller
                 $privileges->setUser($user);
                 $this->priviligesService->save($privileges);
             }
-
 
             $fromMonth = $content['from'];
             $fromMonth = Time::setToFirstDayOfMonth($fromMonth);

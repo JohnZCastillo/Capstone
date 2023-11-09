@@ -126,7 +126,6 @@ class UserController extends Controller
            $months = Time::getMonths( $fromMonth2, $toMonth2);
 
             foreach ($months as $month){
-                var_dump($month);
                 if($this->transactionService->isPaid($user,$month)){
                     throw new AlreadyPaidException($month);
                 }
@@ -193,25 +192,12 @@ class UserController extends Controller
         ]);
     }
 
-
-    public function test($request, $response, $args)
-    {
-
-        $actionLog = new LogsModel();
-        $actionLog->setAction("TEST");
-        $actionLog->setTag("Payment");
-        $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(new DateTime());
-
-//        $this->actionLogs->addLog($actionLog);
-
-        var_dump($actionLog->getCreatedAt()->format("M d, Y h:i a"));
-
-        return $response;
-    }
-
     public function receipt($request, $response, $args)
     {
+
+        $transactionId = $args['id'];
+
+        $transaction = $this->transactionService->findById($transactionId);
 
 
         // Create a new TCPDF instance
@@ -219,7 +205,6 @@ class UserController extends Controller
 
         // Do not print the header line
         $pdf->SetPrintHeader(false);
-
 
         // Add a page
         $pdf->AddPage();
@@ -232,11 +217,11 @@ class UserController extends Controller
 
         $pdf->SetFont('times', '', 12);
 
-        $transactionNumber = 'TRX123456';
-        $homeownerName = 'John Doe';
-        $amount = '150.00';
-        $paymentDate = 'August 1, 2023';
-        $coverage = 'July 2023 - August 2023';
+        $transactionNumber = $transaction->getId();
+        $homeownerName = $transaction->getUser()->getName();
+        $amount = $transaction->getAmount();
+        $paymentDate = Time::convertDateTimeToDateString($transaction->getCreatedAt());
+        $coverage = $transaction->getFromMonth() .  ' - ' . $transaction->getToMonth();
 
         $pdf->Cell(0, 10, 'Transaction Number: ' . $transactionNumber, 0, 1);
         $pdf->Cell(0, 10, 'Homeowner: ' . $homeownerName, 0, 1);

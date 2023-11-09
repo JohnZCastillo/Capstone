@@ -5,7 +5,7 @@
 <div class="container py-2">
 
     {% if transaction.status == 'APPROVED' %}
-    <a href="/receipt" class="btn btn-primary">Download Invoice</a>
+    <a href="/receipt/{{transaction.id}}" class="btn btn-primary">Download Invoice</a>
     {% endif %}
 
     {% if target is not null %}
