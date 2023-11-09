@@ -40,13 +40,16 @@ $app->get('/', function (Request $request, Response $response) use ($twig) {
     return $twig->render($response, 'homepage.html');
 })->add(\App\middleware\BypassHomepage::class);
 
+$app->get('/signupNotAllowed', function (Request $request, Response $response) use ($twig) {
+    return $twig->render($response, 'temporary.html');
+})->add(\App\middleware\BypassHomepage::class);
+
+
 $app->get('/denied', function (Request $request, Response $response) use ($twig) {
     return $twig->render($response, 'denied.html');
 });
 
-$app->get('/terms-and-conditions', function (Request $request, Response $response) use ($twig) {
-    return $twig->render($response, 'terms-and-condition.html');
-});
+$app->get('/terms-and-conditions', [AuthController::class, 'termsAndCondition']);
 
 $app->get('/blocked', function (Request $request, Response $response) use ($twig) {
     return $twig->render($response, 'blockpage.html');
@@ -69,7 +72,7 @@ $app->get('/forgot-password', function (Request $request, Response $response) us
     return $twig->render($response, '/pages/forgotten-password.html');
 });
 
-$app->get('/test', [UserController::class, 'test']);
+$app->get('/test', [AdminController::class, 'test']);
 
 // Protected Routes
 $app->group('', function ($app)  use ($twig) {

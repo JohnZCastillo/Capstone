@@ -2,6 +2,7 @@
 
 namespace App\model;
 
+use App\lib\Encryptor;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -78,7 +79,7 @@ class SystemSettings
      */
     public function getMailPassword()
     {
-        return $this->mailPassword;
+        return Encryptor::decrypt($this->mailPassword);
     }
 
     /**
@@ -87,7 +88,8 @@ class SystemSettings
      */
     public function setMailPassword($mailPassword)
     {
-        $this->mailPassword = $mailPassword;
+
+        $this->mailPassword = Encryptor::encrypt($mailPassword);
         return $this;
     }
 

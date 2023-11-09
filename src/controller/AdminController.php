@@ -16,6 +16,7 @@ use App\model\PrivilegesModel;
 use App\model\TransactionModel;
 use App\model\UserModel;
 use DateTime;
+use Defuse\Crypto\Key;
 use Exception;
 use Respect\Validation\Validator as V;
 use Slim\Views\Twig;
@@ -891,10 +892,7 @@ class AdminController extends Controller
 
     public function test($request, $response, $args)
     {
-        $twig = Twig::fromRequest($request);
-
-        $total = $this->transactionService->getTotal("APPROVED", "2023-01-01", "2023-01-31");
-        var_dump($total);
+        var_dump(Key::createNewRandomKey()->saveToAsciiSafeString());
     }
 
     public function report($request, $response, $args)
@@ -1112,7 +1110,6 @@ class AdminController extends Controller
 
         $systemSettings = $this->systemSettingService->findById();
 
-        $systemSettings->setAllowSignup($content['allowSignup']);
         $systemSettings->setTermsAndCondition($content['termsAndCondition']);
         $systemSettings->setMailHost($content['mailHost']);
         $systemSettings->setMailUsername($content['mailUsername']);
@@ -1120,6 +1117,12 @@ class AdminController extends Controller
 //        only update password if not empty
         if (!empty($content['mailPassword'])) {
             $systemSettings->setMailPassword($content['mailPassword']);
+        }
+
+        if(isset($content['allowSignup'])){
+            $systemSettings->setAllowSignup(true);
+        }else{
+            $systemSettings->setAllowSignup(false);
         }
 
         $this->systemSettingService->save($systemSettings);

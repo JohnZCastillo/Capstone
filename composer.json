@@ -25,6 +25,7 @@
         "gabordemooij/redbean": "^5.7",
         "mobiledetect/mobiledetectlib": "^3.74",
         "tecnickcom/tcpdf": "^6.6",
-        "phpmailer/phpmailer": "^6.8"
+        "phpmailer/phpmailer": "^6.8",
+        "defuse/php-encryption": "^2.4"
     }
 }

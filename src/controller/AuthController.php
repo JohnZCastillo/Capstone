@@ -104,12 +104,28 @@ class AuthController extends Controller
 
     }
 
-    /**
-     *
-     * Register new User to database.
-     */
+
+    public function termsAndCondition($request, $response, $args)
+    {
+
+        $twig = Twig::fromRequest($request);
+
+        $settings = $this->systemSettingService->findById();
+
+        $data['termsAndCondition'] = $settings->getTermsAndCondition();
+
+        return $twig->render($response, 'terms-and-condition.html', $data);
+    }
+
     public function register($request, $response, $args)
     {
+
+
+        if(!$this->systemSettingService->findById()->getAllowSignup()){
+            return $response
+                ->withHeader('Location', "/signupNotAllowed")
+                ->withStatus(302);
+        }
 
         $view = Twig::fromRequest($request);
 
@@ -240,7 +256,7 @@ class AuthController extends Controller
             }
 
             $data['content'] = $content;
-            $data['error'] =  $e->getMessage();
+            $data['error'] = $e->getMessage();
 
             $response->withStatus(500);
             return $view->render($response, 'pages/register.html', $data);
@@ -365,7 +381,7 @@ class AuthController extends Controller
             $sent = Mail::send($mailContent);
 
 
-            if(!$sent){
+            if (!$sent) {
                 throw new Exception("Code was not sent");
             }
 
