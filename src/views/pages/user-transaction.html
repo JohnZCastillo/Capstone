@@ -8,7 +8,12 @@
     <a href="/receipt" class="btn btn-primary">Download Invoice</a>
     {% endif %}
 
-    {% if transaction.status == 'REJECTED' %}
+    {% if target is not null %}
+    <a class="text-decoration-none" href="/issues/{{target.id}}"> You submitted an issue for this transaction</a>
+    {% endif %}
+
+
+    {% if transaction.status == 'REJECTED' and target is null %}
     <button class="btn btn-danger" data-target="#issueModal" data-toggle="modal">
         Create Issue
     </button>
@@ -40,6 +45,8 @@
                             <label class="form-label">Title</label>
                             <input class="form-control" name="title" type="text" readonly value="Issue regarding transaction with ID {{transaction.id}}"/>
                         </div>
+                        <input class="form-control d-none" name="target" type="text"  value="{{transaction.id}}"/>
+
                         <div class="form-group">
                             <label class="form-label">Content</label>
                             <textarea

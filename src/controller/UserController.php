@@ -303,10 +303,13 @@ class UserController extends Controller
         //Transactions logs
         $logs = $transaction->getLogs();
 
+        $target = $this->issuesService->findByTarget($transaction->getId());
+
         return $view->render($response, 'pages/user-transaction.html', [
             'transaction' => $transaction,
             'receipts' => $transaction->getReceipts(),
             'logs' => $logs,
+            'target' => $target,
         ]);
     }
 
@@ -431,6 +434,7 @@ class UserController extends Controller
         $issue->setAction('None');
         $issue->setUser($this->getLogin());
         $issue->setType('posted');
+        $issue->setTarget($request->getParsedBody()['target']);
 
         if ($anonymous) {
             $issue->setUser(null);
