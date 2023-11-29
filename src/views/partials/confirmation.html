@@ -18,7 +18,7 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-primary" type="submit">Confirm</button>
-                    <button class="btn btn-secondary" data-dismiss="modal" type="button">
+                    <button class="btn btn-secondary" data-dismiss="modal" type="button" id="closeBtn">
                         Cancel
                     </button>
                 </div>
@@ -31,8 +31,11 @@
     const confirmationMessage = document.querySelector("#confirmationMessage");
     const confirmationForm = document.querySelector("#confirmationForm");
 
+    const closeBtn = document.getElementById("closeBtn");
+
     // Define a variable to store the callback function
     let confirmCallback = null;
+    let closeCallBack = null;
 
     // Function to show the confirmation modal
     const confirm = (message, callback, link = false) => {
@@ -45,6 +48,21 @@
         // Show modal
         $("#confirmationModal").modal("show");
     };
+
+    const confirmWithClose = (message, callback, close,link = false) => {
+
+        // Set the callback function
+        confirmCallback = link ? () => window.location.replace(callback) : callback;
+
+        closeCallBack = close;
+
+        // Change the modal message
+        confirmationMessage.innerHTML = message;
+
+        // Show modal
+        $("#confirmationModal").modal("show");
+    };
+
 
     // Add an event listener for the form submission
     confirmationForm.addEventListener("submit", (event) => {
@@ -59,4 +77,13 @@
             confirmCallback();
         }
     });
+
+    closeBtn.addEventListener('click',(event)=>{
+
+        if(closeCallBack){
+            closeCallBack();
+        }
+
+    })
+
 </script>

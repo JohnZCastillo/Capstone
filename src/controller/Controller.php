@@ -49,6 +49,8 @@ class Controller
 
     protected SystemSettingService $systemSettingService;
 
+    protected array $DB_CONFIG;
+
 
     protected LogsService $actionLogs;
 
@@ -70,6 +72,7 @@ class Controller
         $this->codeModelService = $container->get(CodeModelService::class);
         $this->userLogsService = $container->get(UserLogsService::class);
         $this->systemSettingService = $container->get(SystemSettingService::class);
+        $this->DB_CONFIG = $container->get('DB_CONFIG');
     }
 
     protected function getLogin(): UserModel

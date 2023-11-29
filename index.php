@@ -5,11 +5,11 @@ session_start();
 use App\controller\AdminController;
 use App\controller\ApiController;
 use App\controller\AuthController;
+use App\controller\BackupRestore;
 use App\controller\PaymentController;
 use App\controller\ReportController;
 use App\controller\UserController;
 use App\lib\Login;
-use App\lib\ReportMaker;
 use App\middleware\Auth;
 use App\middleware\ForceLogout;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -45,7 +45,6 @@ $app->get('/signupNotAllowed', function (Request $request, Response $response) u
     return $twig->render($response, 'temporary.html');
 })->add(\App\middleware\BypassHomepage::class);
 
-
 $app->get('/denied', function (Request $request, Response $response) use ($twig) {
     return $twig->render($response, 'denied.html');
 });
@@ -56,11 +55,9 @@ $app->get('/blocked', function (Request $request, Response $response) use ($twig
     return $twig->render($response, 'blockpage.html');
 });
 
-
 $app->get('/uploads/{image}', function ($request, $response, $args) {
     return $response->withStatus(404)->write('Image not found');
 });
-
 
 $app->get('/forgot-password', function (Request $request, Response $response) use ($twig) {
 
@@ -175,13 +172,17 @@ $app->get('/logout', [AuthController::class, 'logout']);
 $app->post('/forgot-password', [AuthController::class, 'code']);
 $app->post('/new-code', [AuthController::class, 'newCode']);
 
+$app->get('/backup-restore', [BackupRestore::class, 'backupAndRestore']);
+$app->get('/backup-db', [BackupRestore::class, 'backup']);
+$app->get('/restore-db', [BackupRestore::class, 'restore']);
+$app->post('/restore-db-file', [BackupRestore::class, 'restoreFromFile']);
+
 $app->post('/register', [AuthController::class, 'register']);
 
 // Return Signup View
 $app->get('/register', function (Request $request, Response $response) use ($twig) {
     return $twig->render($response, 'pages/register.html');
 });
-
 
 // Return Login View
 $app->get('/login', function (Request $request, Response $response) use ($twig, $container) {
@@ -198,12 +199,9 @@ $app->get('/invalid-session', function (Request $request, Response $response) us
         return $response->withHeader('Location', '/')->withStatus(302);
     }
 
-
     return $twig->render($response, 'pages/login.html', [
         'loginErrorMessage' => "Your session has been terminated for security reasons"
     ]);
 });
-
-
 
 $app->run();

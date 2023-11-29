@@ -55,6 +55,13 @@ $container->set(EntityManager::class, static function (Container $c): EntityMana
     return EntityManager::create($settings['doctrine']['connection'], $config);
 });
 
+$container->set('DB_CONFIG', static function (Container $c): array {
+    /** @var array $settings */
+    $settings = $c->get('settings');
+
+    return  $settings['db'];
+});
+
 // Add the services to the container. 
 $container->set(UserService::class, static function (Container $c) {
     return new UserService($c->get(EntityManager::class));

@@ -685,10 +685,15 @@ class AdminController extends Controller
 
         $timezone = date_default_timezone_get();
 
+        $errorMessage = $this->flashMessages->getFirstMessage('errorMessage');
+        $successMessage = $this->flashMessages->getFirstMessage('successMessage');
+
         return $twig->render($response, 'pages/admin-system-settings.html', [
             'timezone' => $timezone,
             "loginUser" => $user,
             "systemSettings" => $systemSettings,
+            'errorMessage' => $errorMessage,
+            'successMessage' => $successMessage,
         ]);
 
     }
@@ -748,12 +753,15 @@ class AdminController extends Controller
 
     public function test($request, $response, $args)
     {
-        $user = new UserModel();
-        $user->setPassword('admin');
 
-        var_dump($user->getPassword());
+        try {
+            Encryptor::decryptDumpFile('./backup/dump.sql');
+            var_dump("on going");
+        }catch (Exception $exception){
+            var_dump("Corrupted File");
+        }
+
     }
-
 
     public function updateSystemSettings($request, $response, $args)
     {

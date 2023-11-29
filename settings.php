@@ -53,6 +53,12 @@ return [
                 'password' => $_ENV["DB_PASS"],
                 // 'charset' => 'utf-8'
             ]
+        ],
+
+        'db' => [
+            'user' => $_ENV['DB_USER'] ,
+            'pass' => $_ENV['DB_PASS'] ,
+            'db' => $_ENV['DB_NAME'] ,
         ]
     ]
 ];
