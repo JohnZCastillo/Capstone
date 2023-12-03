@@ -82,10 +82,13 @@ $app->group('/new', function ($app) use ($twig) {
 $app->group('', function ($app) use ($twig,$container) {
 
 
-    $userService = $container->get(\App\service\UserService::class);
 
-    $loginUser = $userService->findById(Login::getLogin());;
-    $twig->getEnvironment()->addGlobal('login_user',$loginUser);
+    if(Login::isLogin()){
+        $userService = $container->get(\App\service\UserService::class);
+        $loginUser = $userService->findById(Login::getLogin());;
+        $twig->getEnvironment()->addGlobal('login_user',$loginUser);
+    }
+
 
     $app->group('', function ($app) {
 
