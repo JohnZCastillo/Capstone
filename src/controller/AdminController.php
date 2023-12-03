@@ -6,6 +6,7 @@ use App\lib\Encryptor;
 use App\lib\Filter;
 use App\lib\Helper;
 use App\lib\Image;
+use App\lib\Login;
 use App\lib\ReportMaker;
 use App\lib\Time;
 use App\model\AnnouncementModel;
@@ -753,14 +754,8 @@ class AdminController extends Controller
 
     public function test($request, $response, $args)
     {
-
-        try {
-            Encryptor::decryptDumpFile('./backup/dump.sql');
-            var_dump("on going");
-        }catch (Exception $exception){
-            var_dump("Corrupted File");
-        }
-
+        var_dump($this->container->get('DEFAULT_CREDENTIAL'));
+        var_dump(Login::isOfflineLogin());
     }
 
     public function updateSystemSettings($request, $response, $args)

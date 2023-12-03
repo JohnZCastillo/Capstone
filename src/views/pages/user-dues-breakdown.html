@@ -1,32 +1,35 @@
 {% extends "./user.html" %} {% block body %}
 
-<div class="container-fluid py-2">
+<div class="card">
+  <div class="card-body">
+    <a href="/home" class="btn btn-primary mb-2">Back</a>
 
-  <a href="/home" class="btn btn-primary mb-2">Back</a>
 
-
-  <table class="table table-hover table-striped w-75 mx-auto border">
-    <thead>
+    <table class="table table-hover table-striped w-75 mx-auto border">
+      <thead>
       <tr>
         <th>Month</th>
         <th>Amount Due</th>
       </tr>
-    </thead>
-    <tbody>
+      </thead>
+      <tbody>
       {% for item in items %}
       <tr>
         <td>{{ item.month |date("M Y")}}</td>
         <td>{{ item.due }}</td>
       </tr>
       {% endfor %}
-    </tbody>
-    <tfoot>
+      </tbody>
+      <tfoot>
       <tr class="text-danger">
         <td> <strong>Total Unpaid Due</strong></td>
         <td id="total-unpaid-due"> <strong>{{ total }}</strong></td>
       </tr>
-    </tfoot>
-  </table>
+      </tfoot>
+    </table>
+
+  </div>
 </div>
+
 
 {% endblock %}

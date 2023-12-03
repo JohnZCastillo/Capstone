@@ -59,6 +59,10 @@ return [
             'user' => $_ENV['DB_USER'] ,
             'pass' => $_ENV['DB_PASS'] ,
             'db' => $_ENV['DB_NAME'] ,
+        ],
+        'DEFAULT_CREDENTIAL' => [
+            'username' => $_ENV['DEFAULT_USERNAME'] ,
+            'password' => $_ENV['DEFAULT_PASSWORD'] ,
         ]
     ]
 ];

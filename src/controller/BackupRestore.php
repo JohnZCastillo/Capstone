@@ -61,6 +61,22 @@ class BackupRestore extends Controller
 
     }
 
+    public function offlineLogin($request, $response, $args)
+    {
+
+        $view = Twig::fromRequest($request);
+
+        $errorMessage = $this->flashMessages->getFirstMessage('errorMessage');
+        $successMessage = $this->flashMessages->getFirstMessage('successMessage');
+
+        return $view->render($response, 'offline-login.html', [
+            'errorMessage' => $errorMessage,
+            'successMessage' => $successMessage,
+        ]);
+
+    }
+
+
     public function restore($request, $response, $args)
     {
 

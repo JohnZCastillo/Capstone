@@ -12,6 +12,7 @@ use App\controller\UserController;
 use App\lib\Login;
 use App\middleware\Auth;
 use App\middleware\ForceLogout;
+use App\middleware\OfflineAuthorize;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
@@ -72,9 +73,19 @@ $app->get('/forgot-password', function (Request $request, Response $response) us
 
 $app->get('/test', [AdminController::class, 'test']);
 
-// Protected Routes
-$app->group('', function ($app)  use ($twig) {
 
+$app->group('/new', function ($app) use ($twig) {
+    $app->get('/home', [UserController::class, 'home']);
+});
+
+// Protected Routes
+$app->group('', function ($app) use ($twig,$container) {
+
+
+    $userService = $container->get(\App\service\UserService::class);
+
+    $loginUser = $userService->findById(Login::getLogin());;
+    $twig->getEnvironment()->addGlobal('login_user',$loginUser);
 
     $app->group('', function ($app) {
 
@@ -153,8 +164,8 @@ $app->group('', function ($app)  use ($twig) {
     $app->group('/admin', function ($app) use ($twig) {
         $app->post('/manage-privileges', [AdminController::class, 'managePrivileges']);
         $app->get('/logs', [AdminController::class, 'logs']);
-        $app->get('/system',[AdminController::class, 'systemSettings']);
-        $app->post('/system',[AdminController::class, 'updateSystemSettings']);
+        $app->get('/system', [AdminController::class, 'systemSettings']);
+        $app->post('/system', [AdminController::class, 'updateSystemSettings']);
     })->add(\App\middleware\SuperAdminAuth::class)->add(Auth::class);
 
     $app->post('/upload', [ApiController::class, 'upload']);
@@ -162,7 +173,7 @@ $app->group('', function ($app)  use ($twig) {
 
     $app->post('/api/force-logout', [ApiController::class, 'forceLogout']);
 
-    $app->get('/admin/announcement',[AdminController::class,'announcementPage']);
+    $app->get('/admin/announcement', [AdminController::class, 'announcementPage']);
 
 })->add(ForceLogout::class)->add(Auth::class);
 
@@ -173,9 +184,18 @@ $app->post('/forgot-password', [AuthController::class, 'code']);
 $app->post('/new-code', [AuthController::class, 'newCode']);
 
 $app->get('/backup-restore', [BackupRestore::class, 'backupAndRestore']);
-$app->get('/backup-db', [BackupRestore::class, 'backup']);
-$app->get('/restore-db', [BackupRestore::class, 'restore']);
-$app->post('/restore-db-file', [BackupRestore::class, 'restoreFromFile']);
+
+$app->get('/backup-db', [BackupRestore::class, 'backup'])
+    ->add(OfflineAuthorize::class);
+
+$app->get('/restore-db', [BackupRestore::class, 'restore'])
+    ->add(OfflineAuthorize::class);
+
+$app->post('/restore-db-file', [BackupRestore::class, 'restoreFromFile'])
+    ->add(OfflineAuthorize::class);
+
+$app->post('/offline-login', [BackupRestore::class, 'backupAndRestore']);
+$app->get('/offline-login', [BackupRestore::class, 'offlineLogin']);
 
 $app->post('/register', [AuthController::class, 'register']);
 
@@ -195,11 +215,18 @@ $app->get('/login', function (Request $request, Response $response) use ($twig, 
 
 $app->get('/invalid-session', function (Request $request, Response $response) use ($twig, $container) {
 
-    if(Login::isLogin()){
+    if (Login::isLogin()) {
         return $response->withHeader('Location', '/')->withStatus(302);
     }
 
     return $twig->render($response, 'pages/login.html', [
+        'loginErrorMessage' => "Your session has been terminated for security reasons"
+    ]);
+});
+
+$app->get('/ui', function (Request $request, Response $response) use ($twig, $container) {
+
+    return $twig->render($response, 'user/pages/dues.html', [
         'loginErrorMessage' => "Your session has been terminated for security reasons"
     ]);
 });

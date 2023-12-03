@@ -62,6 +62,14 @@ $container->set('DB_CONFIG', static function (Container $c): array {
     return  $settings['db'];
 });
 
+$container->set('DEFAULT_CREDENTIAL', static function (Container $c): array {
+    /** @var array $settings */
+    $settings = $c->get('settings');
+
+    return  $settings['DEFAULT_CREDENTIAL'];
+});
+
+
 // Add the services to the container. 
 $container->set(UserService::class, static function (Container $c) {
     return new UserService($c->get(EntityManager::class));

@@ -54,6 +54,9 @@ class Controller
 
     protected LogsService $actionLogs;
 
+
+    protected  Container $container;
+
     public function __construct(Container $container)
     {
         //get the userService from dependency container
@@ -73,6 +76,8 @@ class Controller
         $this->userLogsService = $container->get(UserLogsService::class);
         $this->systemSettingService = $container->get(SystemSettingService::class);
         $this->DB_CONFIG = $container->get('DB_CONFIG');
+
+        $this->container = $container;
     }
 
     protected function getLogin(): UserModel

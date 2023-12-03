@@ -4,31 +4,55 @@
 namespace App\lib;
 
 
-use App\model\UserModel;
-use Exception;
+class Login
+{
 
-
-class Login {
-
-    static function login($userId){
+    static function login($userId)
+    {
         $_SESSION['user'] = $userId;
     }
 
-    static function logout() {
+    static function logout()
+    {
         session_destroy();
     }
- 
-    static function isLogin() {
+
+    static function isLogin()
+    {
         return isset($_SESSION['user']);
     }
 
 
-    static function forceLogout() {
+    static function forceLogout()
+    {
         session_regenerate_id();
         session_destroy();
     }
 
-    static function getLogin(){
-        return  $_SESSION['user'];
+    static function getLogin()
+    {
+        return $_SESSION['user'];
+    }
+
+    static function offlinePassword($pass)
+    {
+        $_SESSION['offlinePassword'] = $pass;
+    }
+
+    static function offlineUsername($username)
+    {
+        $_SESSION['offlineUsername'] = $username;
+    }
+
+    static function isOfflineLogin()
+    {
+        return isset($_SESSION['offlineLogin'])
+            ? $_SESSION['offlineLogin']
+            : false;
+    }
+
+    static function setOfflineLogin(bool $value)
+    {
+        $_SESSION['offlineLogin'] = $value;
     }
 }

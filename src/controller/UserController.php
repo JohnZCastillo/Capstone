@@ -76,7 +76,61 @@ class UserController extends Controller
             'welcomeMessage' => $welcomeMessage
         ];
 
-        return $view->render($response, 'pages/user-home.html', $data);
+        return $view->render($response, 'user/pages/dues.html', $data);
+    }
+
+    public function home2($request, $response, $args)
+    {
+
+        // Get the user
+        $user = $this->getLogin();
+
+        $view = Twig::fromRequest($request);
+        $queryParams = $request->getQueryParams();
+
+        $filter = Filter::check($queryParams);
+
+        $page = $queryParams['page'] ?? 1;
+        $query = empty($queryParams['query']) ? null : $queryParams['query'];
+
+        $errorMessage = $this->flashMessages->getFirstMessage("ErrorMessage");
+        $welcomeMessage = $this->flashMessages->getFirstMessage("welcome");
+
+        // Set max transactions per page
+        $max = 4;
+
+        // Get transactions
+        $paginator = $this->transactionService->getAll($page, $max, $query, $filter, $user);
+
+        // Get balances
+        $currentMonth = Time::thisMonth();
+        $nextMonth = Time::nextMonth();
+        $currentDue = $this->getBalance($currentMonth);
+        $nextDue = $this->getBalance($nextMonth);
+
+        // Calculate total dues
+        $totalDues = $this->getTotalDues();
+
+        // Prepare data for the view
+        $data = [
+            'errorMessage' => $errorMessage,
+            'currentMonth' => $currentMonth,
+            'nextMonth' => $nextMonth,
+            'currentDue' => Currency::format($currentDue),
+            'nextDue' => Currency::format($nextDue),
+            'unpaid' => Currency::format($totalDues),
+            'transactions' => $paginator->getItems(),
+            'currentPage' => $page,
+            'query' => $query,
+            'from' => Time::toMonth($filter['from']),
+            'to' => Time::toMonth($filter['to']),
+            'status' => $filter['status'],
+            'settings' => $this->getPaymentSettings(),
+            'paginator' => $paginator,
+            'welcomeMessage' => $welcomeMessage
+        ];
+
+        return $view->render($response, 'user/pages/dues.html', $data);
     }
 
     public function manageIssue($request, $response, $args)
@@ -89,7 +143,7 @@ class UserController extends Controller
         //might throw and error
         $issue = $this->issuesService->findById($id);
 
-        return $view->render($response, 'pages/user-manage-issue.html', [
+        return $view->render($response, 'user/pages/issue.html', [
             'issue' => $issue,
         ]);
     }
@@ -116,7 +170,7 @@ class UserController extends Controller
         //then format it to have peso value / curreny
         $items = Currency::formatArray($data['items'], 'due');
 
-        return $view->render($response, 'pages/user-dues-breakdown.html', [
+        return $view->render($response, 'user/pages/unpaid-dues.html', [
             'items' => $items,
             'total' => Currency::format($data['total'])
         ]);
@@ -142,7 +196,7 @@ class UserController extends Controller
 
         $target = $this->issuesService->findByTarget($transaction->getId());
 
-        return $view->render($response, 'pages/user-transaction.html', [
+        return $view->render($response, 'user/pages/transaction.html', [
             'transaction' => $transaction,
             'receipts' => $transaction->getReceipts(),
             'logs' => $logs,
@@ -171,7 +225,7 @@ class UserController extends Controller
 
         $result = $this->announcementService->getAll($page, $max, null, $filter);
 
-        return $view->render($response, 'pages/user-announcement.html', [
+        return $view->render($response, 'user/pages/announcements.html', [
             'announcements' => $result['announcements'],
             'currentPage' => $page,
             'from' => isset($queryParams['from']) ? $queryParams['from'] : null,
@@ -199,7 +253,7 @@ class UserController extends Controller
 
         $view = Twig::fromRequest($request);
 
-        return $view->render($response, 'pages/user-account-settings.html', [
+        return $view->render($response, 'user/pages/account.html', [
             "loginHistory" => $loginHistory,
             "sessionId" => $currentSession,
             "name" => $name,
@@ -227,7 +281,7 @@ class UserController extends Controller
         // if page is present then set value to page otherwise to 1
         $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
 
-        $type = isset($queryParams['type']) ? $queryParams['type'] : 'posted';
+        $type = isset($queryParams['type']) ? $queryParams['type'] : 'POSTED';
 
         // max transaction per page
         $max = 5;
@@ -238,7 +292,7 @@ class UserController extends Controller
 
         $pagination = $this->issuesService->getAll($page, $max, null, $filter, $user, $type);
 
-        return $view->render($response, 'pages/user-all-issues.html', [
+        return $view->render($response, 'user/pages/issues.html', [
             'type' => $type,
             'message' => $message,
             'issues' => $pagination->getItems(),
