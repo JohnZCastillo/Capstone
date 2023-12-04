@@ -10,6 +10,7 @@ use App\controller\PaymentController;
 use App\controller\ReportController;
 use App\controller\UserController;
 use App\lib\Login;
+use App\middleware\ActivePage;
 use App\middleware\Auth;
 use App\middleware\ForceLogout;
 use App\middleware\OfflineAuthorize;
@@ -92,21 +93,31 @@ $app->group('', function ($app) use ($twig,$container) {
 
     $app->group('', function ($app) {
 
-        $app->get('/home', [UserController::class, 'home']);
+        $app->get('/home', [UserController::class, 'home'])
+            ->setName('home');
+
         $app->get('/receipt/{id}', [PaymentController::class, 'getReceipt']);
         $app->get('/dues', [UserController::class, 'dues']);
-        $app->get('/issues', [UserController::class, 'issues']);
+
+        $app->get('/issues', [UserController::class, 'issues'])
+            ->setName('issues');
+
         $app->post('/issue', [UserController::class, 'issue']);
+
         $app->get('/issue/archive/{id}', [UserController::class, 'archiveIssue']);
         $app->get('/issue/unarchive/{id}', [UserController::class, 'unArchiveIssue']);
 
         $app->get('/transaction/{id}', [UserController::class, 'transaction']);
         $app->post('/pay', [PaymentController::class, 'userPay']);
-        $app->get('/announcements', [UserController::class, 'announcements']);
 
-        $app->get('/account', [UserController::class, 'accountSettings']);
+        $app->get('/announcements', [UserController::class, 'announcements'])
+            ->setName('announcements');
 
-        $app->get('/issues/{id}', [UserController::class, 'manageIssue']);
+        $app->get('/account', [UserController::class, 'accountSettings'])
+            ->setName('account');
+
+        $app->get('/issues/{id}', [UserController::class, 'manageIssue'])
+            ->setName('issues');
 
     })->add(\App\middleware\UserAuth::class);
 
@@ -178,7 +189,7 @@ $app->group('', function ($app) use ($twig,$container) {
 
     $app->get('/admin/announcement', [AdminController::class, 'announcementPage']);
 
-})->add(ForceLogout::class)->add(Auth::class);
+})->add(ActivePage::class)->add(ForceLogout::class)->add(Auth::class);
 
 // Public Routes
 $app->post('/login', [AuthController::class, 'login']);

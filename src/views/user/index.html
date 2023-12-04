@@ -13,7 +13,7 @@
             name="viewport"
             content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
 
-    <title>Dashboard - Analytics | Sneat - Bootstrap 5 HTML Admin Template - Pro</title>
+    <title>{{active_route|title}}</title>
 
     <meta name="description" content=""/>
 
@@ -69,6 +69,11 @@
     <div class="layout-container">
         <!-- Menu -->
 
+
+        {% set activeHome = active_route == 'home' ? 'active' : '' %}
+        {% set activeIssues = active_route == 'issues' ? 'active' : '' %}
+        {% set activeAnnouncement = active_route == 'announcements' ? 'active' : '' %}
+
         <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
             <div class="app-brand py-2">
                 <a href="/home" class="app-brand-link d-block mx-auto">
@@ -85,7 +90,7 @@
             <div class="menu-inner-shadow"></div>
 
             <ul class="menu-inner py-1">
-                <li class="menu-item active">
+                <li class="menu-item {{activeHome}}">
                     <a
                             href="/home"
                             class="menu-link">
@@ -93,7 +98,7 @@
                         <div data-i18n="Email">Payments</div>
                     </a>
                 </li>
-                <li class="menu-item">
+                <li class="menu-item {{activeIssues}}">
                     <a
                             href="/issues"
                             class="menu-link">
@@ -101,7 +106,7 @@
                         <div data-i18n="Chat">Issues</div>
                     </a>
                 </li>
-                <li class="menu-item">
+                <li class="menu-item {{activeAnnouncement}}">
                     <a
                             href="/announcements"
                             class="menu-link">
@@ -138,9 +143,8 @@
                             <li class="nav-item navbar-dropdown dropdown-user dropdown">
                                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);"
                                    data-bs-toggle="dropdown">
-                                    <div class="avatar avatar-online">
-                                        <img src="/resources/assets/img/avatars/1.png" alt
-                                             class="w-px-40 h-auto rounded-circle"/>
+                                    <div class="avatar">
+                                        <svg class="w-px-40 h-auto rounded-circle" xmlns="http://www.w3.org/2000/svg" height="16" width="14" viewBox="0 0 448 512"><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2023 Fonticons, Inc.--><path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/></svg>
                                     </div>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
@@ -148,9 +152,8 @@
                                         <a class="dropdown-item" href="#">
                                             <div class="d-flex">
                                                 <div class="flex-shrink-0 me-3">
-                                                    <div class="avatar avatar-online">
-                                                        <img src="/resources/assets/img/avatars/1.png" alt
-                                                             class="w-px-40 h-auto rounded-circle"/>
+                                                    <div class="avatar">
+                                                        <svg class="w-px-40 h-auto rounded-circle" xmlns="http://www.w3.org/2000/svg" height="16" width="14" viewBox="0 0 448 512"><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2023 Fonticons, Inc.--><path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/></svg>
                                                     </div>
                                                 </div>
                                                 <div class="flex-grow-1">

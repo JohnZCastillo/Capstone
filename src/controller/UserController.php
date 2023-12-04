@@ -43,7 +43,7 @@ class UserController extends Controller
         $welcomeMessage = $this->flashMessages->getFirstMessage("welcome");
 
         // Set max transactions per page
-        $max = 4;
+        $max = 2;
 
         // Get transactions
         $paginator = $this->transactionService->getAll($page, $max, $query, $filter, $user);
