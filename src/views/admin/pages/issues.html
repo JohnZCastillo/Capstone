@@ -1,4 +1,4 @@
-{% extends "./user/index.html" %}
+{% extends "./admin/index.html" %}
 
 {% block body %}
 
@@ -34,24 +34,7 @@
                     </div>
                 </div>
 
-                <div class="mb-2 col-sm">
-                    <div id="typeGroupBtn" class="btn-group" role="group"
-                         aria-label="Basic radio toggle button group">
-
-                        {% set viewDefault = type is empty ? 'checked' : '' %}
-                        {% set viewIssue = type == 'POSTED' ? 'checked' : '' %}
-                        {% set viewArchive = type == 'ARCHIVE' ? 'checked' : '' %}
-
-                        <input type="radio" class="btn-check" name="btnView" id="POSTED" {{viewDefault}}
-                               {{viewIssue}}/>
-                        <label class="btn btn-outline-primary" for="POSTED">Posted</label>
-
-                        <input type="radio" class="btn-check" name="btnView" id="ARCHIVE" {{viewArchive}}/>
-                        <label class="btn btn-outline-primary" for="ARCHIVE">Archived</label>
-
-                    </div>
-                </div>
-                <form  action="/issues" id="viewForm" method="GET">
+                <form id="viewForm">
                     <input class="d-none" id="viewTypeInput" name="type" type="text" value="POSTED">
                     <input class="d-none" id="viewStatusInput" name="status" type="text" value="ALL">
                 </form>
@@ -92,18 +75,7 @@
                     <td>{{issue.getCreatedAt()| date('M d, Y')}}</td>
                     <td><span class="badge {{statusLabel}} me-1">{{status}}</span></td>
                     <td>
-                        <div class="d-flex flex-wrap" style="gap: 10px; max-width: max-content" >
-                            {% if issue.type == 'posted' %}
-                            <a class="btn btn-secondary" href="/issue/archive/{{issue.id}}" style="flex: 1 1 0px;">
-                                Archive
-                            </a>
-                            {% else %}
-                            <a class="btn btn-secondary" href="/issue/unarchive/{{issue.id}}" style="flex: 1 1 0px;">
-                                Unarchive
-                            </a>
-                            {% endif %}
-                            <a class="btn btn-primary" style="flex: 1 1 0px" href="/issues/{{issue.id}}">View</a>
-                        </div>
+                            <a class="btn btn-primary" style="flex: 1 1 0px" href="/admin/issues/{{issue.id}}">Manage</a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -128,20 +100,10 @@
 
 <script>
 
-    const typeGroupBtn = document.getElementById('typeGroupBtn').querySelectorAll('input');
     const statusGroupBtn = document.getElementById('statusGroupBtn').querySelectorAll('input');
-
-    const viewTypeInput = document.getElementById('viewTypeInput');
     const viewStatusInput = document.getElementById('viewStatusInput');
 
     const viewForm = document.getElementById('viewForm');
-
-    typeGroupBtn.forEach(button => {
-        button.addEventListener('change', event => {
-            viewTypeInput.value = button.id;
-            viewForm.submit();
-        })
-    });
 
     statusGroupBtn.forEach(button => {
         button.addEventListener('change', event => {
@@ -149,18 +111,6 @@
             viewForm.submit();
         })
     });
-
-    // paymentSearchFormId.addEventListener('keypress', (event) => {
-    //     if (event.key === "Enter") {
-    //         paymentSearchForm.submit();
-    //     }
-    // })
-    //
-    // paymentSearchFormId.addEventListener('keyup', (event) => {
-    //     if (!paymentSearchFormId.value.length) {
-    //         paymentSearchForm.submit();
-    //     }
-    // })
 
 </script>
 {% endblock %}

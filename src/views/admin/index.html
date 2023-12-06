@@ -73,6 +73,9 @@
         {% set activeHome = active_route == 'home' ? 'active' : '' %}
         {% set activeIssues = active_route == 'issues' ? 'active' : '' %}
         {% set activeAnnouncement = active_route == 'announcements' ? 'active' : '' %}
+        {% set activeUsers = active_route == 'users' ? 'active' : '' %}
+        {% set activeLogs = active_route == 'logs' ? 'active' : '' %}
+        {% set activeSystem = active_route == 'system' ? 'active' : '' %}
 
         <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
             <div class="app-brand py-2">
@@ -94,24 +97,48 @@
                     <a
                             href="/home"
                             class="menu-link">
-                        <i class="menu-icon tf-icons bx bx-envelope"></i>
+                        <i class="menu-icon tf-icons bx bxs-wallet"></i>
                         <div data-i18n="Email">Payments</div>
                     </a>
                 </li>
                 <li class="menu-item {{activeIssues}}">
                     <a
-                            href="/issues"
+                            href="/admin/issues"
                             class="menu-link">
-                        <i class="menu-icon tf-icons bx bx-chat"></i>
+                        <i class="menu-icon tf-icons bx bxs-chat"></i>
                         <div data-i18n="Chat">Issues</div>
                     </a>
                 </li>
                 <li class="menu-item {{activeAnnouncement}}">
                     <a
-                            href="/announcements"
+                            href="/admin/announcements"
                             class="menu-link">
-                        <i class="menu-icon tf-icons bx bx-calendar"></i>
+                        <i class="menu-icon tf-icons bx bxs-megaphone"></i>
                         <div data-i18n="Calendar">Announcements</div>
+                    </a>
+                </li>
+                <li class="menu-item {{activeUsers}}">
+                    <a
+                            href="/admin/users"
+                            class="menu-link">
+                        <i class="menu-icon tf-icons bx bxs-user"></i>
+                        <div data-i18n="Calendar">Users</div>
+                    </a>
+                </li>
+                <li class="menu-item {{activeLogs}}">
+                    <a
+                            href="/admin/logs"
+                            class="menu-link">
+                        <i class="menu-icon tf-icons bx bxs-notepad"></i>
+                        <div data-i18n="Calendar">Logs</div>
+                    </a>
+                </li>
+                <li class="menu-item {{activeSystem}}">
+                    <a
+                            href="/admin/system"
+                            class="menu-link">
+                        <i class='menu-icon tf-icons bx bxs-cog'></i>
+                        <div data-i18n="Calendar">System Settings</div>
                     </a>
                 </li>
             </ul>
@@ -167,7 +194,7 @@
                                         <div class="dropdown-divider"></div>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="/account">
+                                        <a class="dropdown-item" href="/admin/account">
                                             <i class="bx bx-user me-2"></i>
                                             <span class="align-middle">Account</span>
                                         </a>
@@ -210,6 +237,7 @@
 
     {% include './partials/message-modal.html' %}
     {% include './partials/error-modal.html' %}
+    {% include './admin/partials/image-modal.html' %}
 
     <!-- Overlay -->
     <div class="layout-overlay layout-menu-toggle"></div>
@@ -219,6 +247,20 @@
 {% block javascript %}
 
 {% endblock %}
+
+<script>
+    const modalImage = document.querySelector("#modalImage");
+    const images = document.querySelectorAll("img");
+
+    images.forEach((image) => {
+        image.addEventListener("click", () => {
+            console.log('yow');
+            modalImage.src = image.src;
+            $("#imageModal").modal("show");
+        });
+    });
+</script>
+
 <script src="/resources/assets/js/main.js"></script>
 <!-- Place this tag in your head or just before your close body tag. -->
 <script async defer src="https://buttons.github.io/buttons.js"></script>

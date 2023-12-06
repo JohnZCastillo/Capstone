@@ -24,6 +24,14 @@ class TransactionModel {
     #[ORM\ManyToOne(targetEntity: UserModel::class, inversedBy: 'transactions',)]
     private ?UserModel $user = null;
 
+    #[ORM\ManyToOne(targetEntity: UserModel::class, )]
+    #[ORM\JoinColumn(nullable: true )]
+    private ?UserModel $approvedBy = null;
+
+    #[ORM\ManyToOne(targetEntity: UserModel::class, )]
+    #[ORM\JoinColumn(nullable: true )]
+    private ?UserModel $rejectedBy = null;
+
     #[ORM\Column(type: 'float')]
     private $amount;
 
@@ -50,6 +58,28 @@ class TransactionModel {
      */
     public function getAmount() {
         return $this->amount;
+    }
+
+    public function getApprovedBy(): ?UserModel
+    {
+        return $this->approvedBy;
+    }
+
+    public function setApprovedBy(?UserModel $approvedBy): TransactionModel
+    {
+        $this->approvedBy = $approvedBy;
+        return $this;
+    }
+
+    public function getRejectedBy(): ?UserModel
+    {
+        return $this->rejectedBy;
+    }
+
+    public function setRejectedBy(?UserModel $rejectedBy): TransactionModel
+    {
+        $this->rejectedBy = $rejectedBy;
+        return $this;
     }
 
     /**

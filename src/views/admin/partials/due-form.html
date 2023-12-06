@@ -1,0 +1,187 @@
+<style>
+    .calendar {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 5px;
+        text-align: center;
+    }
+
+    .calendar-box {
+        position: relative;
+        padding: 15px 10px;
+    }
+
+    .calendar-month {
+        position: absolute;
+        top: 2px;
+        left: 3px;
+    }
+
+    .calendar-price {
+        border: none;
+        outline: none;
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 18px;
+    }
+
+</style>
+
+<div aria-hidden="true" aria-labelledby="dueModalLabel" class="modal fade" id="dueModal" role="dialog" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dueModalLabel">Add New Due</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <h6>Dues Calendar</h6>
+
+                <div class="small text-secondary ">
+                    <p>Click price to edit.</p>
+                </div>
+
+                <div class="mb-1 d-flex align-items-center" style="gap:5px">
+                    <label>Year</label>
+                    <select class="form-control" id="dueYear" style="max-width: max-content">
+                        {% for year in paymentYear %}
+                        <option>{{year}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="calendar">
+
+                    {% for due in dues %}
+
+                    {% set month = due.date|date("M") %}
+                    {% set amount = due.amount %}
+                    {% set bg = due.savePoint ? "badge bg-success" : "text-secondary" %}
+                    <span class="calendar-box rounded border">
+                            <span class="calendar-month small {{bg}}" id="point{{month}}">{{month}}</span>
+                            <input class="calendar-price monthControl mt-2" name="{{month}}" readonly type="text"
+                                   value="₱{{amount}}" id="{{month}}">
+                        </span>
+
+                    {% endfor %}
+
+                </div>
+
+                <div class="small text-secondary mt-1">
+                    <p>This <span class="badge bg-success">month</span> symbolizes a designated month. Months not designated serve as intervals and rely on the nearest designated month's pricing.</p>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    const dueYear = document.querySelector("#dueYear");
+
+    const months = document.querySelectorAll(".monthControl");
+
+    months.forEach(target => {
+        const lostFocus = (event) => {
+            let newNumericValue = target.value.replace(/[^0-9]/g, '');
+            target.value = '₱' + newNumericValue; // Add the peso sign back
+            target.setAttribute('readonly', true);
+        }
+
+        const makeEditable = (event) => {
+
+            const currentValue = target.value;
+            let numericValue = currentValue.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+
+            target.removeAttribute('readonly');
+            target.value = numericValue;
+
+            target.removeAttribute('readonly');
+            target.focus();
+        }
+
+        const updateDue = async (event) => {
+
+            const year = dueYear.value;
+            const month = target.name;
+            const due = target.value.replace(/[^0-9]/g, '');
+
+            const currentValue = target.value;
+            let numericValue = currentValue.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+
+            const formattedDate = year + "-" + month;
+            const date = new Date(formattedDate);
+
+            let finalValue = year + "-" + (date.getMonth() + 1);
+
+            const formData = new FormData();
+
+            formData.append('month', finalValue);
+            formData.append('amount', numericValue);
+            formData.append('dueYear', dueYear.value);
+
+            const data = await fetch('/api/add-due', {
+                method: "POST",
+                body: formData
+            })
+
+            const result = await data.json();
+
+            if(data.ok){
+               result.forEach((due)=>{
+                   updateCalendar(due.month,due.amount,due.savePoint)
+               })
+            }
+        }
+
+        target.addEventListener('click', makeEditable);
+        target.addEventListener('change', updateDue);
+        target.addEventListener('blur', lostFocus);
+    })
+
+    function updateCalendar(id,value,savePoint){
+
+        const valueHolder = document.getElementById(id);
+
+        if(savePoint){
+            document.getElementById('point'+id).classList.add("badge");
+            document.getElementById('point'+id).classList.add("bg-success");
+            document.getElementById('point'+id).classList.add("text-white");
+        }else{
+            document.getElementById('point'+id).classList.remove("badge");
+            document.getElementById('point'+id).classList.remove("bg-success");
+            document.getElementById('point'+id).classList.remove("text-white");
+
+        }
+
+        valueHolder.value = '₱' + value; // Add the peso sign back
+        valueHolder.setAttribute('readonly', true);
+    }
+
+    dueYear.addEventListener('change',async (event)=>{
+
+        const formData = new FormData();
+
+        formData.append('dueYear', dueYear.value);
+
+        const data = await fetch('/api/year-dues', {
+            method: "POST",
+            body: formData
+        })
+
+        const result = await data.json();
+
+        if(data.ok){
+            result.forEach((due)=>{
+                updateCalendar(due.month,due.amount,due.savePoint)
+            })
+        }
+    })
+
+</script>

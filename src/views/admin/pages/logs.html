@@ -1,0 +1,75 @@
+{% extends "./admin/index.html" %}
+
+
+{% block body %}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- Table -->
+    <div class="card">
+        <h5 class="card-header">Logs</h5>
+        <div class="card-body">
+            <span class="small text-secondary text-decoration-none d-block">Tool Bar</span>
+            <div aria-label="Basic example" class="btn-group mb-2 " role="group">
+                <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#filterModal">Filter Logs</button>
+            </div>
+
+            <table class="table thead-dark table-hover rounded-table table-shadow">
+                <thead class="bg-dark text-white">
+                <tr>
+                    <th>User</th>
+                    <th>Date</th>
+                    <th>Tag</th>
+                    <th>Message</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{log.getUser().getName()}}</td>
+                    <td>{{log.getCreatedAt()|date('M d, Y h:i a') }}</td>
+                    <td>{{log.getTag()}}</td>
+                    <td>{{log.getAction()}}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% include './user/partials/pagination.html' %}
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModalLabel">Filter Logs</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="user">Email</label>
+                        <input value="{{user.email}}" type="text" class="form-control" id="user" placeholder="Enter Email" name="email">
+                    </div>
+                    <div class="form-group mb-1">
+                        <label class="form-label">Start Date</label>
+                        <input class="form-control" name="from" type="date" value="{{from}}">
+                    </div>
+                    <div class="form-group mb-1">
+                        <label class="form-label">End Date</label>
+                        <input class="form-control" name="to" type="date" value="{{to}}">
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-1">Apply Filters</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+
+
+{% endblock %}

@@ -17,7 +17,6 @@ use App\middleware\OfflineAuthorize;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
-use Slim\Flash\Messages;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use UMA\DIC\Container;
@@ -41,7 +40,9 @@ $twig->getEnvironment()->getExtension(\Twig\Extension\CoreExtension::class)->set
 $app->add(TwigMiddleware::create($app, $twig));
 
 $app->get('/', function (Request $request, Response $response) use ($twig) {
-    return $twig->render($response, 'homepage.html');
+    return $response
+        ->withHeader('Location', "/home")
+        ->withStatus(302);
 })->add(\App\middleware\BypassHomepage::class);
 
 $app->get('/signupNotAllowed', function (Request $request, Response $response) use ($twig) {
@@ -126,12 +127,12 @@ $app->get('/ui', function (Request $request, Response $response) use ($twig, $co
     ]);
 });
 
-$app->group('', function ($app) use ($twig,$container) {
+$app->group('', function ($app) use ($twig, $container) {
 
-    if(Login::isLogin()){
+    if (Login::isLogin()) {
         $userService = $container->get(\App\service\UserService::class);
         $loginUser = $userService->findById(Login::getLogin());;
-        $twig->getEnvironment()->addGlobal('login_user',$loginUser);
+        $twig->getEnvironment()->addGlobal('login_user', $loginUser);
     }
 
     $app->group('', function ($app) {
@@ -178,19 +179,19 @@ $app->group('', function ($app) use ($twig,$container) {
 
         $app->group('', function ($app) use ($twig) {
 
-            $app->get('/home', [AdminController::class, 'home']);
+            $app->get('/home', [AdminController::class, 'home'])
+                ->setName('home');
 
-            $app->get('/test', [AdminController::class, 'test']);
+            $app->get('/transaction/{id}', [AdminController::class, 'transaction'])
+                ->setName('home');
 
-            $app->get('/transaction/{id}', [AdminController::class, 'transaction']);
             $app->post('/transaction/reject', [AdminController::class, 'rejectPayment']);
             $app->post('/transaction/approve', [AdminController::class, 'approvePayment']);
             $app->post('/payment-settings', [AdminController::class, 'paymentSettings']);
-            $app->get('/payment-map', [AdminController::class, 'paymentMap']);
             $app->post('/report', [ReportController::class, 'report']);
             $app->post('/manual-payment', [PaymentController::class, 'manualPayment']);
-            $app->post('/block-user', [ApiController::class, 'blockUser']);
-            $app->post('/unblock-user', [ApiController::class, 'unblockUser']);
+
+
 
         })->add(\App\middleware\AdminPaymentAuth::class);
 
@@ -199,37 +200,59 @@ $app->group('', function ($app) use ($twig,$container) {
 
             $app->post('/announcement', [AdminController::class, 'announcement']);
 
-            $app->get('/announcement/edit/{id}', [AdminController::class, 'editAnnouncement']);
-            $app->get('/announcement/delete/{id}', [AdminController::class, 'deleteAnnouncement']);
-            $app->get('/announcement/post/{id}', [AdminController::class, 'postAnnouncement']);
-            $app->get('/announcement/archive/{id}', [AdminController::class, 'archiveAnnouncement']);
+            $app->get('/announcement/edit/{id}', [AdminController::class, 'editAnnouncement'])
+                ->setName('announcements');
 
-            $app->get('/announcements', [AdminController::class, 'announcements']);
+            $app->get('/announcement/delete/{id}', [AdminController::class, 'deleteAnnouncement'])
+                ->setName('announcements');
+
+
+            $app->get('/announcement/post/{id}', [AdminController::class, 'postAnnouncement'])
+                ->setName('announcements');
+
+            $app->get('/announcement/archive/{id}', [AdminController::class, 'archiveAnnouncement'])
+                ->setName('announcements');
+
+
+            $app->get('/announcements', [AdminController::class, 'announcements'])
+                ->setName('announcements');
 
 
         })->add(\App\middleware\AdminAnnouncementAuth::class);
 
         $app->group('', function ($app) use ($twig) {
-            $app->get('/issues', [AdminController::class, 'issues']);
-            $app->get('/issues/{id}', [AdminController::class, 'manageIssue']);
-            $app->post('/issues/action', [AdminController::class, 'actionIssue']);
+            $app->get('/issues', [AdminController::class, 'issues'])
+                ->setName('issues');
 
+            $app->get('/issues/{id}', [AdminController::class, 'manageIssue'])
+            ->setName('issues');
+
+            $app->post('/issues/action', [AdminController::class, 'actionIssue']);
         })->add(\App\middleware\AdminIssuesAuth::class);
 
 
         $app->group('', function ($app) use ($twig) {
-            $app->get('/users', [AdminController::class, 'users']);
+            $app->get('/users', [AdminController::class, 'users'])
+                ->setName('users');
+
+            $app->post('/block-user', [ApiController::class, 'blockUser']);
+            $app->post('/unblock-user', [ApiController::class, 'unblockUser']);
         })->add(\App\middleware\AdminUsersAuth::class);
 
         $app->group('', function ($app) use ($twig) {
             $app->post('/manage-privileges', [AdminController::class, 'managePrivileges']);
-            $app->get('/logs', [AdminController::class, 'logs']);
-            $app->get('/system', [AdminController::class, 'systemSettings']);
+
+            $app->get('/logs', [AdminController::class, 'logs'])
+            ->setName('logs');
+
+            $app->get('/system', [AdminController::class, 'systemSettings'])
+                ->setName('system');
+
             $app->post('/system', [AdminController::class, 'updateSystemSettings']);
         })->add(\App\middleware\SuperAdminAuth::class);
 
 
-    })->add(\App\middleware\AdminAuth::class);
+    })->add(ActivePage::class)->add(\App\middleware\AdminAuth::class);
 
     $app->post('/upload', [ApiController::class, 'upload']);
     $app->post('/payable-amount', [ApiController::class, 'amount']);

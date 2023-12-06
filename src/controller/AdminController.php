@@ -72,7 +72,7 @@ class AdminController extends Controller
             "errorMessage" => $errorMessage,
         ];
 
-        return $view->render($response, 'pages/admin-home.html', $data);
+        return $view->render($response, 'admin/pages/payments.html', $data);
     }
 
     public function transaction($request, $response, $args)
@@ -84,7 +84,7 @@ class AdminController extends Controller
 
         $user = $transaction->getUser();
 
-        return $view->render($response, 'pages/admin-transaction.html', [
+        return $view->render($response, 'admin/pages/transaction.html', [
             'transaction' => $transaction,
             'receipts' => $transaction->getReceipts(),
             'user' => $user,
@@ -108,6 +108,8 @@ class AdminController extends Controller
 
         // set transctio to rejected
         $transaction->setStatus('REJECTED');
+
+        $transaction->setRejectedBy($user);
 
         // save transaction
         $this->transactionService->save($transaction);
@@ -157,6 +159,8 @@ class AdminController extends Controller
 
         // set transction
         $transaction->setStatus('APPROVED');
+
+        $transaction->setApprovedBy($user);
 
         // save transaction
         $this->transactionService->save($transaction);
@@ -307,7 +311,7 @@ class AdminController extends Controller
 
         $announcement = $this->announcementService->findById($id);
 
-        return $view->render($response, 'pages/admin-announcement.html', [
+        return $view->render($response, 'admin/pages/announcement.html', [
             'announcement' => $announcement,
             'loginUser' => $this->getLogin(),
         ]);
@@ -397,7 +401,7 @@ class AdminController extends Controller
 
         $result = $this->announcementService->getAll($page, $max, null, $filter, null, $status);
 
-        return $view->render($response, 'pages/admin-all-announcement.html', [
+        return $view->render($response, 'admin/pages/announcements.html', [
             'announcements' => $result['announcements'],
             'message' => $message,
             'query' => $id,
@@ -439,7 +443,7 @@ class AdminController extends Controller
 
         $pagination = $this->issuesService->getAll($page, $max, $query, $filter, null, $type, $createdAt);
 
-        return $view->render($response, 'pages/admin-all-issues.html', [
+        return $view->render($response, 'admin/pages/issues.html', [
             'type' => $type,
             'message' => $message,
             'issues' => $pagination->getItems(),
@@ -474,7 +478,7 @@ class AdminController extends Controller
 
         $pagination = $this->userSerivce->getAll($page, $max, $query, $filter, $role);
 
-        return $view->render($response, 'pages/admin-all-users.html', [
+        return $view->render($response, 'admin/pages/users.html', [
             'users' => $pagination->getItems(),
             'currentPage' => $page,
             'role' => $role,
@@ -499,7 +503,7 @@ class AdminController extends Controller
         //might throw and error
         $issue = $this->issuesService->findById($id);
 
-        return $view->render($response, 'pages/admin-manage-issue.html', [
+        return $view->render($response, 'admin/pages/issue.html', [
             'issue' => $issue,
         ]);
     }
@@ -563,17 +567,25 @@ class AdminController extends Controller
     {
 
         $user = $this->getLogin();
+        $name = $user->getName();
+        $email = $user->getEmail();
+        $block = $user->getBlock();
+        $lot = $user->getLot();
 
         $loginHistory = $this->loginHistoryService->getLogs($user);
         $currentSession = session_id();
 
         $view = Twig::fromRequest($request);
 
-        return $view->render($response, 'pages/admin-account-settings.html', [
+        return $view->render($response, 'admin/pages/account.html', [
             "loginHistory" => $loginHistory,
             "sessionId" => $currentSession,
-            'loginUser' => $this->getLogin(),
+            "name" => $name,
+            "email" => $email,
+            "block" => $block,
+            "lot" => $lot,
             "user" => $user,
+            "logs" => $user->getMyLogs(),
         ]);
     }
 
@@ -689,7 +701,7 @@ class AdminController extends Controller
         $errorMessage = $this->flashMessages->getFirstMessage('errorMessage');
         $successMessage = $this->flashMessages->getFirstMessage('successMessage');
 
-        return $twig->render($response, 'pages/admin-system-settings.html', [
+        return $twig->render($response, 'admin/pages/system.html', [
             'timezone' => $timezone,
             "loginUser" => $user,
             "systemSettings" => $systemSettings,
@@ -706,7 +718,7 @@ class AdminController extends Controller
 
         $user = $this->getLogin();
 
-        return $twig->render($response, 'pages/admin-announcement.html', [
+        return $twig->render($response, 'admin/pages/announcement.html', [
             "loginUser" => $user
         ]);
 
@@ -749,7 +761,7 @@ class AdminController extends Controller
             'loginUser' => $this->getLogin(),
         ];
 
-        return $twig->render($response, 'pages/admin-all-logs.html', $data);
+        return $twig->render($response, 'admin/pages/logs.html', $data);
     }
 
     public function test($request, $response, $args)

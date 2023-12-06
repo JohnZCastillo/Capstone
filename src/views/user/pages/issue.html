@@ -12,18 +12,12 @@
             <div class="card invoice-preview-card">
                 <div class="card-body">
 
-                    {% if target is not null %}
-                    <a class="text-decoration-none text-secondary" href="/issues/{{target.id}}"> You submitted an <span
-                            class="text-danger">issue </span> for this transaction</a>
-                    {% endif %}
-
-
                     <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column p-sm-3 p-0">
                         <div>
                             <h4>Issue #{{issue.id}}</h4>
                             <div class="mb-2">
                                 <span class="me-1">Date Issues:</span>
-                                <span class="fw-medium">{{transaction.getCreatedAt()|date("M Y") }}</span>
+                                <span class="fw-medium">{{issue.getCreatedAt()|date("M Y") }}</span>
                             </div>
                         </div>
                     </div>
@@ -34,10 +28,6 @@
                 <div class="card-body">
                     <h4>{{issue.title}}</h4>
 
-                    {% if issue.status != 'pending' %}
-
-
-                    {% endif %}
                     <small>Issue Content</small>
                     <textarea class="form-control" readonly>{{issue.content}}</textarea>
                     {% set bg = issue.status|lower == 'resolved' ? "bg-success" : "bg-danger" %}

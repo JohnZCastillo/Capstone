@@ -1,0 +1,110 @@
+{% extends "./admin/index.html" %}
+
+
+{% block body %}
+
+{% include './partials/confirmation.html' %}
+
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    {% set bg = issue.status|lower == 'resolved' ? "bg-success" : "bg-danger" %}
+    <div class="row invoice-preview">
+        <!-- Invoice -->
+        <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
+            <div class="card invoice-preview-card">
+                <div class="card-body">
+
+                    <span class="badge badge-pill {{bg}}">{{issue.status|lower}}</span>
+
+                    <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column p-sm-3 p-0">
+                        <div>
+                            <h4>Issue #{{issue.id}}</h4>
+                            <div class="mb-2">
+                                <span class="me-1">Date Issues:</span>
+                                <span class="fw-medium">{{issue.getCreatedAt()|date("M Y") }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="my-0">
+
+
+                <div class="card-body">
+                    <h4>{{issue.title}}</h4>
+
+                    <small>Issue Content</small>
+                    <textarea class="form-control" readonly>{{issue.content}}</textarea>
+                    {% set bg = issue.status|lower == 'resolved' ? "bg-success" : "bg-danger" %}
+
+                    <hr class="mb-3">
+                    <form action="/admin/issues/action" id="issueForm" method="POST">
+                        <div class="form-group">
+                            <input class="d-none" name="id" type="text" value="{{issue.id}}">
+                            <label class="form-label small text-secondary" for="resolution">Your Message:</label>
+                            <textarea class="form-control" id="resolution" name="action" rows="4"
+                                      {{readOnly}}>{{issue.action}}</textarea>
+                        </div>
+                        <div class="form-group mt-2">
+
+                            {% if issue.status == 'pending' %}
+
+                            <label class="btn btn-success" for="resolved">Resolved</label>
+                            <input autocomplete="off" class="btn-check " id="resolved" name="status"
+                                   type="radio"
+                                   value="resolved"
+                            >
+
+                            <label class="btn btn-danger" for="rejected">Reject</label>
+                            <input autocomplete="off" class="btn-check " id="rejected" name="status"
+                                   type="radio"
+                                   value="rejected"
+                            >
+                            {% endif %}
+                        </div>
+                    </form>
+
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Invoice Actions -->
+        <div class="col-xl-3 col-md-4 col-12 invoice-actions">
+            <div class="card mb-2">
+                <div class="card-body">
+                    <a class="btn btn-secondary" href="/admin/issues">Back</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+
+    const issueForm = document.querySelector("#issueForm");
+    const resolveBtn = document.querySelector('#resolved');
+    const rejectBtn = document.querySelector('#rejected');
+
+    const resolveMessage = "<p class='text-success font-weight-bold'>You are about to resolve this issue.</p> <p>Resolving the issue will mark it as completed and initiate the necessary actions to address the reported problem. Once resolved, the sender will be notified of the resolution status.</p> <p>Are you sure you want to proceed?</p>";
+    const rejectMessage = "<p class='text-danger font-weight-bold'>You are about to reject this issue.</p> <p>Rejecting the issue will indicate that it will not be addressed further and the sender will be notified of the rejection status.</p> <p>Are you sure you want to proceed with rejection?</p>";
+
+    resolveBtn.addEventListener('click', (event) => {
+        confirm(resolveMessage, submitForm);
+    })
+
+    rejectBtn.addEventListener('click', (event) => {
+        confirm(rejectMessage, submitForm);
+    })
+
+    const submitForm = () => {
+        issueForm.submit();
+    }
+</script>
+
+{% endblock %}
