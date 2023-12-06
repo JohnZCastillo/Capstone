@@ -249,6 +249,9 @@ $app->group('', function ($app) use ($twig, $container) {
                 ->setName('system');
 
             $app->post('/system', [AdminController::class, 'updateSystemSettings']);
+
+            $app->get('/budget', [AdminController::class, 'budgetManagement']);
+
         })->add(\App\middleware\SuperAdminAuth::class);
 
 

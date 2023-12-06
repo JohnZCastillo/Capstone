@@ -799,4 +799,15 @@ class AdminController extends Controller
             ->withStatus(302);
     }
 
+    public function budgetManagement($request, $response, $args)
+    {
+
+        $twig = Twig::fromRequest($request);
+
+        $content = $request->getParsedBody();
+
+        return $twig->render($response, 'admin/pages/budget.html', []);
+
+    }
+
 }

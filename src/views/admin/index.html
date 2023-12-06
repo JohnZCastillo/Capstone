@@ -76,6 +76,7 @@
         {% set activeUsers = active_route == 'users' ? 'active' : '' %}
         {% set activeLogs = active_route == 'logs' ? 'active' : '' %}
         {% set activeSystem = active_route == 'system' ? 'active' : '' %}
+        {% set activeBudget = active_route == 'budget' ? 'active' : '' %}
 
         <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
             <div class="app-brand py-2">
@@ -93,6 +94,14 @@
             <div class="menu-inner-shadow"></div>
 
             <ul class="menu-inner py-1">
+                <li class="menu-item {{activeBudge}}">
+                    <a
+                            href="/admin/budget"
+                            class="menu-link">
+                        <i class="menu-icon tf-icons bx bxs-coin"></i>
+                        <div data-i18n="Email">Budget</div>
+                    </a>
+                </li>
                 <li class="menu-item {{activeHome}}">
                     <a
                             href="/home"
