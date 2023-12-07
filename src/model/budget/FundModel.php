@@ -1,0 +1,127 @@
+<?php
+
+namespace App\model\budget;
+
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity]
+#[ORM\Table(name: 'fund')]
+class FundModel{
+
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer')]
+    #[ORM\GeneratedValue]
+    private $id;
+
+    #[ORM\OneToMany(mappedBy: 'fund', targetEntity: IncomeModel::class)]
+    private Collection|array $incomes;
+
+    #[ORM\OneToMany(mappedBy: 'fund', targetEntity: ExpenseModel::class)]
+    private Collection|array $expenses;
+
+    #[ORM\ManyToMany(targetEntity: FundModel::class, mappedBy: 'mergedFunds')]
+    private Collection $mergedFunds;
+
+    #[ORM\Column(type: 'date')]
+    private $createdAt;
+
+    #[ORM\Column(type: 'boolean')]
+    private $isArchived;
+
+    public function __construct()
+    {
+        $this->incomes = new ArrayCollection();
+        $this->expenses = new ArrayCollection();
+        $this->mergedFunds = new ArrayCollection();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param mixed $id
+     * @return FundModel
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    public function getIncomes(): Collection|array
+    {
+        return $this->incomes;
+    }
+
+    public function setIncomes(Collection|array $incomes): FundModel
+    {
+        $this->incomes = $incomes;
+        return $this;
+    }
+
+    public function getExpenses(): Collection|array
+    {
+        return $this->expenses;
+    }
+
+    public function setExpenses(Collection|array $expenses): FundModel
+    {
+        $this->expenses = $expenses;
+        return $this;
+    }
+
+    public function getMergedFunds(): Collection
+    {
+        return $this->mergedFunds;
+    }
+
+    public function setMergedFunds(Collection $mergedFunds): FundModel
+    {
+        $this->mergedFunds = $mergedFunds;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCreatedAt()
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * @param mixed $createdAt
+     * @return FundModel
+     */
+    public function setCreatedAt($createdAt)
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIsArchived()
+    {
+        return $this->isArchived;
+    }
+
+    /**
+     * @param mixed $isArchived
+     * @return FundModel
+     */
+    public function setIsArchived($isArchived)
+    {
+        $this->isArchived = $isArchived;
+        return $this;
+    }
+
+}
