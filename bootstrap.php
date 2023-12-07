@@ -149,6 +149,7 @@ try {
     Type::addType(AnnouncementStatus::class, AnnouncementStatus::class);
     Type::addType(IssuesStatus::class, IssuesStatus::class);
     Type::addType(UserRole::class, UserRole::class);
+    Type::addType(\App\model\enum\BudgetStatus::class, \App\model\enum\BudgetStatus::class);
 } catch (\Doctrine\DBAL\Exception $e) {
     echo $e->getMessage();
 }
