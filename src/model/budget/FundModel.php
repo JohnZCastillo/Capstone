@@ -15,6 +15,9 @@ class FundModel{
     #[ORM\GeneratedValue]
     private $id;
 
+    #[ORM\Column(type: 'string')]
+    private $title;
+
     #[ORM\OneToMany(mappedBy: 'fund', targetEntity: IncomeModel::class)]
     private Collection|array $incomes;
 
@@ -35,6 +38,8 @@ class FundModel{
         $this->incomes = new ArrayCollection();
         $this->expenses = new ArrayCollection();
         $this->mergedFunds = new ArrayCollection();
+        $this->createdAt = new \DateTime();
+        $this->isArchived = false;
     }
 
     /**
@@ -121,6 +126,39 @@ class FundModel{
     public function setIsArchived($isArchived)
     {
         $this->isArchived = $isArchived;
+        return $this;
+    }
+
+    public function computeTotal():float{
+
+        $total = 0;
+
+        foreach ($this->incomes as $income){
+            $total += $income->getAmount();
+        }
+
+        foreach ($this->expenses as $expense){
+            $total -= $expense->getAmount();
+        }
+
+        return  0;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    /**
+     * @param mixed $title
+     * @return FundModel
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
         return $this;
     }
 

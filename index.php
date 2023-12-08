@@ -251,6 +251,7 @@ $app->group('', function ($app) use ($twig, $container) {
             $app->post('/system', [AdminController::class, 'updateSystemSettings']);
 
             $app->get('/budget', [AdminController::class, 'budgetManagement']);
+            $app->post('/new-fund', [AdminController::class, 'newFund']);
 
         })->add(\App\middleware\SuperAdminAuth::class);
 

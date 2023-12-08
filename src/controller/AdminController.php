@@ -10,6 +10,7 @@ use App\lib\Login;
 use App\lib\ReportMaker;
 use App\lib\Time;
 use App\model\AnnouncementModel;
+use App\model\budget\FundModel;
 use App\model\enum\AnnouncementStatus;
 use App\model\enum\UserRole;
 use App\model\LogsModel;
@@ -799,14 +800,34 @@ class AdminController extends Controller
             ->withStatus(302);
     }
 
-    public function budgetManagement($request, $response, $args)
+    public function newFund($request, $response, $args)
     {
 
         $twig = Twig::fromRequest($request);
 
         $content = $request->getParsedBody();
 
-        return $twig->render($response, 'admin/pages/budget.html', []);
+        $fund = new FundModel();
+        $fund->setTitle($content['title']);
+        $this->fundService->save($fund);
+
+        return $response
+            ->withHeader('Location', "/admin/budget")
+            ->withStatus(302);
+    }
+
+    public function budgetManagement($request, $response, $args)
+    {
+
+        $twig = Twig::fromRequest($request);
+
+        $funds = $this->fundService->getAll();
+
+        $content = $request->getParsedBody();
+
+        return $twig->render($response, 'admin/pages/budget.html', [
+            'funds' => $funds,
+        ]);
 
     }
 

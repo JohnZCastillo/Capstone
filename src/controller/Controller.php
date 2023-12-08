@@ -12,6 +12,7 @@ use App\model\UserModel;
 use App\service\AnnouncementService;
 use App\service\CodeModelService;
 use App\service\DuesService;
+use App\service\FundService;
 use App\service\IssuesService;
 use App\service\LoginHistoryService;
 use App\service\LogsService;
@@ -49,6 +50,8 @@ class Controller
 
     protected SystemSettingService $systemSettingService;
 
+    protected FundService $fundService;
+
     protected array $DB_CONFIG;
 
 
@@ -76,6 +79,7 @@ class Controller
         $this->userLogsService = $container->get(UserLogsService::class);
         $this->systemSettingService = $container->get(SystemSettingService::class);
         $this->DB_CONFIG = $container->get('DB_CONFIG');
+        $this->fundService = $container->get(FundService::class);
 
         $this->container = $container;
     }
