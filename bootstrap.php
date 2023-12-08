@@ -141,6 +141,10 @@ $container->set(\App\service\UserLogsService::class, static function (Container 
     return new \App\service\UserLogsService($c->get(EntityManager::class));
 });
 
+$container->set(\App\service\FundService::class, static function (Container $c) {
+    return new \App\service\FundService($c->get(EntityManager::class));
+});
+
 $conn = $container->get(EntityManager::class)->getConnection();
 $conn->getDatabasePlatform()->registerDoctrineTypeMapping("enum", "string");
 
