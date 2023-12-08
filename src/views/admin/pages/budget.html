@@ -32,7 +32,10 @@
                             </button>
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt6">
                                 <a class="dropdown-item" href="javascript:void(0);">View More</a>
-                                <a class="dropdown-item" href="javascript:void(0);">Archived</a>
+                                <form method="POST" action="/admin/archive-fund">
+                                    <input type="text" name="id" class="d-none" value="{{fund.id}}">
+                                    <button class="dropdown-item" type="submit">Archived</button>
+                                </form>
                             </div>
                         </div>
                     </div>
