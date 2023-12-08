@@ -33,6 +33,9 @@ class FundModel{
     #[ORM\Column(type: 'boolean')]
     private $isArchived;
 
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private $mainFund;
+
     public function __construct()
     {
         $this->incomes = new ArrayCollection();
@@ -161,5 +164,24 @@ class FundModel{
         $this->title = $title;
         return $this;
     }
+
+    /**
+     * @return mixed
+     */
+    public function isMainFund()
+    {
+        return $this->mainFund;
+    }
+
+    /**
+     * @param mixed $mainFund
+     * @return FundModel
+     */
+    public function setMainFund($mainFund)
+    {
+        $this->mainFund = $mainFund;
+        return $this;
+    }
+
 
 }

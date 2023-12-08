@@ -2,12 +2,10 @@
 
 namespace App\controller;
 
-use App\lib\Encryptor;
 use App\lib\Filter;
 use App\lib\Helper;
 use App\lib\Image;
 use App\lib\Login;
-use App\lib\ReportMaker;
 use App\lib\Time;
 use App\model\AnnouncementModel;
 use App\model\budget\FundModel;
@@ -15,15 +13,10 @@ use App\model\enum\AnnouncementStatus;
 use App\model\enum\UserRole;
 use App\model\LogsModel;
 use App\model\PaymentModel;
-use App\model\PrivilegesModel;
-use App\model\TransactionModel;
-use App\model\UserModel;
 use DateTime;
-use Defuse\Crypto\Key;
 use Exception;
 use Respect\Validation\Validator as V;
 use Slim\Views\Twig;
-use TCPDF;
 
 class AdminController extends Controller
 {
@@ -787,9 +780,9 @@ class AdminController extends Controller
             $systemSettings->setMailPassword($content['mailPassword']);
         }
 
-        if(isset($content['allowSignup'])){
+        if (isset($content['allowSignup'])) {
             $systemSettings->setAllowSignup(true);
-        }else{
+        } else {
             $systemSettings->setAllowSignup(false);
         }
 
@@ -810,6 +803,38 @@ class AdminController extends Controller
         $fund = new FundModel();
         $fund->setTitle($content['title']);
         $this->fundService->save($fund);
+
+        return $response
+            ->withHeader('Location', "/admin/budget")
+            ->withStatus(302);
+    }
+
+    public function archiveFund($request, $response, $args)
+    {
+
+        $twig = Twig::fromRequest($request);
+
+        $content = $request->getParsedBody();
+
+        $fund = $this->fundService->findById($content['id']);
+
+        try {
+
+            if (!isset($fund)) {
+                throw new Exception('Unable To Find Fund with ID of ' . $content['id']);
+            }
+
+            if ($fund->isMainFund()) {
+                throw new Exception("Cannot Archive Main Fund");
+            }
+
+            $fund->setIsArchived(true);
+            $this->fundService->save($fund);
+
+        } catch (Exception $e) {
+            $this->flashMessages->addMessage('errorMessage', $e->getMessage());
+        }
+
 
         return $response
             ->withHeader('Location', "/admin/budget")

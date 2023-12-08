@@ -135,6 +135,9 @@ $app->group('', function ($app) use ($twig, $container) {
         $twig->getEnvironment()->addGlobal('login_user', $loginUser);
     }
 
+    $flash = $container->get(\Slim\Flash\Messages::class);
+    $twig->getEnvironment()->addGlobal('errorMessage', $flash->getFirstMessage('errorMessage'));
+
     $app->group('', function ($app) {
 
         $app->get('/home', [UserController::class, 'home'])
@@ -252,6 +255,7 @@ $app->group('', function ($app) use ($twig, $container) {
 
             $app->get('/budget', [AdminController::class, 'budgetManagement']);
             $app->post('/new-fund', [AdminController::class, 'newFund']);
+            $app->post('/archive-fund', [AdminController::class, 'archiveFund']);
 
         })->add(\App\middleware\SuperAdminAuth::class);
 

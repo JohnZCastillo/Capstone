@@ -3,7 +3,6 @@
 namespace App\service;
 
 use App\model\budget\FundModel;
-use App\model\ReceiptModel;
 
 class FundService extends Service
 {
@@ -21,12 +20,12 @@ class FundService extends Service
             ->find(FundModel::class, $id);
     }
 
-    public function getAll(): array
+    public function getAll(bool $archived = false): array
     {
         return $this
             ->entityManager
             ->getRepository(FundModel::class)
-            ->findBy(['isArchived' => false]);
+            ->findBy(['isArchived' => $archived]);
     }
 
 }
