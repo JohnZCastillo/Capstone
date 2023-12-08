@@ -8,8 +8,11 @@ use App\lib\Image;
 use App\lib\Login;
 use App\lib\Time;
 use App\model\AnnouncementModel;
+use App\model\budget\ExpenseModel;
 use App\model\budget\FundModel;
+use App\model\budget\IncomeModel;
 use App\model\enum\AnnouncementStatus;
+use App\model\enum\BudgetStatus;
 use App\model\enum\UserRole;
 use App\model\LogsModel;
 use App\model\PaymentModel;
@@ -758,10 +761,10 @@ class AdminController extends Controller
         return $twig->render($response, 'admin/pages/logs.html', $data);
     }
 
-    public function test($request, $response, $args)
-    {
-        var_dump($this->container->get('DEFAULT_CREDENTIAL'));
-        var_dump(Login::isOfflineLogin());
+    public function test($request, $response, $args){
+        var_dump(
+            $this->fundService->getMonthlyTally(1,2023)
+        );
     }
 
     public function updateSystemSettings($request, $response, $args)
@@ -841,6 +844,185 @@ class AdminController extends Controller
             ->withStatus(302);
     }
 
+    public function fund($request, $response, $args)
+    {
+
+        $twig = Twig::fromRequest($request);
+
+        $content = $request->getParsedBody();
+
+        $id = $args['id'];
+
+        $fund = $this->fundService->findById($id);
+        $fundSources = $this->fundSourceService->getAll();
+
+
+        try {
+
+            if (!isset($fund)) {
+                throw new Exception('Unable To Find Fund with ID of ' . $content['id']);
+            }
+
+            return $twig->render($response, 'admin/pages/fund-details.html', [
+                'fund' => $fund,
+                'fundSources' => $fundSources,
+            ]);
+
+        } catch (Exception $e) {
+            $this->flashMessages->addMessage('errorMessage', $e->getMessage());
+        }
+
+        return $response
+            ->withHeader('Location', "/admin/budget")
+            ->withStatus(302);
+    }
+
+    public function addIncome($request, $response, $args)
+    {
+
+        $twig = Twig::fromRequest($request);
+
+        $content = $request->getParsedBody();
+
+        $id = $args['id'];
+
+        $fund = $this->fundService->findById($id);
+        $source = $this->fundSourceService->findById($content['source']);
+
+        try {
+
+            if (!isset($fund)) {
+                throw new Exception('Unable To Find Fund with ID of ' . $id);
+            }
+
+            if (!isset($source)) {
+                throw new Exception('Unable To Find Source with ID of ' . $content['source']);
+            }
+
+            $income = new IncomeModel();
+            $income->setTitle($content['title']);
+            $income->setAmount($content['amount']);
+            $income->setFund($fund);
+            $income->setSource($source);
+
+            $this->incomeService->save($income);
+
+            return $response
+                ->withHeader('Location', "/admin/fund/$id")
+                ->withStatus(302);
+
+        } catch (Exception $e) {
+            $this->flashMessages->addMessage('errorMessage', $e->getMessage());
+        }
+
+        return $response
+            ->withHeader('Location', "/admin/budget")
+            ->withStatus(302);
+    }
+
+    public function addExpense($request, $response, $args)
+    {
+
+        $twig = Twig::fromRequest($request);
+
+        $content = $request->getParsedBody();
+
+        $id = $args['id'];
+
+        $fund = $this->fundService->findById($id);
+
+        try {
+
+            if (!isset($fund)) {
+                throw new Exception('Unable To Find Fund with ID of ' . $id);
+            }
+
+            $expense = new ExpenseModel();
+            $expense->setTitle($content['title']);
+            $expense->setFund($fund);
+            $expense->setAmount($content['amount']);
+            $expense->setPurpose($content['purpose']);
+
+            $this->expenseService->save($expense);
+
+            return $response
+                ->withHeader('Location', "/admin/fund/$id")
+                ->withStatus(302);
+
+        } catch (Exception $e) {
+            $this->flashMessages->addMessage('errorMessage', $e->getMessage());
+        }
+
+        return $response
+            ->withHeader('Location', "/admin/budget")
+            ->withStatus(302);
+    }
+
+    public function approveExpense($request, $response, $args)
+    {
+
+        $content = $request->getParsedBody();
+
+        $id = $args['id'];
+
+        $expense = $this->expenseService->findById($id);
+
+        try {
+
+            if (!isset($expense)) {
+                throw new Exception('Unable To Find Expense with ID of ' . $id);
+            }
+
+            $expense->setStatus(BudgetStatus::approved());
+
+            $this->expenseService->save($expense);
+
+            return $response
+                ->withHeader('Location', "/admin/fund/".$expense->getFund()->getId())
+                ->withStatus(302);
+
+        } catch (Exception $e) {
+            $this->flashMessages->addMessage('errorMessage', $e->getMessage());
+        }
+
+        return $response
+            ->withHeader('Location', "/admin/budget")
+            ->withStatus(302);
+    }
+
+    public function rejectExpense($request, $response, $args)
+    {
+
+        $content = $request->getParsedBody();
+
+        $id = $args['id'];
+
+        $expense = $this->expenseService->findById($id);
+
+        try {
+
+            if (!isset($expense)) {
+                throw new Exception('Unable To Find Expense with ID of ' . $id);
+            }
+
+            $expense->setStatus(BudgetStatus::rejected());
+
+            $this->expenseService->save($expense);
+
+            return $response
+                ->withHeader('Location', "/admin/fund/".$expense->getFund()->getId())
+                ->withStatus(302);
+
+        } catch (Exception $e) {
+            $this->flashMessages->addMessage('errorMessage', $e->getMessage());
+        }
+
+        return $response
+            ->withHeader('Location', "/admin/budget")
+            ->withStatus(302);
+    }
+
+
     public function budgetManagement($request, $response, $args)
     {
 
@@ -850,8 +1032,15 @@ class AdminController extends Controller
 
         $content = $request->getParsedBody();
 
+        $tally = $this->fundService->getMonthlyTally(1,2023);
+
+        $keys = array_keys($tally);
+        $values = array_values($tally);
+
         return $twig->render($response, 'admin/pages/budget.html', [
             'funds' => $funds,
+            'keys' => $keys,
+            'values' => $values,
         ]);
 
     }

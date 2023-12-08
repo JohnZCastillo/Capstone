@@ -22,14 +22,21 @@ class IncomeModel{
     #[ORM\ManyToOne(targetEntity: FundSourceModel::class)]
     private ?FundSourceModel $source = null;
 
-    #[ORM\ManyToOne(targetEntity: FundSourceModel::class, inversedBy: 'incomes')]
+    #[ORM\ManyToOne(targetEntity: FundModel::class, inversedBy: 'incomes')]
     private ?FundModel $fund = null;
 
     #[ORM\Column(type: 'date')]
     private $createdAt;
 
-    #[ORM\Column(type: 'date')]
+    #[ORM\Column(type: 'date', nullable: true)]
     private $updatedAt;
+
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTime();
+    }
+
 
     /**
      * @return mixed

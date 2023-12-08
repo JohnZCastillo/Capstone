@@ -25,7 +25,7 @@ class ExpenseModel{
     #[ORM\Column(type: 'float')]
     private $amount;
 
-    #[ORM\ManyToOne(targetEntity: FundSourceModel::class, inversedBy: 'expenses')]
+    #[ORM\ManyToOne(targetEntity: FundModel::class, inversedBy: 'expenses')]
     private ?FundModel $fund = null;
 
     #[ORM\Column(type: BudgetStatus::class)]
@@ -37,12 +37,14 @@ class ExpenseModel{
     #[ORM\Column(type: 'date')]
     private $createdAt;
 
-    #[ORM\Column(type: 'date')]
+    #[ORM\Column(type: 'date', nullable: true)]
     private $updatedAt;
 
     public function __construct()
     {
         $this->additional = new ArrayCollection();
+        $this->status = BudgetStatus::pending();
+        $this->createdAt = new \DateTime();
     }
 
 

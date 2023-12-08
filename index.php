@@ -254,6 +254,11 @@ $app->group('', function ($app) use ($twig, $container) {
             $app->post('/system', [AdminController::class, 'updateSystemSettings']);
 
             $app->get('/budget', [AdminController::class, 'budgetManagement']);
+            $app->get('/fund/{id}', [AdminController::class, 'fund']);
+            $app->post('/add-income/{id}', [AdminController::class, 'addIncome']);
+            $app->post('/add-expense/{id}', [AdminController::class, 'addExpense']);
+            $app->post('/approve-expense/{id}', [AdminController::class, 'approveExpense']);
+            $app->post('/reject-expense/{id}', [AdminController::class, 'rejectExpense']);
             $app->post('/new-fund', [AdminController::class, 'newFund']);
             $app->post('/archive-fund', [AdminController::class, 'archiveFund']);
 

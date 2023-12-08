@@ -2,13 +2,15 @@
 
 namespace App\model\budget;
 
+use App\model\enum\BudgetStatus;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'fund')]
-class FundModel{
+class FundModel
+{
 
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
@@ -132,20 +134,51 @@ class FundModel{
         return $this;
     }
 
-    public function computeTotal():float{
+    public function computeTotal(): float
+    {
 
         $total = 0;
 
-        foreach ($this->incomes as $income){
+        foreach ($this->incomes as $income) {
             $total += $income->getAmount();
         }
 
-        foreach ($this->expenses as $expense){
-            $total -= $expense->getAmount();
+        foreach ($this->expenses as $expense) {
+            if ($expense->getStatus() == BudgetStatus::approved()) {
+                $total -= $expense->getAmount();
+            }
         }
 
-        return  0;
+        return $total;
     }
+
+    public function computeExpenses(): float
+    {
+
+        $total = 0;
+
+        foreach ($this->expenses as $expense) {
+
+            if ($expense->getStatus() == BudgetStatus::approved()) {
+                $total += $expense->getAmount();
+            }
+        }
+
+        return $total;
+    }
+
+    public function computeIncomes(): float
+    {
+
+        $total = 0;
+
+        foreach ($this->incomes as $income) {
+            $total += $income->getAmount();
+        }
+
+        return $total;
+    }
+
 
     /**
      * @return mixed

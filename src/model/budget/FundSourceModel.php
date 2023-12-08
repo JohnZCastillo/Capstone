@@ -22,6 +22,13 @@ class FundSourceModel {
     #[ORM\Column(type: 'boolean')]
     private $isArchived;
 
+
+    public function __construct()
+    {
+        $this->created_at = new \DateTime();
+        $this->isArchived = false;
+    }
+
     /**
      * @return mixed
      */

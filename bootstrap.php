@@ -145,6 +145,20 @@ $container->set(\App\service\FundService::class, static function (Container $c) 
     return new \App\service\FundService($c->get(EntityManager::class));
 });
 
+$container->set(\App\service\FundSourceService::class, static function (Container $c) {
+    return new \App\service\FundSourceService($c->get(EntityManager::class));
+});
+
+$container->set(\App\service\IncomeService::class, static function (Container $c) {
+    return new \App\service\IncomeService($c->get(EntityManager::class));
+});
+
+
+$container->set(\App\service\ExpenseService::class, static function (Container $c) {
+    return new \App\service\ExpenseService($c->get(EntityManager::class));
+});
+
+
 $conn = $container->get(EntityManager::class)->getConnection();
 $conn->getDatabasePlatform()->registerDoctrineTypeMapping("enum", "string");
 
