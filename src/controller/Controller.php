@@ -10,6 +10,7 @@ use App\model\PaymentModel;
 use App\model\UserLogsModel;
 use App\model\UserModel;
 use App\service\AnnouncementService;
+use App\service\BillService;
 use App\service\CodeModelService;
 use App\service\DuesService;
 use App\service\ExpenseService;
@@ -58,6 +59,8 @@ class Controller
     protected IncomeService $incomeService;
     protected ExpenseService $expenseService;
 
+    protected BillService $billService;
+
     protected array $DB_CONFIG;
 
 
@@ -89,6 +92,7 @@ class Controller
         $this->fundSourceService = $container->get(FundSourceService::class);
         $this->incomeService = $container->get(IncomeService::class);
         $this->expenseService = $container->get(ExpenseService::class);
+        $this->billService = $container->get(BillService::class);
 
         $this->container = $container;
     }

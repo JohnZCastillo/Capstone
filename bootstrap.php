@@ -158,6 +158,10 @@ $container->set(\App\service\ExpenseService::class, static function (Container $
     return new \App\service\ExpenseService($c->get(EntityManager::class));
 });
 
+$container->set(\App\service\BillService::class, static function (Container $c) {
+    return new \App\service\BillService($c->get(EntityManager::class));
+});
+
 
 $conn = $container->get(EntityManager::class)->getConnection();
 $conn->getDatabasePlatform()->registerDoctrineTypeMapping("enum", "string");
