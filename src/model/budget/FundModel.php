@@ -134,6 +134,20 @@ class FundModel
         return $this;
     }
 
+    public function totalPendingExpenses(): float
+    {
+
+        $total = 0;
+
+        foreach ($this->expenses as $expense) {
+            if ($expense->getStatus() == BudgetStatus::pending()) {
+                $total += 1;
+            }
+        }
+
+        return $total;
+    }
+
     public function computeTotal(): float
     {
 
