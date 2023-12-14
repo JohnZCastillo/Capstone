@@ -1,0 +1,212 @@
+{% extends "./admin/index.html" %}
+
+{% block body %}
+
+<style>
+    .box{
+        box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+        padding: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+</style>
+<div class="container-xxl flex-grow-1 container-p-y">
+
+    <div class="card">
+
+        <div class="card-header">
+
+        <div class="card-title">
+                <p>Carissa Overview</p>
+        </div>
+        </div>
+
+        <div class="card-content">
+
+        <div class="card-body">
+
+
+            <form>
+
+                <div>
+                    <label for="about">About</label>
+                    <textarea class="form-control" name="about" id="about"></textarea>
+                </div>
+                <div>
+                    <label for="about">History</label>
+                    <textarea class="form-control" name="about" id="about"></textarea>
+                </div>
+                <div>
+                    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+                    <div id="chart_div"></div>
+
+                </div>
+
+                <div>
+
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card h-100">
+                            <img class="card-img-top" src="../assets/img/elements/2.jpg" alt="Card image cap">
+                            <div class="card-body">
+                                <h5 class="card-title">Card title</h5>
+                                <p class="card-text">
+                                    Some quick example text to build on the card title and make up the bulk of the card's content.
+                                </p>
+                                <a href="javascript:void(0)" class="btn btn-outline-primary">Go somewhere</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        </div>
+
+    </div>
+
+    <form id="removeStaffForm">
+        <div>
+            <label for="removeStaffName">Name</label>
+            <input class="form-control" id="removeStaffName" type="text">
+        </div>
+        <div>
+            <button type="submit" class="mt-2 btn btn-danger">Submit</button>
+        </div>
+    </form>
+    <form id="staffForm">
+        <div>
+            <label for="staffName">Name</label>
+            <input class="form-control"  name="name" id="staffName">
+            </div>
+        <div>
+
+        <label for="staffPosition">Position</label>
+        <input class="form-control"  name="name" id="staffPosition">
+</div>
+        <div>
+        <label for="staffSuperior">Superior</label>
+            <select id="staffSuperior" class="form-control">
+                <option value="">None</option>
+                <option value="Jim">Jim</option>
+                <option value="Alice">Alice</option>
+            </select>
+        </div>
+        <div>
+            <button class="mt-2 btn btn-primary">Add</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+    google.charts.load('current', {
+        packages: ["orgchart"]
+    });
+    google.charts.setOnLoadCallback(drawChart);
+
+    let staff = [
+        [{
+            'v': 'Mike',
+            'f': 'Mike<div style="color:red; font-style:italic">President</div>'
+        },
+            '', 'The President'
+        ],
+        [{
+            'v': 'Jim',
+            'f': 'Jim<div style="color:red; font-style:italic">Vice President</div>'
+        },
+            'Mike', 'VP'
+        ],
+        [{
+            'v': 'James',
+            'f': 'James<div style="color:red; font-style:italic">Vice President</div>'
+        },
+            'Mike', 'VP'
+        ],
+    ];
+
+    function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Name');
+        data.addColumn('string', 'Manager');
+        data.addColumn('string', 'ToolTip');
+
+        // For each orgchart box, provide the name, manager, and tooltip to show.
+        data.addRows(staff);
+
+        // Create the chart.
+        var chart = new google.visualization.OrgChart(document.getElementById('chart_div'));
+
+
+        google.visualization.events.addListener(chart, 'select', function () {
+            var selectedItem = chart.getSelection()[0];
+            if (selectedItem) {
+                var nodeName = data.getValue(selectedItem.row, 0);
+                console.log(nodeName);
+            }
+        });
+
+        // Draw the chart, setting the allowHtml option to true for the tooltips.
+        chart.draw(data, {
+            'allowHtml': true,
+            'nodeClass': 'box'
+        });
+    }
+
+</script>
+
+<script>
+
+    function createStaff(name,position,superior){
+
+        return   [{
+            'v': name,
+            'f': `<img src="/resources/user.svg">
+<div>${name}</div>
+<div style="color:red; font-style:italic">${position}</div>  `
+        },
+            superior, `The ${position}`
+        ];
+    }
+
+    function removeStaff(name){
+        return staff.filter(element => element[0].v != name);
+    }
+
+    const staffForm = document.getElementById('staffForm');
+    const staffName = document.getElementById('staffName');
+    const staffPosition = document.getElementById('staffPosition');
+    const staffSuperior = document.getElementById('staffSuperior');
+
+    const removeStaffForm = document.getElementById('removeStaffForm');
+    const removeStaffName = document.getElementById('removeStaffName');
+
+    staffForm.addEventListener('submit',(event)=>{
+        event.preventDefault();
+
+        staff.push(createStaff(staffName.value,'Programmer',staffSuperior.value))
+
+        drawChart();
+
+        staffForm.reset();
+        console.log(staff);
+    })
+
+    removeStaffForm.addEventListener('submit',(event)=>{
+
+        event.preventDefault();
+
+        let newStaff = removeStaff(removeStaffName.value);
+        console.log(newStaff);
+
+        staff = newStaff;
+
+        drawChart();
+        removeStaffForm.reset();
+
+
+    })
+
+</script>
+{% endblock %}

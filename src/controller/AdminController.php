@@ -1275,4 +1275,17 @@ class AdminController extends Controller
 
     }
 
+    public function overview($request, $response, $args)
+    {
+
+        $twig = Twig::fromRequest($request);
+
+        $content = $request->getParsedBody();
+        $query = $request->getQueryParams();
+
+        return $twig->render($response, 'admin/pages/overview.html', [
+        ]);
+
+    }
+
 }

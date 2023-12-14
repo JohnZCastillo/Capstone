@@ -251,6 +251,7 @@ $app->group('', function ($app) use ($twig, $container) {
 
             $app->post('/system', [AdminController::class, 'updateSystemSettings']);
 
+            $app->get('/overview', [AdminController::class, 'overview']);
             $app->get('/budget', [AdminController::class, 'budgetManagement']);
             $app->get('/fund/{id}', [AdminController::class, 'fund']);
             $app->post('/add-income/{id}', [AdminController::class, 'addIncome']);
