@@ -23,14 +23,18 @@ class BillModel
     #[ORM\Column(type: 'date')]
     private $createdAt;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private $isArchived;
+
+    #[ORM\OneToMany(mappedBy: 'bill', targetEntity: ExpenseModel::class)]
+    private Collection|array $expenses;
 
     public function __construct()
     {
+        $this->expenses = new ArrayCollection();
         $this->createdAt = new \DateTime();
+        $this->isArchived = false;
     }
-
 
     /**
      * @return mixed
@@ -61,6 +65,18 @@ class BillModel
         return $this;
     }
 
+    public function getExpenses(): Collection|array
+    {
+        return $this->expenses;
+    }
+
+    public function setExpenses(Collection|array $expenses): BillModel
+    {
+        $this->expenses = $expenses;
+        return $this;
+    }
+
+
     /**
      * @return mixed
      */
@@ -82,7 +98,7 @@ class BillModel
     /**
      * @return mixed
      */
-    public function getIsArchived()
+    public function isArchived()
     {
         return $this->isArchived;
     }

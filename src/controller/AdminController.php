@@ -8,6 +8,7 @@ use App\lib\Image;
 use App\lib\Login;
 use App\lib\Time;
 use App\model\AnnouncementModel;
+use App\model\budget\BillModel;
 use App\model\budget\ExpenseModel;
 use App\model\budget\FundModel;
 use App\model\budget\IncomeModel;
@@ -838,9 +839,90 @@ class AdminController extends Controller
             $this->flashMessages->addMessage('errorMessage', $e->getMessage());
         }
 
+        return $response
+            ->withHeader('Location', '/admin/budget')
+            ->withStatus(302);
+    }
+
+    public function archiveBill($request, $response, $args)
+    {
+
+        $twig = Twig::fromRequest($request);
+
+        $bill = $this->billService->findById($args['id']);
+
+        try {
+
+            if (!isset($bill)) {
+                throw new Exception('Unable To Find Bill');
+            }
+
+            $bill->setIsArchived(true);
+            $this->billService->save($bill);
+
+        } catch (Exception $e) {
+            $this->flashMessages->addMessage('errorMessage', $e->getMessage());
+        }
 
         return $response
-            ->withHeader('Location', "/admin/budget")
+            ->withHeader('Location', '/admin/budget')
+            ->withStatus(302);
+    }
+
+    public function activeBill($request, $response, $args)
+    {
+
+        $twig = Twig::fromRequest($request);
+
+        $bill = $this->billService->findById($args['id']);
+
+        try {
+
+            if (!isset($bill)) {
+                throw new Exception('Unable To Find Bill');
+            }
+
+            $bill->setIsArchived(false);
+            $this->billService->save($bill);
+
+        } catch (Exception $e) {
+            $this->flashMessages->addMessage('errorMessage', $e->getMessage());
+        }
+
+        return $response
+            ->withHeader('Location', '/admin/budget')
+            ->withStatus(302);
+    }
+
+    public function activeFund($request, $response, $args)
+    {
+
+        $twig = Twig::fromRequest($request);
+
+        $content = $request->getParsedBody();
+        $query = $request->getQueryParams();
+
+        $fund = $this->fundService->findById($content['id']);
+
+        try {
+
+            if (!isset($fund)) {
+                throw new Exception('Unable To Find Fund with ID of ' . $content['id']);
+            }
+
+            if ($fund->isMainFund()) {
+                throw new Exception("Cannot Archive Main Fund");
+            }
+
+            $fund->setIsArchived(false);
+            $this->fundService->save($fund);
+
+        } catch (Exception $e) {
+            $this->flashMessages->addMessage('errorMessage', $e->getMessage());
+        }
+
+        return $response
+            ->withHeader('Location', '/admin/budget?status=archived')
             ->withStatus(302);
     }
 
@@ -910,6 +992,50 @@ class AdminController extends Controller
             return $response
                 ->withHeader('Location', "/admin/fund/$id")
                 ->withStatus(302);
+
+        } catch (Exception $e) {
+            $this->flashMessages->addMessage('errorMessage', $e->getMessage());
+        }
+
+        return $response
+            ->withHeader('Location', "/admin/budget")
+            ->withStatus(302);
+    }
+
+    public function addBill($request, $response, $args)
+    {
+
+        $twig = Twig::fromRequest($request);
+
+        $content = $request->getParsedBody();
+
+        $fund = $this->fundService->findById($content['fund']);
+
+        try {
+
+            if (!isset($fund)) {
+                throw new Exception('Unable To Find Fund');
+            }
+
+            $expense = new ExpenseModel();
+            $expense->setTitle($content['title']);
+            $expense->setFund($fund);
+            $expense->setAmount($content['amount']);
+            $expense->setPurpose($content['purpose']);
+            $expense->setStatus(BudgetStatus::approved());
+
+            $bill = new BillModel();
+            $bill->setExpense($expense);
+
+            $this->expenseService->save($expense);
+
+            $bill = new BillModel();
+            $bill->setExpense($expense);
+
+            $this->billService->save($bill);
+
+            $this->flashMessages->addMessage('successMessage', $bill->getExpense()->getTitle() . ' is added');
+
 
         } catch (Exception $e) {
             $this->flashMessages->addMessage('errorMessage', $e->getMessage());
@@ -990,6 +1116,58 @@ class AdminController extends Controller
             ->withStatus(302);
     }
 
+    public function approveBillExpense($request, $response, $args)
+    {
+
+        $id = $args['id'];
+
+        $expense = $this->expenseService->findById($id);
+
+        try {
+
+            if (!isset($expense)) {
+                throw new Exception('Unable To Find Expense with ID of ' . $id);
+            }
+
+            $expense->setStatus(BudgetStatus::approved());
+
+            $this->expenseService->save($expense);
+
+        } catch (Exception $e) {
+            $this->flashMessages->addMessage('errorMessage', $e->getMessage());
+        }
+
+        return $response
+            ->withHeader('Location', "/admin/budget")
+            ->withStatus(302);
+    }
+
+    public function rejectBillExpense($request, $response, $args)
+    {
+
+        $id = $args['id'];
+
+        $expense = $this->expenseService->findById($id);
+
+        try {
+
+            if (!isset($expense)) {
+                throw new Exception('Unable To Find Expense with ID of ' . $id);
+            }
+
+            $expense->setStatus(BudgetStatus::rejected());
+
+            $this->expenseService->save($expense);
+
+        } catch (Exception $e) {
+            $this->flashMessages->addMessage('errorMessage', $e->getMessage());
+        }
+
+        return $response
+            ->withHeader('Location', "/admin/budget")
+            ->withStatus(302);
+    }
+
     public function rejectExpense($request, $response, $args)
     {
 
@@ -1028,11 +1206,26 @@ class AdminController extends Controller
 
         $twig = Twig::fromRequest($request);
 
-        $funds = $this->fundService->getAll();
-
         $content = $request->getParsedBody();
+        $query = $request->getQueryParams();
+
+        $archived = false;
+        $archiveBill = false;
+
+        if(isset($query['status'])){
+            $archived = !($query['status'] == 'active');
+        }
+
+        if(isset($query['bill'])){
+            $archiveBill = !($query['bill'] == 'active');
+        }
+
+
+        $funds = $this->fundService->getAll($archived);
 
         $tally = $this->fundService->getMonthlyTally(1,2023);
+
+        $bills = $this->billService->getAll($archiveBill);
 
         $keys = array_keys($tally);
         $values = array_values($tally);
@@ -1041,6 +1234,9 @@ class AdminController extends Controller
             'funds' => $funds,
             'keys' => $keys,
             'values' => $values,
+            'bills' => $bills,
+            'archived' => $archived,
+            'archiveBill' => $archiveBill,
         ]);
 
     }

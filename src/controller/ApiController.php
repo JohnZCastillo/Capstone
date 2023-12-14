@@ -4,6 +4,8 @@ namespace App\controller;
 
 use App\lib\Image;
 use App\lib\Time;
+use App\model\budget\ExpenseModel;
+use App\model\enum\BudgetStatus;
 use DateTime;
 use Exception;
 
@@ -54,6 +56,80 @@ class ApiController extends Controller
             return $response->withHeader('Content-Type', 'application/json')
                 ->withStatus(400);
         }
+    }
+
+
+    public function findBill($request, $response, $args)
+    {
+
+        $billId = $args['id'];
+
+        try {
+
+            $bill = $this->billService->findById($billId);
+
+            if(!isset($bill)){
+                throw new Exception('Bill Not Found!');
+            }
+
+            $payload =json_encode([
+                'id' => $bill->getId(),
+                'title' => $bill->getExpense()->getTitle(),
+                'amount' => $bill->getExpense()->getAmount(),
+                'purpose' => $bill->getExpense()->getPurpose(),
+                'interval' => 'test',
+                'fundId' => $bill->getExpense()->getFund()->getId(),
+                'fundName' =>  $bill->getExpense()->getFund()->getTitle(),
+            ]);
+
+            $response->getBody()->write($payload);
+            return $response->withHeader('Content-Type', 'application/json');
+
+        } catch (Exception $e) {
+
+            $payload = json_encode(['message' => $e->getMessage()]);
+
+            $response->getBody()->write($payload);
+            return $response->withHeader('Content-Type', 'application/json')
+                ->withStatus(400);
+        }
+    }
+
+    public function generateBill($request, $response, $args)
+    {
+
+        $content = $request->getParsedBody();
+
+        $billId = $content['bill'];
+
+        try {
+
+            $bill = $this->billService->findById($billId);
+
+            if(!isset($bill)){
+                throw new Exception('Bill Not Found!');
+            }
+
+            $expense = $bill->getExpense();
+
+            $newExpenseBill = new ExpenseModel();
+            $newExpenseBill->setStatus(BudgetStatus::pending());
+            $newExpenseBill->setAmount($expense->getAmount());
+            $newExpenseBill->setTitle($expense->getTitle());
+            $newExpenseBill->setFund($expense->getFund());
+            $newExpenseBill->setPurpose($expense->getPurpose());
+            $newExpenseBill->setBill($bill);
+
+            $this->expenseService->save($newExpenseBill);
+
+        } catch (Exception $e) {
+           $this->flashMessages->addMessage('errorMessage',$e->getMessage());
+        }
+
+        return $response
+            ->withHeader('Location', "/admin/budget")
+            ->withStatus(302);
+
     }
 
 

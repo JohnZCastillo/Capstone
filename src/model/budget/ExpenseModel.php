@@ -28,6 +28,9 @@ class ExpenseModel{
     #[ORM\ManyToOne(targetEntity: FundModel::class, inversedBy: 'expenses')]
     private ?FundModel $fund = null;
 
+    #[ORM\ManyToOne(targetEntity: BillModel::class, inversedBy: 'expenses',)]
+    private ?BillModel $bill = null;
+
     #[ORM\Column(type: BudgetStatus::class)]
     private $status;
 
@@ -47,6 +50,16 @@ class ExpenseModel{
         $this->createdAt = new \DateTime();
     }
 
+    public function getBill(): ?BillModel
+    {
+        return $this->bill;
+    }
+
+    public function setBill(?BillModel $bill): ExpenseModel
+    {
+        $this->bill = $bill;
+        return $this;
+    }
 
     /**
      * @return mixed

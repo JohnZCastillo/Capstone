@@ -40,9 +40,7 @@ $twig->getEnvironment()->getExtension(\Twig\Extension\CoreExtension::class)->set
 $app->add(TwigMiddleware::create($app, $twig));
 
 $app->get('/', function (Request $request, Response $response) use ($twig) {
-    return $response
-        ->withHeader('Location', "/home")
-        ->withStatus(302);
+    return $twig->render($response, 'homepage.html');
 })->add(\App\middleware\BypassHomepage::class);
 
 $app->get('/signupNotAllowed', function (Request $request, Response $response) use ($twig) {
@@ -257,10 +255,18 @@ $app->group('', function ($app) use ($twig, $container) {
             $app->get('/fund/{id}', [AdminController::class, 'fund']);
             $app->post('/add-income/{id}', [AdminController::class, 'addIncome']);
             $app->post('/add-expense/{id}', [AdminController::class, 'addExpense']);
+            $app->post('/new-bill', [AdminController::class, 'addBill']);
             $app->post('/approve-expense/{id}', [AdminController::class, 'approveExpense']);
             $app->post('/reject-expense/{id}', [AdminController::class, 'rejectExpense']);
             $app->post('/new-fund', [AdminController::class, 'newFund']);
             $app->post('/archive-fund', [AdminController::class, 'archiveFund']);
+            $app->post('/archive-bill/{id}', [AdminController::class, 'archiveBill']);
+            $app->post('/active-bill/{id}', [AdminController::class, 'activeBill']);
+            $app->post('/active-fund', [AdminController::class, 'activeFund']);
+            $app->get('/bill/{id}', [ApiController::class, 'findBill']);
+            $app->post('/bill/generate', [ApiController::class, 'generateBill']);
+            $app->post('/approve-bill/{id}', [AdminController::class, 'approveBillExpense']);
+            $app->post('/reject-bill/{id}', [AdminController::class, 'rejectBillExpense']);
 
         })->add(\App\middleware\SuperAdminAuth::class);
 
