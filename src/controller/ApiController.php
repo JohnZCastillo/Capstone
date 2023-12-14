@@ -110,6 +110,10 @@ class ApiController extends Controller
                 throw new Exception('Bill Not Found!');
             }
 
+            if($bill->isArchived()){
+                throw new Exception("Bill is set to archived, please make the bill active first");
+            }
+
             $expense = $bill->getExpense();
 
             $newExpenseBill = new ExpenseModel();
