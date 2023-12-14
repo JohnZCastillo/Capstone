@@ -262,6 +262,7 @@ $app->group('', function ($app) use ($twig, $container) {
             $app->post('/archive-fund', [AdminController::class, 'archiveFund']);
             $app->post('/archive-bill/{id}', [AdminController::class, 'archiveBill']);
             $app->post('/active-bill/{id}', [AdminController::class, 'activeBill']);
+            $app->post('/edit-bill', [AdminController::class, 'editBill']);
             $app->post('/active-fund', [AdminController::class, 'activeFund']);
             $app->get('/bill/{id}', [ApiController::class, 'findBill']);
             $app->post('/bill/generate', [ApiController::class, 'generateBill']);

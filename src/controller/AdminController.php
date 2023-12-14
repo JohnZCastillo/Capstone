@@ -894,6 +894,44 @@ class AdminController extends Controller
             ->withStatus(302);
     }
 
+    public function editBill($request, $response, $args)
+    {
+
+        $twig = Twig::fromRequest($request);
+
+        $content = $request->getParsedBody();
+
+        $bill = $this->billService->findById($content['billId']);
+        $fund = $this->fundService->findById($content['fund']);
+
+        try {
+
+            if (!isset($bill)) {
+                throw new Exception('Unable To Find Bill');
+            }
+
+            if (!isset($fund)) {
+                throw new Exception('Unable To Find Fund');
+            }
+
+
+            $expense = $bill->getExpense();
+            $expense->setTitle($content['title']);
+            $expense->setFund($fund);
+            $expense->setAmount($content['amount']);
+            $expense->setPurpose($content['purpose']);
+
+            $this->expenseService->save($expense);
+
+        } catch (Exception $e) {
+            $this->flashMessages->addMessage('errorMessage', $e->getMessage());
+        }
+
+        return $response
+            ->withHeader('Location', '/admin/budget')
+            ->withStatus(302);
+    }
+
     public function activeFund($request, $response, $args)
     {
 
@@ -1024,14 +1062,10 @@ class AdminController extends Controller
             $expense->setPurpose($content['purpose']);
             $expense->setStatus(BudgetStatus::approved());
 
-            $bill = new BillModel();
-            $bill->setExpense($expense);
-
             $this->expenseService->save($expense);
 
             $bill = new BillModel();
             $bill->setExpense($expense);
-
             $this->billService->save($bill);
 
             $this->flashMessages->addMessage('successMessage', $bill->getExpense()->getTitle() . ' is added');

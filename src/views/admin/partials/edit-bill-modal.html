@@ -8,12 +8,17 @@
 >
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <form method="POST" action="/admin/bill">
+            <form method="POST" action="/admin/edit-bill">
                 <div class="modal-header">
                     <h5 class="modal-title" id="imageModalLabel">Edit Bill</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+
+                    <div class="d-none">
+                        <label>Bill Id</label>
+                        <input readonly id="billId" type="text" name="billId" class="form-control ">
+                    </div>
                     <div>
                         <label>Title</label>
                         <input id="billTitle" type="text" name="title" class="form-control">
