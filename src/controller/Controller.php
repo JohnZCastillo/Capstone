@@ -20,6 +20,7 @@ use App\service\IncomeService;
 use App\service\IssuesService;
 use App\service\LoginHistoryService;
 use App\service\LogsService;
+use App\service\OverviewService;
 use App\service\PaymentService;
 use App\service\PriviligesService;
 use App\service\ReceiptService;
@@ -68,6 +69,7 @@ class Controller
 
 
     protected  Container $container;
+    protected  OverviewService $overviewService;
 
     public function __construct(Container $container)
     {
@@ -93,6 +95,7 @@ class Controller
         $this->incomeService = $container->get(IncomeService::class);
         $this->expenseService = $container->get(ExpenseService::class);
         $this->billService = $container->get(BillService::class);
+        $this->overviewService = $container->get(OverviewService::class);
 
         $this->container = $container;
     }

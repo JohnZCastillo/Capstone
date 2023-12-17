@@ -19,6 +19,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
+use Twig\Extra\Intl\IntlExtension;
 use UMA\DIC\Container;
 
 require './vendor/autoload.php';
@@ -35,8 +36,8 @@ $app = AppFactory::create();
 // Configure Twig view renderer
 $twig = Twig::create('./src/views/', ['cache' => false, 'debug' => true]);
 $twig->addExtension(new \Twig\Extension\DebugExtension());
+$twig->addExtension(new IntlExtension());
 $twig->getEnvironment()->getExtension(\Twig\Extension\CoreExtension::class)->setTimezone('Asia/Manila');
-
 $app->add(TwigMiddleware::create($app, $twig));
 
 $app->get('/', function (Request $request, Response $response) use ($twig) {
@@ -252,6 +253,10 @@ $app->group('', function ($app) use ($twig, $container) {
             $app->post('/system', [AdminController::class, 'updateSystemSettings']);
 
             $app->get('/overview', [AdminController::class, 'overview']);
+            $app->post('/overview', [AdminController::class, 'updateOverview']);
+            $app->post('/add-staff', [AdminController::class, 'addStaff']);
+            $app->post('/remove-staff', [AdminController::class, 'removeStaff']);
+
             $app->get('/budget', [AdminController::class, 'budgetManagement']);
             $app->get('/fund/{id}', [AdminController::class, 'fund']);
             $app->post('/add-income/{id}', [AdminController::class, 'addIncome']);

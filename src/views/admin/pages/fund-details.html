@@ -17,7 +17,7 @@
                     <div class="card">
                         <div class="card-body">
                             <span class="d-block mb-1 text-warning">Total Fund</span>
-                            <h3 class="card-title text-nowrap mb-2">{{fund.computeTotal}}</h3>
+                            <h3 class="card-title text-nowrap mb-2">{{fund.computeTotal|format_currency('PHP')}}</h3>
                         </div>
                     </div>
                 </div>
@@ -26,7 +26,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <span class="fw-medium d-block mb-1 text-danger">Total Expense</span>
-                                <h3 class="card-title mb-2">{{fund.computeExpenses}}</h3>
+                                <h3 class="card-title mb-2">{{fund.computeExpenses|format_currency('PHP')}}</h3>
                             </div>
                         </div>
                     </a>
@@ -35,10 +35,14 @@
                     <div class="card">
                         <div class="card-body">
                             <span class="d-block mb-1">Total Income</span>
-                            <h3 class="card-title text-nowrap mb-2">{{fund.computeIncomes}}</h3>
+                            <h3 class="card-title text-nowrap mb-2">{{fund.computeIncomes|format_currency('PHP')}}</h3>
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="card mb-2">
+                <div id="expenseAndIncomeChart"> </div>
             </div>
 
             <div class="row justify-content-between">
@@ -68,7 +72,7 @@
                                                 <h6 class="mb-0">{{income.title}}</h6>
                                             </div>
                                             <div class="user-progress d-flex align-items-center gap-1">
-                                                <h6 class="mb-0">{{income.amount}}</h6> <span class="text-muted">PHP</span>
+                                                <h6 class="mb-0">{{income.amount|format_currency('PHP')}}</h6>
                                             </div>
                                         </div>
                                     </li>
@@ -105,7 +109,7 @@
                                                 <h6 class="mb-0">{{expense.purpose}}</h6>
                                             </div>
                                             <div class="user-progress d-flex align-items-center gap-1">
-                                                <h6 class="mb-0">{{expense.amount}}</h6> <span class="text-muted">PHP</span>
+                                                <h6 class="mb-0">{{expense.amount|format_currency('PHP')}}</h6>
                                             </div>
                                         </div>
                                     </li>
@@ -133,7 +137,7 @@
                                         <h6 class="mb-0">{{expense.purpose}}</h6>
                                     </div>
                                     <div class="user-progress d-flex align-items-center gap-1">
-                                        <h6 class="mb-0">{{expense.amount}}</h6> <span class="text-muted">PHP</span>
+                                        <h6 class="mb-0">{{expense.amount|format_currency('PHP')}}</h6>
                                         <div class="dropdown">
                                             <button class="btn p-0" type="button" id="transactionID" data-bs-toggle="dropdown"
                                                     aria-haspopup="true" aria-expanded="false">
@@ -198,5 +202,46 @@
 {% endblock %}
 
 {% block javascript %}
+<script>
+    var options = {
+        series: [{
+            name: 'Expenses',
+            data: {{yearlyExpenses|json_encode|raw}}
+        }, {
+            name: 'Income',
+            data: {{yearlyIncomes|json_encode|raw}}
+        }],
+        chart: {
+            height: 350,
+            type: 'area',
+            toolbar: {
+                show: false
+            },
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            curve: 'smooth'
+        },
+        xaxis: {
+            categories: {{keys|json_encode|raw}},
+        },
+        tooltip: {
+            enabled: true,
+            shared: false, // Set to false to have independent tooltips
+            x: {
+                show: true, // Show x-axis tooltip
+            },
+            y: {
+                show: true, // Show y-axis tooltip
+            },
+        },
+
+    };
+
+    var chart = new ApexCharts(document.querySelector("#expenseAndIncomeChart"), options);
+    chart.render();
+</script>
 
 {% endblock %}

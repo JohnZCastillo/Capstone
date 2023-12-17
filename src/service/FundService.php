@@ -39,7 +39,7 @@ class FundService extends Service
      * @return float
      * @throws \Exception
      */
-    public function getMonthlyExpenses($fundId,$month): float
+    public function getMonthlyExpenses($fundId, $month): float
     {
         $qb = $this->entityManager->createQueryBuilder();
 
@@ -78,7 +78,7 @@ class FundService extends Service
      * @return float
      * @throws \Exception
      */
-    public function getMonthlyIncomes($fundId,$month): float
+    public function getMonthlyIncomes($fundId, $month): float
     {
         $qb = $this->entityManager->createQueryBuilder();
 
@@ -108,7 +108,7 @@ class FundService extends Service
         return $result;
     }
 
-    public function getMonthlyTally(int $fundId,int $year): array
+    public function getMonthlyTally(int $fundId, int $year): array
     {
 
 
@@ -116,17 +116,60 @@ class FundService extends Service
 
         $totalIncome = 0;
 
-            foreach (Time::getDatesForMonthsOfYear($year) as $month){
+        foreach (Time::getDatesForMonthsOfYear($year) as $month) {
 
-                $currentMonth = $month->format('Y-m');
+            $currentMonth = $month->format('Y-m');
 
-                $totalIncome += $this->getMonthlyIncomes($fundId,$currentMonth);
-                $totalIncome -= $this->getMonthlyExpenses($fundId,$currentMonth);
+            $totalIncome += $this->getMonthlyIncomes($fundId, $currentMonth);
+            $totalIncome -= $this->getMonthlyExpenses($fundId, $currentMonth);
 
-                $tally[$month->format('M')] = $totalIncome;
-            }
+            $tally[$month->format('M')] = $totalIncome;
+        }
 
-            return  $tally;
+        return $tally;
+    }
+
+    public function getYearlyIncome(int $fundId, int $year): array
+    {
+
+        $tally = [];
+
+        foreach (Time::getDatesForMonthsOfYear($year) as $month) {
+
+            $currentMonth = $month->format('Y-m');
+
+            $tally[$month->format('M')] = $this->getMonthlyIncomes($fundId, $currentMonth);
+        }
+
+        return $tally;
+    }
+
+    public function getYearlyExpenses(int $fundId, int $year): array
+    {
+
+        $tally = [];
+
+        foreach (Time::getDatesForMonthsOfYear($year) as $month) {
+
+            $currentMonth = $month->format('Y-m');
+
+            $tally[$month->format('M')] = $this->getMonthlyExpenses($fundId, $currentMonth);
+        }
+
+        return $tally;
+    }
+
+    public function getKeys(int $year): array
+    {
+
+        $tally = [];
+
+        foreach (Time::getDatesForMonthsOfYear($year) as $month) {
+
+            $tally[] = $month->format('M');
+        }
+
+        return $tally;
     }
 
 }

@@ -69,12 +69,6 @@
                                 <a class="dropdown-item"
                                    href="/admin/announcement/edit/{{announcement.getId()}}"
                                    style="flex: 1 1 0px;">Edit</a>
-                                <button class="dropdown-item"
-                                        onclick="confirm('Are You sure you want to delete this?','/admin/announcement/delete/{{announcement.getId()}}','true')"
-                                        style="flex: 1 1 0px;"
-                                >
-                                    Delete
-                                </button>
 
                                 {% set announcementId = announcement.getId() %}
                                 {% set status = announcement.status | lower %}

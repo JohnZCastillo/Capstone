@@ -27,6 +27,8 @@
         "tecnickcom/tcpdf": "^6.6",
         "phpmailer/phpmailer": "^6.8",
         "defuse/php-encryption": "^2.4",
-        "ifsnop/mysqldump-php": "^2.12"
+        "ifsnop/mysqldump-php": "^2.12",
+        "twig/intl-extra": "^3.8",
+        "twig/extra-bundle": "^3.8"
     }
 }

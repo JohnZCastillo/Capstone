@@ -16,6 +16,7 @@ use App\model\enum\AnnouncementStatus;
 use App\model\enum\BudgetStatus;
 use App\model\enum\UserRole;
 use App\model\LogsModel;
+use App\model\overview\Staff;
 use App\model\PaymentModel;
 use DateTime;
 use Exception;
@@ -762,9 +763,10 @@ class AdminController extends Controller
         return $twig->render($response, 'admin/pages/logs.html', $data);
     }
 
-    public function test($request, $response, $args){
+    public function test($request, $response, $args)
+    {
         var_dump(
-            $this->fundService->getMonthlyTally(1,2023)
+            $this->fundService->getMonthlyTally(1, 2023)
         );
     }
 
@@ -976,16 +978,24 @@ class AdminController extends Controller
         $fund = $this->fundService->findById($id);
         $fundSources = $this->fundSourceService->getAll();
 
-
         try {
 
             if (!isset($fund)) {
                 throw new Exception('Unable To Find Fund with ID of ' . $content['id']);
             }
 
+            $year = (new DateTime())->format('Y');
+
+            $expenses = $this->fundService->getYearlyExpenses($fund->getId(),$year);
+            $incomes = $this->fundService->getYearlyIncome($fund->getId(), $year);
+            $keys = $this->fundService->getKeys($year);
+
             return $twig->render($response, 'admin/pages/fund-details.html', [
                 'fund' => $fund,
                 'fundSources' => $fundSources,
+                'yearlyExpenses' =>  array_values($expenses),
+                'yearlyIncomes' =>  array_values($incomes),
+                'keys' => $keys,
             ]);
 
         } catch (Exception $e) {
@@ -1138,7 +1148,7 @@ class AdminController extends Controller
             $this->expenseService->save($expense);
 
             return $response
-                ->withHeader('Location', "/admin/fund/".$expense->getFund()->getId())
+                ->withHeader('Location', "/admin/fund/" . $expense->getFund()->getId())
                 ->withStatus(302);
 
         } catch (Exception $e) {
@@ -1222,7 +1232,7 @@ class AdminController extends Controller
             $this->expenseService->save($expense);
 
             return $response
-                ->withHeader('Location', "/admin/fund/".$expense->getFund()->getId())
+                ->withHeader('Location', "/admin/fund/" . $expense->getFund()->getId())
                 ->withStatus(302);
 
         } catch (Exception $e) {
@@ -1246,18 +1256,18 @@ class AdminController extends Controller
         $archived = false;
         $archiveBill = false;
 
-        if(isset($query['status'])){
+        if (isset($query['status'])) {
             $archived = !($query['status'] == 'active');
         }
 
-        if(isset($query['bill'])){
+        if (isset($query['bill'])) {
             $archiveBill = !($query['bill'] == 'active');
         }
 
 
         $funds = $this->fundService->getAll($archived);
 
-        $tally = $this->fundService->getMonthlyTally(1,2023);
+        $tally = $this->fundService->getMonthlyTally(1, 2023);
 
         $bills = $this->billService->getAll($archiveBill);
 
@@ -1280,11 +1290,154 @@ class AdminController extends Controller
 
         $twig = Twig::fromRequest($request);
 
-        $content = $request->getParsedBody();
-        $query = $request->getQueryParams();
+        $overview = $this->overviewService->getOverview();
+
+        $staffs = $this->overviewService->getAllStaff();
+
+        $orgStaff = [];
+
+        foreach ($staffs as $staff) {
+
+            $img = $staff->getImg();
+            $name = $staff->getName();
+            $position = $staff->getPosition();
+
+            $superior = $staff->getSuperior();
+            $superiorName = '';
+
+            if (isset($superior)) {
+                $superiorName = $superior->getName();
+            }
+
+            $orgStaff[] = [
+                    'name' => $staff->getName(),
+                    'position' => $position,
+                    'img' => $img,
+                    'superior' => $superiorName,
+            ];
+
+        }
+
+//        $payload = json_encode($orgStaff);
 
         return $twig->render($response, 'admin/pages/overview.html', [
+            "overview" => $overview,
+            "staffs" => $staffs,
+            "org" => $orgStaff,
         ]);
+
+    }
+
+    public function updateOverview($request, $response, $args)
+    {
+
+        $twig = Twig::fromRequest($request);
+
+        $path = './resources/overview/';
+
+        $aboutImage = $_FILES['aboutImage'];
+        $heroImage = $_FILES['heroImage'];
+
+        $overview = $this->overviewService->getOverview();
+
+        $content = $request->getParsedBody();
+
+        $overview->setAboutDescription($content['aboutDescription']);
+        $overview->setHeroDescription($content['heroDescription']);
+
+        if ($aboutImage['error'] !== UPLOAD_ERR_NO_FILE) {
+            $imageName = Image::store($path, $aboutImage);
+            $overview->setAboutImg(str_replace('.', '', $path) . $imageName);
+        }
+
+        if ($heroImage['error'] !== UPLOAD_ERR_NO_FILE) {
+            $imageName = Image::store($path, $heroImage);
+            $overview->setAboutImg(str_replace('.', '', $path) . $imageName);
+        }
+
+        $this->overviewService->saveOverview($overview);
+
+        return $response
+            ->withHeader('Location', "/admin/overview")
+            ->withStatus(302);
+
+    }
+
+    public function addStaff($request, $response, $args)
+    {
+
+        $path = './resources/staff/';
+
+        $twig = Twig::fromRequest($request);
+
+        $image = $_FILES['image'];
+
+        $content = $request->getParsedBody();
+
+        try{
+            $superior = $this->overviewService->getStaffById($content['superior']);
+
+            $staff = new Staff();
+            $staff->setName($content['name']);
+            $staff->setPosition($content['position']);
+
+            if (isset($superior)) {
+                $staff->setSuperior($superior);
+            }
+
+            if ($image['error'] !== UPLOAD_ERR_NO_FILE) {
+                $imageName = Image::store($path, $image);
+                $staff->setImg(str_replace('.', '', $path) . $imageName);
+            }
+
+            $this->overviewService->saveStaff($staff);
+        }catch (Exception $e){
+
+            $message = $e->getMessage();
+
+            if($e->getCode() == 1062){
+                $message = 'Name is already define';
+            }
+
+            $this->flashMessages->addMessage('errorMessage',$message);
+        }
+
+
+        return $response
+            ->withHeader('Location', "/admin/overview")
+            ->withStatus(302);
+
+    }
+
+    public function removeStaff($request, $response, $args)
+    {
+
+        $twig = Twig::fromRequest($request);
+
+        $content = $request->getParsedBody();
+
+        try{
+
+            $staff = $this->overviewService->getStaffByName($content['name']);
+
+            if(isset($staff)){
+                $this->overviewService->deleteStaff($staff);
+            }
+
+        }catch (Exception $e){
+
+            $message = $e->getMessage();
+
+            if($e->getCode() == 1451){
+                $message = 'Cannot Remove Staff, please remove lower staff first';
+            }
+
+            $this->flashMessages->addMessage('errorMessage',$message);
+        }
+
+        return $response
+            ->withHeader('Location', "/admin/overview")
+            ->withStatus(302);
 
     }
 

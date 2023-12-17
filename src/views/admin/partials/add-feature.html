@@ -1,0 +1,38 @@
+<div
+        class="modal fade"
+        id="addFeatureModal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="addFeatureModalLabel"
+        aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="staffForm">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">Add Feature</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <label for="staffName">Name</label>
+                        <input class="form-control" name="name" id="staffName">
+                    </div>
+                    <div>
+                        <label for="image">Image</label>
+                        <input type="file" class="form-control" name="image" id="image">
+                    </div>
+                    <div>
+                        <label for="image">Description</label>
+                        <textarea class="form-control" name="description"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="mt-2 btn btn-primary">Add</button>
+                    <button type="button" class="mt-2 btn btn-primary" data-bs-dismiss="modal" aria-label="Close" >Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
