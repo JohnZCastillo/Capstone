@@ -29,6 +29,8 @@
         "defuse/php-encryption": "^2.4",
         "ifsnop/mysqldump-php": "^2.12",
         "twig/intl-extra": "^3.8",
-        "twig/extra-bundle": "^3.8"
+        "twig/extra-bundle": "^3.8",
+        "monolog/monolog": "^3.5",
+        "php-di/php-di": "^7.0"
     }
 }
