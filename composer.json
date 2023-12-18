@@ -32,5 +32,8 @@
         "twig/extra-bundle": "^3.8",
         "monolog/monolog": "^3.5",
         "php-di/php-di": "^7.0"
+    },
+    "scripts": {
+        "start": "php -S localhost:8000 -t public/"
     }
 }
