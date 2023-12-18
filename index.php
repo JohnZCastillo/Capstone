@@ -40,9 +40,7 @@ $twig->addExtension(new IntlExtension());
 $twig->getEnvironment()->getExtension(\Twig\Extension\CoreExtension::class)->setTimezone('Asia/Manila');
 $app->add(TwigMiddleware::create($app, $twig));
 
-$app->get('/', function (Request $request, Response $response) use ($twig) {
-    return $twig->render($response, 'homepage.html');
-})->add(\App\middleware\BypassHomepage::class);
+$app->get('/', [AdminController::class,'landingPage'])->add(\App\middleware\BypassHomepage::class);
 
 $app->get('/signupNotAllowed', function (Request $request, Response $response) use ($twig) {
     return $twig->render($response, 'temporary.html');

@@ -91,7 +91,7 @@
 <body>
 <!-- Hero Section -->
 
-<section class="bg-dark">
+<section class="bg-primary">
     <div class="container py-4 ">
         <div class="row align-items-center">
             <div class="col-lg-6 col-md-12 col-12">
@@ -110,7 +110,7 @@
             </div>
             <div class="col-lg-6 col-md-12 col-12">
                 <div class="header-image">
-                    <img src="/resources/logo.jpeg" class="img-fluid">
+                    <img src="/resources/hero.jpg" class="img-fluid">
                 </div>
             </div>
         </div>
@@ -196,31 +196,43 @@
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 <script>
+
+    function createStaff(name, position, img, superior) {
+
+        return [{
+            'v': `${name}`,
+            'f': `<img class='staffImg img-fluid' src='${img}' />
+                    <span class='staffName'>${name}</span>
+                    <div class='staffPosition'> ${position}</div>`
+        },
+            superior, `The ${position}`
+        ];
+    }
+
+    function removeStaff(name) {
+        return staff.filter(element => element[0].v != name);
+    }
+
     google.charts.load('current', {
         packages: ["orgchart"]
     });
+
     google.charts.setOnLoadCallback(drawChart);
 
-    let staff = [
-        [{
-            'v': 'Mike',
-            'f': "<div class='staffImg'><img class='img-fluid' src='/resources/user.jpg' /></div><span class='staffName'>Mike</span><div class='staffPosition' >President</div>"
-        },
-            '', 'The President'
-        ],
-        [{
-            'v': 'Jim',
-            'f': 'Jim<div style="color:red; font-style:italic">Vice President</div>'
-        },
-            'Mike', 'VP'
-        ],
-        [{
-            'v': 'James',
-            'f': 'James<div style="color:red; font-style:italic">Vice President</div>'
-        },
-            'Mike', 'VP'
-        ],
-    ];
+    let data = {{org|json_encode|raw}};
+
+    let staff = [];
+
+    data.forEach(element =>{
+
+        staff.push(createStaff(element.name,
+            element.position,
+            element.img,
+            element.superior,
+        ));
+    })
+
+    console.log(staff)
 
     function drawChart() {
         var data = new google.visualization.DataTable();
@@ -251,6 +263,7 @@
     }
 
 </script>
+
 
 <!-- Place this tag in your head or just before your close body tag. -->
 <script async defer src="https://buttons.github.io/buttons.js"></script>

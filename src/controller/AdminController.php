@@ -1318,9 +1318,50 @@ class AdminController extends Controller
 
         }
 
-//        $payload = json_encode($orgStaff);
 
         return $twig->render($response, 'admin/pages/overview.html', [
+            "overview" => $overview,
+            "staffs" => $staffs,
+            "org" => $orgStaff,
+        ]);
+
+    }
+
+    public function landingPage($request, $response, $args)
+    {
+
+        $twig = Twig::fromRequest($request);
+
+        $overview = $this->overviewService->getOverview();
+
+        $staffs = $this->overviewService->getAllStaff();
+
+        $orgStaff = [];
+
+        foreach ($staffs as $staff) {
+
+            $img = $staff->getImg();
+            $name = $staff->getName();
+            $position = $staff->getPosition();
+
+            $superior = $staff->getSuperior();
+            $superiorName = '';
+
+            if (isset($superior)) {
+                $superiorName = $superior->getName();
+            }
+
+            $orgStaff[] = [
+                    'name' => $staff->getName(),
+                    'position' => $position,
+                    'img' => $img,
+                    'superior' => $superiorName,
+            ];
+
+        }
+
+
+        return $twig->render($response, 'homepage.html', [
             "overview" => $overview,
             "staffs" => $staffs,
             "org" => $orgStaff,
