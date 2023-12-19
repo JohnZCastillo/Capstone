@@ -2,6 +2,7 @@
 
 namespace App\service;
 
+use App\lib\Time;
 use App\model\DuesModel;
 use App\model\UserModel;
 use Doctrine\ORM\EntityManager;
@@ -83,5 +84,34 @@ class DuesService extends Service {
         }
     }
 
+    /**
+     * Return an array containing the monthly dues
+     * @param int $year
+     * @return array
+     */
+    public function getMonthlyDues(int $year): array
+    {
+
+        $dues = [];
+
+        try {
+
+            $datesForMonths = Time::getDatesForMonthsOfYear($year);
+
+            foreach ($datesForMonths as $month => $dates) {
+                $dues[] = [
+                    "date" => $dates,
+                    "amount" => $this->getDue($dates),
+                    "savePoint" => $this->isSavePoint($dates),
+                    "month" => $dates->format('M'),
+                ];
+            }
+
+            return $dues;
+
+        } catch (Exception $e) {
+            return [];
+        }
+    }
 
 }

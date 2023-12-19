@@ -2,6 +2,7 @@
 
 namespace App\service;
 
+use App\exception\payment\TransactionNotFound;
 use App\lib\Paginator;
 use App\lib\QueryHelper;
 use App\lib\Time;
@@ -27,73 +28,78 @@ class TransactionService extends Service
      * Retrieve transaction from db base on id.
      * @param int $id
      * @return TransactionModel
+     * @throws TransactionNotFound
      */
     public function findById($id): TransactionModel
     {
         $em = $this->entityManager;
         $transaction = $em->find(TransactionModel::class, $id);
+
+        if(!isset($transaction)){
+            throw new TransactionNotFound($id);
+        }
+
         return $transaction;
     }
 
 
-    /**
-     * Retrieve user transaction from db
-     * @param int $page current page
-     * @param int $max max transaction per page
-     * @return array An array containing 'transactions' and 'totalTransactions'.
-     */
-    public function getAll($page, $max, $id, $filter, UserModel $user = null)
+    public function getPayments(UserModel $user = null, $page = 1, $max = 5, $id = null, $status = null, $from = null, $to = null)
     {
 
-        $filter['status'] = $filter['status'] == 'ALL' ? null : $filter['status'];
-
-        $em = $this->entityManager;
-
-        $paginator = new Paginator();
-
-        $qb = $em->createQueryBuilder();
-
-        $qb->select('t')
-            ->from(TransactionModel::class, 't')
-            ->innerJoin('t.user', 'u', 'WITH', 'u.block = :block AND u.lot = :lot')
-            ->setParameter('block', $user->getBlock())
-            ->setParameter('lot', $user->getLot());
-
-        $queryHelper = new QueryHelper($qb);
-
-        $queryHelper
-            ->andWhere("t.id like :id", "id", $id)
-            ->andWhere("t.fromMonth >= :fromMonth", 'fromMonth', $filter['from'])
-            ->andWhere("t.toMonth <= :toMonth", "toMonth", $filter['to'])
-            ->andWhere("t.status = :status", "status", $filter['status']);
-
-        return $paginator->paginate($queryHelper->getQuery(), $page, $max);
-    }
-
-    public function adminGetAll($page, $max, $id, $filter, $user = null)
-    {
-
-        $filter['status'] = $filter['status'] == 'ALL' ? null : $filter['status'];
-
-        $em = $this->entityManager;
-
-        $paginator = new Paginator();
-
-        $qb = $em->createQueryBuilder();
+        $qb = $this->entityManager->createQueryBuilder();
 
         $qb->select('t')
             ->from(TransactionModel::class, 't');
 
-        $queryHelper = new QueryHelper($qb);
+        $or = $qb->expr()->andX();
 
-        $queryHelper->Where("t.user = :user", "user", $user)
-            ->andWhere("t.id like :id", "id", $id)
-            ->andWhere("t.fromMonth >= :fromMonth", 'fromMonth', $filter['from'])
-            ->andWhere("t.toMonth <= :toMonth", "toMonth", $filter['to'])
-            ->andWhere("t.status = :status", "status", $filter['status']);
+        $paginator = new Paginator();
 
-        return $paginator->paginate($queryHelper->getQuery(), $page, $max);
+        $hasQuery = false;
+
+        if (isset($user)) {
+            $qb->innerJoin('t.user', 'u', 'WITH', 'u.block = :block AND u.lot = :lot')
+                ->setParameter('block', $user->getBlock())
+                ->setParameter('lot', $user->getLot());
+            $hasQuery = true;
+        }
+
+        if (isset($id)) {
+            $or->add($qb->expr()->eq('t.id', ':id'));
+            $qb->setParameter('id', $id);
+            $hasQuery = true;
+        }
+
+        if (isset($from)) {
+            $or->add($qb->expr()->gte('t.fromMonth', ':from'));
+            $qb->setParameter('from', (new \DateTime($from))->format('Y-m-d'));
+            $hasQuery = true;
+
+        }
+
+        if (isset($to)) {
+            $or->add($qb->expr()->lte('t.toMonth', ':to'));
+
+            $endOfMonth = (new \DateTime($to))->modify('last day of this month')->format('Y-m-d');
+
+            $qb->setParameter('to', $endOfMonth);
+            $hasQuery = true;
+        }
+
+        if (isset($status)) {
+            $or->add($qb->expr()->eq('t.status', ':status'));
+            $qb->setParameter('status', $status);
+            $hasQuery = true;
+
+        }
+
+        if ($hasQuery) {
+            $qb->where($or);
+        }
+
+        return $paginator->paginate($qb, $page, $max);
     }
+
 
     public function getApprovedPayments(string $fromMonth, $toMonth, $status = ["APPROVED"], $user = null)
     {

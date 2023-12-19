@@ -2,14 +2,44 @@
 
 global $twig;
 
-use App\controller\AdminController;
 use Slim\App;
-use Slim\Psr7\Request;
-use Slim\Psr7\Response;
+use Slim\Interfaces\RouteCollectorProxyInterface as Group;
 
 return function (App $app) use ($twig) {
 
-$app->get('/', \App\controller\admin\Homepage::class);
+    $app->group('/admin', function (Group $group) {
+
+
+        $group->get('/payments', \App\controller\admin\payments\Homepage::class)
+            ->setName('home');
+
+        $group->post('/payments/add-due',
+            \App\controller\admin\payments\AddDue::class
+        )->setName('home');
+
+        $group->post('/payments/year-dues',
+            \App\controller\admin\payments\YearlyDue::class
+        )->setName('home');
+
+        $group->post('/payment-settings', \App\controller\admin\payments\PaymentSettings::class)
+            ->setName('home');
+
+        $group->post('/transaction/approve', \App\controller\admin\payments\ApprovePayment::class)
+            ->setName('home');
+
+        $group->post('/transaction/reject',
+            \App\controller\admin\payments\RejectPayment::class
+        )->setName('home');
+
+
+        $group->get('/transaction/{id}', \App\controller\admin\payments\Transaction::class)
+            ->setName('home');
+
+    })->add(\App\middleware\ActivePage::class);
+
+};
+
+
 
 //$app->get('/', [AdminController::class,'landingPage'])->add(\App\middleware\BypassHomepage::class);
 //
@@ -255,6 +285,3 @@ $app->get('/', \App\controller\admin\Homepage::class);
 //    $app->get('/admin/announcement', [AdminController::class, 'announcementPage']);
 //
 //})->add(ActivePage::class)->add(ForceLogout::class)->add(Auth::class);
-
-
-};

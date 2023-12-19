@@ -14,8 +14,8 @@
 
 
                     {% if transaction.status == 'REJECTED' %}
-                      {% set bg = 'bg-danger text-white p-2' %}
-                      {% set target_user = transaction.approvedBy %}
+                    {% set bg = 'bg-danger text-white p-2' %}
+                    {% set target_user = transaction.approvedBy %}
                     {% elseif transaction.status == 'APPROVED' %}
                     {% set bg = 'bg-success text-white p-2' %} {% else %} {% set bg = 'bg-secondary
                     text-white p-2' %}
@@ -25,7 +25,7 @@
 
                     {% if transaction.status != 'PENDING' %}
                     <p>
-                    <span class="badge badge-pill {{bg}}">{{transaction.status}}</span>
+                        <span class="badge badge-pill {{bg}}">{{transaction.status}}</span>
                         by {{target_user.name}}
                     </p>
                     {% endif %}
@@ -92,7 +92,19 @@
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
             <div class="card mb-2">
                 <div class="card-body">
-                    <a href="/home" class="btn btn-secondary mb-2">Back</a>
+                    <small class="text-light fw-medium">Logs</small>
+                    <div class="demo-inline-spacing mt-3">
+                        <div class="list-group list-group-flush">
+                            {% for log in transaction.logs %}
+                            <span class="list-group-item list-group-item-action">{{log.message}}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-2">
+                <div class="card-body">
+                    <a href="/admin/payments" class="btn btn-secondary mb-2">Back</a>
 
                     {% if transaction.status == 'PENDING' %}
 

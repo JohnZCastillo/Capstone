@@ -14,9 +14,9 @@
                     data-bs-placement="top" data-bs-html="true"
                     data-bs-original-title="Add New Due">
                 <span class="tf-icons bx bx-coin"
-                        data-bs-target="#dueModal"
-                        data-bs-toggle="modal"
-                        type="button"
+                      data-bs-target="#dueModal"
+                      data-bs-toggle="modal"
+                      type="button"
                 ></span>
             </button>
             <button type="button" class="btn rounded-pill btn-icon btn-secondary"
@@ -101,7 +101,6 @@
                             <input id="paymentSearchFormTo" class="form-control" type="month" name="to" value="{{to}}">
                         </div>
                     </div>
-
                 </form>
 
             </div>
@@ -195,12 +194,15 @@
         }
     })
 
-    const fromDate = document.querySelector("#fromDate");
-    const toDate = document.querySelector("#toDate");
+    const fromDate = document.querySelector("#paymentSearchFormFrom");
+    const toDate = document.querySelector("#paymentSearchFormTo");
 
     fromDate.addEventListener("change", (event) => {
+        paymentSearchForm.submit();
     });
+
     toDate.addEventListener("change", (event) => {
+        paymentSearchForm.submit();
     });
 
 </script>

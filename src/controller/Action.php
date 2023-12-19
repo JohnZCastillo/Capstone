@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace App\controller;
 
+use App\model\LogsModel;
+use App\model\UserModel;
+use App\service\LogsService;
+use App\service\UserService;
+use DateTime;
 use Doctrine\DBAL\Driver\Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -25,9 +30,6 @@ abstract class Action
 
     protected array $args;
 
-    public function __construct()
-    {
-    }
 
     public function __invoke(Request $request, Response $response, array $args): Response
     {
@@ -60,7 +62,20 @@ abstract class Action
      */
     protected function getQueryParams()
     {
-        return $this->request->getQueryParams();
+
+        $queryParams = $this->request->getQueryParams();
+
+        $queryParams['page'] = empty($queryParams['page']) ? 1 : $queryParams['page'] ;
+        $queryParams['id'] = empty($queryParams['id']) ? null : $queryParams['id'] ;
+        $queryParams['status'] = empty($queryParams['status']) ? null : $queryParams['status'] ;
+        $queryParams['from'] = empty($queryParams['from']) ? null : $queryParams['from'] ;
+        $queryParams['to'] = empty($queryParams['to']) ? null : $queryParams['to'] ;
+
+        if(isset($queryParams['status'])){
+            $queryParams['status'] = $queryParams['status'] == 'ALL' ? null : $queryParams['status'];
+        }
+
+        return $queryParams;
     }
 
     /**
@@ -102,12 +117,21 @@ abstract class Action
      * @throws RuntimeError
      * @throws LoaderError
      */
-    protected function  view(string $template, array $data):Response
+    protected function  view(string $template, array $data): Response
     {
         $view = Twig::fromRequest($this->request);
 
         return $view->render($this->response, $template,$data);
     }
+
+    protected function redirect(string $location,int $status = 302): Response
+    {
+        return  $this->response
+            ->withHeader('Location', $location)
+            ->withStatus($status);
+    }
+
+
 
 
 }

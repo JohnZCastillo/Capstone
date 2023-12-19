@@ -119,6 +119,7 @@ class TransactionModel {
     }
 
     /**
+     * Must set this into the last day of the month
      * Set the value of toMonth
      *
      * @return  self

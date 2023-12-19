@@ -55,6 +55,27 @@ class ReceiptService extends Service {
         $this->save($receipt);
     }
 
+    public function isReferenceUsed(string $reference, string $status): bool
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+
+        $count = $qb->select('count(u.referenceNumber)')
+            ->from(ReceiptModel::class, 'u')
+            ->innerJoin('u.transaction', 't', 'WITH', 't.id = u.transaction')
+            ->where(
+                $qb->expr()->andX(
+                    $qb->expr()->eq('u.referenceNumber',':reference'),
+                    $qb->expr()->eq('t.status',':status'),
+                )
+            )
+            ->setParameter('reference', $reference)
+            ->setParameter('status', $status)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return  $count > 0;
+    }
+
     public function findById($id): ReceiptModel {
         $em = $this->entityManager;
         $receipt = $em->find(ReceiptModel::class, $id);

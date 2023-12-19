@@ -126,7 +126,7 @@
             formData.append('amount', numericValue);
             formData.append('dueYear', dueYear.value);
 
-            const data = await fetch('/api/add-due', {
+            const data = await fetch('/admin/payments/add-due', {
                 method: "POST",
                 body: formData
             })
@@ -134,7 +134,7 @@
             const result = await data.json();
 
             if(data.ok){
-               result.forEach((due)=>{
+               result.data.forEach((due)=>{
                    updateCalendar(due.month,due.amount,due.savePoint)
                })
             }
@@ -170,7 +170,7 @@
 
         formData.append('dueYear', dueYear.value);
 
-        const data = await fetch('/api/year-dues', {
+        const data = await fetch('/admin/payments/year-dues', {
             method: "POST",
             body: formData
         })
@@ -178,7 +178,7 @@
         const result = await data.json();
 
         if(data.ok){
-            result.forEach((due)=>{
+            result.data.forEach((due)=>{
                 updateCalendar(due.month,due.amount,due.savePoint)
             })
         }

@@ -29,11 +29,11 @@
                         />
                     </div>
                     <div class="form-group">
-                        <!-- Preview -->
                         <img
                                 class="img-thumbnail d-block mx-auto"
                                 src="/uploads/{{settings.qr}}"
-                        />
+                                alt="img"
+                        >
                         <label for="accountQRCode">Change QR</label>
                         <input
                                 class="form-control"
@@ -69,6 +69,7 @@
                     <div class="form-group">
                         <label for="dueMonth">Start Date</label>
                         <input
+                                id="dueMonth"
                                 class="form-control"
                                 name="start"
                                 required

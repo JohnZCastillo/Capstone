@@ -27,38 +27,6 @@ class ApiController extends Controller
             ->withHeader('Content-Type', 'application/json');
     }
 
-    public function addDue($request, $response, $args)
-    {
-
-        try {
-            $month = $request->getParsedBody()['month'];
-            $amount = $request->getParsedBody()['amount'];
-            $year = $request->getParsedBody()['dueYear'];
-
-            $due = $this->duesService->createDue(Time::startMonth($month));
-            $due->setAmount($amount);
-            $due->setMonth(Time::startMonth($month));
-
-            $this->duesService->save($due);
-
-            $dues = $this->getDues($year);
-
-            $payload = json_encode($dues);
-
-            $response->getBody()->write($payload);
-            return $response->withHeader('Content-Type', 'application/json');
-
-        } catch (Exception $e) {
-
-            $payload = json_encode(['message' => $e->getMessage()]);
-
-            $response->getBody()->write($payload);
-            return $response->withHeader('Content-Type', 'application/json')
-                ->withStatus(400);
-        }
-    }
-
-
     public function findBill($request, $response, $args)
     {
 
@@ -134,31 +102,6 @@ class ApiController extends Controller
             ->withHeader('Location', "/admin/budget")
             ->withStatus(302);
 
-    }
-
-
-    public function yearDues($request, $response, $args)
-    {
-
-        try {
-
-            $year = $request->getParsedBody()['dueYear'];
-
-            $dues = $this->getDues($year);
-
-            $payload = json_encode($dues);
-
-            $response->getBody()->write($payload);
-            return $response->withHeader('Content-Type', 'application/json');
-
-        } catch (Exception $e) {
-
-            $payload = json_encode(['message' => $e->getMessage()]);
-
-            $response->getBody()->write($payload);
-            return $response->withHeader('Content-Type', 'application/json')
-                ->withStatus(400);
-        }
     }
 
     public function amount($request, $response, $args)
