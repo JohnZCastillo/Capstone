@@ -159,8 +159,8 @@
 
             // Log the image uploading process
             console.log("Uploading image:", file.name);
-
             try {
+
                 // Send the image file to the server using Fetch
                 const result = await fetch("/upload", {
                     method: "POST",
@@ -169,14 +169,16 @@
 
                 const data = await result.json();
 
+                console.log(data);
+
                 if (!result.ok) {
-                    throw new Error("Erro uploading file");
+                    throw new Error("Error uploading file");
                 }
 
                 const range = quill.getSelection();
-                quill.insertEmbed(range.index, "image", data.path);
+                quill.insertEmbed(range.index, "image", data.data.path);
             } catch (error) {
-                console.log(error.message);
+                console.log(error.message)
             }
         };
     });
@@ -216,7 +218,7 @@
 
                 const range = quill.getSelection();
                 quill.insertText(range.index, fileName, {
-                    link: data.path,
+                    link: data.data.path,
                 });
             } catch (error) {
                 console.log(error.message);

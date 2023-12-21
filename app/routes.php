@@ -77,7 +77,6 @@ return function (App $app) use ($twig) {
             \App\controller\admin\announcement\EditHistoryAnnouncement::class
         )->setName('announcements');
 
-
         $group->post('/announcement/post',
             \App\controller\admin\announcement\MakeAnnouncement::class
         )->setName('announcements');
@@ -94,8 +93,18 @@ return function (App $app) use ($twig) {
             \App\controller\admin\logs\Logs::class
         )->setName('logs');
 
+        $group->get('/account',
+            \App\controller\admin\account\Account::class
+        )->setName('account');
+
+
+
     })->add(\App\middleware\ActivePage::class);
 
+
+    $app->post('/upload',
+        \App\controller\api\upload\FileUpload::class
+    )->setName('account');
 };
 
 
