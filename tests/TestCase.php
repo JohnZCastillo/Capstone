@@ -25,38 +25,37 @@ class TestCase extends PHPUnit_TestCase
 {
     use ProphecyTrait;
 
+
     /**
      * @return App
      * @throws Exception
      */
     protected function getAppInstance(): App
     {
-        // Instantiate PHP-DI ContainerBuilder
-        $containerBuilder = new ContainerBuilder();
 
-        // Container intentionally not compiled for tests.
-
-        // Set up settings
-        $settings = require __DIR__ . '/../dependencies/container.php';
-        $settings($containerBuilder);
-
-        // Build PHP-DI Container instance
-        $container = $containerBuilder->build();
+            // Instantiate PHP-DI ContainerBuilder
+            $containerBuilder = new ContainerBuilder();
 
 
-        $twig = Twig::create(__DIR__ . '/../public/views/', ['cache' => false, 'debug' => true]);
+            // Set up settings
+            $settings = require __DIR__ . '/../dependencies/container.php';
+            $settings($containerBuilder);
+
+            // Build PHP-DI Container instance
+            $container = $containerBuilder->build();
+
+            $twig = Twig::create(__DIR__ . '/../public/views/', ['cache' => false, 'debug' => true]);
+
+            // Instantiate the app
+            AppFactory::setContainer($container);
+            $app = AppFactory::create();
+
+            $app->add(TwigMiddleware::create($app, $twig));
 
 
-        // Instantiate the app
-        AppFactory::setContainer($container);
-        $app = AppFactory::create();
-
-        $app->add(TwigMiddleware::create($app, $twig));
-
-
-        // Register routes
-        $routes = require __DIR__ . '/../app/routes.php';
-        $routes($app);
+            // Register routes
+            $routes = require __DIR__ . '/../app/routes.php';
+            $routes($app);
 
         return $app;
     }

@@ -142,7 +142,6 @@ class YearlyDueTest extends TestCase
             ]
         ];
 
-
         $request = $this->createRequest('POST','/admin/payments/year-dues');
         $request = $request->withParsedBody($formData);
 

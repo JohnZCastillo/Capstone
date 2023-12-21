@@ -98,12 +98,15 @@ return function (App $app) use ($twig) {
         )->setName('account');
 
 
-
     })->add(\App\middleware\ActivePage::class);
 
 
     $app->post('/upload',
         \App\controller\api\upload\FileUpload::class
+    )->setName('account');
+
+    $app->post('/change-password',
+        \App\controller\api\UpdatePassword::class
     )->setName('account');
 };
 

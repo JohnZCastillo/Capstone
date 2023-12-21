@@ -39,7 +39,8 @@
             "@php -S localhost:8000 -t public"
         ],
         "update-db": "php cli-config.php orm:schema-tool:update --force --complete",
-        "create-db": "php cli-config.php orm:schema-tool:create"
+        "create-db": "php cli-config.php orm:schema-tool:create",
+        "test": "/vendor/bin/phpunit tests"
     },
     "require-dev": {
         "phpunit/phpunit": "^10.5",

@@ -2,9 +2,13 @@
 
 namespace App\service;
 
+use App\exception\UserNotFoundException;
 use App\lib\Paginator;
 use App\model\enum\UserRole;
 use App\model\UserModel;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\TransactionRequiredException;
 
 class UserService extends Service
 {
@@ -20,10 +24,18 @@ class UserService extends Service
         $this->entityManager->flush($user);
     }
 
+    /**
+     * @throws UserNotFoundException
+     */
     public function findById($id): UserModel
     {
         $em = $this->entityManager;
         $user = $em->find(UserModel::class, $id);
+
+        if(!isset($user)){
+            throw new UserNotFoundException("User with id of $id not found");
+        }
+
         return $user;
     }
 

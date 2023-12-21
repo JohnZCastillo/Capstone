@@ -6,8 +6,15 @@ use App\model\enum\IssuesStatus;
 use App\model\enum\UserRole;
 use Doctrine\DBAL\Types\Type;
 
-//Register your enum types here
-Type::addType(AnnouncementStatus::class, AnnouncementStatus::class);
-Type::addType(IssuesStatus::class, IssuesStatus::class);
-Type::addType(UserRole::class, UserRole::class);
-Type::addType(BudgetStatus::class, BudgetStatus::class);
+$customTypes = [
+    AnnouncementStatus::class,
+    IssuesStatus::class,
+    UserRole::class,
+    BudgetStatus::class,
+];
+
+foreach ($customTypes as $customTypeClass) {
+    if (!Type::hasType($customTypeClass)) {
+        Type::addType($customTypeClass, $customTypeClass);
+    }
+}

@@ -5,7 +5,6 @@ namespace App\controller\admin\report;
 use App\lib\ReportMaker;
 use App\lib\Time;
 use Psr\Http\Message\ResponseInterface as Response;
-use thiagoalessio\TesseractOCR\Tests\Common\TestCase;
 
 class PaidPaymentReport extends PaymentReport
 {
