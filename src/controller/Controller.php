@@ -35,7 +35,6 @@ use UMA\DIC\Container;
 
 class Controller
 {
-
     protected UserService $userSerivce;
     protected TransactionService $transactionService;
     protected DuesService $duesService;

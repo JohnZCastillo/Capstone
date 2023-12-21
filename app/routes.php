@@ -9,6 +9,14 @@ return function (App $app) use ($twig) {
 
     $app->group('/admin', function (Group $group) {
 
+        $group->get('/system',
+            \App\controller\admin\system\ViewSettings::class
+        )->setName('system');
+
+        $group->post('/system',
+            \App\controller\admin\system\UpdateSettings::class
+        )->setName('system');
+
         $group->get('/payments', \App\controller\admin\payments\Homepage::class)
             ->setName('home');
 
@@ -82,6 +90,9 @@ return function (App $app) use ($twig) {
             \App\controller\admin\announcement\PostAnnouncement::class
         )->setName('announcements');
 
+        $group->get('/logs',
+            \App\controller\admin\logs\Logs::class
+        )->setName('logs');
 
     })->add(\App\middleware\ActivePage::class);
 

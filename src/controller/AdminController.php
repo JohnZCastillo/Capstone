@@ -26,65 +26,6 @@ use Slim\Views\Twig;
 class AdminController extends Controller
 {
 
-    public function postAnnouncement($request, $response, $args)
-    {
-
-        $view = Twig::fromRequest($request);
-
-        $id = $args['id'];
-
-        $announcement = $this->announcementService->findById($id);
-
-        $announcement->setStatus(AnnouncementStatus::posted());
-
-        $this->announcementService->save($announcement);
-
-        $this->flashMessages->addMessage('Test', 'This is a message');
-
-        $action = "Announcement with id of " . $announcement->getId() . " status was set to posted";
-
-        $actionLog = new LogsModel();
-        $actionLog->setAction($action);
-        $actionLog->setTag("Announcement");
-        $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(new DateTime());
-        $this->actionLogs->addLog($actionLog);
-
-        return $response
-            ->withHeader('Location', "/admin/announcements?status=ARCHIVED")
-            ->withStatus(302);
-    }
-
-    public function archiveAnnouncement($request, $response, $args)
-    {
-
-        $view = Twig::fromRequest($request);
-
-        $id = $args['id'];
-
-        $announcement = $this->announcementService->findById($id);
-
-        $announcement->setStatus(AnnouncementStatus::archived());
-
-        $this->announcementService->save($announcement);
-
-        $this->flashMessages->addMessage('Test', 'This is a message');
-
-        $action = "Announcement with id of " . $announcement->getId() . " status was set to archived";
-
-        $actionLog = new LogsModel();
-        $actionLog->setAction($action);
-        $actionLog->setTag("Announcement");
-        $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(new DateTime());
-        $this->actionLogs->addLog($actionLog);
-
-
-        return $response
-            ->withHeader('Location', "/admin/announcements?status=POSTED")
-            ->withStatus(302);
-    }
-
     public function users($request, $response, $args)
     {
 
@@ -119,7 +60,6 @@ class AdminController extends Controller
             "errorMessage" => $errorMessage,
         ]);
     }
-
 
     public function accountSettings($request, $response, $args)
     {
@@ -244,30 +184,6 @@ class AdminController extends Controller
 
     }
 
-    public function systemSettings($request, $response, $args)
-    {
-
-        $systemSettings = $this->systemSettingService->findById();
-
-        $twig = Twig::fromRequest($request);
-
-        $user = $this->getLogin();
-
-        $timezone = date_default_timezone_get();
-
-        $errorMessage = $this->flashMessages->getFirstMessage('errorMessage');
-        $successMessage = $this->flashMessages->getFirstMessage('successMessage');
-
-        return $twig->render($response, 'admin/pages/system.html', [
-            'timezone' => $timezone,
-            "loginUser" => $user,
-            "systemSettings" => $systemSettings,
-            'errorMessage' => $errorMessage,
-            'successMessage' => $successMessage,
-        ]);
-
-    }
-
     public function announcementPage($request, $response, $args)
     {
 
@@ -319,36 +235,6 @@ class AdminController extends Controller
         ];
 
         return $twig->render($response, 'admin/pages/logs.html', $data);
-    }
-
-
-    public function updateSystemSettings($request, $response, $args)
-    {
-
-        $content = $request->getParsedBody();
-
-        $systemSettings = $this->systemSettingService->findById();
-
-        $systemSettings->setTermsAndCondition($content['termsAndCondition']);
-        $systemSettings->setMailHost($content['mailHost']);
-        $systemSettings->setMailUsername($content['mailUsername']);
-
-//        only update password if not empty
-        if (!empty($content['mailPassword'])) {
-            $systemSettings->setMailPassword($content['mailPassword']);
-        }
-
-        if (isset($content['allowSignup'])) {
-            $systemSettings->setAllowSignup(true);
-        } else {
-            $systemSettings->setAllowSignup(false);
-        }
-
-        $this->systemSettingService->save($systemSettings);
-
-        return $response
-            ->withHeader('Location', "/admin/system")
-            ->withStatus(302);
     }
 
     public function newFund($request, $response, $args)
@@ -795,7 +681,6 @@ class AdminController extends Controller
             ->withHeader('Location', "/admin/budget")
             ->withStatus(302);
     }
-
 
     public function budgetManagement($request, $response, $args)
     {

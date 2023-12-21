@@ -5,11 +5,7 @@ declare(strict_types=1);
 namespace App\controller\admin;
 
 use App\controller\Action;
-use App\controller\admin\issues\Issues;
-use App\lib\Time;
-use App\model\AnnouncementHistoryModel;
 use App\model\LogsModel;
-use App\model\PaymentModel;
 use App\model\UserModel;
 use App\service\AnnouncementHistoryService;
 use App\service\AnnouncementService;
@@ -18,11 +14,11 @@ use App\service\IssuesService;
 use App\service\LogsService;
 use App\service\PaymentService;
 use App\service\ReceiptService;
+use App\service\SystemSettingService;
 use App\service\TransactionLogsService;
 use App\service\TransactionService;
 use App\service\UserService;
 use DateTime;
-use Psr\Log\LoggerInterface;
 use Slim\Flash\Messages;
 
 abstract class AdminAction extends Action
@@ -44,6 +40,8 @@ abstract class AdminAction extends Action
 
     protected AnnouncementHistoryService $announcementHistoryService;
 
+    protected SystemSettingService $systemSettingService;
+
 
     public function __construct(UserService                $userService,
                                 PaymentService             $paymentService,
@@ -55,7 +53,8 @@ abstract class AdminAction extends Action
                                 TransactionLogsService     $transactionLogsService,
                                 IssuesService              $issuesService,
                                 AnnouncementService        $announcementService,
-                                AnnouncementHistoryService $announcementHistoryService)
+                                AnnouncementHistoryService $announcementHistoryService,
+                                SystemSettingService       $systemSettingService)
     {
         $this->userService = $userService;
         $this->paymentService = $paymentService;
@@ -68,6 +67,7 @@ abstract class AdminAction extends Action
         $this->issuesService = $issuesService;
         $this->announcementService = $announcementService;
         $this->announcementHistoryService = $announcementHistoryService;
+        $this->systemSettingService = $systemSettingService;
     }
 
 

@@ -9,41 +9,64 @@ use App\model\LogsModel;
 use App\model\TransactionModel;
 use App\model\UserModel;
 use DateTime;
+use thiagoalessio\TesseractOCR\Tests\Common\TestCase;
 
-class LogsService  extends Service {
+class LogsService extends Service
+{
 
-    public function addLog(LogsModel $log): void{
+    public function addLog(LogsModel $log): void
+    {
         $this->entityManager->persist($log);
         $this->entityManager->flush($log);
     }
 
-    public function getAll($page, $max, $filter, $user = null)
+    public function getAll($page, $max, $status, $from = null, $to = null, $user = null)
     {
 
-        $em = $this->entityManager;
-
-        $paginator = new Paginator();
-
-        $qb = $em->createQueryBuilder();
+        $qb = $this->entityManager->createQueryBuilder();
 
         $qb->select('t')
             ->from(LogsModel::class, 't');
 
-        $queryHelper = new QueryHelper($qb);
+        $or = $qb->expr()->orX();
 
-        $queryHelper->Where("t.user = :user", "user", $user)
-                ->andWhere($qb->expr()->in('t.status', ':status'), "status", $filter['tag'])
-                ->andWhereIn($qb->expr()->between('t.created_at', ":from",":to"),[
-                    "key"=>"from",
-                    "value"=>$filter['from']
-                ],[
-                    "key"=>"to",
-                    "value"=>$filter['to']
-                ]);
+        $paginator = new Paginator();
 
-        $queryHelper->getQuery()->addOrderBy("t.id", "DESC");
+        $notEmpty = false;
 
-        return $paginator->paginate($queryHelper->getQuery(), $page, $max);
+        if (isset($user)) {
+            $or->add($qb->expr()->eq('t.user', ':user'));
+            $qb->setParameter('user', $user);
+            $notEmpty = true;
+        }
+
+        if (isset($status)) {
+            $or->add($qb->expr()->in('t.status', ':status'));
+            $qb->setParameter('status', $status);
+            $notEmpty = true;
+
+        }
+
+        if (isset($from, $to)) {
+
+            $from = (new DateTime($from))->format('Y-m-d H:i:s');
+            $to = new DateTime($to);
+            $to->setTime(23, 59, 59, 59);
+
+            $to = $to->format('Y-m-d H:i:s');
+
+            $or->add($qb->expr()->between('t.created_at', ':from', ':to'));
+            $qb->setParameter('from', $from);
+            $qb->setParameter('to', $to);
+            $notEmpty = true;
+        }
+
+
+        if ($notEmpty) {
+            $qb->where($or);
+        }
+
+        return $paginator->paginate($qb, $page, $max);
     }
 
 }
