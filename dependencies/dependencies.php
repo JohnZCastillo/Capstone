@@ -1,5 +1,6 @@
 <?php
 
+use App\service\AnnouncementHistoryService;
 use App\service\AnnouncementService;
 use App\service\CodeModelService;
 use App\service\DuesService;
@@ -115,6 +116,10 @@ return array(
 
     \App\service\OverviewService::class => function (ContainerInterface $c) {
         return new \App\service\OverviewService($c->get(EntityManager::class));
+    },
+
+    AnnouncementHistoryService::class => function (ContainerInterface $c) {
+        return new AnnouncementHistoryService($c->get(EntityManager::class));
     },
 
 );

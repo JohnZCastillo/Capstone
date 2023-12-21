@@ -6,6 +6,7 @@ use App\exception\payment\TransactionNotFound;
 use App\lib\Paginator;
 use App\lib\QueryHelper;
 use App\lib\Time;
+use App\model\DuesModel;
 use App\model\PaymentModel;
 use App\model\TransactionModel;
 use App\model\UserModel;
@@ -35,7 +36,7 @@ class TransactionService extends Service
         $em = $this->entityManager;
         $transaction = $em->find(TransactionModel::class, $id);
 
-        if(!isset($transaction)){
+        if (!isset($transaction)) {
             throw new TransactionNotFound($id);
         }
 
@@ -174,7 +175,6 @@ class TransactionService extends Service
         return $qb->getQuery()->getResult();
     }
 
-
     public function getUnpaid($user, DuesService $dueService, PaymentModel $payment, $startMonth = null, $endMonth = null)
     {
 
@@ -213,16 +213,15 @@ class TransactionService extends Service
     /**
      * Return the current  balance of user for the certain month.
      * if User has already paid then balance is 0.
-     * Otherwise balance is the due for the month.
+     * Otherwise, balance is the due for the month.
      * @param UserModel $user
      * @param string $month
      * @param DuesService @dueService
-     * @return int
+     * @return float
      */
-    public function getBalance($user, $month, DuesService $dueService)
+    public function getBalance($user, $month, DuesService $dueService): float
     {
-        return $this->isPaid($user, $month) ? 0
-            : $dueService->getDue($month);
+        return $this->isPaid($user, $month) ? 0 : $dueService->getDue($month);
     }
 
 
@@ -238,47 +237,54 @@ class TransactionService extends Service
 
         $qb = $em->createQueryBuilder();
 
-        $qb->select('COUNT(t.id)')
+        $count = $qb->select('COUNT(t.id)')
             ->from(TransactionModel::class, 't')
             ->innerJoin('t.user', 'u', 'WITH', 'u.block = :block AND u.lot = :lot')
             ->setParameter('block', $user->getBlock())
             ->setParameter('lot', $user->getLot())
-            ->where($qb->expr()->between(':month', 't.fromMonth', 't.toMonth'))
-            ->andWhere($qb->expr()->eq('t.status', ':status'))
+            ->where($qb->expr()->andX(
+                $qb->expr()->between(':month', 't.fromMonth', 't.toMonth'),
+                $qb->expr()->eq('t.status', ':status'))
+            )
             ->setParameter('month', $month)
-            ->setParameter('status', 'APPROVED');
+            ->setParameter('status', 'APPROVED')
+            ->getQuery()
+            ->getSingleScalarResult();
 
-        $query = $qb->getQuery();
-        $count = $query->getSingleScalarResult();
-
-        return ($count > 0);
+        return $count > 0;
     }
 
 
+    /**
+     * Returns total collected amount from transactions
+     * base on the status provided
+     * @param string $status
+     * @param string $fromMonth
+     * @param string $toMonth
+     * @return float
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
     public function getTotal(string $status, string $fromMonth, string $toMonth): float
     {
 
-        $em = $this->entityManager;
+        $qb = $this->entityManager->createQueryBuilder();
 
-        $qb = $em->createQueryBuilder();
-
-        $qb->select('sum(t.amount)')
+        $result = $qb->select('sum(t.amount)')
             ->from(TransactionModel::class, 't')
-            ->where($qb->expr()->eq('t.status', ':status'))
-            ->andWhere($qb->expr()->gte('t.fromMonth', ':fromMonth'))
-            ->andWhere($qb->expr()->lte('t.toMonth', ':toMonth'))
+            ->where(
+                $qb->expr()->andX(
+                    $qb->expr()->eq('t.status', ':status'),
+                    $qb->expr()->gte('t.fromMonth', ':fromMonth'),
+                    $qb->expr()->lte('t.toMonth', ':toMonth'),
+                )
+            )
             ->setParameter('fromMonth', $fromMonth)
             ->setParameter('toMonth', $toMonth)
-            ->setParameter('status', $status);
+            ->setParameter('status', $status)
+            ->getQuery()
+            ->getSingleScalarResult();
 
-        $query = $qb->getQuery();
-
-        $result = $query->getSingleScalarResult();
-        if ($result == null) {
-            return 0;
-        }
-        return $result;
-
+        return $result ?? 0;
     }
 
 }

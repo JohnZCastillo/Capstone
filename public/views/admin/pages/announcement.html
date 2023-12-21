@@ -21,7 +21,7 @@
             <div class="card">
                 <div class="card-body">
                     <h1>Announcement Page</h1>
-                    <form id="formSave" class="form" method="POST" action="/admin/announcement">
+                    <form id="formSave" class="form" method="POST" action="/admin/announcement/post">
                         <div class="form-group">
                             <label class="form-label">Title</label>
                             <input
@@ -59,6 +59,35 @@
             </div>
         </div>
         <div class="col-xl-3 col-md-4 col-12 ">
+            <div class="card mb-2">
+                <div class="card-header pb-0">
+                    <h6 class="card-title">Edit History</h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+
+                        {% if mainId is not null %}
+                        <a href="/admin/announcement/edit/{{mainId}}"
+                           class="list-group-item list-group-item-action {{activeHistory}}">View Original Content</a>
+                        {% endif %}
+
+
+                        {% for history in announcement.history %}
+
+
+                        <a href="/admin/announcement/edit/history/{{history.id}}"
+                           class="list-group-item list-group-item-action
+                           d-flex justify-content-between align-items-center">
+
+                            <span>{{history.title}}</span>
+                            {% if historyId == history.id %}
+                            <span class="badge bg-info">Viewing</span>
+                            {% endif %}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
             <div class="card mb-2">
                 <div class="card-body">
                     <a href="/admin/announcements" class="btn btn-primary my-2" id="backBtn">Back</a>

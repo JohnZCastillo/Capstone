@@ -6,6 +6,7 @@ namespace App\controller\admin\payments;
 
 use App\controller\admin\AdminAction;
 use App\exception\payment\TransactionNotFound;
+use App\lib\Time;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 
@@ -23,11 +24,17 @@ class Transaction extends AdminAction
 
             $transaction = $this->transactionService->findById($id);
 
-            return  $this->view( 'admin/pages/transaction.html', [
+            $totalDue = $this->duesService->getDueInRange(
+                Time::toMonth($transaction->getFromMonth()),
+                Time::toMonth($transaction->getToMonth())
+            );
+
+            return $this->view('admin/pages/transaction.html', [
                 'transaction' => $transaction,
                 'receipts' => $transaction->getReceipts(),
                 'user' => $transaction->getUser(),
                 'loginUser' => $this->getLoginUser(),
+                'totalDue' => $totalDue,
             ]);
 
         } catch (TransactionNotFound $transactionNotFound) {

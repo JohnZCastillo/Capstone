@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace App\controller\admin;
 
 use App\controller\Action;
+use App\controller\admin\issues\Issues;
 use App\lib\Time;
+use App\model\AnnouncementHistoryModel;
 use App\model\LogsModel;
 use App\model\PaymentModel;
 use App\model\UserModel;
+use App\service\AnnouncementHistoryService;
+use App\service\AnnouncementService;
 use App\service\DuesService;
+use App\service\IssuesService;
 use App\service\LogsService;
 use App\service\PaymentService;
 use App\service\ReceiptService;
@@ -26,24 +31,31 @@ abstract class AdminAction extends Action
     protected PaymentService $paymentService;
     protected TransactionService $transactionService;
     protected DuesService $duesService;
-    protected  ReceiptService $receiptService;
+    protected ReceiptService $receiptService;
     protected Messages $flashMessage;
 
-    protected  LogsService $logsService;
+    protected LogsService $logsService;
 
-    protected  TransactionLogsService $transactionLogsService;
+    protected TransactionLogsService $transactionLogsService;
 
-    /**
-     * @param UserService $userService
-     * @param PaymentService $paymentService
-     * @param TransactionService $transactionService
-     * @param DuesService $duesService
-     * @param ReceiptService $receiptService
-     * @param Messages $flashMessage
-     * @param LogsService $logsService
-     * @param TransactionLogsService $transactionLogsService
-     */
-    public function __construct(UserService $userService, PaymentService $paymentService, TransactionService $transactionService, DuesService $duesService, ReceiptService $receiptService, Messages $flashMessage, LogsService $logsService, TransactionLogsService $transactionLogsService)
+    protected IssuesService $issuesService;
+
+    protected AnnouncementService $announcementService;
+
+    protected AnnouncementHistoryService $announcementHistoryService;
+
+
+    public function __construct(UserService                $userService,
+                                PaymentService             $paymentService,
+                                TransactionService         $transactionService,
+                                DuesService                $duesService,
+                                ReceiptService             $receiptService,
+                                Messages                   $flashMessage,
+                                LogsService                $logsService,
+                                TransactionLogsService     $transactionLogsService,
+                                IssuesService              $issuesService,
+                                AnnouncementService        $announcementService,
+                                AnnouncementHistoryService $announcementHistoryService)
     {
         $this->userService = $userService;
         $this->paymentService = $paymentService;
@@ -53,7 +65,11 @@ abstract class AdminAction extends Action
         $this->flashMessage = $flashMessage;
         $this->logsService = $logsService;
         $this->transactionLogsService = $transactionLogsService;
+        $this->issuesService = $issuesService;
+        $this->announcementService = $announcementService;
+        $this->announcementHistoryService = $announcementHistoryService;
     }
+
 
     protected function addErrorMessage($message)
     {
@@ -70,7 +86,7 @@ abstract class AdminAction extends Action
         $this->flashMessage->addMessage($key, $message);
     }
 
-    protected function getLoginUser():UserModel
+    protected function getLoginUser(): UserModel
     {
         return $this->userService->findById(1);
     }

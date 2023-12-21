@@ -26,145 +26,6 @@ use Slim\Views\Twig;
 class AdminController extends Controller
 {
 
-    public function home($request, $response, $args)
-    {
-
-        // get the query params
-        $queryParams = $request->getQueryParams();
-
-        $settings = $this->paymentService->findById(1);
-
-        // if page is present then set value to page otherwise to 1
-        $page = $queryParams['page'] ?? 1;
-
-        $filter = Filter::check($queryParams);
-
-        $id = empty($queryParams['query']) ? null : $queryParams['query'];
-
-        // max transaction per page
-        $max = 5;
-
-        $view = Twig::fromRequest($request);
-
-        //Get Transaction
-        $result = $this->transactionService->adminGetAll($page, $max, $id, $filter);
-
-        $startOfPaymentYear = Time::getYearFromStringDate($this->getPaymentSettings()->getStart());
-
-        $dues = $this->getDues($startOfPaymentYear);
-
-        $errorMessage = $this->flashMessages->getFirstMessage('errorMessage');
-
-        $data = [
-            'paymentYear' => Time::getYearSpan($startOfPaymentYear),
-            'paymentStart' => $startOfPaymentYear,
-            'dues' => $dues ?? null,
-            'transactions' => $result->getItems(),
-            'currentPage' => $page,
-            'query' => $id,
-            'from' => $queryParams['from'] ?? null,
-            'to' => $queryParams['to'] ?? null,
-            'status' => $queryParams['status'] ?? null,
-            'settings' => $settings,
-            'paginator' => $result,
-            'loginUser' => $this->getLogin(),
-            "errorMessage" => $errorMessage,
-        ];
-
-        return $view->render($response, 'admin/pages/payments.html', $data);
-    }
-
-    public function announcement($request, $response, $args)
-    {
-
-        $view = Twig::fromRequest($request);
-
-        $title = $request->getParsedBody()['title'];
-        $content = $request->getParsedBody()['content'];
-        $id = $request->getParsedBody()['id'];
-
-        $post = new AnnouncementModel();
-
-        $post->setCreatedAt(Time::timestamp());
-        $post->setUser($this->getLogin());
-
-        $action = "Announcement with id of " . $post->getId() . " was created";
-
-        if (Helper::existAndNotNull($id)) {
-            $post = $this->announcementService->findById($id);
-            $action = "Announcement with id of " . $post->getId() . " was edited";
-            $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . ' edited');
-        } else {
-            $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . ' Posted');
-        }
-
-        $post->setTitle($title);
-        $post->setContent($content);
-        $post->setStatus(AnnouncementStatus::posted());
-
-        try {
-            $this->announcementService->save($post);
-        } catch (\Throwable $th) {
-            $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . 'Posting Error');
-        }
-
-
-        $actionLog = new LogsModel();
-        $actionLog->setAction($action);
-        $actionLog->setTag("Announcement");
-        $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(new DateTime());
-        $this->actionLogs->addLog($actionLog);
-
-        return $response->withHeader('Location', "/admin/announcements")
-            ->withStatus(302);
-    }
-
-    public function deleteAnnouncement($request, $response, $args)
-    {
-
-        // get the query params
-        $queryParams = $request->getQueryParams();
-
-        $view = Twig::fromRequest($request);
-
-        $id = $args['id'];
-
-        $post = $this->announcementService->findById($id);
-
-        $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . ' deleted');
-
-        $action = "Announcement with id of " . $post->getId() . " was deleted";
-
-        $actionLog = new LogsModel();
-        $actionLog->setAction($action);
-        $actionLog->setTag("Announcement");
-        $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(new DateTime());
-        $this->actionLogs->addLog($actionLog);
-
-        $this->announcementService->delete($post);
-
-        return $response
-            ->withHeader('Location', '/admin/announcements')
-            ->withStatus(302);
-    }
-
-    public function editAnnouncement($request, $response, $args)
-    {
-
-        $view = Twig::fromRequest($request);
-
-        $id = $args['id'];
-
-        $announcement = $this->announcementService->findById($id);
-
-        return $view->render($response, 'admin/pages/announcement.html', [
-            'announcement' => $announcement,
-            'loginUser' => $this->getLogin(),
-        ]);
-    }
-
     public function postAnnouncement($request, $response, $args)
     {
 
@@ -224,85 +85,6 @@ class AdminController extends Controller
             ->withStatus(302);
     }
 
-
-    public function announcements($request, $response, $args)
-    {
-
-        $message = $this->flashMessages->getFirstMessage('message');
-
-        $view = Twig::fromRequest($request);
-
-        // get the query params
-        $queryParams = $request->getQueryParams();
-
-        // if page is present then set value to page otherwise to 1
-        $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
-
-        $id = isset($queryParams['query']) ? $queryParams['query'] : null;
-
-        $status = isset($queryParams['status']) ? $queryParams['status'] : 'posted';
-
-        // max transaction per page
-        $max = 5;
-
-        $filter = Filter::check($queryParams);
-
-        $result = $this->announcementService->getAll($page, $max, null, $filter, null, $status);
-
-        return $view->render($response, 'admin/pages/announcements.html', [
-            'announcements' => $result['announcements'],
-            'message' => $message,
-            'query' => $id,
-            'currentPage' => $page,
-            'from' => isset($queryParams['from']) ? $queryParams['from'] : null,
-            'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
-            'totalPages' => ceil(($result['totalAnnouncement']) / $max),
-            'status' => $status,
-            'loginUser' => $this->getLogin(),
-        ]);
-    }
-
-
-    /**
-     * View Issues.
-     */
-    public function issues($request, $response, $args)
-    {
-
-        $message = $this->flashMessages->getFirstMessage('message');
-
-        $view = Twig::fromRequest($request);
-
-        $queryParams = $request->getQueryParams();
-
-        // if page is present then set value to page otherwise to 1
-        $page = $queryParams['page'] ?? 1;
-
-        $type = $queryParams['type'] ?? 'posted';
-
-        // max transaction per page
-        $max = 3;
-
-        $filter = Filter::check($queryParams);
-
-        $createdAt = empty($queryParams['createdAt']) ? null : $queryParams['createdAt'];
-
-        $query = empty($queryParams['query']) ? null : $queryParams['query'];
-
-        $pagination = $this->issuesService->getAll($page, $max, $query, $filter, null, $type, $createdAt);
-
-        return $view->render($response, 'admin/pages/issues.html', [
-            'type' => $type,
-            'message' => $message,
-            'issues' => $pagination->getItems(),
-            'currentPage' => $page,
-            'status' => $queryParams['status'] ?? null,
-            'paginator' => $pagination,
-            'createdAt' => $createdAt,
-            'loginUser' => $this->getLogin(),
-        ]);
-    }
-
     public function users($request, $response, $args)
     {
 
@@ -338,78 +120,6 @@ class AdminController extends Controller
         ]);
     }
 
-    /**
-     * View Issues.
-     */
-    public function manageIssue($request, $response, $args)
-    {
-
-        $id = $args['id'];
-
-        $view = Twig::fromRequest($request);
-
-        //might throw and error
-        $issue = $this->issuesService->findById($id);
-
-        return $view->render($response, 'admin/pages/issue.html', [
-            'issue' => $issue,
-        ]);
-    }
-
-
-    public function actionIssue($request, $response, $args)
-    {
-
-        $content = $request->getParsedBody();
-
-        $id = $content['id'];
-
-        $issue = $this->issuesService->findById($id);
-
-        $issue->setAction($content['action']);
-
-        $issue->setStatus($content['status']);
-
-        $this->issuesService->save($issue);
-
-        return $response
-            ->withHeader('Location', "/admin/issues/$id")
-            ->withStatus(302);
-    }
-
-
-    /**
-     * View Issues.
-     */
-    public function paymentMap($request, $response, $args)
-    {
-
-        $message = $this->flashMessages->getFirstMessage('message');
-
-        $view = Twig::fromRequest($request);
-
-        $queryParams = $request->getQueryParams();
-
-        // if page is present then set value to page otherwise to 1
-        $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
-
-        $type = isset($queryParams['type']) ? $queryParams['type'] : 'posted';
-
-        // max transaction per page
-        $max = 5;
-
-        $filter = Filter::check($queryParams);
-
-        return $view->render($response, 'pages/admin-payments-map.html', [
-            'type' => $type,
-            'message' => $message,
-            'currentPage' => $page,
-            'from' => isset($queryParams['from']) ? $queryParams['from'] : null,
-            'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
-            'status' => isset($queryParams['status']) ? $queryParams['status'] : null,
-            // 'totalPages' => ceil(($result['totalIssues']) / $max),
-        ]);
-    }
 
     public function accountSettings($request, $response, $args)
     {
@@ -534,7 +244,6 @@ class AdminController extends Controller
 
     }
 
-
     public function systemSettings($request, $response, $args)
     {
 
@@ -612,12 +321,6 @@ class AdminController extends Controller
         return $twig->render($response, 'admin/pages/logs.html', $data);
     }
 
-    public function test($request, $response, $args)
-    {
-        var_dump(
-            $this->fundService->getMonthlyTally(1, 2023)
-        );
-    }
 
     public function updateSystemSettings($request, $response, $args)
     {

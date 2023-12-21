@@ -2,6 +2,7 @@
 
 namespace App\service;
 
+use App\exception\date\InvalidDateFormat;
 use App\lib\Time;
 use App\model\DuesModel;
 use App\model\UserModel;
@@ -9,7 +10,8 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\NotSupported;
 use Exception;
 
-class DuesService extends Service {
+class DuesService extends Service
+{
 
     /**
      * Save model to database
@@ -23,18 +25,19 @@ class DuesService extends Service {
     }
 
 
-    public  function createDue($month): DuesModel{
+    public function createDue($month): DuesModel
+    {
 
         $em = $this->entityManager;
 
-         $due = $em->getRepository(DuesModel::class)
+        $due = $em->getRepository(DuesModel::class)
             ->findOneBy(['month' => $month]);
 
-         if($due == null){
-             return new DuesModel();
-         }
+        if ($due == null) {
+            return new DuesModel();
+        }
 
-         return  $due;
+        return $due;
     }
 
 
@@ -55,17 +58,37 @@ class DuesService extends Service {
 
         $qb = $em->createQueryBuilder();
 
-        $qb->select('u.amount')
+        return $qb->select('u.amount')
             ->from(DuesModel::class, 'u')
             ->where($qb->expr()->between('u.month', 'u.month', ':month'))
             ->setParameter('month', $month)
             ->orderBy('u.month', 'DESC')
-            ->setMaxResults(1);
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getSingleScalarResult();
 
-        $query = $qb->getQuery();
-        $result = $query->getSingleScalarResult();
+    }
 
-        return $result;
+    /**
+     * Return due form given range
+     * @param string $from
+     * @param string $to
+     * @return float
+     * @throws InvalidDateFormat
+     */
+    public function getDueInRange(string $from, string $to): float
+    {
+
+        $amountDue = 0;
+
+        $months = Time::getMonths(Time::setToFirstDayOfMonth($from),
+            Time::setToFirstDayOfMonth($to));
+
+        foreach ($months as $month) {
+            $amountDue += $this->getDue($month);
+        }
+
+        return $amountDue;
     }
 
     /**
@@ -74,7 +97,8 @@ class DuesService extends Service {
      * @param $month
      * @return bool
      */
-    public function isSavePoint($month): bool{
+    public function isSavePoint($month): bool
+    {
         try {
             $em = $this->entityManager;
             $dues = $em->getRepository(DuesModel::class)->findOneBy(['month' => $month]);

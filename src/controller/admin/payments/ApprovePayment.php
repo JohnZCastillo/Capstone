@@ -6,9 +6,12 @@ namespace App\controller\admin\payments;
 
 use App\controller\admin\AdminAction;
 use App\exception\ContentLock;
+use App\exception\InvalidInput;
 use App\exception\NotUniqueReferenceException;
+use App\exception\payment\InvalidPaymentAmount;
 use App\exception\payment\InvalidReference;
 use App\exception\payment\TransactionNotFound;
+use App\lib\Time;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;
@@ -33,6 +36,17 @@ class ApprovePayment extends AdminAction
                 throw new ContentLock('Cannot Edit Content');
             }
 
+            $amount = $transaction->getAmount();
+
+            $amountToPay = $this->duesService->getDueInRange(
+                Time::toMonth($transaction->getFromMonth()),
+                Time::toMonth($transaction->getToMonth())
+            );
+
+            if ($amount !== $amountToPay) {
+                throw new InvalidPaymentAmount("Payment must be equal to $amountToPay");
+            }
+
             $user = $this->getLoginUser();
 
             $references = $formData['field'];
@@ -43,7 +57,11 @@ class ApprovePayment extends AdminAction
                 $reference = $references[$i];
                 $receipt = $receipts[$i];
 
-                if (empty($reference) || !(v::alnum()->validate($reference))) {
+                if (!v::stringType()->notEmpty()->validate($reference)) {
+                    throw new InvalidInput('Reference cannot be empty');
+                }
+
+                if (!v::alnum()->validate($reference)) {
                     throw new InvalidReference();
                 }
 
@@ -71,10 +89,14 @@ class ApprovePayment extends AdminAction
             return $this->redirect('/admin/payments');
         } catch (NotUniqueReferenceException $notUniqueReferenceException) {
             $this->addErrorMessage($notUniqueReferenceException->getMessage());
+        } catch (InvalidPaymentAmount $invalidPaymentAmount) {
+            $this->addErrorMessage($invalidPaymentAmount->getMessage());
         } catch (ContentLock $contentLock) {
             $this->addErrorMessage($contentLock->getMessage());
         } catch (InvalidReference $invalidReference) {
             $this->addErrorMessage($invalidReference->getMessage());
+        }  catch (InvalidInput $invalidInput) {
+            $this->addErrorMessage($invalidInput->getMessage());
         } catch (Exception $exception) {
             $this->addErrorMessage('An  Internal Error Has Occurred, pleas check logs');
         }

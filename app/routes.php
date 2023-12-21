@@ -9,7 +9,6 @@ return function (App $app) use ($twig) {
 
     $app->group('/admin', function (Group $group) {
 
-
         $group->get('/payments', \App\controller\admin\payments\Homepage::class)
             ->setName('home');
 
@@ -21,6 +20,10 @@ return function (App $app) use ($twig) {
             \App\controller\admin\payments\YearlyDue::class
         )->setName('home');
 
+        $group->post('/payments/manual',
+            \App\controller\admin\payments\ManualPayment::class)
+            ->setName('home');
+
         $group->post('/payment-settings', \App\controller\admin\payments\PaymentSettings::class)
             ->setName('home');
 
@@ -31,9 +34,54 @@ return function (App $app) use ($twig) {
             \App\controller\admin\payments\RejectPayment::class
         )->setName('home');
 
-
         $group->get('/transaction/{id}', \App\controller\admin\payments\Transaction::class)
             ->setName('home');
+
+        $group->post('/report',
+            \App\controller\admin\report\PaidPaymentReport::class
+        )->setName('home');
+
+        $group->get('/issues',
+            \App\controller\admin\issues\Issues::class
+        )->setName('issues');
+
+        $group->get('/issue/{id}',
+            \App\controller\admin\issues\Issue::class
+        )->setName('issues');
+
+        $group->post('/issues/action',
+            \App\controller\admin\issues\MakeAction::class
+        )->setName('issues');
+
+        $group->get('/announcements',
+            \App\controller\admin\announcement\Announcements::class
+        )->setName('announcements');
+
+        $group->get('/announcement',
+            \App\controller\admin\announcement\CreateAnnouncement::class
+        )->setName('announcements');
+
+        $group->get('/announcement/edit/{id}',
+            \App\controller\admin\announcement\EditAnnouncement::class
+        )->setName('announcements');
+
+        $group->get('/announcement/edit/history/{id}',
+            \App\controller\admin\announcement\EditHistoryAnnouncement::class
+        )->setName('announcements');
+
+
+        $group->post('/announcement/post',
+            \App\controller\admin\announcement\MakeAnnouncement::class
+        )->setName('announcements');
+
+        $group->post('/announcement/archive/{id}',
+            \App\controller\admin\announcement\ArchiveAnnouncement::class
+        )->setName('announcements');
+
+        $group->post('/announcement/post/{id}',
+            \App\controller\admin\announcement\PostAnnouncement::class
+        )->setName('announcements');
+
 
     })->add(\App\middleware\ActivePage::class);
 

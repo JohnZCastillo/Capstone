@@ -12,7 +12,7 @@ class Encryptor
 
     private static function loadKey()
     {
-        $dotenv = Dotenv::createImmutable($_SERVER['DOCUMENT_ROOT']);
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
         $dotenv->load();
 
         self::$encryptionKey = Key::loadFromAsciiSafeString($_ENV["ENCRYPTION_KEY"]);;

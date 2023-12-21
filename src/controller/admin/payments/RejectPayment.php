@@ -30,6 +30,10 @@ class RejectPayment extends AdminAction
 
             $message = $formData['message'];
 
+            if (!v::stringType()->notEmpty()->validate($message)) {
+                throw new InvalidInput('Message cannot be empty');
+            }
+
             if ($transaction->getStatus() != "PENDING") {
                 throw new ContentLock('Cannot Edit Content');
             }

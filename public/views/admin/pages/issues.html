@@ -35,7 +35,6 @@
                 </div>
 
                 <form id="viewForm">
-                    <input class="d-none" id="viewTypeInput" name="type" type="text" value="POSTED">
                     <input class="d-none" id="viewStatusInput" name="status" type="text" value="ALL">
                 </form>
 
@@ -75,7 +74,7 @@
                     <td>{{issue.getCreatedAt()| date('M d, Y')}}</td>
                     <td><span class="badge {{statusLabel}} me-1">{{status}}</span></td>
                     <td>
-                            <a class="btn btn-primary" style="flex: 1 1 0px" href="/admin/issues/{{issue.id}}">Manage</a>
+                            <a class="btn btn-primary" style="flex: 1 1 0px" href="/admin/issue/{{issue.id}}">Manage</a>
                     </td>
                 </tr>
                 {% endfor %}

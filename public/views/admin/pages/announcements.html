@@ -79,7 +79,11 @@
                                 {% set archiveValue = "/admin/announcement/post/#{announcementId}"%}
                                 {% set action = status == "posted" ? postValue : archiveValue%}
 
-                                <a class="dropdown-item" href="{{action}}" style="flex: 1 1 0px;">{{displayStatus}}</a>
+                                <form method="POST" action="{{action}}">
+                                    <button type="submit" class="dropdown-item" style="flex: 1 1 0px;">
+                                        {{displayStatus}}
+                                    </button>
+                                </form>
                             </div>
                         </div>
 

@@ -2,8 +2,11 @@
 
 namespace App\lib;
 
+use App\exception\date\InvalidDateFormat;
 use DateInterval;
 use DateTime;
+use PHPUnit\Exception;
+use Respect\Validation\Validator as v;
 
 class Time
 {
@@ -135,10 +138,14 @@ class Time
      *  and returns the first day of that month in 'Y-m-d' format.
      * @param string $month
      * @return string
-     * @throws Exception - when invalid format is passed
+     * @throws InvalidDateFormat
      */
     static function setToFirstDayOfMonth(string $month): string
     {
+        if (!self::isValidFormat('Y-m', $month)) {
+            throw new InvalidDateFormat();
+        }
+
         $targetMonth = DateTime::createFromFormat('Y-m', $month);
         $targetMonth->setDate($targetMonth->format('Y'), $targetMonth->format('m'), 1);
         return $targetMonth->format('Y-m-d');
@@ -168,7 +175,8 @@ class Time
     }
 
 
-    static  function convertStringDateMonthToStringDateTime(string $month):String{
+    static function convertStringDateMonthToStringDateTime(string $month): string
+    {
         $date = DateTime::createFromFormat('Y-m', $month);
         $date->modify('first day of this month');
         return $date->format('Y-m-d');
@@ -244,5 +252,11 @@ class Time
         $newDateTime->add(new DateInterval("PT{$minutes}M"));
         return $newDateTime;
     }
+
+    static function isValidFormat(string $format, string $date): bool
+    {
+        return v::date($format)->validate($date);
+    }
+
 }
 

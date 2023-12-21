@@ -56,6 +56,7 @@
                             <th>Id</th>
                             <th>From Due</th>
                             <th>To Due</th>
+                            <th>Amount Due</th>
                             <th>Amount Paid</th>
                         </tr>
                         </thead>
@@ -64,12 +65,17 @@
                             <td>{{transaction.id}}</td>
                             <td class="text-nowrap">{{ transaction.getFromMonth()|date("M Y") }}</td>
                             <td class="text-nowrap">{{ transaction.getToMonth()|date("M Y") }}</td>
+                            <td>{{totalDue}}</td>
                             <td>{{transaction.getAmount}}</td>
                         </tr>
                         </tbody>
                     </table>
+
                 </div>
 
+                {% if totalDue != transaction.getAmount %}
+                <span class="text-danger p-2 fw-bold small">Amount Paid does not match total due</span>
+                {% endif %}
 
                 <div class="card-body">
                     <p>GCASH Receipts</p>
