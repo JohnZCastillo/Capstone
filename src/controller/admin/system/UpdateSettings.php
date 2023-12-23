@@ -40,6 +40,5 @@ class UpdateSettings extends AdminAction
             $this->addErrorMessage('Internal Error Occurred');
         }
         return $this->redirect('/admin/system');
-
     }
 }

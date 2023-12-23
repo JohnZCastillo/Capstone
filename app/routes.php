@@ -97,6 +97,10 @@ return function (App $app) use ($twig) {
             \App\controller\admin\account\Account::class
         )->setName('account');
 
+        $group->get('/users',
+            \App\controller\admin\users\Users::class
+        )->setName('users');
+
 
     })->add(\App\middleware\ActivePage::class);
 
@@ -108,6 +112,7 @@ return function (App $app) use ($twig) {
     $app->post('/change-password',
         \App\controller\api\UpdatePassword::class
     )->setName('account');
+
 };
 
 

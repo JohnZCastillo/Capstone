@@ -100,6 +100,12 @@
                     </td>
                 </tr>
                 {% endfor %}
+
+                {% if users is empty %}
+                <tr>
+                    <td colspan="8" style="height: 300px">Empty result</td>
+                </tr>
+                {% endif %}
                 </tbody>
             </table>
         </div>

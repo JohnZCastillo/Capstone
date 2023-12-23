@@ -32,7 +32,7 @@ class UserService extends Service
         $em = $this->entityManager;
         $user = $em->find(UserModel::class, $id);
 
-        if(!isset($user)){
+        if (!isset($user)) {
             throw new UserNotFoundException("User with id of $id not found");
         }
 
@@ -124,27 +124,34 @@ class UserService extends Service
         return $user;
     }
 
-    public function getAll($page, $max, $id, $filter, $role = null, $type = '',)
+    public function getAll($page, $max, $query, $role = 'admin')
     {
-
-        $em = $this->entityManager;
 
         $paginator = new Paginator();
 
-        $qb = $em->createQueryBuilder();
+        $qb = $this->entityManager->createQueryBuilder();
+        $and = $qb->expr()->andX();
+        $or = $qb->expr()->orX();
+
+        $notEmpty = false;
 
         $qb->select('t')
             ->from(UserModel::class, 't')
-            ->where("t.role = :role")
-            ->andWhere(
-                $qb->expr()->orX(
-                    $qb->expr()->like('t.name', ':queryParam'),
-                    $qb->expr()->like('t.email', ':queryParam'),
-                    $qb->expr()->like('t.id', ':queryParam')
-                )
-            )
-            ->setParameter('queryParam', '%' . $id . '%')
+            ->where($qb->expr()->eq('t.role', ':role'))
             ->setParameter('role', $role);
+
+        if (isset($query)) {
+            $or->addMultiple(
+                [
+                    $qb->expr()->like('t.name', ':query'),
+                    $qb->expr()->like('t.id', ':query'),
+                    $qb->expr()->like('t.email', ':query')
+                ]);
+
+            $qb->setParameter('query', '%' . $query . '%');
+
+            $qb->andWhere($or);
+        }
 
         return $paginator->paginate($qb, $page, $max);
     }
