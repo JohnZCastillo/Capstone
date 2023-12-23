@@ -21,7 +21,7 @@ class Homepage extends AdminAction
         $queryParams = $this->getQueryParams();
 
         $page = $queryParams['page'];
-        $id = $queryParams['id'];
+        $id = $queryParams['query'];
         $status = $queryParams['status'];
         $from = $queryParams['from'];
         $to = $queryParams['to'];
