@@ -38,6 +38,9 @@ class UserModel{
     #[ORM\Column(type: 'boolean', options: ["default"=> false])]
     private string $isBlocked;
 
+    #[ORM\Column(type: 'date', nullable: true)]
+    private \DateTime|null $blockDate;
+
     #[ORM\Column(type: 'boolean', options: ["default"=> true])]
     private bool $sharedPayments;
 
@@ -81,6 +84,16 @@ class UserModel{
         $this->posts = new ArrayCollection();
         $this->transactions = new ArrayCollection();
         $this->sharedPayments = true;
+    }
+
+    public function getBlockDate(): \DateTime|null
+    {
+        return $this->blockDate;
+    }
+
+    public function setBlockDate(\DateTime $blockDate): void
+    {
+        $this->blockDate = $blockDate;
     }
 
     public function getMyLogs(): Collection|array

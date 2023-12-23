@@ -13,7 +13,9 @@
 
         <div class="mx-2 mb-2">
             <div aria-label="Basic example" class="btn-group" role="group">
-                <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#adminModal">Manage Privileges</button>
+                <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#adminModal">Manage
+                    Privileges
+                </button>
             </div>
         </div>
 
@@ -23,36 +25,63 @@
 
             <div class="row px-2">
 
-            {% if superAdmin %}
-            <div class="col-sm mb-2">
+                {% if superAdmin %}
+                <div class="col-sm mb-2">
 
-                {% set status = role | lower %}
+                    {% set status = role | lower %}
 
-                {% set userCh = status == "user" ? "checked" : "" %}
-                {% set adminCh = status == "admin" ? "checked" : "" %}
+                    {% set userCh = status == "user" ? "checked" : "" %}
+                    {% set adminCh = status == "admin" ? "checked" : "" %}
 
-                <span class="text-secondary small d-block">User Role</span>
+                    <span class="text-secondary small d-block">User Role</span>
 
-                <div id="statusGroupBtn" class="btn-group" role="group"
-                     aria-label="Basic radio toggle button group">
+                    <div id="statusGroupBtn" class="btn-group" role="group"
+                         aria-label="Basic radio toggle button group">
 
-                    <input value="admin" type="radio" class="btn-check" name="role" id="ALL" {{adminCh}}/>
-                    <label class="btn btn-outline-primary" for="ALL">Staff</label>
+                        <input value="admin" type="radio" class="btn-check" name="role" id="ALL" {{adminCh}}/>
+                        <label class="btn btn-outline-primary" for="ALL">Staff</label>
 
-                    <input value="user" type="radio" class="btn-check" name="role" id="PENDING" {{userCh}}/>
-                    <label class="btn btn-outline-primary" for="PENDING">User</label>
+                        <input value="user" type="radio" class="btn-check" name="role" id="PENDING" {{userCh}}/>
+                        <label class="btn btn-outline-primary" for="PENDING">User</label>
+
+                    </div>
+
 
                 </div>
+                {% endif %}
 
+                <div class="col-sm ">
+                    <div class="d-flex gap-2 align-items-center">
 
-            </div>
-            {% endif %}
+                        <div class="d-flex gap-2">
 
-            <div class="col-sm">
-                <span class="text-secondary small d-block">Search Bar</span>
-                <input id="searchBar" class="form-control" name="query" placeholder="User Name" type="text" value="{{query}}">
+                            <div>
+                                <label class="text-secondary small d-block" for="userBlock">Block</label>
+                                <select  class="form-control" id="userBlock" name="block">
+                                    <option value="0">ALL</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                </select>
+                            </div>
 
-            </div>
+                            <div >
+                                <label class="text-secondary small d-block" for="userLot">Lot</label>
+                                <select class="form-control" id="userLot" name="lot">
+                                    <option value="0">ALL</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex-fill">
+                            <span class="text-secondary small d-block">Search Bar</span>
+                            <input id="searchBar" class="form-control" name="query" placeholder="User Name" type="text"
+                                   value="{{query}}">
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
         </form>
@@ -85,7 +114,8 @@
                     <td>{{user.role}}</td>
                     <td>{{user.block}}</td>
                     <td>{{user.lot}}</td>
-                    <td> <span id="restricted{{user.id}}" class="badge rounded-pill {{restrictedBg}}">{{restricted}}</span></td>
+                    <td><span id="restricted{{user.id}}"
+                              class="badge rounded-pill {{restrictedBg}}">{{restricted}}</span></td>
                     <td>
                         <div class="d-flex gap-2 h-100">
 
@@ -95,6 +125,7 @@
                             <button type="button" onclick="blockUser('{{user.id}}')" class="btn btn-danger block-btn"
                                     style="min-width: 85px">Block
                             </button>
+
                         </div>
 
                     </td>
@@ -130,9 +161,11 @@
                         <input name="email" type="text" class="form-control" id="email" placeholder="Enter Email">
                     </div>
 
-                    <div id="userDetailHolder" class="d-none rounded mt-2 bg-light form-group p-2 d-flex gap-2 align-items-center">
-                        <img class="p-1 bg-dark rounded-circle" style="width: 40px; height: 40px" src="/resources/user.svg">
-                        <p class="m-0"  id="userDetail"></p>
+                    <div id="userDetailHolder"
+                         class="d-none rounded mt-2 bg-light form-group p-2 d-flex gap-2 align-items-center">
+                        <img class="p-1 bg-dark rounded-circle" style="width: 40px; height: 40px"
+                             src="/resources/user.svg">
+                        <p class="m-0" id="userDetail"></p>
                     </div>
                     <div class="form-group mt-1">
                         <label>Privileges</label>
@@ -161,8 +194,30 @@
     </div>
 </div>
 
+{% include './partials/error-modal.html' %}
 {% include './partials/message-modal.html' %}
 {% include './partials/confirmation.html' %}
+
+
+<div class="modal" tabindex="-1" role="dialog" id="errorMessageModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger">
+                <h5 class="modal-title text-white">Error Message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="errorMessageContent"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 {% endblock %}
 
@@ -181,8 +236,6 @@
     })
 </script>
 
-
-{% if superAdmin  %}
 <script>
 
     const userDetail = document.querySelector("#userDetail");
@@ -198,6 +251,24 @@
     const userFilterForm = document.querySelector("#announcementForm")
 
     const searchBar = document.querySelector("#searchBar");
+    const userBlock = document.querySelector("#userBlock");
+    const userLot = document.querySelector("#userLot");
+
+    searchBar.addEventListener('change', (event) => {
+
+        if (searchBar.value.length <= 0) {
+            userFilterForm.submit();
+        }
+    })
+
+
+    userBlock.addEventListener('change', (event) => {
+            userFilterForm.submit();
+    })
+
+    userLot.addEventListener('change', (event) => {
+            userFilterForm.submit();
+    })
 
     searchBar.addEventListener('change', (event) => {
 
@@ -250,20 +321,33 @@
         let formData = new FormData();
         formData.append("userId", id);
 
-        const data = await fetch('/admin/block-user', {
-            method: "POST",
-            body: formData
-        })
+        try {
 
-        if (data.ok) {
-            document.querySelector("#restricted"+id).innerHTML = "Yes";
-            document.querySelector("#restricted"+id).classList.add('bg-danger');
-            document.querySelector("#restricted"+id).classList.remove('bg-success');
-            console.log('user has been block')
-        } else {
-            console.log("something went wrong")
+            const data = await fetch('/block-user', {
+                method: "POST",
+                body: formData
+            })
+
+            const result = await data.json();
+
+            if (data.ok) {
+                document.querySelector("#restricted" + id).innerHTML = "Yes";
+                document.querySelector("#restricted" + id).classList.add('bg-danger');
+                document.querySelector("#restricted" + id).classList.remove('bg-success');
+                console.log('user has been block')
+            } else {
+                throw new Error(result.data.message)
+            }
+
+        } catch (error) {
+
+            document.querySelector('.errorMessageContent').innerHTML = error.message;
+
+            new bootstrap.Modal(document.getElementById('errorMessageModal'), {
+                keyboard: false
+            }).show();
+
         }
-
     }
 
     async function unblockUser(id) {
@@ -271,15 +355,15 @@
         let formData = new FormData();
         formData.append("userId", id);
 
-        const data = await fetch('/admin/unblock-user', {
+        const data = await fetch('/unblock-user', {
             method: "POST",
             body: formData
         })
 
         if (data.ok) {
-            document.querySelector("#restricted"+id).innerHTML = "No";
-            document.querySelector("#restricted"+id).classList.remove('bg-danger');
-            document.querySelector("#restricted"+id).classList.add('bg-success');
+            document.querySelector("#restricted" + id).innerHTML = "No";
+            document.querySelector("#restricted" + id).classList.remove('bg-danger');
+            document.querySelector("#restricted" + id).classList.add('bg-success');
             console.log('user has been unblock')
         } else {
             console.log("something went wrong")
@@ -287,6 +371,5 @@
 
     }
 </script>
-{% endif %}
 
 {% endblock %}

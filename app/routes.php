@@ -89,6 +89,15 @@ return function (App $app) use ($twig) {
             \App\controller\admin\announcement\PostAnnouncement::class
         )->setName('announcements');
 
+        $group->post('/announcement/pin/{id}',
+            \App\controller\admin\announcement\PinAnnouncement::class
+        )->setName('announcements');
+
+        $group->post('/announcement/unpin/{id}',
+            \App\controller\admin\announcement\UnpinAnnouncement::class
+        )->setName('announcements');
+
+
         $group->get('/logs',
             \App\controller\admin\logs\Logs::class
         )->setName('logs');
@@ -109,8 +118,20 @@ return function (App $app) use ($twig) {
         \App\controller\api\upload\FileUpload::class
     )->setName('account');
 
+    $app->post('/block-user',
+        \App\controller\api\users\BlockUser::class
+    );
+
+    $app->post('/unblock-user',
+        \App\controller\api\users\UnblockUser::class
+    );
+
     $app->post('/change-password',
         \App\controller\api\UpdatePassword::class
+    )->setName('account');
+
+    $app->post('/change-details',
+        \App\controller\api\users\UpdateAccountDetails::class
     )->setName('account');
 
 };

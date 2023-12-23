@@ -192,7 +192,7 @@
 
         const formData = new FormData(changePassForm);
 
-        const result = await fetch('/api/change-password', {
+        const result = await fetch('/change-password', {
             method: "POST",
             body: formData,
         })
@@ -215,7 +215,7 @@
 
         const formData = new FormData(changeDetailsForm);
 
-        const result = await fetch('/api/change-details', {
+        const result = await fetch('/change-details', {
             method: "POST",
             body: formData,
         })
@@ -223,13 +223,13 @@
         const data = await result.json();
 
         if (result.ok) {
-            document.getElementById("emailView").value = data.email;
-            document.getElementById("nameView").value = data.name;
+            document.getElementById("emailView").value = data.data.email;
+            document.getElementById("nameView").value = data.data.name;
             document.getElementById("changeDetailsError").innerHTML = "";
             document.getElementById("changeDetailsSuccess").innerHTML = "Changes Saved!";
         } else {
             document.getElementById("changeDetailsSuccess").innerHTML = "";
-            document.getElementById("changeDetailsError").innerHTML = data.message;
+            document.getElementById("changeDetailsError").innerHTML = data.data.message;
         }
 
     });
@@ -239,7 +239,7 @@
         const formData = new FormData();
         formData.append('session', session);
 
-        const result = await fetch('/api/force-logout', {
+        const result = await fetch('/force-logout', {
             method: "POST",
             body: formData,
         })

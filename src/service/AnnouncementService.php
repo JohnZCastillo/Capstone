@@ -48,7 +48,9 @@ class AnnouncementService extends Service
 
         $qb->select('t')
             ->from(AnnouncementModel::class, 't')
-            ->where($or);
+            ->where($or)
+            ->addOrderBy('t.pinDate','DESC')
+            ->addOrderBy('t.createdAt','ASC');
 
         $or->add($qb->expr()->eq('t.status', ':status'));
         $qb->setParameter('status', $status);

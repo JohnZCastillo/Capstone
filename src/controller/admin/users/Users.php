@@ -19,6 +19,8 @@ class Users extends AdminAction
             $queryParams = $this->getQueryParams();
 
             $page = $queryParams['page'];
+            $block = $queryParams['block'];
+            $lot = $queryParams['lot'];
 
             $role = empty($queryParams['role']) ? 'admin' : $queryParams['role'];
 
@@ -26,7 +28,7 @@ class Users extends AdminAction
 
             $query = $queryParams['query'];
 
-            $pagination = $this->userService->getAll($page, $max, $query, $role);
+            $pagination = $this->userService->getAll($page, $max, $query, $role,$block,$lot);
 
             return $this->view('admin/pages/users.html', [
                 'users' => $pagination->getItems(),
@@ -36,6 +38,8 @@ class Users extends AdminAction
                 'superAdmin' => $this->getLoginUser()->getRole() === "super",
                 'loginUser' => $this->getLoginUser(),
                 'query' => $query,
+                'block' => $block,
+                'lot' => $lot
             ]);
 
         }catch (\Exception $exception){

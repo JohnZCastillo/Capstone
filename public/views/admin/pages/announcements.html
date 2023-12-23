@@ -51,7 +51,13 @@
                 <tbody>
                 {% for announcement in announcements %}
                 <tr>
-                    <td>{{announcement.getTitle()}}</td>
+                    <td>{{announcement.getTitle()}}
+
+                        {% if announcement.pin %}
+                        <i class="bx bx-pin"></i>
+
+                        {% endif %}
+                    </td>
                     <td>{{announcement.getUser().getName()}}</td>
                     <td>{{announcement.getCreatedAt()|date("M d, Y")}}</td>
                     <td>{{announcement.getStatus()}}</td>
@@ -62,9 +68,16 @@
                                 <i class="bx bx-dots-vertical-rounded"></i>
                             </button>
 
+                            {% set isPin = announcement.pin %}
+                            {% set pinUrl = isPin ? '/admin/announcement/unpin/' ~ announcement.id :
+                            '/admin/announcement/pin/' ~ announcement.id %}
+
+                            {% set pinTitle = isPin ? 'unpin' : 'pin' %}
+
                             <div class="dropdown-menu" data-popper-placement="bottom-end"
                                  data-popper-reference-hidden=""
                                  style="position: absolute; inset: 0px 0px auto auto; margin: 0px; transform: translate(185px, 143px);">
+
 
                                 <a class="dropdown-item"
                                    href="/admin/announcement/edit/{{announcement.getId()}}"
@@ -84,6 +97,13 @@
                                         {{displayStatus}}
                                     </button>
                                 </form>
+
+                                <form method="POST" action="{{pinUrl}}">
+                                    <button type="submit" class="dropdown-item">
+                                        {{pinTitle}}
+                                    </button>
+                                </form>
+
                             </div>
                         </div>
 

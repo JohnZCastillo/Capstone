@@ -124,28 +124,36 @@ class UserService extends Service
         return $user;
     }
 
-    public function getAll($page, $max, $query, $role = 'admin')
+    public function getAll($page, $max, $query, $role = 'admin', $block = null, $lot = null)
     {
 
         $paginator = new Paginator();
 
         $qb = $this->entityManager->createQueryBuilder();
-        $and = $qb->expr()->andX();
         $or = $qb->expr()->orX();
-
-        $notEmpty = false;
 
         $qb->select('t')
             ->from(UserModel::class, 't')
             ->where($qb->expr()->eq('t.role', ':role'))
             ->setParameter('role', $role);
 
+
+        if (isset($block)) {
+            $qb->andWhere($qb->expr()->eq('t.block',':block'));
+            $qb->setParameter('block',$block);
+        }
+
+        if (isset($lot)) {
+            $qb->andWhere($qb->expr()->eq('t.lot',':lot'));
+            $qb->setParameter('lot',$lot);
+        }
+
         if (isset($query)) {
             $or->addMultiple(
                 [
                     $qb->expr()->like('t.name', ':query'),
                     $qb->expr()->like('t.id', ':query'),
-                    $qb->expr()->like('t.email', ':query')
+                    $qb->expr()->like('t.email', ':query'),
                 ]);
 
             $qb->setParameter('query', '%' . $query . '%');

@@ -71,9 +71,19 @@ abstract class Action
         $queryParams['from'] = empty($queryParams['from']) ? null : $queryParams['from'] ;
         $queryParams['to'] = empty($queryParams['to']) ? null : $queryParams['to'] ;
         $queryParams['query'] = empty($queryParams['query']) ? null : $queryParams['query'] ;
+        $queryParams['block'] = empty($queryParams['block']) ? null : $queryParams['block'] ;
+        $queryParams['lot'] = empty($queryParams['lot']) ? null : $queryParams['lot'] ;
 
         if(isset($queryParams['status'])){
             $queryParams['status'] = $queryParams['status'] == 'ALL' ? null : $queryParams['status'];
+        }
+
+        if(isset($queryParams['block'])){
+            $queryParams['block'] = $queryParams['block'] == 'ALL' ? null : $queryParams['block'];
+        }
+
+        if(isset($queryParams['lot'])){
+            $queryParams['lot'] = $queryParams['lot'] == 'ALL' ? null : $queryParams['lot'];
         }
 
         return $queryParams;

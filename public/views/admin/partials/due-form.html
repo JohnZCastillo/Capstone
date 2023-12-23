@@ -137,6 +137,8 @@
                result.data.forEach((due)=>{
                    updateCalendar(due.month,due.amount,due.savePoint)
                })
+            }else{
+                console.log(result.data.message);
             }
         }
 
@@ -181,6 +183,8 @@
             result.data.forEach((due)=>{
                 updateCalendar(due.month,due.amount,due.savePoint)
             })
+        }else{
+            console.log(result.data.message);
         }
     })
 

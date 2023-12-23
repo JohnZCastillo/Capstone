@@ -21,6 +21,14 @@ class Time
         return DateTime::createFromFormat('Y-m-d', $date . '-01');
     }
 
+    static function dayPast(string $x, string $y): int
+    {
+        $difference =  strtotime($x) - strtotime($y);
+
+        return (($difference/60)/60)/24;
+    }
+
+
 
     static function nowStartMonth($date)
     {

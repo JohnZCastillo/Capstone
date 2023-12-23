@@ -35,10 +35,36 @@ class AnnouncementModel
     #[ORM\OneToMany(mappedBy: 'announcement', targetEntity: AnnouncementHistoryModel::class)]
     private Collection|array $history;
 
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private \DateTime|null $pinDate;
+
+    #[ORM\Column(type: 'boolean', nullable: true, options: ['default' => true])]
+    private bool|null $pin;
 
     public function __construct()
     {
         $this->history = new ArrayCollection();
+        $this->pin = false;
+    }
+
+    public function setPinDate(?\DateTime $pinDate): void
+    {
+        $this->pinDate = $pinDate;
+    }
+
+    public function setPin(?bool $pin): void
+    {
+        $this->pin = $pin;
+    }
+
+    public function getPinDate(): ?\DateTime
+    {
+        return $this->pinDate;
+    }
+
+    public function getPin(): ?bool
+    {
+        return $this->pin;
     }
 
     public function getHistory(): Collection|array
