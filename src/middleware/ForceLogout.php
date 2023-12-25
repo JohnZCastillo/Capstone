@@ -15,13 +15,9 @@ class ForceLogout
 {
 
     private bool $forceLogout;
-    private Messages $flashMessge;
 
-    public function __construct(Container $container)
+    public function __construct(LoginHistoryService $loginHistoryService)
     {
-        $this->flashMessge = $container->get(Messages::class);
-
-        $loginHistoryService = $container->get(LoginHistoryService::class);
         $this->forceLogout = $loginHistoryService->isSessionActive(session_id());
     }
 

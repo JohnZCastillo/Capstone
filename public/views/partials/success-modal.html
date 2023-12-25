@@ -1,23 +1,16 @@
-{% if successMessage %}
+{% if successMessage is not null %}
 <div class="modal" tabindex="-1" role="dialog" id="successMessageModal">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <div class="modal-header bg-success text-white">
-        <h5 class="modal-title">Message</h5>
-        <button
-          type="button"
-          class="close"
-          data-dismiss="modal"
-          aria-label="Close"
-        >
-          <span aria-hidden="true">&times;</span>
-        </button>
+      <div class="modal-header bg-info">
+        <h5 class="modal-title text-white">Error Message</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <p>{{successMessage}}</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           Close
         </button>
       </div>
@@ -25,6 +18,11 @@
   </div>
 </div>
 <script>
-  $("#successMessageModal").modal('show');
+  new bootstrap.Modal(document.getElementById('successMessageModal'), {
+    keyboard: false
+  }).show();
 </script>
 {% endif %}
+
+
+

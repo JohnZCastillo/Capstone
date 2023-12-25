@@ -6,6 +6,7 @@
 <div class="container-xxl flex-grow-1 container-p-y">
     <!-- Table -->
     <div class="card">
+
         <h5 class="card-header">Users</h5>
 
         {% if superAdmin %}
@@ -57,14 +58,14 @@
 
                             <div>
                                 <label class="text-secondary small d-block" for="userBlock">Block</label>
-                                <select  class="form-control" id="userBlock" name="block">
+                                <select class="form-control" id="userBlock" name="block">
                                     <option value="0">ALL</option>
                                     <option value="1">1</option>
                                     <option value="2">2</option>
                                 </select>
                             </div>
 
-                            <div >
+                            <div>
                                 <label class="text-secondary small d-block" for="userLot">Lot</label>
                                 <select class="form-control" id="userLot" name="lot">
                                     <option value="0">ALL</option>
@@ -147,6 +148,26 @@
 
 </div>
 
+<div class="modal" tabindex="-1" role="dialog" id="infoModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title text-white">Information</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="infoModalMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div class="modal fade" id="adminModal" tabindex="-1" aria-labelledby="adminModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -194,31 +215,6 @@
     </div>
 </div>
 
-{% include './partials/error-modal.html' %}
-{% include './partials/message-modal.html' %}
-{% include './partials/confirmation.html' %}
-
-
-<div class="modal" tabindex="-1" role="dialog" id="errorMessageModal">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-danger">
-                <h5 class="modal-title text-white">Error Message</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p class="errorMessageContent"></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    Close
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
 {% endblock %}
 
 {% block javascript %}
@@ -261,13 +257,12 @@
         }
     })
 
-
     userBlock.addEventListener('change', (event) => {
-            userFilterForm.submit();
+        userFilterForm.submit();
     })
 
     userLot.addEventListener('change', (event) => {
-            userFilterForm.submit();
+        userFilterForm.submit();
     })
 
     searchBar.addEventListener('change', (event) => {
@@ -284,14 +279,17 @@
         const formData = new FormData();
         formData.append("email", emailField.value);
 
-        const data = await fetch('/api/user', {
+        const data = await fetch('/users', {
             method: "POST",
             body: formData
         })
 
-        const user = await data.json();
+        let user = await data.json();
 
         if (data.ok) {
+
+            user = user.data;
+
             userDetail.innerHTML = user.name;
             userDetailHolder.classList.remove('d-none');
 
@@ -341,12 +339,12 @@
 
         } catch (error) {
 
-            document.querySelector('.errorMessageContent').innerHTML = error.message;
+            const alertMessage = document.querySelector("#infoModalMessage");
+            alertMessage.innerHTML = error.message;
 
-            new bootstrap.Modal(document.getElementById('errorMessageModal'), {
+            new bootstrap.Modal(document.getElementById('infoModal'), {
                 keyboard: false
             }).show();
-
         }
     }
 

@@ -6,6 +6,7 @@ use App\exception\UserNotFoundException;
 use App\lib\Paginator;
 use App\model\enum\UserRole;
 use App\model\UserModel;
+use Doctrine\ORM\Exception\NotSupported;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\TransactionRequiredException;
@@ -64,11 +65,20 @@ class UserService extends Service
         return $queryBuilder->getQuery()->getResult();
     }
 
-    public function findByEmail($email): UserModel|null
+    /**
+     * @throws UserNotFoundException
+s     */
+    public function findByEmail($email): UserModel
     {
         $em = $this->entityManager;
-        return $em->getRepository(UserModel::class)
+        $user =  $em->getRepository(UserModel::class)
             ->findOneBy(['email' => $email]);
+
+        if(!isset($user)){
+            throw new UserNotFoundException('User not found');
+        }
+
+        return  $user;
     }
 
     public function findManualPayment(string $block, string $lot): UserModel|null

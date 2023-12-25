@@ -14,6 +14,7 @@ use App\service\IssuesService;
 use App\service\LoginHistoryService;
 use App\service\LogsService;
 use App\service\PaymentService;
+use App\service\PriviligesService;
 use App\service\ReceiptService;
 use App\service\SystemSettingService;
 use App\service\TransactionLogsService;
@@ -43,6 +44,7 @@ abstract class AdminAction extends Action
 
     protected SystemSettingService $systemSettingService;
     protected LoginHistoryService $loginHistoryService;
+    protected PriviligesService $privilegesService;
 
 
     public function __construct(UserService                $userService,
@@ -57,6 +59,7 @@ abstract class AdminAction extends Action
                                 AnnouncementService        $announcementService,
                                 AnnouncementHistoryService $announcementHistoryService,
                                 SystemSettingService       $systemSettingService,
+                                PriviligesService          $privilegesService,
                                 LoginHistoryService        $loginHistoryService)
     {
         $this->userService = $userService;
@@ -71,6 +74,7 @@ abstract class AdminAction extends Action
         $this->announcementService = $announcementService;
         $this->announcementHistoryService = $announcementHistoryService;
         $this->systemSettingService = $systemSettingService;
+        $this->privilegesService = $privilegesService;
         $this->loginHistoryService = $loginHistoryService;
     }
 

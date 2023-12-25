@@ -26,67 +26,6 @@ use Slim\Views\Twig;
 class AdminController extends Controller
 {
 
-    public function users($request, $response, $args)
-    {
-
-        $view = Twig::fromRequest($request);
-
-        $queryParams = $request->getQueryParams();
-
-        $errorMessage = $this->flashMessages->getFirstMessage('errorMessage');
-
-        // if page is present then set value to page otherwise to 1
-        $page = $queryParams['page'] ?? 1;
-
-        $role = $queryParams['role'] ?? 'admin';
-
-        // max transaction per page
-        $max = 3;
-
-        $filter = Filter::check($queryParams);
-
-        $query = empty($queryParams['query']) ? "" : $queryParams['query'];
-
-        $pagination = $this->userSerivce->getAll($page, $max, $query, $filter, $role);
-
-        return $view->render($response, 'admin/pages/users.html', [
-            'users' => $pagination->getItems(),
-            'currentPage' => $page,
-            'role' => $role,
-            'paginator' => $pagination,
-            'superAdmin' => $this->getLogin()->getRole() === "super",
-            'loginUser' => $this->getLogin(),
-            'query' => $query,
-            "errorMessage" => $errorMessage,
-        ]);
-    }
-
-    public function accountSettings($request, $response, $args)
-    {
-
-        $user = $this->getLogin();
-        $name = $user->getName();
-        $email = $user->getEmail();
-        $block = $user->getBlock();
-        $lot = $user->getLot();
-
-        $loginHistory = $this->loginHistoryService->getLogs($user);
-        $currentSession = session_id();
-
-        $view = Twig::fromRequest($request);
-
-        return $view->render($response, 'admin/pages/account.html', [
-            "loginHistory" => $loginHistory,
-            "sessionId" => $currentSession,
-            "name" => $name,
-            "email" => $email,
-            "block" => $block,
-            "lot" => $lot,
-            "user" => $user,
-            "logs" => $user->getMyLogs(),
-        ]);
-    }
-
     public function managePrivileges($request, $response, $args)
     {
 

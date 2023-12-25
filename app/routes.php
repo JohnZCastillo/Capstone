@@ -110,13 +110,23 @@ return function (App $app) use ($twig) {
             \App\controller\admin\users\Users::class
         )->setName('users');
 
+        $group->post('/manage-privileges',
+            \App\controller\admin\users\ManagePrivilege::class
+        );
 
     })->add(\App\middleware\ActivePage::class);
 
+    $app->post('/users',
+        \App\controller\api\users\FindUser::class
+    );
+
+    $app->post('/force-logout',
+        \App\controller\api\users\ForceLogout::class
+    );
 
     $app->post('/upload',
         \App\controller\api\upload\FileUpload::class
-    )->setName('account');
+    );
 
     $app->post('/block-user',
         \App\controller\api\users\BlockUser::class
