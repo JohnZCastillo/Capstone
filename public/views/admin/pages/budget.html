@@ -4,7 +4,7 @@
 {% block body %}
 
 <style>
-    .notification{
+    .notification {
         position: absolute;
         top: -10px;
         right: 0;
@@ -12,37 +12,36 @@
 </style>
 <div class="container-xxl flex-grow-1 container-p-y">
 
-<div class="d-flex gap-2">
-    <button
-            class="btn-success btn shadow mb-2"
-            data-bs-target="#fundModal"
-            data-bs-toggle="modal"
-            type="button"
-    >
-        New Fund
-    </button>
+    <div class="d-flex gap-2">
+        <button
+                class="btn-success btn shadow mb-2"
+                data-bs-target="#fundModal"
+                data-bs-toggle="modal"
+                type="button"
+        >
+            New Fund
+        </button>
 
-    <button
-            class="btn-success btn shadow mb-2"
-            data-bs-target="#billModal"
-            data-bs-toggle="modal"
-            type="button"
-    >
-        New Bill
-    </button>
+        <button
+                class="btn-success btn shadow mb-2"
+                data-bs-target="#billModal"
+                data-bs-toggle="modal"
+                type="button"
+        >
+            New Bill
+        </button>
 
-    <form id="fundForm">
+        <form id="fundForm">
 
-        {% set viewActive = archived ? '' : 'selected'%}
-        {% set viewArchived = archived ? 'selected' : ''%}
+            {% set viewActive = archived ? '' : 'selected'%}
+            {% set viewArchived = archived ? 'selected' : ''%}
 
-        <select name="status" class="form-control" id="fundStatus">
-            <option value="active" {{viewActive}}>Active</option>
-            <option value="archived" {{viewArchived}}>Archived</option>
-        </select>
-    </form>
-</div>
-
+            <select name="status" class="form-control" id="fundStatus">
+                <option value="active" {{viewActive}}>Active</option>
+                <option value="archived" {{viewArchived}}>Archived</option>
+            </select>
+        </form>
+    </div>
 
 
     <div class="row">
@@ -96,7 +95,7 @@
                             <div id="" width="104" height="80"
                                  class="apexcharts-canvas apexchartsiuk5bzuq apexcharts-theme-light mx-auto"
                                  style="width: 104px; height: 80px;">
-                                <div id="sampleChart">
+                                <div id="chart{{fund.id}}">
                                 </div>
                             </div>
                         </div>
@@ -115,7 +114,7 @@
                 <div class="card-header d-flex align-items-center justify-content-between pb-0">
                     <div class="card-title mb-0">
                         <h5 class="m-0 me-2">Bills</h5>
-                        {% set billStatus =  archiveBill == 'archive' ? 'Archive' : 'Active' %}
+                        {% set billStatus = archiveBill == 'archive' ? 'Archive' : 'Active' %}
                         <small class="text-muted">{{billStatus}} Bills</small>
                     </div>
                     <div class="dropdown">
@@ -151,12 +150,15 @@
                                 <div class="user-progress d-flex align-items-center">
                                     <small class="fw-medium">{{bill.expense.amount|format_currency('PHP')}}</small>
                                     <div class="dropdown">
-                                        <button class="btn p-0" type="button" id="transactionID" data-bs-toggle="dropdown"
+                                        <button class="btn p-0" type="button" id="transactionID"
+                                                data-bs-toggle="dropdown"
                                                 aria-haspopup="true" aria-expanded="false">
                                             <i class="bx bx-dots-vertical-rounded"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="transactionID">
-                                                <button onclick="editBill({{bill.id}})" class="dropdown-item" type="submit">Edit</button>
+                                            <button onclick="editBill({{bill.id}})" class="dropdown-item" type="submit">
+                                                Edit
+                                            </button>
                                             {% if bill.isArchived %}
                                             <form method="POST" action="/admin/unarchive-bill/{{bill.id}}">
                                                 <button class="dropdown-item" type="submit">Active</button>
@@ -640,37 +642,38 @@
                 <div class="card-body">
                     <ul class="p-0 m-0">
                         {% for bill in bills %}
-                            {% for expense in bill.expenses %}
-                                {% if expense.status|lower == 'pending' %}
-                                <li class="d-flex mb-4 pb-1">
+                        {% for expense in bill.expenses %}
+                        {% if expense.status|lower == 'pending' %}
+                        <li class="d-flex mb-4 pb-1">
 
-                                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                        <div class="me-2">
-                                            <small class="text-muted d-block mb-1">{{expense.title}}</small>
-                                            <h6 class="mb-0">{{expense.fund.title}}</h6>
+                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                <div class="me-2">
+                                    <small class="text-muted d-block mb-1">{{expense.title}}</small>
+                                    <h6 class="mb-0">{{expense.fund.title}}</h6>
+                                </div>
+                                <div class="user-progress d-flex align-items-center gap-1">
+                                    <h6 class="mb-0">{{expense.amount|format_currency('PHP')}}</h6>
+                                    <div class="dropdown">
+                                        <button class="btn p-0" type="button" id="transactionID"
+                                                data-bs-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="false">
+                                            <i class="bx bx-dots-vertical-rounded"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="transactionID">
+                                            <form method="POST" action="/admin/approve-bill/{{expense.id}}">
+                                                <button class="dropdown-item" type="submit">Approve</button>
+                                            </form>
+                                            <form method="POST" action="/admin/reject-bill/{{expense.id}}">
+                                                <button class="dropdown-item" type="submit">Reject</button>
+                                            </form>
                                         </div>
-                                        <div class="user-progress d-flex align-items-center gap-1">
-                                            <h6 class="mb-0">{{expense.amount|format_currency('PHP')}}</h6>
-                                            <div class="dropdown">
-                                                <button class="btn p-0" type="button" id="transactionID" data-bs-toggle="dropdown"
-                                                        aria-haspopup="true" aria-expanded="false">
-                                                    <i class="bx bx-dots-vertical-rounded"></i>
-                                                </button>
-                                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="transactionID">
-                                                    <form method="POST" action="/admin/approve-bill/{{expense.id}}">
-                                                        <button class="dropdown-item" type="submit">Approve</button>
-                                                    </form>
-                                                    <form method="POST" action="/admin/reject-bill/{{expense.id}}">
-                                                        <button class="dropdown-item" type="submit">Reject</button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-
                                     </div>
-                                </li>
-                                {% endif %}
-                            {% endfor %}
+                                </div>
+
+                            </div>
+                        </li>
+                        {% endif %}
+                        {% endfor %}
                         {% endfor %}
                     </ul>
                 </div>
@@ -691,18 +694,20 @@
 {% block javascript %}
 <script>
 
+
+
     const fundStatus = document.getElementById('fundStatus');
     const fundForm = document.getElementById('fundForm');
 
-    async function editBill(id){
+    async function editBill(id) {
 
-        let result = await fetch('/admin/bill/'+id);
+        let result = await fetch('/admin/bill/' + id);
 
-        let data = await  result.json()
+        let data = await result.json()
 
-        if(!result.ok){
+        if (!result.ok) {
             alert('Something went wrong');
-        }else{
+        } else {
             data = data.data;
 
             document.getElementById('billTitle').value = data.title;
@@ -716,55 +721,80 @@
         }
     }
 
-    fundStatus.addEventListener('change',(event)=>{
+    fundStatus.addEventListener('change', (event) => {
         fundForm.submit();
     })
 
-    var options = {
-        chart: {
-            type: 'line',
-            height: 350,
-            width: 104, // Set SVG width
-            height: 80,
-            sparkline: {
-                enabled: true // Enable sparkline to remove axis and grid lines
+    async function loadChart(fundId, chartName) {
+
+
+        let year = 2023;
+
+        const result = await fetch(`/monthly-collection/${fundId}/${year}`);
+
+        const data = (await result.json()).data;
+
+        let dataKeys = Object.keys(data);
+        let dataValues = Object.values(data);
+
+        var options = {
+                chart: {
+                    type: 'line',
+                    height: 350,
+                    width: 104, // Set SVG width
+                    height: 80,
+                    sparkline: {
+                        enabled: true // Enable sparkline to remove axis and grid lines
+                    }
+                },
+                stroke: {
+                    curve: 'smooth', // Set curve type
+                    colors: ['#ffb723'] // Set line color
+                },
+                series: [{
+                    name: 'Fund',
+                    data: dataValues,
+                }],
+                xaxis: {
+                    categories: dataKeys
+                },
+
+                tooltip: {
+                    enabled: true,
+                    shared:
+                        false, // Set to false to have independent tooltips
+                    x:
+                        {
+                            show: true, // Show x-axis tooltip
+                        }
+                    ,
+                    y: {
+                        show: true, // Show y-axis tooltip
+                    }
+                    ,
+                    fixed: {
+                        enabled: true,
+                        position:
+                            'topRight',
+                        offsetX:
+                            0,
+                        offsetY:
+                            80,
+                    }
+                }
             }
-        },
-        stroke: {
-            curve: 'smooth', // Set curve type
-            colors: ['#ffb723'] // Set line color
-        },
-        series: [{
-            name: 'Fund',
-            data: {{values|json_encode|raw}}
-        }],
-        xaxis: {
-            categories: {{keys|json_encode|raw}}
-        },
-        tooltip: {
-            enabled: true,
-            shared: false, // Set to false to have independent tooltips
-            x: {
-                show: true, // Show x-axis tooltip
-            },
-            y: {
-                show: true, // Show y-axis tooltip
-            },
-            fixed: {
-                enabled: true,
-                position: 'topRight',
-                offsetX: 0,
-                offsetY: 80,
-            }
-        }
-    };
+        ;
 
-    // Initialize the chart in the hidden div
-    var hiddenChart = new ApexCharts(document.querySelector("#sampleChart"), options);
+        // Initialize the chart in the hidden div
+        var hiddenChart = new ApexCharts(document.querySelector(`#${chartName}`), options);
 
-    // Render the chart in the hidden div
-    hiddenChart.render();
+        // Render the chart in the hidden div
+        hiddenChart.render();
+    }
 
+        {% for fund in funds %}
+        loadChart({{fund.id}},'chart{{fund.id}}');
+        {% endfor %}
 
 </script>
 {% endblock %}
