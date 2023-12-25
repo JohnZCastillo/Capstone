@@ -12,42 +12,6 @@ use Exception;
 class ApiController extends Controller
 {
 
-    public function findBill($request, $response, $args)
-    {
-
-        $billId = $args['id'];
-
-        try {
-
-            $bill = $this->billService->findById($billId);
-
-            if(!isset($bill)){
-                throw new Exception('Bill Not Found!');
-            }
-
-            $payload =json_encode([
-                'id' => $bill->getId(),
-                'title' => $bill->getExpense()->getTitle(),
-                'amount' => $bill->getExpense()->getAmount(),
-                'purpose' => $bill->getExpense()->getPurpose(),
-                'interval' => 'test',
-                'fundId' => $bill->getExpense()->getFund()->getId(),
-                'fundName' =>  $bill->getExpense()->getFund()->getTitle(),
-            ]);
-
-            $response->getBody()->write($payload);
-            return $response->withHeader('Content-Type', 'application/json');
-
-        } catch (Exception $e) {
-
-            $payload = json_encode(['message' => $e->getMessage()]);
-
-            $response->getBody()->write($payload);
-            return $response->withHeader('Content-Type', 'application/json')
-                ->withStatus(400);
-        }
-    }
-
     public function generateBill($request, $response, $args)
     {
 

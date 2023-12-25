@@ -4,7 +4,7 @@ namespace App\model\enum;
 class BudgetStatus extends Enum
 {
     protected $name = BudgetStatus::class;
-    protected $values = array('approved', 'rejected', 'pending', 'failed');
+    protected $values = array('approved', 'rejected', 'pending', 'failed', 'bill');
 
     static function approved(){
         return 'approved';
@@ -20,6 +20,10 @@ class BudgetStatus extends Enum
 
     static function failed(){
         return 'failed';
+    }
+
+    static function bill(){
+        return 'bill';
     }
 
 }

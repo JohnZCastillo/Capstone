@@ -2,11 +2,15 @@
 
 namespace App\service;
 
+use App\exception\fund\FundNotFound;
 use App\lib\Time;
 use App\model\budget\ExpenseModel;
 use App\model\budget\FundModel;
 use App\model\budget\IncomeModel;
 use App\model\enum\BudgetStatus;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\TransactionRequiredException;
 
 class FundService extends Service
 {
@@ -17,11 +21,19 @@ class FundService extends Service
         $this->entityManager->flush($fundModel);
     }
 
-    public function findById($id): FundModel|null
+    /**
+     * @throws FundNotFound
+     */
+    public function findById($id): FundModel
     {
-        return $this
+        $fund = $this
             ->entityManager
             ->find(FundModel::class, $id);
+
+        if (!isset($fund)) {
+            throw new FundNotFound("Fund with id of $id not found");
+        }
+        return $fund;
     }
 
     public function getAll(bool $archived = false): array

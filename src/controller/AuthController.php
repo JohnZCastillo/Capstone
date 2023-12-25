@@ -106,7 +106,6 @@ class AuthController extends Controller
 
     }
 
-
     public function termsAndCondition($request, $response, $args)
     {
 
@@ -264,7 +263,6 @@ class AuthController extends Controller
             return $view->render($response, 'pages/register.html', $data);
         }
     }
-
 
     public function code($request, $response, $args)
     {

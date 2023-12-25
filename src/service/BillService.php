@@ -2,7 +2,11 @@
 
 namespace App\service;
 
+use App\exception\fund\BillNotFound;
 use App\model\budget\BillModel;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\TransactionRequiredException;
 
 class BillService extends Service
 {
@@ -13,11 +17,20 @@ class BillService extends Service
         $this->entityManager->flush($billModel);
     }
 
-    public function findById($id): BillModel|null
+    /**
+     * @throws BillNotFound
+     */
+    public function findById($id): BillModel
     {
-        return $this
+        $bill = $this
             ->entityManager
             ->find(BillModel::class, $id);
+
+        if(!isset($bill)){
+            throw new BillNotFound("Bill with id of $id is missing");
+        }
+
+        return $bill;
     }
 
     public function getAll(bool $archived = false): array

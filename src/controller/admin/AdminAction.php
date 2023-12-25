@@ -9,7 +9,11 @@ use App\model\LogsModel;
 use App\model\UserModel;
 use App\service\AnnouncementHistoryService;
 use App\service\AnnouncementService;
+use App\service\BillService;
 use App\service\DuesService;
+use App\service\ExpenseService;
+use App\service\FundService;
+use App\service\FundSourceService;
 use App\service\IssuesService;
 use App\service\LoginHistoryService;
 use App\service\LogsService;
@@ -46,21 +50,35 @@ abstract class AdminAction extends Action
     protected LoginHistoryService $loginHistoryService;
     protected PriviligesService $privilegesService;
 
+    protected BillService $billService;
 
-    public function __construct(UserService                $userService,
-                                PaymentService             $paymentService,
-                                TransactionService         $transactionService,
-                                DuesService                $duesService,
-                                ReceiptService             $receiptService,
-                                Messages                   $flashMessage,
-                                LogsService                $logsService,
-                                TransactionLogsService     $transactionLogsService,
-                                IssuesService              $issuesService,
-                                AnnouncementService        $announcementService,
-                                AnnouncementHistoryService $announcementHistoryService,
-                                SystemSettingService       $systemSettingService,
-                                PriviligesService          $privilegesService,
-                                LoginHistoryService        $loginHistoryService)
+    protected FundService $fundService;
+
+    protected FundSourceService $fundSourceService;
+
+    protected  ExpenseService $expenseService;
+
+    /**
+     * @param UserService $userService
+     * @param PaymentService $paymentService
+     * @param TransactionService $transactionService
+     * @param DuesService $duesService
+     * @param ReceiptService $receiptService
+     * @param Messages $flashMessage
+     * @param LogsService $logsService
+     * @param TransactionLogsService $transactionLogsService
+     * @param IssuesService $issuesService
+     * @param AnnouncementService $announcementService
+     * @param AnnouncementHistoryService $announcementHistoryService
+     * @param SystemSettingService $systemSettingService
+     * @param LoginHistoryService $loginHistoryService
+     * @param PriviligesService $privilegesService
+     * @param BillService $billService
+     * @param FundService $fundService
+     * @param FundSourceService $fundSourceService
+     * @param ExpenseService $expenseService
+     */
+    public function __construct(UserService $userService, PaymentService $paymentService, TransactionService $transactionService, DuesService $duesService, ReceiptService $receiptService, Messages $flashMessage, LogsService $logsService, TransactionLogsService $transactionLogsService, IssuesService $issuesService, AnnouncementService $announcementService, AnnouncementHistoryService $announcementHistoryService, SystemSettingService $systemSettingService, LoginHistoryService $loginHistoryService, PriviligesService $privilegesService, BillService $billService, FundService $fundService, FundSourceService $fundSourceService, ExpenseService $expenseService)
     {
         $this->userService = $userService;
         $this->paymentService = $paymentService;
@@ -74,10 +92,13 @@ abstract class AdminAction extends Action
         $this->announcementService = $announcementService;
         $this->announcementHistoryService = $announcementHistoryService;
         $this->systemSettingService = $systemSettingService;
-        $this->privilegesService = $privilegesService;
         $this->loginHistoryService = $loginHistoryService;
+        $this->privilegesService = $privilegesService;
+        $this->billService = $billService;
+        $this->fundService = $fundService;
+        $this->fundSourceService = $fundSourceService;
+        $this->expenseService = $expenseService;
     }
-
 
     protected function addErrorMessage($message)
     {
