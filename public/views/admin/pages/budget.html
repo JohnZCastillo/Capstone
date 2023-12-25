@@ -167,8 +167,7 @@
                                             </form>
                                             {% endif %}
 
-                                            <form method="POST" action="/admin/bill/generate">
-                                                <input class="d-none" name="bill" value="{{bill.id}}">
+                                            <form method="POST" action="/admin/bill/generate/{{bill.id}}">
                                                 <button class="dropdown-item" type="submit">Fire Bill</button>
                                             </form>
 

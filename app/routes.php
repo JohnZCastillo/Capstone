@@ -162,6 +162,10 @@ return function (App $app) use ($twig) {
             \App\controller\api\bill\FindBill::class
         );
 
+        $group->post('/bill/generate/{id}',
+            \App\controller\api\bill\GenerateBill::class
+        );
+
     })->add(\App\middleware\ActivePage::class);
 
     $app->post('/users',
@@ -174,6 +178,10 @@ return function (App $app) use ($twig) {
 
     $app->post('/upload',
         \App\controller\api\upload\FileUpload::class
+    );
+
+    $app->get('/monthly-collection/{id}/{year}',
+        \App\controller\api\fund\MonthlyFund::class
     );
 
     $app->post('/block-user',

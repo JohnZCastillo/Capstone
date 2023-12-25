@@ -20,7 +20,7 @@ class AddFund extends AdminAction
 
         try {
 
-            if(!v::alnum()->notEmpty()->validate($content['title'])){
+            if(!v::alnum(' ')->notEmpty()->validate($content['title'])){
                 throw new InvalidInput('Invalid Title');
             }
 
