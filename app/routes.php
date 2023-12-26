@@ -159,6 +159,15 @@ return function (App $app) use ($twig) {
             \App\controller\admin\budget\RejectExpense::class
         );
 
+        $group->get('/fund/expenses/{id}',
+            \App\controller\admin\budget\ViewFundExpenses::class
+        );
+
+        $group->get('/fund/incomes/{id}',
+            \App\controller\admin\budget\ViewFundIncomes::class
+        );
+
+
         $group->post('/transfer/{id}',
             \App\controller\admin\budget\TransferFund::class
         );
@@ -193,6 +202,10 @@ return function (App $app) use ($twig) {
 
         $group->post('/add-income/{id}',
             \App\controller\admin\budget\AddIncome::class
+        );
+
+        $group->get('/unit-overview/{transaction}/{id}',
+            \App\controller\admin\payments\UnitOverview::class
         );
 
     })->add(\App\middleware\ActivePage::class);

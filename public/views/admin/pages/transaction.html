@@ -44,6 +44,7 @@
                             <p class="mb-1">{{ 'Block: ' ~ transaction.getUser.getBlock ~ ' Lot: ' ~
                                 transaction.getUser.getLot }}</p>
                             <p class="mb-0">{{transaction.getUser.getEmail}}</p>
+                            <a class="mt-2 btn btn-primary" href="/admin/unit-overview/{{transaction.id}}/{{transaction.user.id}}">Unpaid Dues</a>
                         </div>
                     </div>
                 </div>

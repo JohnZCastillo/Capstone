@@ -5,6 +5,7 @@ namespace App\controller\pdf;
 use App\controller\admin\AdminAction;
 use Slim\Psr7\Response;
 use TCPDF;
+use thiagoalessio\TesseractOCR\Tests\Common\TestCase;
 
 class DownloadPdf extends AdminAction
 {
@@ -13,11 +14,16 @@ class DownloadPdf extends AdminAction
     {
         $content = $this->getFormData()['content'];
 
+
+        $dir =  __DIR__ . '/../../../public/resources/css/theme-default.css';
+
+        $stylesheet = "<style>".file_get_contents($dir)." </style>";
+
         $pdf = new TCPDF();
 
         $pdf->AddPage();
 
-        $pdf->writeHTML($content);
+        $pdf->writeHTML($stylesheet . $content);
 
         $pdfOutput = $pdf->Output('', 'S');
 
@@ -29,5 +35,6 @@ class DownloadPdf extends AdminAction
         $response->getBody()->write($pdfOutput);
 
         return $response;
+
     }
 }

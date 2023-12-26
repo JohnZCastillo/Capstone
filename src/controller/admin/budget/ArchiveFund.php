@@ -22,6 +22,10 @@ class ArchiveFund extends AdminAction
         try {
             $fund = $this->fundService->findById($id);
 
+            if($fund->isMainFund()){
+                throw new FundNotFound('Cannot Archive Main Fund');
+            }
+
             $fund->setIsArchived(true);
 
             $this->fundService->save($fund);
