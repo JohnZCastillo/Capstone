@@ -18,7 +18,6 @@ use Slim\Views\Twig;
 class AuthController extends Controller
 {
 
-
     private function log()
     {
         $user = $this->getLogin();

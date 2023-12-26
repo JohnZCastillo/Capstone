@@ -150,6 +150,23 @@ return function (App $app) use ($twig) {
             \App\controller\admin\budget\ApproveBill::class
         );
 
+
+        $group->post('/approve-expense/{id}',
+            \App\controller\admin\budget\ApproveExpense::class
+        );
+
+        $group->post('/reject-expense/{id}',
+            \App\controller\admin\budget\RejectExpense::class
+        );
+
+        $group->post('/transfer/{id}',
+            \App\controller\admin\budget\TransferFund::class
+        );
+
+        $group->get('/fund/report/{id}',
+            \App\controller\admin\budget\FundReport::class
+        );
+
         $group->post('/reject-bill/{id}',
             \App\controller\admin\budget\RejectBill::class
         );
@@ -164,6 +181,14 @@ return function (App $app) use ($twig) {
 
         $group->post('/bill/generate/{id}',
             \App\controller\api\bill\GenerateBill::class
+        );
+
+        $group->post('/add-expense/{id}',
+            \App\controller\admin\budget\AddExpense::class
+        );
+
+        $group->post('/add-income/{id}',
+            \App\controller\admin\budget\AddIncome::class
         );
 
     })->add(\App\middleware\ActivePage::class);

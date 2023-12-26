@@ -14,19 +14,18 @@ use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;
 
-class AddBill extends AdminAction
+class AddExpense extends AdminAction
 {
 
     protected function action(): Response
     {
 
         $content = $this->getFormData();
+        $id = $this->args['id'];
 
         try {
 
-            $formData = $this->getFormData();
-
-            $fund = $this->fundService->findById($content['fund']);
+            $fund = $this->fundService->findById($id);
 
             if(!v::alnum(' ')->notEmpty()->validate($content['title'])){
                 throw new InvalidInput('Invalid Fund Title');
@@ -45,16 +44,14 @@ class AddBill extends AdminAction
             $expense->setFund($fund);
             $expense->setAmount($content['amount']);
             $expense->setPurpose($content['purpose']);
-            $expense->setStatus(BudgetStatus::bill());
 
             $this->expenseService->save($expense);
 
-            $bill = new BillModel();
-            $bill->setExpense($expense);
-            $this->billService->save($bill);
+            return $this->redirect("/admin/fund/$id");
 
         }  catch (InvalidInput $invalidInput) {
             $this->addErrorMessage($invalidInput->getMessage());
+            return $this->redirect("/admin/fund/$id");
         } catch (FundNotFound $fundNotFound) {
             $this->addErrorMessage($fundNotFound->getMessage());
         } catch (Exception $exception) {
@@ -62,6 +59,5 @@ class AddBill extends AdminAction
         }
 
         return $this->redirect("/admin/budget");
-
     }
 }

@@ -8,53 +8,48 @@ use App\exception\InvalidInput;
 use App\model\budget\BillModel;
 use App\model\budget\ExpenseModel;
 use App\model\budget\FundModel;
+use App\model\budget\IncomeModel;
 use App\model\enum\BudgetStatus;
 use DateTime;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;
 
-class AddBill extends AdminAction
+class AddIncome extends AdminAction
 {
 
     protected function action(): Response
     {
 
         $content = $this->getFormData();
+        $id = $this->args['id'];
 
         try {
 
-            $formData = $this->getFormData();
-
-            $fund = $this->fundService->findById($content['fund']);
+            $fund = $this->fundService->findById($id);
+            $source = $this->fundSourceService->findById($content['source']);
 
             if(!v::alnum(' ')->notEmpty()->validate($content['title'])){
                 throw new InvalidInput('Invalid Fund Title');
-            }
-
-            if(!v::alnum(' ')->notEmpty()->validate($content['purpose'])){
-                throw new InvalidInput('Invalid Purpose content');
             }
 
             if(!v::numericVal()->notEmpty()->positive()->validate($content['amount'])){
                 throw new InvalidInput('Invalid Amount');
             }
 
-            $expense = new ExpenseModel();
-            $expense->setTitle($content['title']);
-            $expense->setFund($fund);
-            $expense->setAmount($content['amount']);
-            $expense->setPurpose($content['purpose']);
-            $expense->setStatus(BudgetStatus::bill());
+            $income = new IncomeModel();
+            $income->setTitle($content['title']);
+            $income->setAmount($content['amount']);
+            $income->setFund($fund);
+            $income->setSource($source);
 
-            $this->expenseService->save($expense);
+            $this->incomeService->save($income);
 
-            $bill = new BillModel();
-            $bill->setExpense($expense);
-            $this->billService->save($bill);
+            return $this->redirect("/admin/fund/$id");
 
         }  catch (InvalidInput $invalidInput) {
             $this->addErrorMessage($invalidInput->getMessage());
+            return $this->redirect("/admin/fund/$id");
         } catch (FundNotFound $fundNotFound) {
             $this->addErrorMessage($fundNotFound->getMessage());
         } catch (Exception $exception) {
@@ -62,6 +57,5 @@ class AddBill extends AdminAction
         }
 
         return $this->redirect("/admin/budget");
-
     }
 }

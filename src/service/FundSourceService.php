@@ -2,8 +2,10 @@
 
 namespace App\service;
 
+use App\exception\fund\FundSourceNotFound;
 use App\model\budget\FundModel;
 use App\model\budget\FundSourceModel;
+use Doctrine\ORM\Exception\NotSupported;
 
 class FundSourceService extends Service
 {
@@ -27,6 +29,23 @@ class FundSourceService extends Service
             ->entityManager
             ->getRepository(FundSourceModel::class)
             ->findBy(['isArchived' => $archived]);
+    }
+
+    /**
+     * @throws FundSourceNotFound
+     */
+    public function findByName(string $name): FundSourceModel
+    {
+        $fundSource =  $this
+            ->entityManager
+            ->getRepository(FundSourceModel::class)
+            ->findOneBy(['name' => $name]);
+
+        if(!isset($fundSource)){
+            throw new FundSourceNotFound("Fund with name of $name is missing");
+        }
+
+        return $fundSource;
     }
 
 }

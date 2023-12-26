@@ -8,9 +8,6 @@ use App\model\budget\ExpenseModel;
 use App\model\budget\FundModel;
 use App\model\budget\IncomeModel;
 use App\model\enum\BudgetStatus;
-use Doctrine\ORM\Exception\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\TransactionRequiredException;
 
 class FundService extends Service
 {
@@ -184,4 +181,50 @@ class FundService extends Service
         return $tally;
     }
 
+    public function getCollection(int $fundId, int $year): array
+    {
+
+        $tally = [];
+
+        foreach (Time::getDatesForMonthsOfYear($year) as $month) {
+
+            $currentMonth = (int) $month->format('m');
+
+            $tally[$month->format('M')] = $this->getMonthlyFund($fundId, $currentMonth,$year);
+        }
+
+        return $tally;
+    }
+
+    public function getMonthlyFund(int $fundId, int $month, int $year): float
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+
+        $result = $qb->select('SUM(e.amount) - SUM(i.amount)')
+            ->from(FundModel::class,'f')
+            ->join(ExpenseModel::class, 'e', 'WITH', 'e.fund = f.id',)
+            ->join(IncomeModel::class, 'i', 'WITH', 'i.fund = f.id',)
+            ->where(
+                $qb->expr()->andX(
+                    $qb->expr()->eq('f.id', ':fundId'),
+                    $qb->expr()->eq('e.status', ':status'),
+                    $qb->expr()->eq('MONTH(e.createdAt)', ':startMonth',),
+                    $qb->expr()->eq('MONTH(i.createdAt)', ':startMonth',),
+                    $qb->expr()->lte('YEAR(i.createdAt)', ':endYear',),
+                    $qb->expr()->lte('YEAR(e.createdAt)', ':endYear',),
+                )
+            )
+            ->setParameter('fundId', $fundId)
+            ->setParameter('startMonth', $month)
+            ->setParameter('endYear', $year)
+            ->setParameter('status', BudgetStatus::approved())
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        if (!isset($result)) {
+            return 0;
+        }
+
+        return $result;
+    }
 }

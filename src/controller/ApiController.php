@@ -12,47 +12,6 @@ use Exception;
 class ApiController extends Controller
 {
 
-    public function generateBill($request, $response, $args)
-    {
-
-        $content = $request->getParsedBody();
-
-        $billId = $content['bill'];
-
-        try {
-
-            $bill = $this->billService->findById($billId);
-
-            if(!isset($bill)){
-                throw new Exception('Bill Not Found!');
-            }
-
-            if($bill->isArchived()){
-                throw new Exception("Bill is set to archived, please make the bill active first");
-            }
-
-            $expense = $bill->getExpense();
-
-            $newExpenseBill = new ExpenseModel();
-            $newExpenseBill->setStatus(BudgetStatus::pending());
-            $newExpenseBill->setAmount($expense->getAmount());
-            $newExpenseBill->setTitle($expense->getTitle());
-            $newExpenseBill->setFund($expense->getFund());
-            $newExpenseBill->setPurpose($expense->getPurpose());
-            $newExpenseBill->setBill($bill);
-
-            $this->expenseService->save($newExpenseBill);
-
-        } catch (Exception $e) {
-           $this->flashMessages->addMessage('errorMessage',$e->getMessage());
-        }
-
-        return $response
-            ->withHeader('Location', "/admin/budget")
-            ->withStatus(302);
-
-    }
-
     public function amount($request, $response, $args)
     {
 

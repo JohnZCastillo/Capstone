@@ -29,4 +29,17 @@ class IncomeService extends Service
             ->findAll();
     }
 
+    public function getRecentIncome(int $max = 10): array
+    {
+
+        $qb = $this->entityManager->createQueryBuilder();
+
+       return $qb->select('i')
+            ->from(IncomeModel::class,'i')
+            ->orderBy( 'i.createdAt','DESC')
+            ->setMaxResults($max)
+            ->getQuery()
+            ->getResult();
+    }
+
 }

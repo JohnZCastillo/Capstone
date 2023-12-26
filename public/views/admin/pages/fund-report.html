@@ -1,0 +1,48 @@
+{% extends "./admin/index.html" %}
+
+{% block body %}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- Table -->
+    <div class="card">
+
+        <h5 class="card-header">Report Generation</h5>
+
+        <div class="table-responsive">
+
+            <table class="table thead-dark table-hover rounded-table table-shadow">
+                <thead class="bg-dark text-white">
+                <tr>
+                    <th></th>
+                    <th>Jan</th>
+                    <th>Feb</th>
+                    <th>Mar</th>
+                    <th>Apr</th>
+                    <th>May</th>
+                    <th>Jun</th>
+                    <th>Jul</th>
+                    <th>Aug</th>
+                    <th>Sep</th>
+                    <th>Oct</th>
+                    <th>Nov</th>
+                    <th>Dec</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for header in header %}
+                <tr>
+                    <td>{{header.title}}</td>
+
+                    {% for  data in header.data %}
+                        <td>{{data|format_currency('PHP')}}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

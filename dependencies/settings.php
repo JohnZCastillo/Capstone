@@ -48,7 +48,8 @@ return array(
             'user' => $_ENV["DB_USER"],
             'password' => $_ENV["DB_PASS"],
             // 'charset' => 'utf-8'
-        )
+        ),
+
     ),
 
     'db' => array(

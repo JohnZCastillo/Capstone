@@ -5,7 +5,6 @@ namespace App\controller\admin\budget;
 use App\controller\admin\AdminAction;
 use App\exception\fund\ExpenseNotFound;
 use App\exception\fund\FundNotFound;
-use App\exception\fund\NegativeFund;
 use App\exception\InvalidInput;
 use App\model\budget\BillModel;
 use App\model\budget\ExpenseModel;
@@ -16,35 +15,33 @@ use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;
 
-class ApproveBill extends AdminAction
+class RejectExpense extends AdminAction
 {
 
     protected function action(): Response
     {
 
+        $id = $this->args['id'];
+
+        $fundId = 0;
+
         try {
-
-            $id = $this->args['id'];
-
             $expense = $this->expenseService->findById($id);
 
-            if ($expense->getFund()->computeTotal() - $expense->getAmount() < 0) {
-                throw new NegativeFund("Insufficient funds available for this expense.");
-            }
+            $fundId = $expense->getFund()->getId();
 
-            $expense->setStatus(BudgetStatus::approved());
+            $expense->setStatus(BudgetStatus::rejected());
 
             $this->expenseService->save($expense);
 
-        } catch (NegativeFund $negativeFund) {
-            $this->addErrorMessage($negativeFund->getMessage());
-        }  catch (ExpenseNotFound $expenseNotFound) {
+        } catch (ExpenseNotFound $expenseNotFound) {
             $this->addErrorMessage($expenseNotFound->getMessage());
+            return $this->redirect("/admin/budget");
         } catch (Exception $exception) {
             $this->addErrorMessage('An Internal Error Occurred');
         }
 
-        return $this->redirect("/admin/budget");
+        return $this->redirect("/admin/fund/$fundId");
 
     }
 }

@@ -28,12 +28,21 @@ class ViewFund extends AdminAction
             $incomes = $this->fundService->getYearlyIncome($fund->getId(), $year);
             $keys = $this->fundService->getKeys($year);
 
+            $funds = $this->fundService->getAll();
+
+            $recentIncomes = $this->incomeService->getRecentIncome(5);
+            $recentExpenses = $this->expenseService->getRecentIncome(5);
+
             return $this->view('admin/pages/fund-details.html', [
+                'funds' => $funds,
                 'fund' => $fund,
+                'currentFund' => $fund->getId(),
                 'fundSources' => $fundSources,
                 'yearlyExpenses' => array_values($expenses),
                 'yearlyIncomes' => array_values($incomes),
                 'keys' => $keys,
+                'recentIncomes' => $recentIncomes,
+                'recentExpenses' => $recentExpenses,
             ]);
 
         } catch (FundNotFound $fundNotFound) {

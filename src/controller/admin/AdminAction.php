@@ -14,6 +14,7 @@ use App\service\DuesService;
 use App\service\ExpenseService;
 use App\service\FundService;
 use App\service\FundSourceService;
+use App\service\IncomeService;
 use App\service\IssuesService;
 use App\service\LoginHistoryService;
 use App\service\LogsService;
@@ -58,6 +59,8 @@ abstract class AdminAction extends Action
 
     protected  ExpenseService $expenseService;
 
+    protected  IncomeService $incomeService;
+
     /**
      * @param UserService $userService
      * @param PaymentService $paymentService
@@ -77,8 +80,9 @@ abstract class AdminAction extends Action
      * @param FundService $fundService
      * @param FundSourceService $fundSourceService
      * @param ExpenseService $expenseService
+     * @param IncomeService $incomeService
      */
-    public function __construct(UserService $userService, PaymentService $paymentService, TransactionService $transactionService, DuesService $duesService, ReceiptService $receiptService, Messages $flashMessage, LogsService $logsService, TransactionLogsService $transactionLogsService, IssuesService $issuesService, AnnouncementService $announcementService, AnnouncementHistoryService $announcementHistoryService, SystemSettingService $systemSettingService, LoginHistoryService $loginHistoryService, PriviligesService $privilegesService, BillService $billService, FundService $fundService, FundSourceService $fundSourceService, ExpenseService $expenseService)
+    public function __construct(UserService $userService, PaymentService $paymentService, TransactionService $transactionService, DuesService $duesService, ReceiptService $receiptService, Messages $flashMessage, LogsService $logsService, TransactionLogsService $transactionLogsService, IssuesService $issuesService, AnnouncementService $announcementService, AnnouncementHistoryService $announcementHistoryService, SystemSettingService $systemSettingService, LoginHistoryService $loginHistoryService, PriviligesService $privilegesService, BillService $billService, FundService $fundService, FundSourceService $fundSourceService, ExpenseService $expenseService, IncomeService $incomeService)
     {
         $this->userService = $userService;
         $this->paymentService = $paymentService;
@@ -98,6 +102,7 @@ abstract class AdminAction extends Action
         $this->fundService = $fundService;
         $this->fundSourceService = $fundSourceService;
         $this->expenseService = $expenseService;
+        $this->incomeService = $incomeService;
     }
 
     protected function addErrorMessage($message)
@@ -119,7 +124,6 @@ abstract class AdminAction extends Action
     {
         return $this->userService->findById(1);
     }
-
 
     protected function addActionLog(string $message, string $tag): void
     {

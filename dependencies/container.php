@@ -38,6 +38,13 @@ return function (ContainerBuilder $containerBuilder) {
             $entityManager = EntityManager::create($doctrine['connection'], $config);
 
             $conn = $entityManager->getConnection();
+
+            $config->addCustomStringFunction('MONTH',
+                \DoctrineExtensions\Query\Mysql\Month::class);
+            $config->addCustomStringFunction('YEAR',
+                \DoctrineExtensions\Query\Mysql\Year::class
+            );
+
             $conn->getDatabasePlatform()->registerDoctrineTypeMapping("enum", "string");
 
             require __DIR__ . '/types.php';
