@@ -163,6 +163,10 @@ return function (App $app) use ($twig) {
             \App\controller\admin\budget\TransferFund::class
         );
 
+        $group->post('/pdf',
+            \App\controller\pdf\DownloadPdf::class
+        );
+
         $group->get('/fund/report/{id}',
             \App\controller\admin\budget\FundReport::class
         );

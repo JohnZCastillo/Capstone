@@ -41,101 +41,49 @@ class FundService extends Service
             ->findBy(['isArchived' => $archived]);
     }
 
-    /**
-     * Assuming $month is the specific month you want to filter for (e.g., '2023-07')
-     * @param $fundId
-     * @param $month
-     * @return float
-     * @throws \Exception
-     */
-    public function getMonthlyExpenses($fundId, $month): float
+    public function getMonthlyExpenses($fundId, int $month, int $year): float
     {
-        $qb = $this->entityManager->createQueryBuilder();
+        $expenseQb = $this->entityManager->createQueryBuilder();
 
-        $startDate = new \DateTime($month);
-        $endDate = (clone $startDate)->modify('last day of this month')->setTime(23, 59, 59);
-
-        $result = $qb->select('sum(e.amount)')
+        $expense = $expenseQb->select('SUM(e.amount)')
             ->from(ExpenseModel::class, 'e')
-            ->join('e.fund', 'f', 'WITH', 'e.fund = f.id',)
-            ->where('f.id = :fundId')
-            ->andWhere(
-                $qb->expr()->andX(
-                    $qb->expr()->eq('f.id', ':fundId'),
-                    $qb->expr()->eq('e.status', ':status'),
-                    $qb->expr()->between('e.createdAt', ':startDate', ':endDate')
+            ->where(
+                $expenseQb->expr()->andX(
+                    $expenseQb->expr()->eq('e.fund', ':fundId'),
+                    $expenseQb->expr()->eq('MONTH(e.createdAt)', ':startMonth'),
+                    $expenseQb->expr()->lte('YEAR(e.createdAt)', ':endYear'),
+                    $expenseQb->expr()->eq('e.status', ':status')
                 )
-            )
-            ->setParameter('fundId', $fundId)
-            ->setParameter('startDate', $startDate)
-            ->setParameter('endDate', $endDate)
+            ) ->setParameter('fundId', $fundId)
+            ->setParameter('startMonth', $month)
+            ->setParameter('endYear', $year)
             ->setParameter('status', BudgetStatus::approved())
             ->getQuery()
             ->getSingleScalarResult();
 
-        if (!isset($result)) {
-            return -1;
-        }
-
-        return $result;
+        return  $expense ?? 0;
     }
 
-    /**
-     * Assuming $month is the specific month you want to filter for (e.g., '2023-07')
-     * @param $fundId
-     * @param $month
-     * @return float
-     * @throws \Exception
-     */
-    public function getMonthlyIncomes($fundId, $month): float
+    public function getMonthlyIncomes($fundId, int $month, int $year): float
     {
-        $qb = $this->entityManager->createQueryBuilder();
 
-        $startDate = new \DateTime($month);
-        $endDate = (clone $startDate)->modify('last day of this month')->setTime(23, 59, 59);
+        $incomeQb = $this->entityManager->createQueryBuilder();
 
-        $result = $qb->select('sum(e.amount)')
-            ->from(IncomeModel::class, 'e')
-            ->join('e.fund', 'f', 'WITH', 'e.fund = f.id',)
-            ->where('f.id = :fundId')
-            ->andWhere(
-                $qb->expr()->andX(
-                    $qb->expr()->eq('f.id', ':fundId'),
-                    $qb->expr()->between('e.createdAt', ':startDate', ':endDate')
+        $income = $incomeQb->select('SUM(i.amount)')
+            ->from(IncomeModel::class, 'i')
+            ->where(
+                $incomeQb->expr()->andX(
+                    $incomeQb->expr()->eq('i.fund', ':fundId'),
+                    $incomeQb->expr()->eq('MONTH(i.createdAt)', ':startMonth'),
+                    $incomeQb->expr()->lte('YEAR(i.createdAt)', ':endYear')
                 )
-            )
-            ->setParameter('fundId', $fundId)
-            ->setParameter('startDate', $startDate)
-            ->setParameter('endDate', $endDate)
+            ) ->setParameter('fundId', $fundId)
+            ->setParameter('startMonth', $month)
+            ->setParameter('endYear', $year)
             ->getQuery()
             ->getSingleScalarResult();
 
-        if (!isset($result)) {
-            return -1;
-        }
-
-        return $result;
-    }
-
-    public function getMonthlyTally(int $fundId, int $year): array
-    {
-
-
-        $tally = [];
-
-        $totalIncome = 0;
-
-        foreach (Time::getDatesForMonthsOfYear($year) as $month) {
-
-            $currentMonth = $month->format('Y-m');
-
-            $totalIncome += $this->getMonthlyIncomes($fundId, $currentMonth);
-            $totalIncome -= $this->getMonthlyExpenses($fundId, $currentMonth);
-
-            $tally[$month->format('M')] = $totalIncome;
-        }
-
-        return $tally;
+        return  $income ?? 0;
     }
 
     public function getYearlyIncome(int $fundId, int $year): array
@@ -145,12 +93,14 @@ class FundService extends Service
 
         foreach (Time::getDatesForMonthsOfYear($year) as $month) {
 
-            $currentMonth = $month->format('Y-m');
+            $currentMonth = (int) $month->format('m');
 
-            $tally[$month->format('M')] = $this->getMonthlyIncomes($fundId, $currentMonth);
+            $tally[$month->format('M')] = $this->getMonthlyIncomes($fundId, $currentMonth,$year);
         }
 
         return $tally;
+
+
     }
 
     public function getYearlyExpenses(int $fundId, int $year): array
@@ -160,9 +110,10 @@ class FundService extends Service
 
         foreach (Time::getDatesForMonthsOfYear($year) as $month) {
 
-            $currentMonth = $month->format('Y-m');
+            $currentMonth = (int) $month->format('m');
 
-            $tally[$month->format('M')] = $this->getMonthlyExpenses($fundId, $currentMonth);
+
+            $tally[$month->format('M')] = $this->getMonthlyExpenses($fundId, $currentMonth,$year);
         }
 
         return $tally;
@@ -198,33 +149,7 @@ class FundService extends Service
 
     public function getMonthlyFund(int $fundId, int $month, int $year): float
     {
-        $qb = $this->entityManager->createQueryBuilder();
-
-        $result = $qb->select('SUM(e.amount) - SUM(i.amount)')
-            ->from(FundModel::class,'f')
-            ->join(ExpenseModel::class, 'e', 'WITH', 'e.fund = f.id',)
-            ->join(IncomeModel::class, 'i', 'WITH', 'i.fund = f.id',)
-            ->where(
-                $qb->expr()->andX(
-                    $qb->expr()->eq('f.id', ':fundId'),
-                    $qb->expr()->eq('e.status', ':status'),
-                    $qb->expr()->eq('MONTH(e.createdAt)', ':startMonth',),
-                    $qb->expr()->eq('MONTH(i.createdAt)', ':startMonth',),
-                    $qb->expr()->lte('YEAR(i.createdAt)', ':endYear',),
-                    $qb->expr()->lte('YEAR(e.createdAt)', ':endYear',),
-                )
-            )
-            ->setParameter('fundId', $fundId)
-            ->setParameter('startMonth', $month)
-            ->setParameter('endYear', $year)
-            ->setParameter('status', BudgetStatus::approved())
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        if (!isset($result)) {
-            return 0;
-        }
-
-        return $result;
+        return self::getMonthlyIncomes($fundId,$month,$year) - self::getMonthlyExpenses($fundId,$month,$year) ;
     }
+
 }

@@ -1,46 +1,76 @@
 {% extends "./admin/index.html" %}
 
 {% block body %}
-
 <div class="container-xxl flex-grow-1 container-p-y">
-    <!-- Table -->
-    <div class="card">
 
-        <h5 class="card-header">Report Generation</h5>
+    <div class="row">
 
-        <div class="table-responsive">
+        <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
+            <div class="card">
+                <h5 class="card-header"><span class="card-title">Report Generation</span></h5>
 
-            <table class="table thead-dark table-hover rounded-table table-shadow">
-                <thead class="bg-dark text-white">
-                <tr>
-                    <th></th>
-                    <th>Jan</th>
-                    <th>Feb</th>
-                    <th>Mar</th>
-                    <th>Apr</th>
-                    <th>May</th>
-                    <th>Jun</th>
-                    <th>Jul</th>
-                    <th>Aug</th>
-                    <th>Sep</th>
-                    <th>Oct</th>
-                    <th>Nov</th>
-                    <th>Dec</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for header in header %}
-                <tr>
-                    <td>{{header.title}}</td>
+                <div class="card-body mb-0 pb-0">
+                    <div class="card-content">
+                        <h6>Total Fund: {{fund.computeTotal|format_currency('PHP')}}</h6>
+                        <h6>Total Income: {{fund.computeIncomes|format_currency('PHP')}} </h6>
+                        <h6>Total Expense: {{fund.computeExpenses|format_currency('PHP')}}</h6>
+                    </div>
+                </div>
 
-                    {% for  data in header.data %}
-                        <td>{{data|format_currency('PHP')}}</td>
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                <div class="table-responsive">
+
+                    <table class="table thead-dark table-hover rounded-table table-shadow">
+                        <thead class="bg-dark text-white">
+                        <tr>
+                            <th></th>
+                            <th>Jan</th>
+                            <th>Feb</th>
+                            <th>Mar</th>
+                            <th>Apr</th>
+                            <th>May</th>
+                            <th>Jun</th>
+                            <th>Jul</th>
+                            <th>Aug</th>
+                            <th>Sep</th>
+                            <th>Oct</th>
+                            <th>Nov</th>
+                            <th>Dec</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for header in header %}
+                        <tr>
+                            <td>{{header.title}}</td>
+
+                            {% for data in header.data %}
+                            <td>{{data|format_currency('PHP')}}</td>
+                            {% endfor %}
+                        </tr>
+
+                        {% endfor %}
+                        <tr class="bg-secondary">
+                            <td><span class="text-white">Total</span></td>
+                            <td colspan="12" class="text-center text-white"><span class="fw-bold">{{fund.computeTotal|format_currency('PHP')}} </span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
+
+        <div class="col-xl-3 col-md-4 col-12 invoice-actions">
+            <div class="card mb-2">
+                <div class="card-body">
+                    <div class="d-flex flex-column gap-2">
+                        <a class="btn btn-primary text-white">Print</a>
+                        <a class="btn btn-primary text-white">Download</a>
+                        <a href="/admin/fund/{{fund.id}}" class="btn btn-secondary mb-2">Back</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 

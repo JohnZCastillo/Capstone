@@ -32,19 +32,11 @@ class BudgetManagement extends AdminAction
             }
 
             $funds = $this->fundService->getAll($archived);
-
-            $tally = $this->fundService->getMonthlyTally(1, 2023);
-
             $bills = $this->billService->getAll($archiveBill);
-
-            $keys = array_keys($tally);
-            $values = array_values($tally);
 
             $data =
                 [
                     'funds' => $funds,
-                    'keys' => $keys,
-                    'values' => $values,
                     'bills' => $bills,
                     'archived' => $archived,
                     'archiveBill' => $archiveBill,

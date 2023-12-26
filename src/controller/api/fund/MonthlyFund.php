@@ -18,7 +18,7 @@ class MonthlyFund extends AdminAction
             $fundId = (int)$this->args['id'];
             $year = (int)$this->args['year'];
 
-            $tally = $this->fundService->getMonthlyTally($fundId, $year);
+            $tally = $this->fundService->getCollection($fundId, 2023);
 
             return $this->respondWithData($tally);
         } catch (\Exception $e) {
