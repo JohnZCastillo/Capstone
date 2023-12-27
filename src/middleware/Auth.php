@@ -2,6 +2,8 @@
 
 namespace App\middleware;
 
+use App\exception\NotAuthorizeException;
+use App\exception\users\UserBlockException;
 use App\lib\Login;
 use App\service\UserService;
 use Psr\Http\Message\ResponseInterface;
@@ -9,42 +11,45 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Flash\Messages;
 use Slim\Psr7\Response;
+use Slim\Views\Twig;
 use UMA\DIC\Container;
 
 class Auth
 {
-
-    private Messages $flashMessge;
     private UserService $userService;
 
-    public function __construct(Container $container)
+    public function __construct(UserService $userService)
     {
-        $this->flashMessge = $container->get(Messages::class);
-        $this->userService = $container->get(UserService::class);
+        $this->userService = $userService;
     }
 
     public function __invoke(Request $request, RequestHandler $handler): ResponseInterface
     {
 
-        $isLogin = Login::isLogin();
+        $location = '/login';
 
-        if (!$isLogin) {
-            $this->flashMessge->addMessage('AuthFailedMessage', 'You Must login First');
-            $response = new Response();
-            return $response->withHeader('Location', '/login')->withStatus(302);
-        }
+        try {
 
-        $user = $this->userService->findById(Login::getLogin());
-        $allowed = !$user->getIsBlocked();
+            if (!Login::isLogin()) {
+                throw new NotAuthorizeException('You Must Login First');
+            }
 
-        if (!$allowed) {
+            if ($this->userService->findById(Login::getLogin())->getIsBlocked()) {
+                throw new UserBlockException('Access Denied');
+            }
+
+            return $handler->handle($request);
+
+        } catch (NotAuthorizeException $notAuthorizeException) {
+            Twig::fromRequest($request)->getEnvironment()->addGlobal('loginError', $notAuthorizeException->getMessage());
+        } catch (UserBlockException $userBlockException) {
             Login::forceLogout();
-            $response = new Response();
-            return $response->withHeader('Location', '/blocked')->withStatus(302);
+            $location = '/blocked';
+        } catch (\Exception $exception) {
+            Twig::fromRequest($request)->getEnvironment()->addGlobal('loginError', 'An Internal Error Occurred');
         }
 
-        $response = $handler->handle($request);
-        return $response;
-
+        $response = new Response();
+        return $response->withHeader('Location', $location)->withStatus(302);
     }
 }

@@ -36,7 +36,7 @@ class UserModel{
     private string $password;
 
     #[ORM\Column(type: 'boolean', options: ["default"=> false])]
-    private string $isBlocked;
+    private bool $isBlocked;
 
     #[ORM\Column(type: 'date', nullable: true)]
     private \DateTime|null $blockDate;
@@ -107,7 +107,7 @@ class UserModel{
         return $this;
     }
 
-    public function getIsBlocked(): string
+    public function getIsBlocked()
     {
         return $this->isBlocked;
     }

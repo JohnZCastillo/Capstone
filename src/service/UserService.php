@@ -8,6 +8,7 @@ use App\model\enum\UserRole;
 use App\model\UserModel;
 use Doctrine\ORM\Exception\NotSupported;
 use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\TransactionRequiredException;
 
@@ -110,7 +111,10 @@ s     */
     }
 
 
-    public function getUser($email, $password)
+    /**
+     * @throws UserNotFoundException
+     */
+    public function getUser($email, $password): UserModel
     {
 
         $queryBuilder = $this->entityManager->createQueryBuilder();
@@ -124,11 +128,11 @@ s     */
 
 
         if (!isset($user)) {
-            return null;
+            throw new UserNotFoundException('User Not Found');
         }
 
         if ($user->getPassword() !== $password) {
-            return null;
+            throw new UserNotFoundException('User Not Found');
         }
 
         return $user;

@@ -208,7 +208,12 @@ return function (App $app) use ($twig) {
             \App\controller\admin\payments\UnitOverview::class
         );
 
-    })->add(\App\middleware\ActivePage::class);
+        $group->get('/overview',
+            \App\controller\admin\overview\ViewOverview::class
+        )->setName('Overview');
+
+
+    })->add(\App\middleware\Auth::class)->add(\App\middleware\ActivePage::class);
 
     $app->post('/users',
         \App\controller\api\users\FindUser::class
@@ -241,6 +246,23 @@ return function (App $app) use ($twig) {
     $app->post('/change-details',
         \App\controller\api\users\UpdateAccountDetails::class
     )->setName('account');
+
+
+    $app->get('/login',
+        \App\controller\auth\ViewLogin::class
+    );
+
+    $app->post('/login',
+        \App\controller\auth\LoginAuth::class
+    );
+
+    $app->get('/logout',
+        \App\controller\auth\LogoutAuth::class
+    );
+
+    $app->get('/register',
+        \App\controller\auth\ViewRegister::class
+    );
 
 };
 
