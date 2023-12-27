@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\controller\admin;
 
 use App\controller\Action;
+use App\lib\Login;
 use App\model\LogsModel;
 use App\model\UserModel;
 use App\service\AnnouncementHistoryService;
@@ -122,7 +123,7 @@ abstract class AdminAction extends Action
 
     protected function getLoginUser(): UserModel
     {
-        return $this->userService->findById(1);
+        return $this->userService->findById(Login::getLogin());
     }
 
     protected function addActionLog(string $message, string $tag): void

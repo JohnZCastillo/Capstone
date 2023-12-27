@@ -18,7 +18,6 @@ use UMA\DIC\Container;
 
 class ActivePage
 {
-
     public function __invoke(Request $request, RequestHandler $handler): ResponseInterface
     {
 
