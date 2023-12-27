@@ -4,6 +4,7 @@ namespace App\middleware;
 
 use App\lib\Login;
 use App\lib\Redirector;
+use App\model\PrivilegesModel;
 use App\model\UserModel;
 use App\service\UserService;
 use Psr\Http\Message\ResponseInterface;
@@ -12,30 +13,29 @@ use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response;
 use UMA\DIC\Container;
 
-class BypassHomepage
+class BypassPage
 {
 
-    private UserModel $user;
-    private Container $container;
+    protected UserService $userService;
 
-    public function __construct(Container $container)
+    /**
+     * @param UserService $userService
+     */
+    public function __construct(UserService $userService)
     {
-        $this->container = $container;
-
+        $this->userService = $userService;
     }
 
     public function __invoke(Request $request, RequestHandler $handler): ResponseInterface
     {
 
-        if (!Login::isLogin()) {
-            return $handler->handle($request);
-        } else {
-            $loginId = Login::getLogin();
-            $userService = $this->container->get(UserService::class);
-            $this->user = $userService->findById($loginId);
-            $location = Redirector::redirectToHome($this->user->getPrivileges());
+        if (Login::isLogin()) {
+            $location = Redirector::redirectToHome($this->userService->findById(Login::getLogin())->getPrivileges());
             $response = new Response();
             return $response->withHeader('Location', $location)->withStatus(302);
         }
+
+        return $handler->handle($request);
+
     }
 }
