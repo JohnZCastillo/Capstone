@@ -63,7 +63,13 @@
             <div class="card mb-2">
                 <div class="card-body">
                     <div class="d-flex flex-column gap-2">
-                        <button onclick="printPdf()" class="btn btn-primary mb-2">Print</button>
+                        <button onclick="printPdf()" class="btn btn-primary mb-2">
+                            <span id="printLoading" class="d-none spinner-border" role="status">
+                            </span>
+                            <span id="printLabel">
+                                Print
+                            </span>
+                        </button>
                         <a href="/admin/fund/report/print/{{fund.id}}" class="btn btn-primary mb-2">Download</a>
                         <a href="/admin/fund/{{fund.id}}" class="btn btn-secondary mb-2">Back</a>
                     </div>
@@ -80,29 +86,46 @@
 
 <script>
 
-    function printPdf() {
+    const printLoading = document.getElementById('printLoading');
+    const printLabel = document.getElementById('printLabel');
 
-        fetch('/admin/fund/report/print/{{fund.id}}')
-            .then(response => response.blob())
-            .then(blob => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    const pdfWindow = window.open('');
-                    const base64data = reader.result.split(',')[1]; // Extract base64 data
 
-                    pdfWindow.document.write(`<iframe width="100%" height="100%" src="data:application/pdf;base64,${base64data}"></iframe>`);
-                    pdfWindow.document.close();
+    async function printPdf() {
 
-                    pdfWindow.onload = () => {
-                        pdfWindow.focus();
-                        pdfWindow.print();
-                    };
+        printLoading.classList.toggle('d-none');
+        printLabel.classList.toggle('d-none');
+
+        try {
+
+
+            const data = await fetch('/admin/fund/report/print/{{fund.id}}');
+            const blob = await data.blob();
+
+            const reader = new FileReader();
+
+            reader.onload = () => {
+                const pdfWindow = window.open('');
+                const base64data = reader.result.split(',')[1]; // Extract base64 data
+
+                pdfWindow.document.write(`<iframe width="100%" height="100%" src="data:application/pdf;base64,${base64data}"></iframe>`);
+                pdfWindow.document.close();
+
+                pdfWindow.onload = () => {
+                    pdfWindow.focus();
+                    pdfWindow.print();
                 };
-                reader.readAsDataURL(blob); // Read blob as data URL
-            })
-            .catch(error => {
-                console.error('Error fetching PDF:', error);
-            });
+
+            }
+            reader.readAsDataURL(blob);
+
+
+
+        } catch (error) {
+            console.error('Error fetching PDF:', error);
+        }
+
+        printLoading.classList.toggle('d-none');
+        printLabel.classList.toggle('d-none');
     }
 
 </script>
