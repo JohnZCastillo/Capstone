@@ -10,7 +10,7 @@ class Redirector
     public static function redirectToHome(PrivilegesModel $privileges): string{
 
         if($privileges->getAdminPayment()){
-            return  "/admin/home";
+            return  "/admin/payments";
         }
 
         if($privileges->getAdminIssues()){

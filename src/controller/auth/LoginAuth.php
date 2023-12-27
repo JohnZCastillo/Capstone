@@ -7,6 +7,7 @@ use App\exception\InvalidInput;
 use App\exception\UserNotFoundException;
 use App\lib\Login;
 use App\lib\LoginDetails;
+use App\lib\Redirector;
 use App\model\enum\UserRole;
 use App\model\LoginHistoryModel;
 use Exception;
@@ -49,7 +50,7 @@ class LoginAuth extends AdminAction
                 case UserRole::user():
                     return $this->redirect('/user/home');
                 case UserRole::admin():
-                    return $this->redirect('/admin/home');
+                    return $this->redirect(Redirector::redirectToHome($user->getPrivileges()));
                 case UserRole::superAdmin():
                     return $this->redirect('/admin/payments');
                 default:
@@ -57,7 +58,7 @@ class LoginAuth extends AdminAction
             }
 
         } catch (UserNotFoundException $userNotFoundException) {
-            $data['loginError'] = $userNotFoundException->getMessage();
+            $data['loginError'] = 'Incorrect Email or Password';
         } catch (InvalidInput $invalidInput) {
             $data['loginError'] = $invalidInput->getMessage();
         } catch (Exception $ex) {

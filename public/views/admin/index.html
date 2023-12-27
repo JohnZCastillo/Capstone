@@ -118,70 +118,96 @@
             <div class="menu-inner-shadow"></div>
 
             <ul class="menu-inner py-1">
-                <li class="menu-item {{activeOverview}}">
-                    <a
-                            href="/admin/overview"
-                            class="menu-link">
-                        <i class="menu-icon tf-icons bx bxs-building-house"></i>
-                        <div data-i18n="Email">Overview</div>
-                    </a>
-                </li>
-                <li class="menu-item {{activeBudget}}">
-                    <a
-                            href="/admin/budget"
-                            class="menu-link">
-                        <i class="menu-icon tf-icons bx bxs-coin"></i>
-                        <div data-i18n="Email">Budget</div>
-                    </a>
-                </li>
-                <li class="menu-item {{activeHome}}">
-                    <a
-                            href="/admin/payments"
-                            class="menu-link">
-                        <i class="menu-icon tf-icons bx bxs-wallet"></i>
-                        <div data-i18n="Email">Payments</div>
-                    </a>
-                </li>
-                <li class="menu-item {{activeIssues}}">
-                    <a
-                            href="/admin/issues"
-                            class="menu-link">
-                        <i class="menu-icon tf-icons bx bxs-chat"></i>
-                        <div data-i18n="Chat">Issues</div>
-                    </a>
-                </li>
-                <li class="menu-item {{activeAnnouncement}}">
-                    <a
-                            href="/admin/announcements"
-                            class="menu-link">
-                        <i class="menu-icon tf-icons bx bxs-megaphone"></i>
-                        <div data-i18n="Calendar">Announcements</div>
-                    </a>
-                </li>
-                <li class="menu-item {{activeUsers}}">
-                    <a
-                            href="/admin/users"
-                            class="menu-link">
-                        <i class="menu-icon tf-icons bx bxs-user"></i>
-                        <div data-i18n="Calendar">Users</div>
-                    </a>
-                </li>
-                <li class="menu-item {{activeLogs}}">
-                    <a
-                            href="/admin/logs"
-                            class="menu-link">
-                        <i class="menu-icon tf-icons bx bxs-notepad"></i>
-                        <div data-i18n="Calendar">Logs</div>
-                    </a>
-                </li>
-                <li class="menu-item {{activeSystem}}">
-                    <a
-                            href="/admin/system"
-                            class="menu-link">
-                        <i class='menu-icon tf-icons bx bxs-cog'></i>
-                        <div data-i18n="Calendar">System Settings</div>
-                    </a>
-                </li>
+
+                {% if login_user.role == 'super' %}
+                    <li class="menu-item {{activeOverview}}">
+                        <a
+                                href="/admin/overview"
+                                class="menu-link">
+                            <i class="menu-icon tf-icons bx bxs-building-house"></i>
+                            <div data-i18n="Email">Overview</div>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% if login_user.privileges.adminPayment  %}
+                    <li class="menu-item {{activeBudget}}">
+                        <a
+                                href="/admin/budget"
+                                class="menu-link">
+                            <i class="menu-icon tf-icons bx bxs-coin"></i>
+                            <div data-i18n="Email">Budget</div>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{activeHome}}">
+                        <a
+                                href="/admin/payments"
+                                class="menu-link">
+                            <i class="menu-icon tf-icons bx bxs-wallet"></i>
+                            <div data-i18n="Email">Payments</div>
+                        </a>
+                    </li>
+
+                {% endif %}
+
+                {% if login_user.privileges.adminIssues  %}
+
+                    <li class="menu-item {{activeIssues}}">
+                        <a
+                                href="/admin/issues"
+                                class="menu-link">
+                            <i class="menu-icon tf-icons bx bxs-chat"></i>
+                            <div data-i18n="Chat">Issues</div>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% if login_user.privileges.adminAnnouncement  %}
+
+                    <li class="menu-item {{activeAnnouncement}}">
+                        <a
+                                href="/admin/announcements"
+                                class="menu-link">
+                            <i class="menu-icon tf-icons bx bxs-megaphone"></i>
+                            <div data-i18n="Calendar">Announcements</div>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% if login_user.privileges.adminUser  %}
+
+                    <li class="menu-item {{activeUsers}}">
+                        <a
+                                href="/admin/users"
+                                class="menu-link">
+                            <i class="menu-icon tf-icons bx bxs-user"></i>
+                            <div data-i18n="Calendar">Users</div>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% if login_user.role == 'super' %}
+
+                    <li class="menu-item {{activeLogs}}">
+                        <a
+                                href="/admin/logs"
+                                class="menu-link">
+                            <i class="menu-icon tf-icons bx bxs-notepad"></i>
+                            <div data-i18n="Calendar">Logs</div>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{activeSystem}}">
+                        <a
+                                href="/admin/system"
+                                class="menu-link">
+                            <i class='menu-icon tf-icons bx bxs-cog'></i>
+                            <div data-i18n="Calendar">System Settings</div>
+                        </a>
+                    </li>
+                {% endif %}
+
             </ul>
         </aside>
         <!-- / Menu -->

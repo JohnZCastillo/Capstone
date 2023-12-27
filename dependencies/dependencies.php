@@ -1,5 +1,6 @@
 <?php
 
+use App\lib\Login;
 use App\service\AnnouncementHistoryService;
 use App\service\AnnouncementService;
 use App\service\CodeModelService;
@@ -21,6 +22,17 @@ use Slim\Flash\Messages;
 
 //Add Dependencies Here
 return array(
+
+    'LOGIN_USER' => function (ContainerInterface $c): \App\model\UserModel|null {
+
+        $userService = $c->get(UserService::class);
+
+        if(Login::isLogin()){
+            return $userService->findById(Login::getLogin());
+        }
+
+        return null;
+    },
 
     'DB_CONFIG' => function (ContainerInterface $c): array {
         return $c->get('db');

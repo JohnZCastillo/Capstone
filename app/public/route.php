@@ -41,4 +41,8 @@ return function (App $app) use ($twig) {
     $app->get('/terms-and-conditions',
         \App\controller\auth\ViewTermsAndCondition::class
     );
+
+    $app->get('/denied',
+        \App\controller\auth\ViewDenied::class
+    );
 };

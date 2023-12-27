@@ -31,9 +31,8 @@ abstract class RoleBaseAuth
         if ($this->isAllowed()) {
             return $handler->handle($request);
         } else {
-            $location = Redirector::redirectToHome($this->userModel->getPrivileges());
             $response = new Response();
-            return $response->withHeader('Location', $location)->withStatus(302);
+            return $response->withHeader('Location','/denied')->withStatus(302);
         }
     }
 }
