@@ -4,6 +4,7 @@ namespace App\controller\admin\budget;
 
 use App\controller\admin\AdminAction;
 use App\exception\fund\FundNotFound;
+use App\lib\Time;
 use DateTime;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -22,7 +23,7 @@ class ViewFund extends AdminAction
             $fund = $this->fundService->findById($id);
             $fundSources = $this->fundSourceService->getAll();
 
-            $year = (new DateTime())->format('Y');
+            $year = Time::getCurrentYear();
 
             $expenses = $this->fundService->getYearlyExpenses($fund->getId(), $year);
             $incomes = $this->fundService->getYearlyIncome($fund->getId(), $year);

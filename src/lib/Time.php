@@ -266,5 +266,10 @@ class Time
         return v::date($format)->validate($date);
     }
 
+    static function getCurrentYear (): int
+    {
+        return ((new DateTime())->format('Y'));
+    }
+
 }
 

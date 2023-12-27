@@ -4,6 +4,7 @@ namespace App\controller\admin\budget;
 
 use App\controller\admin\AdminAction;
 use App\exception\fund\FundNotFound;
+use App\lib\Time;
 use Doctrine\DBAL\Driver\Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 
@@ -19,10 +20,12 @@ class FundReport extends AdminAction
         $fundId = $this->args['id'];
 
         try {
-            $prevCollection = $this->fundService->getCollection($fundId,2022);
-            $netIncome = $this->fundService->getCollection($fundId,2023);
-            $incomes = $this->fundService->getYearlyIncome($fundId,2023);
-            $expenses = $this->fundService->getYearlyExpenses($fundId,2023);
+            $year = Time::getCurrentYear();
+
+            $prevCollection = $this->fundService->getCollection($fundId, $year - 1);
+            $netIncome = $this->fundService->getCollection($fundId, $year);
+            $incomes = $this->fundService->getYearlyIncome($fundId, $year);
+            $expenses = $this->fundService->getYearlyExpenses($fundId, $year);
 
             $fund = $this->fundService->findById($fundId);
 
@@ -50,9 +53,9 @@ class FundReport extends AdminAction
                 'fund' => $fund,
             ]);
 
-        }catch (FundNotFound $fundNotFound){
+        } catch (FundNotFound $fundNotFound) {
             $this->addErrorMessage($fundNotFound->getMessage());
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             $this->addErrorMessage('An Internal Error Occurred');
         }
 

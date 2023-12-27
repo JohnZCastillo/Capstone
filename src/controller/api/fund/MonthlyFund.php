@@ -3,6 +3,7 @@
 namespace App\controller\api\fund;
 
 use App\controller\admin\AdminAction;
+use App\lib\Time;
 use Psr\Http\Message\ResponseInterface as Response;
 
 class MonthlyFund extends AdminAction
@@ -18,7 +19,7 @@ class MonthlyFund extends AdminAction
             $fundId = (int)$this->args['id'];
             $year = (int)$this->args['year'];
 
-            $tally = $this->fundService->getCollection($fundId, 2023);
+            $tally = $this->fundService->getCollection($fundId, Time::getCurrentYear());
 
             return $this->respondWithData($tally);
         } catch (\Exception $e) {
