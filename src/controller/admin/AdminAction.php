@@ -6,11 +6,14 @@ namespace App\controller\admin;
 
 use App\controller\Action;
 use App\lib\Login;
+use App\lib\LoginDetails;
+use App\model\LoginHistoryModel;
 use App\model\LogsModel;
 use App\model\UserModel;
 use App\service\AnnouncementHistoryService;
 use App\service\AnnouncementService;
 use App\service\BillService;
+use App\service\CodeModelService;
 use App\service\DuesService;
 use App\service\ExpenseService;
 use App\service\FundService;
@@ -25,6 +28,7 @@ use App\service\ReceiptService;
 use App\service\SystemSettingService;
 use App\service\TransactionLogsService;
 use App\service\TransactionService;
+use App\service\UserLogsService;
 use App\service\UserService;
 use DateTime;
 use Slim\Flash\Messages;
@@ -62,6 +66,10 @@ abstract class AdminAction extends Action
 
     protected  IncomeService $incomeService;
 
+    protected  CodeModelService $codeModelService;
+
+    protected UserLogsService $userLogsService;
+
     /**
      * @param UserService $userService
      * @param PaymentService $paymentService
@@ -82,8 +90,10 @@ abstract class AdminAction extends Action
      * @param FundSourceService $fundSourceService
      * @param ExpenseService $expenseService
      * @param IncomeService $incomeService
+     * @param CodeModelService $codeModelService
+     * @param UserLogsService $userLogsService
      */
-    public function __construct(UserService $userService, PaymentService $paymentService, TransactionService $transactionService, DuesService $duesService, ReceiptService $receiptService, Messages $flashMessage, LogsService $logsService, TransactionLogsService $transactionLogsService, IssuesService $issuesService, AnnouncementService $announcementService, AnnouncementHistoryService $announcementHistoryService, SystemSettingService $systemSettingService, LoginHistoryService $loginHistoryService, PriviligesService $privilegesService, BillService $billService, FundService $fundService, FundSourceService $fundSourceService, ExpenseService $expenseService, IncomeService $incomeService)
+    public function __construct(UserService $userService, PaymentService $paymentService, TransactionService $transactionService, DuesService $duesService, ReceiptService $receiptService, Messages $flashMessage, LogsService $logsService, TransactionLogsService $transactionLogsService, IssuesService $issuesService, AnnouncementService $announcementService, AnnouncementHistoryService $announcementHistoryService, SystemSettingService $systemSettingService, LoginHistoryService $loginHistoryService, PriviligesService $privilegesService, BillService $billService, FundService $fundService, FundSourceService $fundSourceService, ExpenseService $expenseService, IncomeService $incomeService, CodeModelService $codeModelService, UserLogsService $userLogsService)
     {
         $this->userService = $userService;
         $this->paymentService = $paymentService;
@@ -104,6 +114,8 @@ abstract class AdminAction extends Action
         $this->fundSourceService = $fundSourceService;
         $this->expenseService = $expenseService;
         $this->incomeService = $incomeService;
+        $this->codeModelService = $codeModelService;
+        $this->userLogsService = $userLogsService;
     }
 
     protected function addErrorMessage($message)
@@ -134,6 +146,20 @@ abstract class AdminAction extends Action
         $actionLog->setUser($this->getLoginUser());
         $actionLog->setCreatedAt(new DateTime());
         $this->logsService->addLog($actionLog);
+    }
+
+    protected function logLoginHistory(): void
+    {
+        $user = $this->getLoginUser();
+        $loginHistoryModel = new LoginHistoryModel();
+        $loginDetails = LoginDetails::getLoginDetails();
+        $loginHistoryModel->setLoginDate($loginDetails['loginTime']);
+        $loginHistoryModel->setIp($loginDetails['ipAddress']);
+        $loginHistoryModel->setDevice($loginDetails['deviceLogin']);
+        $loginHistoryModel->setSession($loginDetails['sessionId']);
+        $loginHistoryModel->setUser($user);
+
+        $this->loginHistoryService->addLoginLog($loginHistoryModel);
     }
 
 }

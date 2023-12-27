@@ -43,7 +43,7 @@ class LoginAuth extends AdminAction
 
             Login::login($user->getId());
 
-            $this->log();
+            $this->logLoginHistory();
 
             switch ($user->getRole()) {
                 case UserRole::user():
@@ -67,17 +67,5 @@ class LoginAuth extends AdminAction
         return $this->view('pages/login.html', $data);
     }
 
-    private function log()
-    {
-        $user = $this->getLoginUser();
-        $loginHistoryModel = new LoginHistoryModel();
-        $loginDetails = LoginDetails::getLoginDetails();
-        $loginHistoryModel->setLoginDate($loginDetails['loginTime']);
-        $loginHistoryModel->setIp($loginDetails['ipAddress']);
-        $loginHistoryModel->setDevice($loginDetails['deviceLogin']);
-        $loginHistoryModel->setSession($loginDetails['sessionId']);
-        $loginHistoryModel->setUser($user);
 
-        $this->loginHistoryService->addLoginLog($loginHistoryModel);
-    }
 }
