@@ -3,6 +3,9 @@
 namespace App\controller\pdf;
 
 use App\controller\admin\AdminAction;
+use App\lib\BudgetReportDocx;
+use App\lib\Time;
+use NcJoes\OfficeConverter\OfficeConverter;
 use Slim\Psr7\Response;
 use TCPDF;
 use thiagoalessio\TesseractOCR\Tests\Common\TestCase;
@@ -12,29 +15,53 @@ class DownloadPdf extends AdminAction
 
     protected function action(): Response
     {
-        $content = $this->getFormData()['content'];
+//        $content = $this->getFormData()['content'];
+//
+//
+        $dir = __DIR__ . '/../../../template/';
+//
+//        $target = $dir . 'test.docx';
+//
+//
+        $data = $this->fundService->getYearlyExpenses(1,Time::getCurrentYear());
 
+        $data['TITLE'] = 'Test';
 
-        $dir =  __DIR__ . '/../../../public/resources/css/theme-default.css';
+        $reportContent =[
+            $data,
+        ];
 
-        $stylesheet = "<style>".file_get_contents($dir)." </style>";
+       $target =  BudgetReportDocx::generate($reportContent);
 
-        $pdf = new TCPDF();
+        $converter = new OfficeConverter($target, $dir,'soffice',false);
 
-        $pdf->AddPage();
+        try {
+            $converter->convertTo('output-file.pdf');
+        } catch (\Exception $e) {
+            $message = $e->getMessage();
+        }
 
-        $pdf->writeHTML($stylesheet . $content);
+        return $this->respondWithData($data);
 
-        $pdfOutput = $pdf->Output('', 'S');
-
-        $response = new Response();
-
-        $response = $response->withHeader('Content-Type', 'application/pdf');
-        $response = $response->withHeader('Content-Disposition', 'inline; filename="filename.pdf"');
-
-        $response->getBody()->write($pdfOutput);
-
-        return $response;
+//
+//        $stylesheet = "<style>".file_get_contents($dir)." </style>";
+//
+//        $pdf = new TCPDF();
+//
+//        $pdf->AddPage();
+//
+//        $pdf->writeHTML($stylesheet . $content);
+//
+//        $pdfOutput = $pdf->Output('', 'S');
+//
+//        $response = new Response();
+//
+//        $response = $response->withHeader('Content-Type', 'application/pdf');
+//        $response = $response->withHeader('Content-Disposition', 'inline; filename="filename.pdf"');
+//
+//        $response->getBody()->write($pdfOutput);
+//
+//        return $response;
 
     }
 }

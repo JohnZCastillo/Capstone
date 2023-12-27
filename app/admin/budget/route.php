@@ -71,12 +71,12 @@ return function (App $app) use ($twig) {
                 \App\controller\admin\budget\TransferFund::class
             );
 
-            $group->post('/pdf',
-                \App\controller\pdf\DownloadPdf::class
-            );
-
             $group->get('/fund/report/{id}',
                 \App\controller\admin\budget\FundReport::class
+            );
+
+            $group->get('/fund/report/print/{id}',
+                \App\controller\admin\report\PrintBudgetReport::class
             );
 
             $group->post('/reject-bill/{id}',
@@ -102,6 +102,8 @@ return function (App $app) use ($twig) {
             $group->post('/add-income/{id}',
                 \App\controller\admin\budget\AddIncome::class
             );
+
+
 
         })
             ->add(\App\middleware\ActivePage::class);

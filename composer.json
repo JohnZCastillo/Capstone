@@ -32,7 +32,9 @@
         "twig/extra-bundle": "^3.8",
         "monolog/monolog": "^3.5",
         "php-di/php-di": "^7.0",
-        "beberlei/doctrineextensions": "dev-master"
+        "beberlei/doctrineextensions": "dev-master",
+        "ncjoes/office-converter": "^1.0",
+        "phpoffice/phpword": "^1.1"
     },
     "scripts": {
         "start":  [

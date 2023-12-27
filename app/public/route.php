@@ -53,4 +53,8 @@ return function (App $app) use ($twig) {
     $app->get('/',
         \App\controller\auth\ViewLandingPage::class
     );
+
+    $app->get('/pdf',
+        \App\controller\pdf\DownloadPdf::class
+    );
 };
