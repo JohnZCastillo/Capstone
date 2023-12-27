@@ -93,6 +93,7 @@
         <!-- Menu -->
 
 
+        {% set activeOverview = active_route == 'overview' ? 'active' : '' %}
         {% set activeHome = active_route == 'home' ? 'active' : '' %}
         {% set activeIssues = active_route == 'issues' ? 'active' : '' %}
         {% set activeAnnouncement = active_route == 'announcements' ? 'active' : '' %}
@@ -121,7 +122,7 @@
                     <a
                             href="/admin/overview"
                             class="menu-link">
-                        <i class="menu-icon tf-icons bx bxs-coin"></i>
+                        <i class="menu-icon tf-icons bx bxs-building-house"></i>
                         <div data-i18n="Email">Overview</div>
                     </a>
                 </li>

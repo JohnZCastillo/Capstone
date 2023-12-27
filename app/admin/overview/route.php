@@ -11,7 +11,7 @@ return function (App $app) use ($twig) {
 
         $group->get('/overview',
             \App\controller\admin\overview\ViewOverview::class
-        )->setName('Overview');
+        )->setName('overview');
 
     })->add(\App\middleware\role\SuperAdminAuth::class)
         ->add(\App\middleware\Auth::class)
