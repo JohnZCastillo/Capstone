@@ -74,19 +74,19 @@
                         <div class="form-group">
                             <label for="block">Block:</label>
                             <select class="form-control" id="block" name="block">
-                                <option value="ALL">ALL</option>
-                                <option value="1">Block 1</option>
-                                <option value="1">Block 2</option>
+                                <option class="small" value="ALL">ALL</option>
+                                {% for block in blocks %}
+                                    <option class="small" value="{{block}}">{{block}}</option>
+                                {% endfor %}
+
                             </select>
                         </div>
 
                         <!-- Dropdown for Lot -->
                         <div class="form-group">
                             <label for="lot">Lot:</label>
-                            <select class="form-control" id="lot" name="lot">
+                            <select style="min-width: 58px"  class="form-control" id="lot" name="lot">
                                 <option value="ALL">ALL</option>
-                                <option value="1">Lot 1</option>
-                                <option value="2">Lot 2</option>
                             </select>
                         </div>
                     </div>

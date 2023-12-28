@@ -66,6 +66,7 @@ class Homepage extends AdminAction
             $data['transactions'] = $result->getItems();
             $data['settings'] = $settings;
             $data['paginator'] = $result;
+            $data['blocks'] = $this->areaService->getBlock();
 
         } catch (PaymentNotFound $paymentNotFound) {
             $this->addErrorMessage('Payment Settings is not set');

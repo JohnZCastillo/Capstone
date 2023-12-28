@@ -201,8 +201,6 @@ class PaymentReport extends AdminAction
         $block = $formData['block'] ?? null;
         $lot = $formData['lot'] ?? null;
 
-        $transactions = $this->transactionService->getUnpaid();
-
         $data = array();
 
         foreach ($transactions as $transaction) {

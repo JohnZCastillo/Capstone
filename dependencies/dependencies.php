@@ -27,7 +27,7 @@ return array(
 
         $userService = $c->get(UserService::class);
 
-        if(Login::isLogin()){
+        if (Login::isLogin()) {
             return $userService->findById(Login::getLogin());
         }
 
@@ -132,6 +132,10 @@ return array(
 
     AnnouncementHistoryService::class => function (ContainerInterface $c) {
         return new AnnouncementHistoryService($c->get(EntityManager::class));
+    },
+
+    \App\service\AreaService::class => function (ContainerInterface $c) {
+        return new \App\service\AreaService($c->get(EntityManager::class));
     },
 
 );

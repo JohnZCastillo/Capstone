@@ -205,6 +205,36 @@
         paymentSearchForm.submit();
     });
 
+    const blockInput = document.getElementById('block');
+    const lotInput = document.getElementById('lot');
+
+    blockInput.addEventListener('change', async (event) => {
+
+        lotInput.innerHTML = '';
+
+        let formData = new FormData();
+        formData.append('block', blockInput.value);
+
+        let result = await fetch('/lot', {
+            method: 'POST',
+            body: formData
+        });
+
+        let optionsHTML = "<option class='small' value='ALL'>ALL</option>"
+
+
+        if (result.ok) {
+
+            let data = await result.json();
+            data.data.forEach(lot => {
+                optionsHTML += `<option class="small"  value="${lot}">${lot}</option>`;
+            });
+        }
+
+        lotInput.innerHTML = optionsHTML;
+    })
+
+
 </script>
 
 {% endblock %}
