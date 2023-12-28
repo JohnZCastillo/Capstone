@@ -41,8 +41,8 @@
             "Composer\\Config::disableProcessTimeout",
             "@php -S localhost:8000 -t public"
         ],
-        "update-db": "php cli-config.php orm:schema-tool:update --force --complete",
-        "create-db": "php cli-config.php orm:schema-tool:create",
+        "update-db": "php console/cli-config.php orm:schema-tool:update --force --complete",
+        "create-db": "php console/cli-config.php orm:schema-tool:create",
         "test": "/vendor/bin/phpunit tests"
     },
     "require-dev": {
