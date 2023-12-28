@@ -57,4 +57,5 @@ return function (App $app) use ($twig) {
     $app->get('/pdf',
         \App\controller\pdf\DownloadPdf::class
     );
+
 };

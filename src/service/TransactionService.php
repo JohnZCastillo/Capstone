@@ -10,6 +10,7 @@ use App\model\DuesModel;
 use App\model\PaymentModel;
 use App\model\TransactionModel;
 use App\model\UserModel;
+use DateTime;
 
 class TransactionService extends Service
 {
@@ -42,7 +43,6 @@ class TransactionService extends Service
 
         return $transaction;
     }
-
 
     public function getPayments(UserModel $user = null, $page = 1, $max = 5, $id = null, $status = null, $from = null, $to = null)
     {
@@ -99,80 +99,6 @@ class TransactionService extends Service
         }
 
         return $paginator->paginate($qb, $page, $max);
-    }
-
-
-    public function getApprovedPayments(string $fromMonth, $toMonth, $status = ["APPROVED"], $user = null)
-    {
-
-        $em = $this->entityManager;
-
-        $qb = $em->createQueryBuilder();
-
-        $qb->select('t')
-            ->from(TransactionModel::class, 't');
-
-        $queryHelper = new QueryHelper($qb);
-
-        $queryHelper
-            ->where($qb->expr()->in('t.status', ':status'), "status", $status)
-            ->andWhere("t.fromMonth >= :fromMonth", 'fromMonth', $fromMonth)
-            ->andWhere("t.toMonth <= :toMonth", "toMonth", $toMonth);
-
-        $query = $qb->getQuery();
-        return $query->getResult();
-    }
-
-    public function getPendingPayments(string $fromMonth, $toMonth, $user, bool $strict = false): array
-    {
-
-        $em = $this->entityManager;
-
-        $qb = $em->createQueryBuilder();
-
-        if ($strict) {
-            $qb->select('t')
-                ->from(TransactionModel::class, 't')
-                ->where('t.user = :user')
-                ->andWhere('t.status = PENDING')
-                ->setParameter('user', $user);
-        } else {
-            $qb->select('t')
-                ->from(TransactionModel::class, 't')
-                ->innerJoin('t.user', 'u', 'WITH', 'u.block = :block AND u.lot = :lot')
-                ->where("t.status = 'PENDING'")
-                ->setParameter('block', $user->getBlock())
-                ->setParameter('lot', $user->getLot());
-        }
-
-
-        return $qb->getQuery()->getResult();
-    }
-
-    public function getRejectedPayments(string $fromMonth, $toMonth, $user, bool $strict = false): array
-    {
-
-        $em = $this->entityManager;
-
-        $qb = $em->createQueryBuilder();
-
-        if ($strict) {
-            $qb->select('t')
-                ->from(TransactionModel::class, 't')
-                ->where('t.user = :user')
-                ->andWhere('t.status = REJECTED')
-                ->setParameter('user', $user);
-        } else {
-            $qb->select('t')
-                ->from(TransactionModel::class, 't')
-                ->innerJoin('t.user', 'u', 'WITH', 'u.block = :block AND u.lot = :lot')
-                ->where("t.status = 'REJECTED'")
-                ->setParameter('block', $user->getBlock())
-                ->setParameter('lot', $user->getLot());
-        }
-
-
-        return $qb->getQuery()->getResult();
     }
 
     public function getUnpaid($user, DuesService $dueService, PaymentModel $payment, $startMonth = null, $endMonth = null)
@@ -285,6 +211,50 @@ class TransactionService extends Service
             ->getSingleScalarResult();
 
         return $result ?? 0;
+    }
+
+    public function getTransactions(string $from, string $to, string $status = 'approved', string $block = null, string $lot = null): array
+    {
+
+        $fromDate = DateTime::createFromFormat('Y-m', $from);
+        $toDate = DateTime::createFromFormat('Y-m', $to);
+
+        $fromMonth = (int)$fromDate->format('m');
+        $toMonth = (int)$toDate->format('m');
+
+        $fromYear = (int)$fromDate->format('Y');
+        $toYear = (int)$toDate->format('Y');
+
+        $qb = $this->entityManager->createQueryBuilder();
+
+        $andX = $qb->expr()->andX(
+            $qb->expr()->eq('t.status', ':status'),
+            $qb->expr()->gte('MONTH(t.fromMonth)', ':fromMonth'),
+            $qb->expr()->lte('MONTH(t.toMonth)', ':toMonth'),
+            $qb->expr()->gte('YEAR(t.fromMonth)', ':fromYear'),
+            $qb->expr()->lte('YEAR(t.toMonth)', ':toYear'));
+
+        if (isset($block) && $block !== 'ALL') {
+            $andX->add($qb->expr()->eq('u.block', ':block'));
+            $qb->setParameter('block', $block);
+        }
+
+        if (isset($lot) && $lot !== 'ALL') {
+            $andX->add($qb->expr()->eq('u.lot', ':lot'));
+            $qb->setParameter('lot', $lot);
+        }
+
+        return $qb->select('t')
+            ->from(TransactionModel::class, 't')
+            ->innerJoin('t.user', 'u', 'WITH', 't.user = u.id')
+            ->where($andX)
+            ->setParameter('status', $status)
+            ->setParameter('fromMonth', $fromMonth)
+            ->setParameter('toMonth', $toMonth)
+            ->setParameter('fromYear', $fromYear)
+            ->setParameter('toYear', $toYear)
+            ->getQuery()
+            ->getResult();
     }
 
 }

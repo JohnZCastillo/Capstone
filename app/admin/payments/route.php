@@ -16,6 +16,10 @@ return function (App $app) use ($twig) {
             \App\controller\admin\payments\AddDue::class
         );
 
+        $group->post('/report',
+            \App\controller\admin\report\PaymentReport::class
+        );
+
         $group->post('/payments/year-dues',
             \App\controller\admin\payments\YearlyDue::class
         );
@@ -42,10 +46,6 @@ return function (App $app) use ($twig) {
 
         $group->get('/unit-overview/{transaction}/{id}',
             \App\controller\admin\payments\UnitOverview::class
-        )->setName('home');
-
-        $group->post('/report',
-            \App\controller\admin\report\PaidPaymentReport::class
         )->setName('home');
 
     })->add(\App\middleware\access\AdminPayments::class)
