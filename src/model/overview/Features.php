@@ -42,10 +42,9 @@ class Features{
         return $this->id;
     }
 
-    public function setId(?int $id): Overview
+    public function setId(?int $id)
     {
         $this->id = $id;
-        return $this;
     }
 
     public function getName(): string
@@ -53,10 +52,9 @@ class Features{
         return $this->name;
     }
 
-    public function setName(string $name): Overview
+    public function setName(string $name)
     {
         $this->name = $name;
-        return $this;
     }
 
     public function getDescription(): string
@@ -64,10 +62,9 @@ class Features{
         return $this->description;
     }
 
-    public function setDescription(string $description): Overview
+    public function setDescription(string $description)
     {
         $this->description = $description;
-        return $this;
     }
 
     public function getImg(): string
@@ -75,9 +72,8 @@ class Features{
         return $this->img;
     }
 
-    public function setImg(string $img): Overview
+    public function setImg(string $img)
     {
         $this->img = $img;
-        return $this;
     }
 }

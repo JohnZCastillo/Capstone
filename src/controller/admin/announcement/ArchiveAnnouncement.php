@@ -5,11 +5,9 @@ namespace App\controller\admin\announcement;
 use App\controller\admin\AdminAction;
 use App\exception\announcement\AnnouncementNotFound;
 use App\exception\InvalidInput;
-use App\model\AnnouncementModel;
 use App\model\enum\AnnouncementStatus;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
-use Respect\Validation\Validator as v;
 
 class ArchiveAnnouncement extends AdminAction
 {

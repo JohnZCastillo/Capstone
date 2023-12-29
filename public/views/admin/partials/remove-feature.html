@@ -8,7 +8,7 @@
 >
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <form id="staffForm">
+            <form id="staffForm" method="POST" action="/admin/remove-feature">
 
                 <div class="modal-header">
                     <h5 class="modal-title" id="imageModalLabel">Remove Feature</h5>
@@ -17,11 +17,17 @@
                 <div class="modal-body">
                     <div>
                         <label for="staffName">Name</label>
-                        <input class="form-control" name="name" id="staffName">
+
+                        <select name="id" class="form-control">
+                            {% for feature in features %}
+                            <option value="{{feature.id}}">{{feature.name}}</option>
+                            {% endfor %}
+                        </select>
+
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="mt-2 btn btn-primary">Add</button>
+                    <button type="submit" class="mt-2 btn btn-primary">Remove</button>
                     <button type="button" class="mt-2 btn btn-primary" data-bs-dismiss="modal" aria-label="Close" >Cancel</button>
                 </div>
             </form>

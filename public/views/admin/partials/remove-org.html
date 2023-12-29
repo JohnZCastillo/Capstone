@@ -16,7 +16,12 @@
                 <div class="modal-body">
                     <div>
                         <label for="removeStaffName">Name</label>
-                        <input class="form-control" id="removeStaffName" name="name" type="text">
+
+                        <select class="form-control" name="staff">
+                            {% for staff in staffs %}
+                            <option  value="{{staff.name}}">{{staff.name}}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">

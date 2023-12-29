@@ -3,11 +3,8 @@
 namespace App\controller\admin\announcement;
 
 use App\controller\admin\AdminAction;
-use App\exception\announcement\AnnouncementNotFound;
-use App\lib\Filter;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
-use Slim\Views\Twig;
 
 class Announcements extends AdminAction
 {

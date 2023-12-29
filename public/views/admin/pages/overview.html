@@ -57,25 +57,23 @@
 
                 <form enctype="multipart/form-data" method="POST" action="/admin/overview">
 
-                    <div class="row mb-2">
-                        <div class="col-sm col-md-6">
-                            <label for="about">Hero Image</label>
-                            <input name="heroImage" type="file" class="form-control">
-                        </div>
-                        <div class="col-sm col-md-6">
-                            <label for="about">Hero Details</label>
-                            <textarea class="form-control" name="heroDescription" id="about">{{overview.heroDescription}}</textarea>
-                        </div>
+                    <div class="mb-2">
+                        <label for="about">Hero Image</label>
+                        <input name="heroImage" type="file" class="form-control">
                     </div>
-                    <div class="row mb-2">
-                        <div class="col-sm col-md-6">
-                            <label for="about">About Image</label>
-                            <input name="aboutImage" type="file" class="form-control">
-                        </div>
-                        <div class="col-sm col-md-6">
-                            <label for="about">About Details</label>
-                            <textarea class="form-control" name="aboutDescription" id="about">{{overview.aboutDescription}}</textarea>
-                        </div>
+                    <div class="mb-2">
+                        <label for="about">Hero Details</label>
+                        <textarea rows="10" cols="50" class="form-control" name="heroDescription"
+                                  id="about">{{overview.heroDescription}}</textarea>
+                    </div>
+                    <div class="mb-2">
+                        <label for="about">About Image</label>
+                        <input name="aboutImage" type="file" class="form-control">
+                    </div>
+                    <div class="mb-2">
+                        <label for="about">About Details</label>
+                        <textarea rows="10" cols="50" class="form-control" name="aboutDescription"
+                                  id="about">{{overview.aboutDescription}}</textarea>
                     </div>
 
                     <div class="mb-3">
@@ -83,7 +81,7 @@
                     </div>
                 </form>
 
-                <div>
+                <div id="staffSection">
                     <h4 class="fw-bold">Org Details</h4>
                     <button class="btn rounded-pill btn-icon btn-success"
                             data-bs-target="#orgModal"
@@ -119,8 +117,22 @@
                         </button>
                     </div>
 
-                    <div class="row">
+                    <div class="row p-4" id="featureSection">
 
+                        {% for feature in features %}
+                        <div class="col-sm col-md-6 col-lg-4">
+                            <div class="card h-100">
+                                <img style="min-height: 300px" class="card-img-top" src="{{feature.img}}" alt="Card image cap">
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold">{{feature.name}}</h5>
+                                    <p class="card-text">
+                                      {{feature.description}}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% endfor %}
                     </div>
                 </div>
 
@@ -129,7 +141,6 @@
         </div>
 
     </div>
-
 </div>
 
 {% include './admin/partials/add-org.html' %}
@@ -167,17 +178,18 @@
 
     google.charts.setOnLoadCallback(drawChart);
 
-    let data = {{org|json_encode|raw}};
+    // will error if in new line
+    let data = {{org | json_encode | raw}};
 
     let staff = [];
 
-    data.forEach(element =>{
+    data.forEach(element => {
 
-           staff.push(createStaff(element.name,
-               element.position,
-               element.img,
-               element.superior,
-           ));
+        staff.push(createStaff(element.name,
+            element.position,
+            element.img,
+            element.superior,
+        ));
     })
 
     console.log(staff)
@@ -209,49 +221,6 @@
             'nodeClass': 'box',
         });
     }
-
-</script>
-
-<script>
-
-
-
-
-
-    const staffForm = document.getElementById('staffForm');
-    const staffName = document.getElementById('staffName');
-    const staffPosition = document.getElementById('staffPosition');
-    const staffSuperior = document.getElementById('staffSuperior');
-
-    const removeStaffForm = document.getElementById('removeStaffForm');
-    const removeStaffName = document.getElementById('removeStaffName');
-
-    // staffForm.addEventListener('submit', (event) => {
-    //
-    //     event.preventDefault();
-    //
-    //     staff.push(createStaff(staffName.value, 'Programmer', '/resources/user.jpg', staffSuperior.value))
-    //
-    //     drawChart();
-    //
-    //     staffForm.reset();
-    //     console.log(staff);
-    //
-    // })
-
-    // removeStaffForm.addEventListener('submit', (event) => {
-    //
-    //     event.preventDefault();
-    //
-    //     let newStaff = removeStaff(removeStaffName.value);
-    //     console.log(newStaff);
-    //
-    //     staff = newStaff;
-    //
-    //     drawChart();
-    //     removeStaffForm.reset();
-    //
-    // })
 
 </script>
 {% endblock %}

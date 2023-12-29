@@ -23,6 +23,7 @@ use App\service\IncomeService;
 use App\service\IssuesService;
 use App\service\LoginHistoryService;
 use App\service\LogsService;
+use App\service\OverviewService;
 use App\service\PaymentService;
 use App\service\PriviligesService;
 use App\service\ReceiptService;
@@ -73,6 +74,8 @@ abstract class AdminAction extends Action
 
     protected  AreaService $areaService;
 
+    protected OverviewService $overviewService;
+
     /**
      * @param UserService $userService
      * @param PaymentService $paymentService
@@ -96,8 +99,9 @@ abstract class AdminAction extends Action
      * @param CodeModelService $codeModelService
      * @param UserLogsService $userLogsService
      * @param AreaService $areaService
+     * @param OverviewService $overviewService
      */
-    public function __construct(UserService $userService, PaymentService $paymentService, TransactionService $transactionService, DuesService $duesService, ReceiptService $receiptService, Messages $flashMessage, LogsService $logsService, TransactionLogsService $transactionLogsService, IssuesService $issuesService, AnnouncementService $announcementService, AnnouncementHistoryService $announcementHistoryService, SystemSettingService $systemSettingService, LoginHistoryService $loginHistoryService, PriviligesService $privilegesService, BillService $billService, FundService $fundService, FundSourceService $fundSourceService, ExpenseService $expenseService, IncomeService $incomeService, CodeModelService $codeModelService, UserLogsService $userLogsService, AreaService $areaService)
+    public function __construct(UserService $userService, PaymentService $paymentService, TransactionService $transactionService, DuesService $duesService, ReceiptService $receiptService, Messages $flashMessage, LogsService $logsService, TransactionLogsService $transactionLogsService, IssuesService $issuesService, AnnouncementService $announcementService, AnnouncementHistoryService $announcementHistoryService, SystemSettingService $systemSettingService, LoginHistoryService $loginHistoryService, PriviligesService $privilegesService, BillService $billService, FundService $fundService, FundSourceService $fundSourceService, ExpenseService $expenseService, IncomeService $incomeService, CodeModelService $codeModelService, UserLogsService $userLogsService, AreaService $areaService, OverviewService $overviewService)
     {
         $this->userService = $userService;
         $this->paymentService = $paymentService;
@@ -121,7 +125,9 @@ abstract class AdminAction extends Action
         $this->codeModelService = $codeModelService;
         $this->userLogsService = $userLogsService;
         $this->areaService = $areaService;
+        $this->overviewService = $overviewService;
     }
+
 
     protected function addErrorMessage($message)
     {
