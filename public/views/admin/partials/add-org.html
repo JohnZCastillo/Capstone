@@ -17,20 +17,20 @@
                 <div class="modal-body">
                     <div>
                         <label for="staffName">Name</label>
-                        <input class="form-control" name="name" id="staffName">
+                        <input class="form-control" name="name" id="staffName" required>
                     </div>
                     <div>
                         <label for="image">Image</label>
-                        <input type="file" class="form-control" name="image" id="image">
+                        <input type="file" class="form-control" accept="image/*" name="image" id="image" required>
                     </div>
                     <div>
                         <label for="staffPosition">Position</label>
-                        <input class="form-control" name="position" id="staffPosition">
+                        <input class="form-control" name="position" id="staffPosition" required>
                     </div>
                     <div>
                         <label for="staffSuperior">Superior</label>
-                        <select name="superior" id="staffSuperior" class="form-control">
-                            <option value="-1">None</option>
+                        <select required name="superior" id="staffSuperior" class="form-control">
+                            <option value="0">None</option>
                             {% for staff in staffs %}
                             <option value="{{staff.id}}">{{staff.name}}</option>
                             {% endfor %}

@@ -18,6 +18,8 @@ return function (App $app) use($twig){
     $settingsRoute = require __DIR__ . '/admin/settings/route.php';
     $usersRoute = require __DIR__ . '/admin/users/route.php';
 
+    $userPayments = require __DIR__ . '/user/payments/route.php';
+
     $publicRoute($app);
 
     $accountRoute($app);
@@ -29,5 +31,8 @@ return function (App $app) use($twig){
     $paymentRoute($app);
     $settingsRoute($app);
     $usersRoute($app);
+
+    //user routes
+    $userPayments($app);
 
 };
