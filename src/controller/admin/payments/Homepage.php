@@ -47,7 +47,6 @@ class Homepage extends AdminAction
             $settings = $this->paymentService->findById(1);
 
             $result = $this->transactionService->getPayments(
-                null,
                 $page,
                 $max,
                 $id,

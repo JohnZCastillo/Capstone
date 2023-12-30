@@ -6,28 +6,34 @@
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="row">
         <div class="mb-2 col-sm col-md-3">
-            <div class="card">
+            <div class="card h-100">
                 <div class="card-body">
                     <span class="d-block mb-1 text-warning">Current Due</span>
-                    <h3 class="card-title text-nowrap mb-2">{{currentDue}}</h3>
+                    <h3 class="card-title text-nowrap mb-2">{{currentDue|format_currency('PHP')}}</h3>
                 </div>
             </div>
         </div>
         <div class="mb-2 col-sm col-md-3">
             <a href="/dues">
-                <div class="card">
+
+                {% set pulse = unpaid > 0 ? 'pulse' : '' %}
+
+                <div class="card {{pulse}}">
                     <div class="card-body">
-                        <span class="fw-medium d-block mb-1 text-danger">Unpaid Bill</span>
-                        <h3 class="card-title mb-2">{{unpaid}}</h3>
+                        <span class="fw-medium d-block mb-1 text-danger">Unpaid Bill
+                        <br>
+                            <span class=" text-secondary small">Click to View</span>
+                        </span>
+                        <h3 class="card-title mb-2">{{unpaid|format_currency('PHP')}}</h3>
                     </div>
                 </div>
             </a>
         </div>
         <div class="mb-2 col-sm-12 col-md-3">
-            <div class="card">
+            <div class="card h-100">
                 <div class="card-body">
                     <span class="d-block mb-1">Next Due</span>
-                    <h3 class="card-title text-nowrap mb-2">{{nextDue}}</h3>
+                    <h3 class="card-title text-nowrap mb-2">{{nextDue|format_currency('PHP')}}</h3>
                 </div>
             </div>
         </div>
@@ -313,13 +319,13 @@
         });
 
         if (!result.ok) {
-            console.log("an error occured");
+            console.log("an error occurred");
             return;
         }
 
         const data = await result.json();
 
-        amount.value = data.amount;
+        amount.value = data.data.amount;
 
     };
 

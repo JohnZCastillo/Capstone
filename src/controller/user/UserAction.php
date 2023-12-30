@@ -10,8 +10,13 @@ use App\lib\LoginDetails;
 use App\model\LoginHistoryModel;
 use App\model\LogsModel;
 use App\model\UserModel;
+use App\service\AnnouncementService;
+use App\service\DuesService;
+use App\service\IssuesService;
 use App\service\LoginHistoryService;
 use App\service\LogsService;
+use App\service\PaymentService;
+use App\service\ReceiptService;
 use App\service\TransactionService;
 use App\service\UserService;
 use DateTime;
@@ -23,10 +28,19 @@ abstract class UserAction extends Action
     protected UserService $userService;
     protected Messages $flashMessage;
     protected  LogsService $logsService;
-
     protected  LoginHistoryService $loginHistoryService;
 
     protected  TransactionService $transactionService;
+
+    protected DuesService $duesService;
+
+    protected  PaymentService $paymentService;
+
+    protected ReceiptService $receiptService;
+
+    protected IssuesService $issuesService;
+
+    protected  AnnouncementService $announcementService;
 
     /**
      * @param UserService $userService
@@ -34,14 +48,24 @@ abstract class UserAction extends Action
      * @param LogsService $logsService
      * @param LoginHistoryService $loginHistoryService
      * @param TransactionService $transactionService
+     * @param DuesService $duesService
+     * @param PaymentService $paymentService
+     * @param ReceiptService $receiptService
+     * @param IssuesService $issuesService
+     * @param AnnouncementService $announcementService
      */
-    public function __construct(UserService $userService, Messages $flashMessage, LogsService $logsService, LoginHistoryService $loginHistoryService, TransactionService $transactionService)
+    public function __construct(UserService $userService, Messages $flashMessage, LogsService $logsService, LoginHistoryService $loginHistoryService, TransactionService $transactionService, DuesService $duesService, PaymentService $paymentService, ReceiptService $receiptService, IssuesService $issuesService, AnnouncementService $announcementService)
     {
         $this->userService = $userService;
         $this->flashMessage = $flashMessage;
         $this->logsService = $logsService;
         $this->loginHistoryService = $loginHistoryService;
         $this->transactionService = $transactionService;
+        $this->duesService = $duesService;
+        $this->paymentService = $paymentService;
+        $this->receiptService = $receiptService;
+        $this->issuesService = $issuesService;
+        $this->announcementService = $announcementService;
     }
 
     protected function addErrorMessage($message)

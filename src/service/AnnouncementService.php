@@ -3,7 +3,6 @@
 namespace App\service;
 
 use App\exception\announcement\AnnouncementNotFound;
-use App\lib\Helper;
 use App\lib\Paginator;
 use App\model\AnnouncementModel;
 
@@ -31,11 +30,26 @@ class AnnouncementService extends Service
     {
         $dues = $this->entityManager->find(AnnouncementModel::class, $id);
 
-        if(!isset($dues)){
+        if (!isset($dues)) {
             throw new AnnouncementNotFound("Announcement with id of $id not found");
         }
 
         return $dues;
+    }
+
+    public function findAll(): array
+    {
+
+        $qb = $this->entityManager->createQueryBuilder();
+
+        return $qb->select('t')
+            ->from(AnnouncementModel::class, 't')
+            ->where('t.status = :status')
+            ->setParameter('status', 'posted')
+            ->addOrderBy('t.pinDate', 'DESC')
+            ->addOrderBy('t.createdAt', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 
 
@@ -49,8 +63,8 @@ class AnnouncementService extends Service
         $qb->select('t')
             ->from(AnnouncementModel::class, 't')
             ->where($or)
-            ->addOrderBy('t.pinDate','DESC')
-            ->addOrderBy('t.createdAt','ASC');
+            ->addOrderBy('t.pinDate', 'DESC')
+            ->addOrderBy('t.createdAt', 'ASC');
 
         $or->add($qb->expr()->eq('t.status', ':status'));
         $qb->setParameter('status', $status);

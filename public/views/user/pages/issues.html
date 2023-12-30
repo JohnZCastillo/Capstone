@@ -46,12 +46,13 @@
                                {{viewIssue}}/>
                         <label class="btn btn-outline-primary" for="POSTED">Posted</label>
 
-                        <input type="radio" class="btn-check" name="btnView" id="ARCHIVE" {{viewArchive}}/>
-                        <label class="btn btn-outline-primary" for="ARCHIVE">Archived</label>
+                        <input type="radio" class="btn-check" name="btnView" id="ARCHIVED" {{viewArchive}}/>
+                        <label class="btn btn-outline-primary" for="ARCHIVED">Archived</label>
 
                     </div>
                 </div>
-                <form  action="/issues" id="viewForm" method="GET">
+
+                <form action="/issues" id="viewForm" >
                     <input class="d-none" id="viewTypeInput" name="type" type="text" value="POSTED">
                     <input class="d-none" id="viewStatusInput" name="status" type="text" value="ALL">
                 </form>
@@ -92,15 +93,23 @@
                     <td>{{issue.getCreatedAt()| date('M d, Y')}}</td>
                     <td><span class="badge {{statusLabel}} me-1">{{status}}</span></td>
                     <td>
-                        <div class="d-flex flex-wrap" style="gap: 10px; max-width: max-content" >
+                        <div class="d-flex flex-wrap" style="gap: 10px; max-width: max-content">
                             {% if issue.type == 'posted' %}
-                            <a class="btn btn-secondary" href="/issue/archive/{{issue.id}}" style="flex: 1 1 0px;">
-                                Archive
-                            </a>
+
+                            <form method="POST" action="/issue/archive/{{issue.id}}">
+                                <button type="submit" class="btn btn-secondary">
+                                    Archive
+                                </button>
+                            </form>
+
                             {% else %}
-                            <a class="btn btn-secondary" href="/issue/unarchive/{{issue.id}}" style="flex: 1 1 0px;">
-                                Unarchive
-                            </a>
+
+                            <form method="POST" action="/issue/unarchive/{{issue.id}}">
+                                <button type="submit" class="btn btn-secondary">
+                                    Unarchive
+                                </button>
+                            </form>
+
                             {% endif %}
                             <a class="btn btn-primary" style="flex: 1 1 0px" href="/issues/{{issue.id}}">View</a>
                         </div>
@@ -109,9 +118,9 @@
                 {% endfor %}
 
                 {% if issues is empty %}
-                        <tr style="height: 200px">
-                            <td colspan="5">Empty Result</td>
-                        </tr>
+                <tr style="height: 200px">
+                    <td colspan="5">Empty Result</td>
+                </tr>
                 {% endif %}
                 </tbody>
             </table>
@@ -119,7 +128,6 @@
     </div>
 
 </div>
-
 
 
 {% endblock %}
@@ -150,17 +158,6 @@
         })
     });
 
-    // paymentSearchFormId.addEventListener('keypress', (event) => {
-    //     if (event.key === "Enter") {
-    //         paymentSearchForm.submit();
-    //     }
-    // })
-    //
-    // paymentSearchFormId.addEventListener('keyup', (event) => {
-    //     if (!paymentSearchFormId.value.length) {
-    //         paymentSearchForm.submit();
-    //     }
-    // })
 
 </script>
 {% endblock %}

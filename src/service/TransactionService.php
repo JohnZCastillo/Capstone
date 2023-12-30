@@ -44,7 +44,7 @@ class TransactionService extends Service
         return $transaction;
     }
 
-    public function getPayments(UserModel $user = null, $page = 1, $max = 5, $id = null, $status = null, $from = null, $to = null)
+    public function getPayments($page = 1, $max = 5, $id = null, $status = null, $from = null, $to = null)
     {
 
         $qb = $this->entityManager->createQueryBuilder();
@@ -64,6 +64,59 @@ class TransactionService extends Service
                 ->setParameter('lot', $user->getLot());
             $hasQuery = true;
         }
+
+        if (isset($id)) {
+            $or->add($qb->expr()->eq('t.id', ':id'));
+            $qb->setParameter('id', $id);
+            $hasQuery = true;
+        }
+
+        if (isset($from)) {
+            $or->add($qb->expr()->gte('t.fromMonth', ':from'));
+            $qb->setParameter('from', (new \DateTime($from))->format('Y-m-d'));
+            $hasQuery = true;
+
+        }
+
+        if (isset($to)) {
+            $or->add($qb->expr()->lte('t.toMonth', ':to'));
+
+            $endOfMonth = (new \DateTime($to))->modify('last day of this month')->format('Y-m-d');
+
+            $qb->setParameter('to', $endOfMonth);
+            $hasQuery = true;
+        }
+
+        if (isset($status)) {
+            $or->add($qb->expr()->eq('t.status', ':status'));
+            $qb->setParameter('status', $status);
+            $hasQuery = true;
+
+        }
+
+        if ($hasQuery) {
+            $qb->where($or);
+        }
+
+        return $paginator->paginate($qb, $page, $max);
+    }
+
+    public function getUserPayments(UserModel $user, $page = 1, $max = 5, $id = null, $status = null, $from = null, $to = null)
+    {
+
+        $qb = $this->entityManager->createQueryBuilder();
+
+        $qb->select('t')
+            ->from(TransactionModel::class, 't')
+            ->innerJoin('t.user', 'u', 'WITH', 'u.block = :block AND u.lot = :lot')
+            ->setParameter('block', $user->getBlock())
+            ->setParameter('lot', $user->getLot());
+
+        $or = $qb->expr()->andX();
+
+        $paginator = new Paginator();
+
+        $hasQuery = false;
 
         if (isset($id)) {
             $or->add($qb->expr()->eq('t.id', ':id'));
@@ -135,6 +188,8 @@ class TransactionService extends Service
             'total' => $total
         ];
     }
+
+
 
     /**
      * Return the current  balance of user for the certain month.

@@ -44,6 +44,7 @@
                             <th>Id</th>
                             <th>From Due</th>
                             <th>To Due</th>
+                            <th>Amount Due</th>
                             <th>Amount Paid</th>
                         </tr>
                         </thead>
@@ -52,6 +53,7 @@
                             <td>{{transaction.id}}</td>
                             <td class="text-nowrap">{{ transaction.getFromMonth()|date("M Y") }}</td>
                             <td class="text-nowrap">{{ transaction.getToMonth()|date("M Y") }}</td>
+                            <td>{{amountDue}}</td>
                             <td>{{transaction.getAmount}}</td>
                         </tr>
                         </tbody>
