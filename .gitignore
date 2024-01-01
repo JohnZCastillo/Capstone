@@ -6,5 +6,5 @@ phpDocumentor.phar
 todo.txt
 .env
 .idea/
-!resources/assets/vendor/
+!/public/resources/assets/vendor/
 .phpunit.result.cache
