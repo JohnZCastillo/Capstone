@@ -9,10 +9,6 @@ return function (App $app) use ($twig) {
 
     $app->group('', function (Group $group) {
 
-        $group->post('/payable-amount',
-            \App\controller\api\payments\DueAmount::class
-        );
-
         $group->get('/home',
             \App\controller\user\payments\ViewHomepage::class
         )->setName('home');
@@ -56,7 +52,6 @@ return function (App $app) use ($twig) {
         $group->get('/account',
             \App\controller\user\account\Account::class
         );
-
 
     })->add(\App\middleware\ActivePage::class)
         ->add(\App\middleware\role\UserAuth::class)

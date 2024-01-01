@@ -6,8 +6,6 @@ use App\exception\code\InvalidCode;
 use App\lib\Randomizer;
 use App\model\CodeModel;
 use DateTime;
-use Doctrine\ORM\NonUniqueResultException;
-use Respect\Validation\Rules\Date;
 
 class CodeModelService extends Service
 {

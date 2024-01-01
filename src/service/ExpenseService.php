@@ -5,10 +5,6 @@ namespace App\service;
 use App\exception\fund\ExpenseNotFound;
 use App\model\budget\ExpenseModel;
 use App\model\enum\BudgetStatus;
-use Doctrine\ORM\Exception\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\TransactionRequiredException;
-use function Symfony\Component\DependencyInjection\Loader\Configurator\expr;
 
 class ExpenseService extends Service
 {

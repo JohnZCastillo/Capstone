@@ -2,7 +2,6 @@
 
 namespace App\service;
 
-use App\model\budget\FundModel;
 use App\model\budget\IncomeModel;
 
 class IncomeService extends Service

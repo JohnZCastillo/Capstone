@@ -309,7 +309,9 @@
     toDate.addEventListener("change", (event) => getAmount());
 
     const getAmount = async () => {
+
         const formData = new FormData();
+
         formData.append("fromMonth", fromDate.value);
         formData.append("toMonth", toDate.value);
 

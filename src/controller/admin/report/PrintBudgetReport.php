@@ -3,9 +3,9 @@
 namespace App\controller\admin\report;
 
 use App\controller\admin\AdminAction;
-use App\lib\BudgetReportDocx;
+use App\lib\DocxMaker;
+use App\lib\PdfResponse;
 use App\lib\Time;
-use NcJoes\OfficeConverter\OfficeConverter;
 use Psr\Http\Message\ResponseInterface as Response;
 
 class PrintBudgetReport extends AdminAction
@@ -39,28 +39,14 @@ class PrintBudgetReport extends AdminAction
         $summary['INCOME'] = $fund->computeExpenses();
         $summary['EXPENSE'] = $fund->computeIncomes();
 
-        $dir = __DIR__ . '/../../../../template/';
+        $docxMaker = new DocxMaker('budget_template.docx');
 
-        $data = $this->fundService->getYearlyExpenses($fundId, Time::getCurrentYear());
+        $docxMaker->addBody($reportContent, 'TITLE');
+        $docxMaker->addHeader($summary);
+        $output = $docxMaker->output();
 
-        $target = BudgetReportDocx::generate($reportContent,$summary);
+        $pdfResponse = new PdfResponse($output, 'test.pdf');
 
-        $converter = new OfficeConverter($target, $dir, 'soffice', false);
-
-        $outputFile = 'output-file.pdf';
-
-        $converter->convertTo($outputFile);
-
-        $response = new \Slim\Psr7\Response();
-
-        $response = $response->withHeader('Content-Type', 'application/pdf');
-        $response = $response->withHeader('Content-Disposition', 'attachment; filename="report.pdf"');
-
-        $fileStream = fopen($dir . $outputFile, 'r');
-        $response->getBody()->write(fread($fileStream, filesize($dir . $outputFile)));
-        fclose($fileStream);
-
-        return $response;
-
+        return $pdfResponse->getResponse();
     }
 }

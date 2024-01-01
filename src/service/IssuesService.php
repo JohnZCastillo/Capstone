@@ -4,13 +4,11 @@ namespace App\service;
 
 use App\exception\issue\IssueNotFoundException;
 use App\lib\Paginator;
-use App\lib\QueryHelper;
 use App\lib\Time;
 use App\model\IssuesModel;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\TransactionRequiredException;
-
 
 class IssuesService extends Service {
 

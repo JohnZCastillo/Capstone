@@ -2,7 +2,6 @@
 
 namespace App\service;
 
-use App\lib\Paginator;
 use App\model\UserLogsModel;
 
 class UserLogsService extends Service

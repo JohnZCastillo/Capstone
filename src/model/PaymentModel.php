@@ -113,7 +113,7 @@ class PaymentModel {
      */ 
     public function getStart()
     {
-        return Time::convert($this->start);
+        return $this->start;
     }
 
     /**
@@ -128,7 +128,4 @@ class PaymentModel {
         return $this;
     }
 
-    public function getConvertedStart(){
-        return Time::convertToMonth($this->start);
-    }
 }

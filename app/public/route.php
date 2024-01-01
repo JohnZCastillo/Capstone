@@ -55,14 +55,9 @@ return function (App $app) use ($twig) {
         \App\controller\auth\ViewLandingPage::class
     );
 
-    $app->get('/pdf',
-        \App\controller\pdf\DownloadPdf::class
-    );
-
     $app->post('/lot',
         \App\controller\api\area\FindLot::class
     );
-
 
     $app->group('', function (Group $group) {
 
@@ -78,7 +73,9 @@ return function (App $app) use ($twig) {
             \App\controller\api\users\ForceLogout::class
         );
 
-
+        $group->post('/payable-amount',
+            \App\controller\api\payments\DueAmount::class
+        );
 
     })->add(\App\middleware\Auth::class)
         ->add(\App\middleware\ActivePage::class);

@@ -3,13 +3,8 @@
 namespace App\service;
 
 use App\lib\Paginator;
-use App\lib\QueryHelper;
-use App\model\LoginHistoryModel;
 use App\model\LogsModel;
-use App\model\TransactionModel;
-use App\model\UserModel;
 use DateTime;
-use thiagoalessio\TesseractOCR\Tests\Common\TestCase;
 
 class LogsService extends Service
 {

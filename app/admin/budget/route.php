@@ -103,13 +103,10 @@ return function (App $app) use ($twig) {
                 \App\controller\admin\budget\AddIncome::class
             );
 
-
-
         })
             ->add(\App\middleware\ActivePage::class);
 
     })->add(\App\middleware\access\AdminPayments::class)
         ->add(\App\middleware\role\AdminAuth::class)
         ->add(\App\middleware\Auth::class);
-
 };
