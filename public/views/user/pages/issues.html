@@ -1,0 +1,163 @@
+{% extends "./user/index.html" %}
+
+{% block body %}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="card">
+        <h5 class="card-header">Issues</h5>
+
+        <div class="mb-2 p-2">
+
+            <div class="row">
+                <div class="mb-2 col-sm">
+                    <div id="statusGroupBtn" class="btn-group" role="group"
+                         aria-label="Basic radio toggle button group">
+
+                        {% set defaultChecked = status is null ? 'checked' : '' %}
+                        {% set allChecked = status == 'ALL' ? 'checked' : '' %}
+                        {% set pendingChecked = status == 'PENDING' ? 'checked' : '' %}
+                        {% set approvedChecked = status == 'RESOLVED' ? 'checked' : '' %}
+                        {% set rejectedChecked = status == 'REJECTED' ? 'checked' : '' %}
+
+                        <input type="radio" class="btn-check" name="btnradio" id="ALL" {{allChecked}}
+                               {{defaultChecked}}/>
+                        <label class="btn btn-outline-primary" for="ALL">All</label>
+
+                        <input type="radio" class="btn-check" name="btnradio" id="PENDING" {{pendingChecked}}/>
+                        <label class="btn btn-outline-primary" for="PENDING">Pending</label>
+
+                        <input type="radio" class="btn-check" name="btnradio" id="RESOLVED" {{approvedChecked}}/>
+                        <label class="btn btn-outline-primary" for="RESOLVED">Resolved</label>
+
+                        <input type="radio" class="btn-check" name="btnradio" id="REJECTED" {{rejectedChecked}}/>
+                        <label class="btn btn-outline-primary" for="REJECTED">Rejected</label>
+                    </div>
+                </div>
+
+                <div class="mb-2 col-sm">
+                    <div id="typeGroupBtn" class="btn-group" role="group"
+                         aria-label="Basic radio toggle button group">
+
+                        {% set viewDefault = type is empty ? 'checked' : '' %}
+                        {% set viewIssue = type == 'POSTED' ? 'checked' : '' %}
+                        {% set viewArchive = type == 'ARCHIVE' ? 'checked' : '' %}
+
+                        <input type="radio" class="btn-check" name="btnView" id="POSTED" {{viewDefault}}
+                               {{viewIssue}}/>
+                        <label class="btn btn-outline-primary" for="POSTED">Posted</label>
+
+                        <input type="radio" class="btn-check" name="btnView" id="ARCHIVED" {{viewArchive}}/>
+                        <label class="btn btn-outline-primary" for="ARCHIVED">Archived</label>
+
+                    </div>
+                </div>
+
+                <form action="/issues" id="viewForm" >
+                    <input class="d-none" id="viewTypeInput" name="type" type="text" value="POSTED">
+                    <input class="d-none" id="viewStatusInput" name="status" type="text" value="ALL">
+                </form>
+
+            </div>
+
+
+        </div>
+
+        <div class="table-responsive text-nowrap">
+            <table class="table">
+                <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+
+                {% for issue in issues %}
+                {% set status = issue.status|lower %}
+
+
+                {% set statusLabel = 'bg-label-warning' %}
+                {% set statusLabel = status == 'pending' ? 'bg-label-warning' : statusLabel %}
+                {% set statusLabel = status == 'rejected' ? 'bg-label-danger' : statusLabel %}
+                {% set statusLabel = status == 'resolved' ? 'bg-label-success' : statusLabel %}
+
+
+                <tr>
+                    <td>{{issue.id}}</td>
+                    <td>
+                        <p class="text-truncate p-0 m-0" style="max-width: 100px">{{issue.title}}</p>
+                    </td>
+                    <td>{{issue.getCreatedAt()| date('M d, Y')}}</td>
+                    <td><span class="badge {{statusLabel}} me-1">{{status}}</span></td>
+                    <td>
+                        <div class="d-flex flex-wrap" style="gap: 10px; max-width: max-content">
+                            {% if issue.type == 'posted' %}
+
+                            <form method="POST" action="/issue/archive/{{issue.id}}">
+                                <button type="submit" class="btn btn-secondary">
+                                    Archive
+                                </button>
+                            </form>
+
+                            {% else %}
+
+                            <form method="POST" action="/issue/unarchive/{{issue.id}}">
+                                <button type="submit" class="btn btn-secondary">
+                                    Unarchive
+                                </button>
+                            </form>
+
+                            {% endif %}
+                            <a class="btn btn-primary" style="flex: 1 1 0px" href="/issues/{{issue.id}}">View</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+
+                {% if issues is empty %}
+                <tr style="height: 200px">
+                    <td colspan="5">Empty Result</td>
+                </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}
+
+{% block javascript %}
+
+<script>
+
+    const typeGroupBtn = document.getElementById('typeGroupBtn').querySelectorAll('input');
+    const statusGroupBtn = document.getElementById('statusGroupBtn').querySelectorAll('input');
+
+    const viewTypeInput = document.getElementById('viewTypeInput');
+    const viewStatusInput = document.getElementById('viewStatusInput');
+
+    const viewForm = document.getElementById('viewForm');
+
+    typeGroupBtn.forEach(button => {
+        button.addEventListener('change', event => {
+            viewTypeInput.value = button.id;
+            viewForm.submit();
+        })
+    });
+
+    statusGroupBtn.forEach(button => {
+        button.addEventListener('change', event => {
+            viewStatusInput.value = button.id;
+            viewForm.submit();
+        })
+    });
+
+
+</script>
+{% endblock %}

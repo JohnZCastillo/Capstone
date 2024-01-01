@@ -2,9 +2,15 @@
 
 namespace App\service;
 
+use App\exception\UserNotFoundException;
 use App\lib\Paginator;
 use App\model\enum\UserRole;
 use App\model\UserModel;
+use Doctrine\ORM\Exception\NotSupported;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\TransactionRequiredException;
 
 class UserService extends Service
 {
@@ -20,10 +26,18 @@ class UserService extends Service
         $this->entityManager->flush($user);
     }
 
+    /**
+     * @throws UserNotFoundException
+     */
     public function findById($id): UserModel
     {
         $em = $this->entityManager;
         $user = $em->find(UserModel::class, $id);
+
+        if (!isset($user)) {
+            throw new UserNotFoundException("User with id of $id not found");
+        }
+
         return $user;
     }
 
@@ -52,11 +66,20 @@ class UserService extends Service
         return $queryBuilder->getQuery()->getResult();
     }
 
-    public function findByEmail($email): UserModel|null
+    /**
+     * @throws UserNotFoundException
+s     */
+    public function findByEmail($email): UserModel
     {
         $em = $this->entityManager;
-        return $em->getRepository(UserModel::class)
+        $user =  $em->getRepository(UserModel::class)
             ->findOneBy(['email' => $email]);
+
+        if(!isset($user)){
+            throw new UserNotFoundException('User not found');
+        }
+
+        return  $user;
     }
 
     public function findManualPayment(string $block, string $lot): UserModel|null
@@ -88,7 +111,10 @@ class UserService extends Service
     }
 
 
-    public function getUser($email, $password)
+    /**
+     * @throws UserNotFoundException
+     */
+    public function getUser($email, $password): UserModel
     {
 
         $queryBuilder = $this->entityManager->createQueryBuilder();
@@ -102,37 +128,52 @@ class UserService extends Service
 
 
         if (!isset($user)) {
-            return null;
+            throw new UserNotFoundException('User Not Found');
         }
 
         if ($user->getPassword() !== $password) {
-            return null;
+            throw new UserNotFoundException('User Not Found');
         }
 
         return $user;
     }
 
-    public function getAll($page, $max, $id, $filter, $role = null, $type = '',)
+    public function getAll($page, $max, $query, $role = 'admin', $block = null, $lot = null)
     {
-
-        $em = $this->entityManager;
 
         $paginator = new Paginator();
 
-        $qb = $em->createQueryBuilder();
+        $qb = $this->entityManager->createQueryBuilder();
+        $or = $qb->expr()->orX();
 
         $qb->select('t')
             ->from(UserModel::class, 't')
-            ->where("t.role = :role")
-            ->andWhere(
-                $qb->expr()->orX(
-                    $qb->expr()->like('t.name', ':queryParam'),
-                    $qb->expr()->like('t.email', ':queryParam'),
-                    $qb->expr()->like('t.id', ':queryParam')
-                )
-            )
-            ->setParameter('queryParam', '%' . $id . '%')
+            ->where($qb->expr()->eq('t.role', ':role'))
             ->setParameter('role', $role);
+
+
+        if (isset($block)) {
+            $qb->andWhere($qb->expr()->eq('t.block',':block'));
+            $qb->setParameter('block',$block);
+        }
+
+        if (isset($lot)) {
+            $qb->andWhere($qb->expr()->eq('t.lot',':lot'));
+            $qb->setParameter('lot',$lot);
+        }
+
+        if (isset($query)) {
+            $or->addMultiple(
+                [
+                    $qb->expr()->like('t.name', ':query'),
+                    $qb->expr()->like('t.id', ':query'),
+                    $qb->expr()->like('t.email', ':query'),
+                ]);
+
+            $qb->setParameter('query', '%' . $query . '%');
+
+            $qb->andWhere($or);
+        }
 
         return $paginator->paginate($qb, $page, $max);
     }

@@ -1,0 +1,240 @@
+{% extends "./admin/index.html" %}
+
+
+{% block body %}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- Table -->
+    <div class="card">
+        <h5 class="card-header">Payments</h5>
+
+        <div class="p-2 d-flex gap-2">
+            <button type="button" class="btn rounded-pill btn-icon btn-secondary"
+                    data-bs-toggle="tooltip" data-bs-offset="0,4"
+                    data-bs-placement="top" data-bs-html="true"
+                    data-bs-original-title="Add New Due">
+                <span class="tf-icons bx bx-coin"
+                      data-bs-target="#dueModal"
+                      data-bs-toggle="modal"
+                      type="button"
+                ></span>
+            </button>
+            <button type="button" class="btn rounded-pill btn-icon btn-secondary"
+                    data-bs-toggle="tooltip" data-bs-offset="0,4"
+                    data-bs-placement="top" data-bs-html="true"
+                    data-bs-original-title="Manual Payment">
+                <span class="tf-icons bx bx-money-withdraw"
+                      data-bs-target="#manualPaymentModal"
+                      data-bs-toggle="modal"
+                      type="button"
+                ></span>
+            </button>
+            <button type="button" class="btn rounded-pill btn-icon btn-secondary"
+                    data-bs-toggle="tooltip" data-bs-offset="0,4"
+                    data-bs-placement="top" data-bs-html="true"
+                    data-bs-original-title="Generate Report">
+                <span class="tf-icons bx bxs-report"
+                      data-bs-target="#generateReportModal"
+                      data-bs-toggle="modal"
+                      type="button"
+                ></span>
+            </button>
+            <button type="button" class="btn rounded-pill btn-icon btn-secondary"
+                    data-bs-toggle="tooltip" data-bs-offset="0,4"
+                    data-bs-placement="top" data-bs-html="true"
+                    data-bs-original-title="Payment Settings">
+                <span class='bx bx-cog'
+                      data-bs-target="#accountModal"
+                      data-bs-toggle="modal"
+                ></span>
+            </button>
+        </div>
+
+        <div class="mb-2 p-2">
+
+            <div class="row mb-2">
+                <div class="col-sm">
+                    <div id="statusGroupBtn" class="btn-group" role="group"
+                         aria-label="Basic radio toggle button group">
+
+                        {% set defaultChecked = status is null ? 'checked' : '' %}
+                        {% set allChecked = status == 'ALL' ? 'checked' : '' %}
+                        {% set pendingChecked = status == 'PENDING' ? 'checked' : '' %}
+                        {% set approvedChecked = status == 'APPROVED' ? 'checked' : '' %}
+                        {% set rejectedChecked = status == 'REJECTED' ? 'checked' : '' %}
+
+                        <input type="radio" class="btn-check" name="btnradio" id="ALL" {{allChecked}}
+                               {{defaultChecked}}/>
+                        <label class="btn btn-outline-primary" for="ALL">All</label>
+
+                        <input type="radio" class="btn-check" name="btnradio" id="PENDING" {{pendingChecked}}/>
+                        <label class="btn btn-outline-primary" for="PENDING">Pending</label>
+
+                        <input type="radio" class="btn-check" name="btnradio" id="APPROVED" {{approvedChecked}}/>
+                        <label class="btn btn-outline-primary" for="APPROVED">Approved</label>
+
+                        <input type="radio" class="btn-check" name="btnradio" id="REJECTED" {{rejectedChecked}}/>
+                        <label class="btn btn-outline-primary" for="REJECTED">Rejected</label>
+                    </div>
+                </div>
+
+                <form id="paymentSearchForm" class="col-sm col-md-6">
+
+                    <div class="row gap-3 gap-md-0 py-3 px-3 py-md-0 px-md-0">
+
+                        <input id="paymentSearchFormStatus" class="d-none" type="text" name="status" value="ALL">
+
+                        <input id="paymentSearchFormId" class="col-sm form-control mb-2" type="text" role="searchbox"
+                               name="query"
+                               placeholder="Search Id" value="{{query}}">
+
+                        <div class="position-relative col-sm-3 col-md-4">
+                            <label for="paymentSearchFormFrom" class="position-absolute small"
+                                   style="top: -20px">From</label>
+                            <input id="paymentSearchFormFrom" class="form-control" type="month" name="from"
+                                   value="{{from}}">
+                        </div>
+
+                        <div class="position-relative col-sm-3 col-md-4">
+                            <label for="paymentSearchFormTo" class="position-absolute small"
+                                   style="top: -20px">To</label>
+                            <input id="paymentSearchFormTo" class="form-control" type="month" name="to" value="{{to}}">
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+
+
+        </div>
+
+        <div class="table-responsive text-nowrap">
+            <table class="table">
+                <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+
+                {% for transaction in transactions %}
+
+                {% set statusLabel = 'bg-label-warning' %}
+                {% set statusLabel = transaction.getStatus == 'APPROVED' ? 'bg-label-success' : statusLabel %}
+                {% set statusLabel = transaction.getStatus == 'REJECTED' ? 'bg-label-danger' : statusLabel %}
+
+                <tr>
+                    <td>{{transaction.getId()}}</td>
+                    <td>{{transaction.getFromMonth()|date("M Y")}}</td>
+                    <td>{{transaction.getToMonth()|date("M Y")}}</td>
+                    <td><span class="badge {{statusLabel}} me-1">{{transaction.getStatus()|lower}}</span></td>
+                    <td>
+                        <a
+                                class="btn btn-primary"
+                                href="/admin/transaction/{{transaction.getId()}}"
+                        >
+                            Manage
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if transactions is empty %}
+                <tr>
+                    <td colspan="5"><h6 class="text-secondary text-center">Empty Result</h6></td>
+                </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        {% include './user/partials/pagination.html' %}
+
+    </div>
+
+</div>
+
+
+{% include './admin/partials/settings-form.html' %}
+{% include './admin/partials/due-form.html' %}
+{% include './admin/partials/admin-generate-report.html' %}
+{% include './admin/partials/admin-manual-payment-modal.html' %}
+{% endblock %}
+
+{% block javascript %}
+
+<script>
+
+    const statusGroupBtn = document.getElementById('statusGroupBtn');
+    const statusBtn = statusGroupBtn.querySelectorAll('input');
+
+    const paymentSearchForm = document.getElementById('paymentSearchForm');
+    const paymentSearchFormId = document.getElementById('paymentSearchFormId');
+    const paymentSearchFormStatus = document.getElementById('paymentSearchFormStatus');
+
+    statusBtn.forEach(button => {
+        button.addEventListener('change', event => {
+            paymentSearchFormStatus.value = button.id;
+            paymentSearchForm.submit();
+        })
+    });
+
+    paymentSearchFormId.addEventListener('keypress', (event) => {
+        if (event.key === "Enter") {
+            paymentSearchForm.submit();
+        }
+    })
+
+    paymentSearchFormId.addEventListener('keyup', (event) => {
+        if (!paymentSearchFormId.value.length) {
+            paymentSearchForm.submit();
+        }
+    })
+
+    const fromDate = document.querySelector("#paymentSearchFormFrom");
+    const toDate = document.querySelector("#paymentSearchFormTo");
+
+    fromDate.addEventListener("change", (event) => {
+        paymentSearchForm.submit();
+    });
+
+    toDate.addEventListener("change", (event) => {
+        paymentSearchForm.submit();
+    });
+
+    const blockInput = document.getElementById('block');
+    const lotInput = document.getElementById('lot');
+
+    blockInput.addEventListener('change', async (event) => {
+
+        lotInput.innerHTML = '';
+
+        let formData = new FormData();
+        formData.append('block', blockInput.value);
+
+        let result = await fetch('/lot', {
+            method: 'POST',
+            body: formData
+        });
+
+        let optionsHTML = "<option class='small' value='ALL'>ALL</option>"
+
+
+        if (result.ok) {
+
+            let data = await result.json();
+            data.data.forEach(lot => {
+                optionsHTML += `<option class="small"  value="${lot}">${lot}</option>`;
+            });
+        }
+
+        lotInput.innerHTML = optionsHTML;
+    })
+
+
+</script>
+
+{% endblock %}

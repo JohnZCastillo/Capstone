@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta content="Phase 7 Carissa Homes Subdivision HOA Board Portal" property="og:title">
+    <meta content="Your Gateway to Effortless Management and Communication" property="og:description">
+    <meta content="https://carrisa-homes.me/carrisa.jpg" property="og:image">
+    <meta content="https://carrisa-homes.me/" property="og:url">
+    <meta content="website" property="og:type">
+
+    <link rel="icon" type="image/x-icon" href="/resources/favicon.ico"/>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link
+            href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+            rel="stylesheet"/>
+
+    <link rel="stylesheet" href="/resources/assets/vendor/fonts/boxicons.css"/>
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="/resources/assets/vendor/css/core.css" class="template-customizer-core-css"/>
+    <link rel="stylesheet" href="/resources/assets/vendor/css/theme-default.css" class="template-customizer-theme-css"/>
+    <link rel="stylesheet" href="/resources/assets/css/demo.css"/>
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="/resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css"/>
+    <link rel="stylesheet" href="/resources/assets/vendor/apex-charts/apex-charts.css"/>
+
+    <!-- Page CSS -->
+
+    <!-- Helpers -->
+    <script src="/resources/assets/vendor/js/helpers.js"></script>
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="/resources/assets/js/config.js"></script>
+
+
+    <script src="/resources/assets/vendor/libs/jquery/jquery.js"></script>
+    <script src="/resources/assets/vendor/libs/popper/popper.js"></script>
+    <script src="/resources/assets/vendor/js/bootstrap.js"></script>
+    <script src="/resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+    <script src="/resources/assets/vendor/js/menu.js"></script>
+
+    <style>
+
+        .header-content > * {
+            color: white;
+        }
+
+        .box {
+            box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+            padding: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            height: 100px;
+            width: 150px;
+        }
+
+        .staffName {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .staffImg {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #chart_div .google-visualization-orgchart-linebottom {
+            border-bottom: 4px solid var(--bs-primary);
+        }
+
+        #chart_div .google-visualization-orgchart-lineleft {
+            border-left: 4px solid var(--bs-primary);
+        }
+
+        #chart_div .google-visualization-orgchart-lineright {
+            border-right: 4px solid var(--bs-primary);
+        }
+
+        #chart_div .google-visualization-orgchart-linetop {
+            border-top: 4px solid var(--bs-primary);
+        }
+    </style>
+
+</head>
+<body>
+<!-- Hero Section -->
+
+<section class="bg-primary">
+    <div class="container py-4 ">
+        <div class="row align-items-center">
+            <div class="col-lg-6 col-md-12 col-12">
+                <div class="header-content mb-2">
+                    <h1 class="fw-bolder">Carissa Homes Subdivision</h1>
+                    <p class="mb-2">
+                        Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of
+                        classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a
+                        Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin
+                        words
+                    </p>
+                    <div class="button">
+                        <a href="/login" class="btn btn-light">Login</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-12 col-12">
+                <div class="header-image">
+                    <img src="/resources/hero.jpg" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="container py-4">
+        <div class="row align-items-center align-items-md-start">
+            <div class="col-lg-6 col-12 mb-2">
+                <div class="about-image-five">
+                    <img class="img-fluid" src="/resources/about.jpg" alt="about">
+                </div>
+            </div>
+            <div class="col-lg-6 col-12">
+                <h2 class="fw-bold">OUR STORY</h2>
+                <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the
+                    industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type
+                    and scrambled it to make a type specimen book. It has survived not only five centuries, but also the
+                    leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s
+                    with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop
+                    publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-light">
+    <div class="container py-4">
+        <h2 class="fw-bold">Features</h2>
+        <section class="row">
+            <div class="col-sm col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <img class="card-img-top" src="/resources/court.jpg" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Basketball Court</h5>
+                        <p class="card-text">
+                            Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece
+                            of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock,
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <img class="card-img-top" src="/resources/court.jpg" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Basketball Court</h5>
+                        <p class="card-text">
+                            Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece
+                            of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock,
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <img class="card-img-top" src="/resources/court.jpg" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Basketball Court</h5>
+                        <p class="card-text">
+                            Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece
+                            of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock,
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</section>
+
+
+<section>
+    <div class="container py-4">
+        <h2 class="fw-bold">Organization</h2>
+        <div id="chart_div"></div>
+    </div>
+</section>
+
+
+<script src="/resources/assets/js/main.js"></script>
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script>
+
+    function createStaff(name, position, img, superior) {
+
+        return [{
+            'v': `${name}`,
+            'f': `<img class='staffImg img-fluid' src='${img}' />
+                    <span class='staffName'>${name}</span>
+                    <div class='staffPosition'> ${position}</div>`
+        },
+            superior, `The ${position}`
+        ];
+    }
+
+    function removeStaff(name) {
+        return staff.filter(element => element[0].v != name);
+    }
+
+    google.charts.load('current', {
+        packages: ["orgchart"]
+    });
+
+    google.charts.setOnLoadCallback(drawChart);
+
+    let data = {{org|json_encode|raw}};
+
+    let staff = [];
+
+    data.forEach(element =>{
+
+        staff.push(createStaff(element.name,
+            element.position,
+            element.img,
+            element.superior,
+        ));
+    })
+
+    console.log(staff)
+
+    function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Name');
+        data.addColumn('string', 'Manager');
+        data.addColumn('string', 'ToolTip');
+
+        // For each orgchart box, provide the name, manager, and tooltip to show.
+        data.addRows(staff);
+
+        // Create the chart.
+        var chart = new google.visualization.OrgChart(document.getElementById('chart_div'));
+
+
+        google.visualization.events.addListener(chart, 'select', function () {
+            var selectedItem = chart.getSelection()[0];
+            if (selectedItem) {
+                var nodeName = data.getValue(selectedItem.row, 0);
+                console.log(nodeName);
+            }
+        });
+
+        // Draw the chart, setting the allowHtml option to true for the tooltips.
+        chart.draw(data, {
+            'allowHtml': true,
+            'nodeClass': 'box',
+        });
+    }
+
+</script>
+
+
+<!-- Place this tag in your head or just before your close body tag. -->
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+</body>
+</html>
+

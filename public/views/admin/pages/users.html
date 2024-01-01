@@ -1,0 +1,373 @@
+{% extends "./admin/index.html" %}
+
+
+{% block body %}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- Table -->
+    <div class="card">
+
+        <h5 class="card-header">Users</h5>
+
+        {% if superAdmin %}
+
+
+        <div class="mx-2 mb-2">
+            <div aria-label="Basic example" class="btn-group" role="group">
+                <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#adminModal">Manage
+                    Privileges
+                </button>
+            </div>
+        </div>
+
+        {% endif %}
+
+        <form action="/admin/users" class="form mb-2" id="announcementForm" method="GET">
+
+            <div class="row px-2">
+
+                {% if superAdmin %}
+                <div class="col-sm mb-2">
+
+                    {% set status = role | lower %}
+
+                    {% set userCh = status == "user" ? "checked" : "" %}
+                    {% set adminCh = status == "admin" ? "checked" : "" %}
+
+                    <span class="text-secondary small d-block">User Role</span>
+
+                    <div id="statusGroupBtn" class="btn-group" role="group"
+                         aria-label="Basic radio toggle button group">
+
+                        <input value="admin" type="radio" class="btn-check" name="role" id="ALL" {{adminCh}}/>
+                        <label class="btn btn-outline-primary" for="ALL">Staff</label>
+
+                        <input value="user" type="radio" class="btn-check" name="role" id="PENDING" {{userCh}}/>
+                        <label class="btn btn-outline-primary" for="PENDING">User</label>
+
+                    </div>
+
+
+                </div>
+                {% endif %}
+
+                <div class="col-sm ">
+                    <div class="d-flex gap-2 align-items-center">
+
+                        <div class="d-flex gap-2">
+
+                            <div>
+                                <label class="text-secondary small d-block" for="userBlock">Block</label>
+                                <select class="form-control" id="userBlock" name="block">
+                                    <option value="0">ALL</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="text-secondary small d-block" for="userLot">Lot</label>
+                                <select class="form-control" id="userLot" name="lot">
+                                    <option value="0">ALL</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex-fill">
+                            <span class="text-secondary small d-block">Search Bar</span>
+                            <input id="searchBar" class="form-control" name="query" placeholder="User Name" type="text"
+                                   value="{{query}}">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </form>
+
+
+        <div class="table-responsive">
+
+            <table class="table thead-dark table-hover rounded-table table-shadow">
+                <thead class="bg-dark text-white">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Block</th>
+                    <th>Lot</th>
+                    <th>Restricted</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for user in users %}
+                <tr>
+                    {% set restricted = user.isBlocked ? "Yes" : "No" %}
+                    {% set restrictedBg = user.isBlocked ? "bg-danger" : "bg-success" %}
+
+                    <td>{{user.id}}</td>
+                    <td>{{user.name}}</td>
+                    <td>{{user.email}}</td>
+                    <td>{{user.role}}</td>
+                    <td>{{user.block}}</td>
+                    <td>{{user.lot}}</td>
+                    <td><span id="restricted{{user.id}}"
+                              class="badge rounded-pill {{restrictedBg}}">{{restricted}}</span></td>
+                    <td>
+                        <div class="d-flex gap-2 h-100">
+
+                            <button type="button" onclick="unblockUser('{{user.id}}')" class="btn btn-success block-btn"
+                                    style="min-width: 85px">Unblock
+                            </button>
+                            <button type="button" onclick="blockUser('{{user.id}}')" class="btn btn-danger block-btn"
+                                    style="min-width: 85px">Block
+                            </button>
+
+                        </div>
+
+                    </td>
+                </tr>
+                {% endfor %}
+
+                {% if users is empty %}
+                <tr>
+                    <td colspan="8" style="height: 300px">Empty result</td>
+                </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        {% include './user/partials/pagination.html' %}
+
+    </div>
+
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="infoModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title text-white">Information</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="infoModalMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="adminModal" tabindex="-1" aria-labelledby="adminModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="adminModalLabel">Grant Admin Privileges</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newAdmin" method="POST" action="/admin/manage-privileges">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input name="email" type="text" class="form-control" id="email" placeholder="Enter Email">
+                    </div>
+
+                    <div id="userDetailHolder"
+                         class="d-none rounded mt-2 bg-light form-group p-2 d-flex gap-2 align-items-center">
+                        <img class="p-1 bg-dark rounded-circle" style="width: 40px; height: 40px"
+                             src="/resources/user.svg">
+                        <p class="m-0" id="userDetail"></p>
+                    </div>
+                    <div class="form-group mt-1">
+                        <label>Privileges</label>
+                        <div class="form-check" id="grantAnnouncements">
+                            <input name="announcement" type="checkbox" class="form-check-input"
+                                   id="manageAnnouncements">
+                            <label class="form-check-label" for="manageAnnouncements">Manage Announcements</label>
+                        </div>
+                        <div class="form-check" id="grantPayments">
+                            <input name="payment" type="checkbox" class="form-check-input" id="managePayments">
+                            <label class="form-check-label" for="managePayments">Manage Payments</label>
+                        </div>
+                        <div class="form-check" id="grantUsers">
+                            <input name="user" type="checkbox" class="form-check-input" id="manageUsers">
+                            <label class="form-check-label" for="manageUsers">Manage Users</label>
+                        </div>
+                        <div class="form-check" id="grantIssues">
+                            <input name="issue" type="checkbox" class="form-check-input" id="manageIssues">
+                            <label class="form-check-label" for="manageIssues">Manage Issues</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Privileges</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+
+
+<script>
+
+    const announcementForm = document.querySelector("#announcementForm");
+
+    // Get the input element by its name attribute
+    const roles = document.querySelectorAll('input[name="role"]');
+
+    roles.forEach(role => {
+        role.addEventListener('change', (event) => announcementForm.submit());
+    })
+</script>
+
+<script>
+
+    const userDetail = document.querySelector("#userDetail");
+    const userDetailHolder = document.querySelector("#userDetailHolder");
+
+    const emailField = document.querySelector('#email');
+
+    const manageIssues = document.querySelector("#manageIssues");
+    const manageUsers = document.querySelector("#manageUsers");
+    const managePayments = document.querySelector("#managePayments");
+    const manageAnnouncements = document.querySelector("#manageAnnouncements");
+
+    const userFilterForm = document.querySelector("#announcementForm")
+
+    const searchBar = document.querySelector("#searchBar");
+    const userBlock = document.querySelector("#userBlock");
+    const userLot = document.querySelector("#userLot");
+
+    searchBar.addEventListener('change', (event) => {
+
+        if (searchBar.value.length <= 0) {
+            userFilterForm.submit();
+        }
+    })
+
+    userBlock.addEventListener('change', (event) => {
+        userFilterForm.submit();
+    })
+
+    userLot.addEventListener('change', (event) => {
+        userFilterForm.submit();
+    })
+
+    searchBar.addEventListener('change', (event) => {
+
+        if (searchBar.value.length <= 0) {
+            userFilterForm.submit();
+        }
+    })
+
+    emailField.addEventListener('keyup', async (event) => {
+
+        userDetailHolder.classList.add('d-none');
+
+        const formData = new FormData();
+        formData.append("email", emailField.value);
+
+        const data = await fetch('/users', {
+            method: "POST",
+            body: formData
+        })
+
+        let user = await data.json();
+
+        if (data.ok) {
+
+            user = user.data;
+
+            userDetail.innerHTML = user.name;
+            userDetailHolder.classList.remove('d-none');
+
+            if (user.payment) {
+                managePayments.checked = true;
+            }
+
+            if (user.issue) {
+                manageIssues.checked = true;
+            }
+
+            if (user.user) {
+                manageUsers.checked = true;
+            }
+
+            if (user.announcement) {
+                manageAnnouncements.checked = true
+            }
+        } else {
+            console.log("An error has occurred");
+        }
+
+    });
+
+    async function blockUser(id) {
+
+        let formData = new FormData();
+        formData.append("userId", id);
+
+        try {
+
+            const data = await fetch('/block-user', {
+                method: "POST",
+                body: formData
+            })
+
+            const result = await data.json();
+
+            if (data.ok) {
+                document.querySelector("#restricted" + id).innerHTML = "Yes";
+                document.querySelector("#restricted" + id).classList.add('bg-danger');
+                document.querySelector("#restricted" + id).classList.remove('bg-success');
+                console.log('user has been block')
+            } else {
+                throw new Error(result.data.message)
+            }
+
+        } catch (error) {
+
+            const alertMessage = document.querySelector("#infoModalMessage");
+            alertMessage.innerHTML = error.message;
+
+            new bootstrap.Modal(document.getElementById('infoModal'), {
+                keyboard: false
+            }).show();
+        }
+    }
+
+    async function unblockUser(id) {
+
+        let formData = new FormData();
+        formData.append("userId", id);
+
+        const data = await fetch('/unblock-user', {
+            method: "POST",
+            body: formData
+        })
+
+        if (data.ok) {
+            document.querySelector("#restricted" + id).innerHTML = "No";
+            document.querySelector("#restricted" + id).classList.remove('bg-danger');
+            document.querySelector("#restricted" + id).classList.add('bg-success');
+            console.log('user has been unblock')
+        } else {
+            console.log("something went wrong")
+        }
+
+    }
+</script>
+
+{% endblock %}

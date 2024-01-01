@@ -243,7 +243,6 @@ class PaymentController extends Controller
 
     }
 
-
     private function isPaymentLacking(UserModel $user,float $paidAmount, string $fromMonth, string $toMonth): bool
     {
 

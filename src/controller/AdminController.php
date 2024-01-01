@@ -2,786 +2,224 @@
 
 namespace App\controller;
 
-use App\lib\Encryptor;
 use App\lib\Filter;
 use App\lib\Helper;
 use App\lib\Image;
-use App\lib\ReportMaker;
+use App\lib\Login;
 use App\lib\Time;
 use App\model\AnnouncementModel;
+use App\model\budget\BillModel;
+use App\model\budget\ExpenseModel;
+use App\model\budget\FundModel;
+use App\model\budget\IncomeModel;
 use App\model\enum\AnnouncementStatus;
+use App\model\enum\BudgetStatus;
 use App\model\enum\UserRole;
 use App\model\LogsModel;
+use App\model\overview\Staff;
 use App\model\PaymentModel;
-use App\model\PrivilegesModel;
-use App\model\TransactionModel;
-use App\model\UserModel;
 use DateTime;
-use Defuse\Crypto\Key;
 use Exception;
 use Respect\Validation\Validator as V;
 use Slim\Views\Twig;
-use TCPDF;
 
 class AdminController extends Controller
 {
-
-    public function home($request, $response, $args)
+    public function overview($request, $response, $args)
     {
 
-        // get the query params
-        $queryParams = $request->getQueryParams();
+        $twig = Twig::fromRequest($request);
 
-        $settings = $this->paymentService->findById(1);
+        $overview = $this->overviewService->getOverview();
 
-        // if page is present then set value to page otherwise to 1
-        $page = $queryParams['page'] ?? 1;
+        $staffs = $this->overviewService->getAllStaff();
 
-        $filter = Filter::check($queryParams);
+        $orgStaff = [];
 
-        $id = empty($queryParams['query']) ? null : $queryParams['query'];
+        foreach ($staffs as $staff) {
 
-        // max transaction per page
-        $max = 5;
+            $img = $staff->getImg();
+            $name = $staff->getName();
+            $position = $staff->getPosition();
 
-        $view = Twig::fromRequest($request);
+            $superior = $staff->getSuperior();
+            $superiorName = '';
 
-        //Get Transaction
-        $result = $this->transactionService->adminGetAll($page, $max, $id, $filter);
+            if (isset($superior)) {
+                $superiorName = $superior->getName();
+            }
 
-        $startOfPaymentYear = Time::getYearFromStringDate($this->getPaymentSettings()->getStart());
+            $orgStaff[] = [
+                    'name' => $staff->getName(),
+                    'position' => $position,
+                    'img' => $img,
+                    'superior' => $superiorName,
+            ];
 
-        $dues = $this->getDues($startOfPaymentYear);
-
-        $errorMessage = $this->flashMessages->getFirstMessage('errorMessage');
-
-        $data = [
-            'paymentYear' => Time::getYearSpan($startOfPaymentYear),
-            'paymentStart' => $startOfPaymentYear,
-            'dues' => $dues ?? null,
-            'transactions' => $result->getItems(),
-            'currentPage' => $page,
-            'query' => $id,
-            'from' => $queryParams['from'] ?? null,
-            'to' => $queryParams['to'] ?? null,
-            'status' => $queryParams['status'] ?? null,
-            'settings' => $settings,
-            'paginator' => $result,
-            'loginUser' => $this->getLogin(),
-            "errorMessage" => $errorMessage,
-        ];
-
-        return $view->render($response, 'pages/admin-home.html', $data);
-    }
-
-    public function transaction($request, $response, $args)
-    {
-
-        $view = Twig::fromRequest($request);
-
-        $transaction = $this->transactionService->findById($args['id']);
-
-        $user = $transaction->getUser();
-
-        return $view->render($response, 'pages/admin-transaction.html', [
-            'transaction' => $transaction,
-            'receipts' => $transaction->getReceipts(),
-            'user' => $user,
-            'loginUser' => $this->getLogin(),
-        ]);
-    }
-
-    public function rejectPayment($request, $response, $args)
-    {
-
-        $view = Twig::fromRequest($request);
-
-        $id = $request->getParsedBody()['id'];
-        $message = $request->getParsedBody()['message'];
-
-        // get the transaction form db
-        $transaction = $this->transactionService->findById($id);
-
-        //login admin who rejected the payment
-        $user = $this->getLogin();
-
-        // set transctio to rejected
-        $transaction->setStatus('REJECTED');
-
-        // save transaction
-        $this->transactionService->save($transaction);
-
-        //save logs
-        $this->logsService->log($transaction, $user, $message, 'REJECTED');
-
-        $action = "Payment with id of " . $transaction->getId() . " was rejected";
-
-        $actionLog = new LogsModel();
-        $actionLog->setAction($action);
-        $actionLog->setTag("Payment");
-        $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(new DateTime());
-
-        $this->actionLogs->addLog($actionLog);
-
-        return $response
-            ->withHeader('Location', "/admin/transaction/$id")
-            ->withStatus(302);
-    }
-
-    public function approvePayment($request, $response, $args)
-    {
-
-        $view = Twig::fromRequest($request);
-
-        $id = $request->getParsedBody()['id'];
-
-        $message = "Payment was approved";
-
-        // get the transaction form db
-        $transaction = $this->transactionService->findById($id);
-
-        //login admin who approved the payment
-        $user = $this->getLogin();
-
-        //array of reference number
-        $fields = $request->getParsedBody()['field'];
-
-        //array of transaction receipts
-        $reciepts = $transaction->getReceipts();
-
-        for ($i = 0; $i < count($reciepts); $i++) {
-            $this->receiptService->confirm($reciepts[$i], $fields[$i]);
-        }
-
-        // set transction
-        $transaction->setStatus('APPROVED');
-
-        // save transaction
-        $this->transactionService->save($transaction);
-
-        //save logs
-        $this->logsService->log($transaction, $user, $message, 'APPROVED');
-
-        $action = "Payment with id of " . $transaction->getId() . " was approved";
-
-        $actionLog = new LogsModel();
-        $actionLog->setAction($action);
-        $actionLog->setTag("Payment");
-        $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(new DateTime());
-
-        $this->actionLogs->addLog($actionLog);
-
-        return $response
-            ->withHeader('Location', "/admin/transaction/$id")
-            ->withStatus(302);
-    }
-
-    public function paymentSettings($request, $response, $args)
-    {
-
-        $view = Twig::fromRequest($request);
-
-        $id = $request->getParsedBody()['id'];
-        $name = $request->getParsedBody()['name'];
-        $number = $request->getParsedBody()['number'];
-        $start = $request->getParsedBody()['start'];
-
-        $settings = new PaymentModel();
-
-        //find settings if id is not null
-        if ($id != null) {
-            $settings = $this->paymentService->findById($id);
-        }
-
-        //update qr
-        if (isset($_FILES['qr']) && $_FILES['qr']['error'] === UPLOAD_ERR_OK) {
-            $path = './uploads/';
-            $settings->setQr(Image::store($path, $_FILES['qr']));
-        }
-
-        $settings->setAccountName($name);
-        $settings->setAccountNumber($number);
-        $settings->setStart(Time::startMonth($start));
-
-        $this->paymentService->save($settings);
-
-        $action = "Payment settings was update";
-
-        $actionLog = new LogsModel();
-        $actionLog->setAction($action);
-        $actionLog->setTag("Payment Settings");
-        $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(new DateTime());
-        $this->actionLogs->addLog($actionLog);
-
-        return $response
-            ->withHeader('Location', "/admin/home")
-            ->withStatus(302);
-    }
-
-    public function announcement($request, $response, $args)
-    {
-
-        $view = Twig::fromRequest($request);
-
-        $title = $request->getParsedBody()['title'];
-        $content = $request->getParsedBody()['content'];
-        $id = $request->getParsedBody()['id'];
-
-        $post = new AnnouncementModel();
-
-        $post->setCreatedAt(Time::timestamp());
-        $post->setUser($this->getLogin());
-
-        $action = "Announcement with id of " . $post->getId() . " was created";
-
-        if (Helper::existAndNotNull($id)) {
-            $post = $this->announcementService->findById($id);
-            $action = "Announcement with id of " . $post->getId() . " was edited";
-            $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . ' edited');
-        } else {
-            $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . ' Posted');
-        }
-
-        $post->setTitle($title);
-        $post->setContent($content);
-        $post->setStatus(AnnouncementStatus::posted());
-
-        try {
-            $this->announcementService->save($post);
-        } catch (\Throwable $th) {
-            $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . 'Posting Error');
         }
 
 
-        $actionLog = new LogsModel();
-        $actionLog->setAction($action);
-        $actionLog->setTag("Announcement");
-        $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(new DateTime());
-        $this->actionLogs->addLog($actionLog);
-
-        return $response->withHeader('Location', "/admin/announcements")
-            ->withStatus(302);
-    }
-
-    public function deleteAnnouncement($request, $response, $args)
-    {
-
-        // get the query params
-        $queryParams = $request->getQueryParams();
-
-        $view = Twig::fromRequest($request);
-
-        $id = $args['id'];
-
-        $post = $this->announcementService->findById($id);
-
-        $this->flashMessages->addMessage('message', 'Announcement ' . $post->getTitle() . ' deleted');
-
-        $action = "Announcement with id of " . $post->getId() . " was deleted";
-
-        $actionLog = new LogsModel();
-        $actionLog->setAction($action);
-        $actionLog->setTag("Announcement");
-        $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(new DateTime());
-        $this->actionLogs->addLog($actionLog);
-
-        $this->announcementService->delete($post);
-
-        return $response
-            ->withHeader('Location', '/admin/announcements')
-            ->withStatus(302);
-    }
-
-    public function editAnnouncement($request, $response, $args)
-    {
-
-        $view = Twig::fromRequest($request);
-
-        $id = $args['id'];
-
-        $announcement = $this->announcementService->findById($id);
-
-        return $view->render($response, 'pages/admin-announcement.html', [
-            'announcement' => $announcement,
-            'loginUser' => $this->getLogin(),
+        return $twig->render($response, 'admin/pages/overview.html', [
+            "overview" => $overview,
+            "staffs" => $staffs,
+            "org" => $orgStaff,
         ]);
+
     }
 
-    public function postAnnouncement($request, $response, $args)
+    public function landingPage($request, $response, $args)
     {
 
-        $view = Twig::fromRequest($request);
+        $twig = Twig::fromRequest($request);
 
-        $id = $args['id'];
+        $overview = $this->overviewService->getOverview();
 
-        $announcement = $this->announcementService->findById($id);
+        $staffs = $this->overviewService->getAllStaff();
 
-        $announcement->setStatus(AnnouncementStatus::posted());
+        $orgStaff = [];
 
-        $this->announcementService->save($announcement);
+        foreach ($staffs as $staff) {
 
-        $this->flashMessages->addMessage('Test', 'This is a message');
+            $img = $staff->getImg();
+            $name = $staff->getName();
+            $position = $staff->getPosition();
 
-        $action = "Announcement with id of " . $announcement->getId() . " status was set to posted";
+            $superior = $staff->getSuperior();
+            $superiorName = '';
 
-        $actionLog = new LogsModel();
-        $actionLog->setAction($action);
-        $actionLog->setTag("Announcement");
-        $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(new DateTime());
-        $this->actionLogs->addLog($actionLog);
+            if (isset($superior)) {
+                $superiorName = $superior->getName();
+            }
 
-        return $response
-            ->withHeader('Location', "/admin/announcements?status=ARCHIVED")
-            ->withStatus(302);
-    }
+            $orgStaff[] = [
+                    'name' => $staff->getName(),
+                    'position' => $position,
+                    'img' => $img,
+                    'superior' => $superiorName,
+            ];
 
-    public function archiveAnnouncement($request, $response, $args)
-    {
-
-        $view = Twig::fromRequest($request);
-
-        $id = $args['id'];
-
-        $announcement = $this->announcementService->findById($id);
-
-        $announcement->setStatus(AnnouncementStatus::archived());
-
-        $this->announcementService->save($announcement);
-
-        $this->flashMessages->addMessage('Test', 'This is a message');
-
-        $action = "Announcement with id of " . $announcement->getId() . " status was set to archived";
-
-        $actionLog = new LogsModel();
-        $actionLog->setAction($action);
-        $actionLog->setTag("Announcement");
-        $actionLog->setUser($this->getLogin());
-        $actionLog->setCreatedAt(new DateTime());
-        $this->actionLogs->addLog($actionLog);
+        }
 
 
-        return $response
-            ->withHeader('Location', "/admin/announcements?status=POSTED")
-            ->withStatus(302);
-    }
-
-
-    public function announcements($request, $response, $args)
-    {
-
-        $message = $this->flashMessages->getFirstMessage('message');
-
-        $view = Twig::fromRequest($request);
-
-        // get the query params
-        $queryParams = $request->getQueryParams();
-
-        // if page is present then set value to page otherwise to 1
-        $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
-
-        $id = isset($queryParams['query']) ? $queryParams['query'] : null;
-
-        $status = isset($queryParams['status']) ? $queryParams['status'] : 'posted';
-
-        // max transaction per page
-        $max = 5;
-
-        $filter = Filter::check($queryParams);
-
-        $result = $this->announcementService->getAll($page, $max, null, $filter, null, $status);
-
-        return $view->render($response, 'pages/admin-all-announcement.html', [
-            'announcements' => $result['announcements'],
-            'message' => $message,
-            'query' => $id,
-            'currentPage' => $page,
-            'from' => isset($queryParams['from']) ? $queryParams['from'] : null,
-            'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
-            'totalPages' => ceil(($result['totalAnnouncement']) / $max),
-            'status' => $status,
-            'loginUser' => $this->getLogin(),
+        return $twig->render($response, 'homepage.html', [
+            "overview" => $overview,
+            "staffs" => $staffs,
+            "org" => $orgStaff,
         ]);
+
     }
 
-
-    /**
-     * View Issues.
-     */
-    public function issues($request, $response, $args)
+    public function updateOverview($request, $response, $args)
     {
 
-        $message = $this->flashMessages->getFirstMessage('message');
+        $twig = Twig::fromRequest($request);
 
-        $view = Twig::fromRequest($request);
+        $path = './resources/overview/';
 
-        $queryParams = $request->getQueryParams();
+        $aboutImage = $_FILES['aboutImage'];
+        $heroImage = $_FILES['heroImage'];
 
-        // if page is present then set value to page otherwise to 1
-        $page = $queryParams['page'] ?? 1;
-
-        $type = $queryParams['type'] ?? 'posted';
-
-        // max transaction per page
-        $max = 3;
-
-        $filter = Filter::check($queryParams);
-
-        $createdAt = empty($queryParams['createdAt']) ? null : $queryParams['createdAt'];
-
-        $query = empty($queryParams['query']) ? null : $queryParams['query'];
-
-        $pagination = $this->issuesService->getAll($page, $max, $query, $filter, null, $type, $createdAt);
-
-        return $view->render($response, 'pages/admin-all-issues.html', [
-            'type' => $type,
-            'message' => $message,
-            'issues' => $pagination->getItems(),
-            'currentPage' => $page,
-            'status' => $queryParams['status'] ?? null,
-            'paginator' => $pagination,
-            'createdAt' => $createdAt,
-            'loginUser' => $this->getLogin(),
-        ]);
-    }
-
-    public function users($request, $response, $args)
-    {
-
-        $view = Twig::fromRequest($request);
-
-        $queryParams = $request->getQueryParams();
-
-        $errorMessage = $this->flashMessages->getFirstMessage('errorMessage');
-
-        // if page is present then set value to page otherwise to 1
-        $page = $queryParams['page'] ?? 1;
-
-        $role = $queryParams['role'] ?? 'admin';
-
-        // max transaction per page
-        $max = 3;
-
-        $filter = Filter::check($queryParams);
-
-        $query = empty($queryParams['query']) ? "" : $queryParams['query'];
-
-        $pagination = $this->userSerivce->getAll($page, $max, $query, $filter, $role);
-
-        return $view->render($response, 'pages/admin-all-users.html', [
-            'users' => $pagination->getItems(),
-            'currentPage' => $page,
-            'role' => $role,
-            'paginator' => $pagination,
-            'superAdmin' => $this->getLogin()->getRole() === "super",
-            'loginUser' => $this->getLogin(),
-            'query' => $query,
-            "errorMessage" => $errorMessage,
-        ]);
-    }
-
-    /**
-     * View Issues.
-     */
-    public function manageIssue($request, $response, $args)
-    {
-
-        $id = $args['id'];
-
-        $view = Twig::fromRequest($request);
-
-        //might throw and error
-        $issue = $this->issuesService->findById($id);
-
-        return $view->render($response, 'pages/admin-manage-issue.html', [
-            'issue' => $issue,
-        ]);
-    }
-
-
-    public function actionIssue($request, $response, $args)
-    {
+        $overview = $this->overviewService->getOverview();
 
         $content = $request->getParsedBody();
 
-        $id = $content['id'];
+        $overview->setAboutDescription($content['aboutDescription']);
+        $overview->setHeroDescription($content['heroDescription']);
 
-        $issue = $this->issuesService->findById($id);
+        if ($aboutImage['error'] !== UPLOAD_ERR_NO_FILE) {
+            $imageName = Image::store($path, $aboutImage);
+            $overview->setAboutImg(str_replace('.', '', $path) . $imageName);
+        }
 
-        $issue->setAction($content['action']);
+        if ($heroImage['error'] !== UPLOAD_ERR_NO_FILE) {
+            $imageName = Image::store($path, $heroImage);
+            $overview->setAboutImg(str_replace('.', '', $path) . $imageName);
+        }
 
-        $issue->setStatus($content['status']);
-
-        $this->issuesService->save($issue);
+        $this->overviewService->saveOverview($overview);
 
         return $response
-            ->withHeader('Location', "/admin/issues/$id")
+            ->withHeader('Location', "/admin/overview")
             ->withStatus(302);
-    }
-
-
-    /**
-     * View Issues.
-     */
-    public function paymentMap($request, $response, $args)
-    {
-
-        $message = $this->flashMessages->getFirstMessage('message');
-
-        $view = Twig::fromRequest($request);
-
-        $queryParams = $request->getQueryParams();
-
-        // if page is present then set value to page otherwise to 1
-        $page = isset($queryParams['page']) ? $queryParams['page'] : 1;
-
-        $type = isset($queryParams['type']) ? $queryParams['type'] : 'posted';
-
-        // max transaction per page
-        $max = 5;
-
-        $filter = Filter::check($queryParams);
-
-        return $view->render($response, 'pages/admin-payments-map.html', [
-            'type' => $type,
-            'message' => $message,
-            'currentPage' => $page,
-            'from' => isset($queryParams['from']) ? $queryParams['from'] : null,
-            'to' => isset($queryParams['to']) ? $queryParams['to'] : null,
-            'status' => isset($queryParams['status']) ? $queryParams['status'] : null,
-            // 'totalPages' => ceil(($result['totalIssues']) / $max),
-        ]);
-    }
-
-    public function accountSettings($request, $response, $args)
-    {
-
-        $user = $this->getLogin();
-
-        $loginHistory = $this->loginHistoryService->getLogs($user);
-        $currentSession = session_id();
-
-        $view = Twig::fromRequest($request);
-
-        return $view->render($response, 'pages/admin-account-settings.html', [
-            "loginHistory" => $loginHistory,
-            "sessionId" => $currentSession,
-            'loginUser' => $this->getLogin(),
-            "user" => $user,
-        ]);
-    }
-
-    public function managePrivileges($request, $response, $args)
-    {
-
-        $params = $request->getParsedBody();
-
-        try {
-
-            if (!isset($params['email'])) {
-                throw  new Exception("Email is required");
-            }
-
-            $email = $params['email'];
-
-            if (!V::email()->validate($email)) {
-                throw new Exception('Invalid Email');
-            }
-
-            $user = $this->userSerivce->findByEmail($email);
-
-            if ($user == null) {
-                throw  new Exception("User not Found!");
-            }
-
-            $admin = false;
-
-            $managePayments = $params['payment'] ?? null;
-            $manageIssues = $params['issue'] ?? null;
-            $manageAnnouncements = $params['announcement'] ?? null;
-            $manageUsers = $params['user'] ?? null;
-
-            $user->setRole(UserRole::admin());
-            $this->userSerivce->save($user);
-
-            if (isset($managePayments)) {
-                $user->getPrivileges()->setAdminPayment(true);
-                $admin = true;
-            } else {
-                $user->getPrivileges()->setAdminPayment(false);
-            }
-
-            if (isset($manageIssues)) {
-                $user->getPrivileges()->setAdminIssues(true);
-                $admin = true;
-
-            } else {
-                $user->getPrivileges()->setAdminIssues(false);
-            }
-
-            if (isset($manageAnnouncements)) {
-                $user->getPrivileges()->setAdminAnnouncement(true);
-                $admin = true;
-
-            } else {
-                $user->getPrivileges()->setAdminAnnouncement(false);
-
-            }
-
-            if (isset($manageUsers)) {
-                $user->getPrivileges()->setAdminUser(true);
-                $admin = true;
-
-            } else {
-                $user->getPrivileges()->setAdminUser(false);
-            }
-
-            if ($admin) {
-                $user->setRole(UserRole::admin());
-            } else {
-                $user->setRole(UserRole::user());
-            }
-
-            $this->userSerivce->save($user);
-
-            $action = "User with id of " . $user->getId() . " update privileges";
-
-            $actionLog = new LogsModel();
-            $actionLog->setAction($action);
-            $actionLog->setTag("Admin");
-            $actionLog->setUser($this->getLogin());
-            $actionLog->setCreatedAt(new DateTime());
-            $this->actionLogs->addLog($actionLog);
-
-            $this->priviligesService->save($user->getPrivileges());
-
-            return $response
-                ->withHeader('Location', "/admin/users")
-                ->withStatus(302);
-        } catch (Exception $e) {
-            $this->flashMessages->addMessage('errorMessage', $e->getMessage());
-
-            return $response
-                ->withHeader('Location', "/admin/users")
-                ->withStatus(302);
-        }
 
     }
 
-
-    public function systemSettings($request, $response, $args)
+    public function addStaff($request, $response, $args)
     {
 
-        $systemSettings = $this->systemSettingService->findById();
+        $path = './resources/staff/';
 
         $twig = Twig::fromRequest($request);
 
-        $user = $this->getLogin();
-
-        $timezone = date_default_timezone_get();
-
-        return $twig->render($response, 'pages/admin-system-settings.html', [
-            'timezone' => $timezone,
-            "loginUser" => $user,
-            "systemSettings" => $systemSettings,
-        ]);
-
-    }
-
-    public function announcementPage($request, $response, $args)
-    {
-
-        $twig = Twig::fromRequest($request);
-
-        $user = $this->getLogin();
-
-        return $twig->render($response, 'pages/admin-announcement.html', [
-            "loginUser" => $user
-        ]);
-
-    }
-
-    public function logs($request, $response, $args)
-    {
-        $twig = Twig::fromRequest($request);
-
-        $queryParams = $request->getQueryParams();
-
-        // if page is present then set value to page otherwise to 1
-        $page = $queryParams['page'] ?? 1;
-
-        $filter['from'] = empty($queryParams['from']) ? null : (new DateTime($queryParams['from']))->format('Y-m-d H:i:s');
-        $filter['to'] = empty($queryParams['to']) ? null : (new DateTime($queryParams['to']))->format('Y-m-d H:i:s');
-        $filter['tag'] = null;
-
-
-        $user = null;
-
-        if (isset($queryParams['email'])) {
-            $user = $this->userSerivce->findByEmail($queryParams['email']);
-        }
-
-        // max transaction per page
-        $max = 10;
-
-//        Get Transaction
-        $result = $this->actionLogs->getAll($page, $max, $filter, $user);
-
-        $data = [
-            'logs' => $result->getItems(),
-            'currentPage' => $page,
-            'from' => $queryParams['from'] ?? null,
-            'to' => $queryParams['to'] ?? null,
-            'user' => $user,
-            'status' => $queryParams['status'] ?? null,
-            'paginator' => $result,
-            'loginUser' => $this->getLogin(),
-        ];
-
-        return $twig->render($response, 'pages/admin-all-logs.html', $data);
-    }
-
-    public function test($request, $response, $args)
-    {
-        $user = new UserModel();
-        $user->setPassword('admin');
-
-        var_dump($user->getPassword());
-    }
-
-
-    public function updateSystemSettings($request, $response, $args)
-    {
+        $image = $_FILES['image'];
 
         $content = $request->getParsedBody();
 
-        $systemSettings = $this->systemSettingService->findById();
+        try{
+            $superior = $this->overviewService->getStaffById($content['superior']);
 
-        $systemSettings->setTermsAndCondition($content['termsAndCondition']);
-        $systemSettings->setMailHost($content['mailHost']);
-        $systemSettings->setMailUsername($content['mailUsername']);
+            $staff = new Staff();
+            $staff->setName($content['name']);
+            $staff->setPosition($content['position']);
 
-//        only update password if not empty
-        if (!empty($content['mailPassword'])) {
-            $systemSettings->setMailPassword($content['mailPassword']);
+            if (isset($superior)) {
+                $staff->setSuperior($superior);
+            }
+
+            if ($image['error'] !== UPLOAD_ERR_NO_FILE) {
+                $imageName = Image::store($path, $image);
+                $staff->setImg(str_replace('.', '', $path) . $imageName);
+            }
+
+            $this->overviewService->saveStaff($staff);
+        }catch (Exception $e){
+
+            $message = $e->getMessage();
+
+            if($e->getCode() == 1062){
+                $message = 'Name is already define';
+            }
+
+            $this->flashMessages->addMessage('errorMessage',$message);
         }
 
-        if(isset($content['allowSignup'])){
-            $systemSettings->setAllowSignup(true);
-        }else{
-            $systemSettings->setAllowSignup(false);
-        }
-
-        $this->systemSettingService->save($systemSettings);
 
         return $response
-            ->withHeader('Location', "/admin/system")
+            ->withHeader('Location', "/admin/overview")
             ->withStatus(302);
+
+    }
+
+    public function removeStaff($request, $response, $args)
+    {
+
+        $twig = Twig::fromRequest($request);
+
+        $content = $request->getParsedBody();
+
+        try{
+
+            $staff = $this->overviewService->getStaffByName($content['name']);
+
+            if(isset($staff)){
+                $this->overviewService->deleteStaff($staff);
+            }
+
+        }catch (Exception $e){
+
+            $message = $e->getMessage();
+
+            if($e->getCode() == 1451){
+                $message = 'Cannot Remove Staff, please remove lower staff first';
+            }
+
+            $this->flashMessages->addMessage('errorMessage',$message);
+        }
+
+        return $response
+            ->withHeader('Location', "/admin/overview")
+            ->withStatus(302);
+
     }
 
 }

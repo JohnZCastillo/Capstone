@@ -4,12 +4,14 @@ namespace App\model;
 
 use App\lib\Time;
 use App\model\enum\AnnouncementStatus;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'annoucement')]
-class AnnouncementModel {
+class AnnouncementModel
+{
 
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
@@ -24,17 +26,63 @@ class AnnouncementModel {
     #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
-   #[ORM\Column(type: AnnouncementStatus::class)]
+    #[ORM\Column(type: AnnouncementStatus::class)]
     private $status;
- 
+
     #[ORM\ManyToOne(targetEntity: UserModel::class, inversedBy: 'posts')]
     private ?UserModel $user = null;
+
+    #[ORM\OneToMany(mappedBy: 'announcement', targetEntity: AnnouncementHistoryModel::class)]
+    private Collection|array $history;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private \DateTime|null $pinDate;
+
+    #[ORM\Column(type: 'boolean', nullable: true, options: ['default' => true])]
+    private bool|null $pin;
+
+    public function __construct()
+    {
+        $this->history = new ArrayCollection();
+        $this->pin = false;
+    }
+
+    public function setPinDate(?\DateTime $pinDate): void
+    {
+        $this->pinDate = $pinDate;
+    }
+
+    public function setPin(?bool $pin): void
+    {
+        $this->pin = $pin;
+    }
+
+    public function getPinDate(): ?\DateTime
+    {
+        return $this->pinDate;
+    }
+
+    public function getPin(): ?bool
+    {
+        return $this->pin;
+    }
+
+    public function getHistory(): Collection|array
+    {
+        return $this->history;
+    }
+
+    public function setHistory(Collection|array $history): void
+    {
+        $this->history = $history;
+    }
 
 
     /**
      * Get the value of title
      */
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->title;
     }
 
@@ -43,7 +91,8 @@ class AnnouncementModel {
      *
      * @return  self
      */
-    public function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->title = $title;
 
         return $this;
@@ -52,7 +101,8 @@ class AnnouncementModel {
     /**
      * Get the value of id
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
@@ -61,7 +111,8 @@ class AnnouncementModel {
      *
      * @return  self
      */
-    public function setId($id) {
+    public function setId($id)
+    {
         $this->id = $id;
 
         return $this;
@@ -70,7 +121,8 @@ class AnnouncementModel {
     /**
      * Get the value of content
      */
-    public function getContent() {
+    public function getContent()
+    {
         return $this->content;
     }
 
@@ -79,7 +131,8 @@ class AnnouncementModel {
      *
      * @return  self
      */
-    public function setContent($content) {
+    public function setContent($content)
+    {
         $this->content = $content;
 
         return $this;
@@ -89,7 +142,8 @@ class AnnouncementModel {
     /**
      * Get the value of createdAt
      */
-    public function getCreatedAt() {
+    public function getCreatedAt()
+    {
         return Time::convert($this->createdAt);
     }
 
@@ -98,7 +152,8 @@ class AnnouncementModel {
      *
      * @return  self
      */
-    public function setCreatedAt($createdAt) {
+    public function setCreatedAt($createdAt)
+    {
         $this->createdAt = $createdAt;
 
         return $this;
@@ -107,7 +162,8 @@ class AnnouncementModel {
     /**
      * Get the value of user
      */
-    public function getUser() {
+    public function getUser()
+    {
         return $this->user;
     }
 
@@ -116,7 +172,8 @@ class AnnouncementModel {
      *
      * @return  self
      */
-    public function setUser($user) {
+    public function setUser($user)
+    {
         $this->user = $user;
 
         return $this;
@@ -125,7 +182,8 @@ class AnnouncementModel {
     /**
      * Get the value of status
      */
-    public function getStatus() {
+    public function getStatus()
+    {
         return $this->status;
     }
 
@@ -134,7 +192,8 @@ class AnnouncementModel {
      *
      * @return  self
      */
-    public function setStatus($status) {
+    public function setStatus($status)
+    {
         $this->status = $status;
 
         return $this;

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+
+<html
+        lang="en"
+        class="light-style layout-menu-fixed layout-compact"
+        dir="ltr"
+        data-theme="theme-default"
+        data-assets-path="../assets/"
+        data-template="vertical-menu-template-free">
+<head>
+    <meta charset="utf-8"/>
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
+
+    <title>{{active_route|title}}</title>
+
+    <meta name="description" content=""/>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/resources/favicon.ico"/>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link
+            href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+            rel="stylesheet"/>
+
+    <link rel="stylesheet" href="/resources/assets/vendor/fonts/boxicons.css"/>
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="/resources/assets/vendor/css/core.css" class="template-customizer-core-css"/>
+    <link rel="stylesheet" href="/resources/assets/vendor/css/theme-default.css" class="template-customizer-theme-css"/>
+    <link rel="stylesheet" href="/resources/assets/css/demo.css"/>
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="/resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css"/>
+    <link rel="stylesheet" href="/resources/assets/vendor/libs/apex-charts/apex-charts.css"/>
+
+    <!-- Page CSS -->
+
+    <!-- Helpers -->
+    <script src="/resources/assets/vendor/js/helpers.js"></script>
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="/resources/assets/js/config.js"></script>
+
+
+    <script src="/resources/assets/vendor/libs/jquery/jquery.js"></script>
+    <script src="/resources/assets/vendor/libs/popper/popper.js"></script>
+    <script src="/resources/assets/vendor/js/bootstrap.js"></script>
+    <script src="/resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+    <script src="/resources/assets/vendor/js/menu.js"></script>
+
+
+    <style>
+        .cover{
+            background-image: url("/resources/landing.jpg");
+            background-size: cover;
+            background-position: top;
+        }
+    </style>
+</head>
+
+<body>
+<!-- Layout wrapper -->
+
+<div class="authentication-wrapper authentication-cover vh-100">
+    <div class="authentication-inner row m-0 h-100">
+        <!-- /Left Text -->
+        <div class="d-none d-lg-flex col-lg-7 col-xl-8 align-items-center p-0 cover">
+        </div>
+        <div class="d-flex col-12 col-lg-5 col-xl-4 align-items-center authentication-bg p-sm-5 p-4 bg-white ">
+            <div class="w-px-400 mx-auto position-relative">
+                
+                <img class="position-absolute mb-2" src="/resources/logo_black.png" style="width: 120px; height: auto; top: -70px">
+                {% block body %}
+
+
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/resources/assets/js/main.js"></script>
+
+{% block javascript %}
+
+
+{% endblock %}
+<!-- Place this tag in your head or just before your close body tag. -->
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+</body>
+</html>

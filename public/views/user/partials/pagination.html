@@ -1,0 +1,46 @@
+{% if ( paginator.lastPage > 1 ) %}
+{% set totalPage = paginator.lastPage  %}
+<div class="card-body">
+  <div class="row">
+    <div class="col-lg-6">
+      <small class="text-light fw-medium">Page</small>
+      <div class="demo-inline-spacing">
+        <nav aria-label="Page navigation">
+          <ul class="pagination">
+            {%for page in 1..totalPage%}
+            {% if page == currentPage %}
+            <li class="page-item active">
+              <a class="page-link" href="#" tabindex="-1">{{ page }}</a>
+            </li>
+            {% else %}
+            <li class="page-item">
+              {% set url = current_url(true)%}
+              {% if 'page' in url %}
+
+              {% set target = get_uri().query %}
+              {% set onPage = "page="~currentPage %}
+              {% set replacePage = "page="~page %}
+              {% set link = target|replace({(onPage): replacePage}) %}
+              {% set link = current_url() ~ "?" ~link %}
+
+              <a class="page-link" href="{{link}}">{{ page }}</a>
+              {% else %}
+
+              {% if get_uri().query|length > 0%}
+              <a class="page-link" href="{{url ~ '&page='~page }}">{{ page }}</a>
+              {% else %}
+              <a class="page-link" href="{{url ~ '?page='~page }}">{{ page }}</a>
+              {% endif %}
+              {% endif %}
+            </li>
+            {% endif %}
+            {% endfor %}
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+

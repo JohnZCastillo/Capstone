@@ -2,101 +2,96 @@
 
 namespace App\service;
 
-use App\lib\Helper;
+use App\exception\announcement\AnnouncementNotFound;
+use App\lib\Paginator;
 use App\model\AnnouncementModel;
 
-class AnnouncementService extends Service {
+class AnnouncementService extends Service
+{
 
     /**
      * Save model to database
-     * @param AnnouncementModel $dues 
+     * @param AnnouncementModel $dues
      * @return void
      */
-    public function save(AnnouncementModel $dues) {
+    public function save(AnnouncementModel $dues)
+    {
         $this->entityManager->persist($dues);
         $this->entityManager->flush($dues);
     }
-    
-    public function delete(AnnouncementModel $dues) {
+
+    public function delete(AnnouncementModel $dues)
+    {
         $this->entityManager->remove($dues);
         $this->entityManager->flush($dues);
     }
 
-    public function findById($id): AnnouncementModel {
-        $em = $this->entityManager;
-        $dues = $em->find(AnnouncementModel::class, $id);
+    public function findById($id): AnnouncementModel
+    {
+        $dues = $this->entityManager->find(AnnouncementModel::class, $id);
+
+        if (!isset($dues)) {
+            throw new AnnouncementNotFound("Announcement with id of $id not found");
+        }
+
         return $dues;
     }
 
-    
-    public function getAll($page, $max, $id,$filter, $user = null, $status = 'posted') {
+    public function findAll(): array
+    {
 
-        // Step 1: Define pagination settings
-        $transactionsPerPage = $max;
-        $currentPage = $page; // Set the current page based on user input or any other criteria
+        $qb = $this->entityManager->createQueryBuilder();
 
-        $em = $this->entityManager;
-
-        // Step 3: Fetch paginated announcements
-        $queryBuilder = $em->createQueryBuilder();
-        $queryBuilder->select('t')
+        return $qb->select('t')
             ->from(AnnouncementModel::class, 't')
             ->where('t.status = :status')
-            ->setParameter('status', $status);
+            ->setParameter('status', 'posted')
+            ->addOrderBy('t.pinDate', 'DESC')
+            ->addOrderBy('t.createdAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 
-        if(Helper::existAndNotNull($user)){
-            $queryBuilder->andWhere('t.user = :user')
-            ->setParameter('user', $user);
-        }
 
-        if (Helper::existAndNotNull($id)) {
-            $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
-        }
+    public function getAll($page, $max, $id, $from, $to, $status = 'posted')
+    {
 
-        if (Helper::existAndNotNull($filter,'from')) {
-            $queryBuilder->andWhere('t.createdAt >= :from')->setParameter('from', $filter['from']);
-        }
+        $qb = $this->entityManager->createQueryBuilder();
 
-        if (Helper::existAndNotNull($filter,'to')) {
-            $queryBuilder->andWhere('t.createdAt <= :to')->setParameter('to', $filter['to']);
-        }
+        $or = $qb->expr()->orX();
 
-        $queryBuilder->setMaxResults($transactionsPerPage)
-            ->setFirstResult(($currentPage - 1) * $transactionsPerPage);
-
-        // Step 4: Execute the query and retrieve announcements
-        $announcements = $queryBuilder->getQuery()->getResult();
-
-        $queryBuilder = $em->createQueryBuilder();
-        $queryBuilder->select('count(t.id)')
+        $qb->select('t')
             ->from(AnnouncementModel::class, 't')
-            ->where('t.status = :status')
-            ->setParameter('status', $status);
+            ->where($or)
+            ->addOrderBy('t.pinDate', 'DESC')
+            ->addOrderBy('t.createdAt', 'ASC');
 
-            if(Helper::existAndNotNull($user)){
-                $queryBuilder->andWhere('t.user = :user')
-                ->setParameter('user', $user);
-            }
-    
-            if (Helper::existAndNotNull($id)) {
-                $queryBuilder->andWhere('t.id like :id')->setParameter('id', $id);
-            }
-    
-            if (Helper::existAndNotNull($filter,'from')) {
-                $queryBuilder->andWhere('t.createdAt >= :from')->setParameter('from', $filter['from']);
-            }
-    
-            if (Helper::existAndNotNull($filter,'to')) {
-                $queryBuilder->andWhere('t.createdAt <= :to')->setParameter('to', $filter['to']);
-            }
+        $or->add($qb->expr()->eq('t.status', ':status'));
+        $qb->setParameter('status', $status);
 
-        $totalAnnouncement = $queryBuilder->getQuery()->getSingleScalarResult();
+        if (isset($id)) {
+            $or->add($qb->expr()->like('t.id', ':id'));
+            $qb->setParameter('id', $id);
+        }
+
+        if (isset($from)) {
+            $or->add($qb->expr()->gte('t.createdAt', ':from'));
+            $qb->setParameter('from', $from);
+        }
+
+        if (isset($to)) {
+            $or->add($qb->expr()->lte('t.createdAt', ':to'));
+            $qb->setParameter('to', $to);
+        }
+
+        $paginator = new Paginator();
+        $paginator->paginate($qb, $page, $max);
 
         return [
-            'announcements' => $announcements,
-            'totalAnnouncement' => $totalAnnouncement
+            'result' => $paginator->getItems(),
+            'paginator' => $paginator
         ];
     }
 
-    
+
 }

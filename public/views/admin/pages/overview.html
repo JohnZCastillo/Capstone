@@ -1,0 +1,226 @@
+{% extends "./admin/index.html" %}
+
+{% block body %}
+
+<style>
+    .box {
+        box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+        padding: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+        height: 100px;
+        width: 150px;
+    }
+
+    .staffName {
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .staffImg {
+        display: block;
+        margin-inline: auto;
+        text-align: center;
+        vertical-align: center;
+    }
+
+    #chart_div .google-visualization-orgchart-linebottom {
+        border-bottom: 4px solid var(--bs-primary);
+    }
+
+    #chart_div .google-visualization-orgchart-lineleft {
+        border-left: 4px solid var(--bs-primary);
+    }
+
+    #chart_div .google-visualization-orgchart-lineright {
+        border-right: 4px solid var(--bs-primary);
+    }
+
+    #chart_div .google-visualization-orgchart-linetop {
+        border-top: 4px solid var(--bs-primary);
+    }
+</style>
+<div class="container-xxl flex-grow-1 container-p-y">
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <div class="card-title">
+                <p class="mb-0">Carissa Overview</p>
+            </div>
+        </div>
+
+        <div class="card-content">
+
+            <div class="card-body">
+
+                <form enctype="multipart/form-data" method="POST" action="/admin/overview">
+
+                    <div class="mb-2">
+                        <label for="about">Hero Image</label>
+                        <input name="heroImage" type="file" accept="image/*" class="form-control">
+                    </div>
+                    <div class="mb-2">
+                        <label for="about">Hero Details</label>
+                        <textarea rows="10" cols="50" class="form-control" name="heroDescription"
+                                  id="about">{{overview.heroDescription}}</textarea>
+                    </div>
+                    <div class="mb-2">
+                        <label for="about">About Image</label>
+                        <input  accept="image/*" name="aboutImage" type="file" class="form-control">
+                    </div>
+                    <div class="mb-2">
+                        <label for="about">About Details</label>
+                        <textarea rows="10" cols="50" class="form-control" name="aboutDescription"
+                                  id="about">{{overview.aboutDescription}}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <button class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+
+                <div id="staffSection">
+                    <h4 class="fw-bold">Org Details</h4>
+                    <button class="btn rounded-pill btn-icon btn-success"
+                            data-bs-target="#orgModal"
+                            data-bs-toggle="modal"
+                            type="button"
+                    >
+                        <span class='tf-icon bx bx-plus'></span>
+                    </button>
+                    <button class="btn rounded-pill btn-icon btn-danger"
+                            data-bs-target="#removeOrgModal"
+                            data-bs-toggle="modal"
+                            type="button"
+                    >
+                        <span class='tf-icon bx bx-minus'></span>
+                    </button>
+                    <div id="chart_div"></div>
+                </div>
+
+                <div>
+                    <div>
+                        <h4 class="fw-bold">Feature Details</h4>
+                        <button class="btn btn-success"
+                                data-bs-target="#addFeatureModal"
+                                data-bs-toggle="modal"
+                                type="button"
+                        >New Feature
+                        </button>
+                        <button class="btn btn-danger"
+                                data-bs-target="#removeFeatureModal"
+                                data-bs-toggle="modal"
+                                type="button"
+                        >Remove Feature
+                        </button>
+                    </div>
+
+                    <div class="row p-4" id="featureSection">
+
+                        {% for feature in features %}
+                        <div class="col-sm col-md-6 col-lg-4">
+                            <div class="card h-100">
+                                <img style="min-height: 300px" class="card-img-top" src="{{feature.img}}" alt="Card image cap">
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold">{{feature.name}}</h5>
+                                    <p class="card-text">
+                                      {{feature.description}}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% endfor %}
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% include './admin/partials/add-org.html' %}
+{% include './admin/partials/remove-org.html' %}
+{% include './admin/partials/remove-feature.html' %}
+{% include './admin/partials/add-feature.html' %}
+
+{% endblock %}
+
+{% block javascript %}
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script>
+
+    function createStaff(name, position, img, superior) {
+
+        return [{
+            'v': `${name}`,
+            'f': `<img class='staffImg img-fluid' src='${img}' />
+                    <span class='staffName'>${name}</span>
+                    <div class='staffPosition'> ${position}</div>`
+        },
+            superior, `The ${position}`
+        ];
+    }
+
+    function removeStaff(name) {
+        return staff.filter(element => element[0].v != name);
+    }
+
+    google.charts.load('current', {
+        packages: ["orgchart"]
+    });
+
+    google.charts.setOnLoadCallback(drawChart);
+
+    // will error if in new line
+    let data = {{org | json_encode | raw}};
+
+    let staff = [];
+
+    data.forEach(element => {
+
+        staff.push(createStaff(element.name,
+            element.position,
+            element.img,
+            element.superior,
+        ));
+    })
+
+    console.log(staff)
+
+    function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Name');
+        data.addColumn('string', 'Manager');
+        data.addColumn('string', 'ToolTip');
+
+        // For each orgchart box, provide the name, manager, and tooltip to show.
+        data.addRows(staff);
+
+        // Create the chart.
+        var chart = new google.visualization.OrgChart(document.getElementById('chart_div'));
+
+
+        google.visualization.events.addListener(chart, 'select', function () {
+            var selectedItem = chart.getSelection()[0];
+            if (selectedItem) {
+                var nodeName = data.getValue(selectedItem.row, 0);
+                console.log(nodeName);
+            }
+        });
+
+        // Draw the chart, setting the allowHtml option to true for the tooltips.
+        chart.draw(data, {
+            'allowHtml': true,
+            'nodeClass': 'box',
+        });
+    }
+
+</script>
+{% endblock %}

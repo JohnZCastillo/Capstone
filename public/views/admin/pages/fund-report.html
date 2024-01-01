@@ -1,0 +1,132 @@
+{% extends "./admin/index.html" %}
+
+{% block body %}
+<div class="container-xxl flex-grow-1 container-p-y">
+
+    <div class="row">
+
+        <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
+            <div class="card">
+                <h5 class="card-header"><span class="card-title">Report Generation</span></h5>
+
+                <div class="card-body mb-0 pb-0">
+                    <div class="card-content">
+                        <h6>Total Fund: {{fund.computeTotal|format_currency('PHP')}}</h6>
+                        <h6>Total Income: {{fund.computeIncomes|format_currency('PHP')}} </h6>
+                        <h6>Total Expense: {{fund.computeExpenses|format_currency('PHP')}}</h6>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+
+                    <table class="table thead-dark table-hover rounded-table table-shadow">
+                        <thead class="bg-dark text-white">
+                        <tr>
+                            <th></th>
+                            <th>Jan</th>
+                            <th>Feb</th>
+                            <th>Mar</th>
+                            <th>Apr</th>
+                            <th>May</th>
+                            <th>Jun</th>
+                            <th>Jul</th>
+                            <th>Aug</th>
+                            <th>Sep</th>
+                            <th>Oct</th>
+                            <th>Nov</th>
+                            <th>Dec</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for header in header %}
+                        <tr>
+                            <td>{{header.title}}</td>
+
+                            {% for data in header.data %}
+                            <td>{{data|format_currency('PHP')}}</td>
+                            {% endfor %}
+                        </tr>
+
+                        {% endfor %}
+                        <tr class="bg-secondary">
+                            <td><span class="text-white">Total</span></td>
+                            <td colspan="12" class="text-center text-white"><span class="fw-bold">{{fund.computeTotal|format_currency('PHP')}} </span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-4 col-12 invoice-actions">
+            <div class="card mb-2">
+                <div class="card-body">
+                    <div class="d-flex flex-column gap-2">
+                        <button onclick="printPdf()" class="btn btn-primary mb-2">
+                            <span id="printLoading" class="d-none spinner-border" role="status">
+                            </span>
+                            <span id="printLabel">
+                                Print
+                            </span>
+                        </button>
+                        <a href="/admin/fund/report/print/{{fund.id}}" class="btn btn-primary mb-2">Download</a>
+                        <a href="/admin/fund/{{fund.id}}" class="btn btn-secondary mb-2">Back</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+
+<script>
+
+    const printLoading = document.getElementById('printLoading');
+    const printLabel = document.getElementById('printLabel');
+
+
+    async function printPdf() {
+
+        printLoading.classList.toggle('d-none');
+        printLabel.classList.toggle('d-none');
+
+        try {
+
+
+            const data = await fetch('/admin/fund/report/print/{{fund.id}}');
+            const blob = await data.blob();
+
+            const reader = new FileReader();
+
+            reader.onload = () => {
+                const pdfWindow = window.open('');
+                const base64data = reader.result.split(',')[1]; // Extract base64 data
+
+                pdfWindow.document.write(`<iframe width="100%" height="100%" src="data:application/pdf;base64,${base64data}"></iframe>`);
+                pdfWindow.document.close();
+
+                pdfWindow.onload = () => {
+                    pdfWindow.focus();
+                    pdfWindow.print();
+                };
+
+            }
+            reader.readAsDataURL(blob);
+
+
+
+        } catch (error) {
+            console.error('Error fetching PDF:', error);
+        }
+
+        printLoading.classList.toggle('d-none');
+        printLabel.classList.toggle('d-none');
+    }
+
+</script>
+{% endblock %}

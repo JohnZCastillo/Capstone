@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html
+        lang="en"
+        class="light-style layout-menu-fixed layout-compact"
+        dir="ltr"
+        data-theme="theme-default"
+        data-assets-path="../assets/"
+        data-template="vertical-menu-template-free">
+<head>
+    <meta charset="utf-8"/>
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
+
+    <title>{{active_route|title}}</title>
+
+    <meta name="description" content=""/>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/resources/favicon.ico"/>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link
+            href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+            rel="stylesheet"/>
+
+    <link rel="stylesheet" href="/resources/assets/vendor/fonts/boxicons.css"/>
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="/resources/assets/vendor/css/core.css" class="template-customizer-core-css"/>
+    <link rel="stylesheet" href="/resources/assets/vendor/css/theme-default.css" class="template-customizer-theme-css"/>
+    <link rel="stylesheet" href="/resources/assets/css/demo.css"/>
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="/resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css"/>
+    <link rel="stylesheet" href="/resources/assets/vendor/apex-charts/apex-charts.css"/>
+
+    <!-- Page CSS -->
+
+    <!-- Helpers -->
+    <script src="/resources/assets/vendor/js/helpers.js"></script>
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="/resources/assets/js/config.js"></script>
+
+
+    <script src="/resources/assets/vendor/libs/jquery/jquery.js"></script>
+    <script src="/resources/assets/vendor/libs/popper/popper.js"></script>
+    <script src="/resources/assets/vendor/js/bootstrap.js"></script>
+    <script src="/resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+    <script src="/resources/assets/vendor/js/menu.js"></script>
+
+    <link rel="stylesheet" href="https://a.omappapi.com/app/js/api.min.css" id="omapi-css" media="all">
+
+    <style>
+        .img-thumbnail {
+            width: 150px;
+            height: 200px;
+
+        }
+
+        /* ===== Scrollbar CSS ===== */
+        /* Firefox */
+        * {
+            scrollbar-width: auto;
+            scrollbar-color: #f5f5f9 #ffffff;
+        }
+
+        /* Chrome, Edge, and Safari */
+        *::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: #ffffff;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background-color: #f5f5f9;
+            border-radius: 5px;
+            border: 3px solid #ffffff;
+        }
+    </style>
+</head>
+
+<body>
+<!-- Layout wrapper -->
+<div class="layout-wrapper layout-content-navbar">
+    <div class="layout-container">
+        <!-- Menu -->
+
+
+        {% set activeOverview = active_route == 'overview' ? 'active' : '' %}
+        {% set activeHome = active_route == 'home' ? 'active' : '' %}
+        {% set activeIssues = active_route == 'issues' ? 'active' : '' %}
+        {% set activeAnnouncement = active_route == 'announcements' ? 'active' : '' %}
+        {% set activeUsers = active_route == 'users' ? 'active' : '' %}
+        {% set activeLogs = active_route == 'logs' ? 'active' : '' %}
+        {% set activeSystem = active_route == 'system' ? 'active' : '' %}
+        {% set activeBudget = active_route == 'budget' ? 'active' : '' %}
+
+        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+            <div class="app-brand py-2">
+                <a href="/admin/payments" class="app-brand-link d-block mx-auto">
+              <span class="app-brand-logo demo">
+               <img class="img-fluid" src="/resources/logo_black.png" style="width: 100px; height: 60px">
+              </span>
+                </a>
+
+                <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+                    <i class="bx bx-chevron-left bx-sm align-middle"></i>
+                </a>
+            </div>
+
+            <div class="menu-inner-shadow"></div>
+
+            <ul class="menu-inner py-1">
+
+
+                {% if login_user.privileges.adminPayment  %}
+
+
+                    <li class="menu-item {{activeHome}}">
+                        <a
+                                href="/admin/payments"
+                                class="menu-link">
+                            <i class="menu-icon tf-icons bx bxs-wallet"></i>
+                            <div data-i18n="Email">Payments</div>
+                        </a>
+                    </li>
+
+                {% endif %}
+
+                {% if login_user.privileges.adminIssues  %}
+
+                    <li class="menu-item {{activeIssues}}">
+                        <a
+                                href="/admin/issues"
+                                class="menu-link">
+                            <i class="menu-icon tf-icons bx bxs-chat"></i>
+                            <div data-i18n="Chat">Issues</div>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% if login_user.privileges.adminAnnouncement  %}
+
+                    <li class="menu-item {{activeAnnouncement}}">
+                        <a
+                                href="/admin/announcements"
+                                class="menu-link">
+                            <i class="menu-icon tf-icons bx bxs-megaphone"></i>
+                            <div data-i18n="Calendar">Announcements</div>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% if login_user.privileges.adminUser  %}
+
+                    <li class="menu-item {{activeUsers}}">
+                        <a
+                                href="/admin/users"
+                                class="menu-link">
+                            <i class="menu-icon tf-icons bx bxs-user"></i>
+                            <div data-i18n="Calendar">Users</div>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% if login_user.privileges.adminPayment  %}
+                    <li class="menu-item {{activeBudget}}">
+                        <a
+                                href="/admin/budget"
+                                class="menu-link">
+                            <i class="menu-icon tf-icons bx bxs-coin"></i>
+                            <div data-i18n="Email">Budget</div>
+                        </a>
+                    </li>
+                {% endif %}
+
+
+                {% if login_user.role == 'super' %}
+
+                    <li class="menu-item {{activeOverview}}">
+                        <a
+                                href="/admin/overview"
+                                class="menu-link">
+                            <i class="menu-icon tf-icons bx bxs-building-house"></i>
+                            <div data-i18n="Email">Overview</div>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{activeLogs}}">
+                        <a
+                                href="/admin/logs"
+                                class="menu-link">
+                            <i class="menu-icon tf-icons bx bxs-notepad"></i>
+                            <div data-i18n="Calendar">Logs</div>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{activeSystem}}">
+                        <a
+                                href="/admin/system"
+                                class="menu-link">
+                            <i class='menu-icon tf-icons bx bxs-cog'></i>
+                            <div data-i18n="Calendar">System Settings</div>
+                        </a>
+                    </li>
+                {% endif %}
+
+            </ul>
+        </aside>
+        <!-- / Menu -->
+
+        <!-- Layout container -->
+        <div class="layout-page">
+
+            <!-- Content wrapper -->
+            <div class="content-wrapper">
+                <!-- Content -->
+
+                <nav
+                        class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+                        id="layout-navbar">
+                    <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+                        <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+                            <i class="bx bx-menu bx-sm"></i>
+                        </a>
+                    </div>
+
+                    <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+                        <div class="navbar-nav align-items-center">
+                            <p class="mb-0">Hi {{login_user.name}}!</p>
+                        </div>
+
+                        <ul class="navbar-nav flex-row align-items-center ms-auto">
+                            <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                                <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);"
+                                   data-bs-toggle="dropdown">
+                                    <div class="avatar">
+                                        <svg class="w-px-40 h-auto rounded-circle" xmlns="http://www.w3.org/2000/svg" height="16" width="14" viewBox="0 0 448 512"><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2023 Fonticons, Inc.--><path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/></svg>
+                                    </div>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="#">
+                                            <div class="d-flex">
+                                                <div class="flex-shrink-0 me-3">
+                                                    <div class="avatar">
+                                                        <svg class="w-px-40 h-auto rounded-circle" xmlns="http://www.w3.org/2000/svg" height="16" width="14" viewBox="0 0 448 512"><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2023 Fonticons, Inc.--><path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/></svg>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <span class="fw-medium d-block">{{login_user.name}}</span>
+                                                    <small class="text-muted">{{login_user.role}}</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <div class="dropdown-divider"></div>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="/admin/account">
+                                            <i class="bx bx-user me-2"></i>
+                                            <span class="align-middle">Account</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <div class="dropdown-divider"></div>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="/logout">
+                                            <i class="bx bx-power-off me-2"></i>
+                                            <span class="align-middle">Log Out</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+
+                {% block body %}
+
+
+                {% endblock %}
+
+                <!-- Footer -->
+                <footer class="content-footer footer bg-footer-theme">
+                    <div class="text-center pb-2">
+                        All Rights Reserved
+                    </div>
+                </footer>
+                <!-- / Footer -->
+
+                <div class="content-backdrop fade"></div>
+            </div>
+            <!-- Content wrapper -->
+        </div>
+        <!-- / Layout page -->
+    </div>
+
+
+    {% include './partials/message-modal.html' %}
+    {% include './partials/error-modal.html' %}
+    {% include './admin/partials/image-modal.html' %}
+
+    <!-- Overlay -->
+    <div class="layout-overlay layout-menu-toggle"></div>
+</div>
+
+
+
+<script>
+    const modalImage = document.querySelector("#modalImage");
+    const images = document.querySelectorAll("img");
+
+    images.forEach((image) => {
+        image.addEventListener("click", () => {
+            console.log('yow');
+            modalImage.src = image.src;
+            $("#imageModal").modal("show");
+        });
+    });
+</script>
+
+<script src="/resources/assets/vendor/apex-charts/apexcharts.js"></script>
+<script src="/resources/assets/js/main.js"></script>
+
+
+{% block javascript %}
+
+{% endblock %}
+
+<!-- Place this tag in your head or just before your close body tag. -->
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+</body>
+</html>

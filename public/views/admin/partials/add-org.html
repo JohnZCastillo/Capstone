@@ -1,0 +1,49 @@
+<div
+        class="modal fade"
+        id="orgModal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="orgModalLabel"
+        aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="staffForm" enctype="multipart/form-data" method="POST" action="/admin/add-staff">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">Add Fund</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <label for="staffName">Name</label>
+                        <input class="form-control" name="name" id="staffName" required>
+                    </div>
+                    <div>
+                        <label for="image">Image</label>
+                        <input type="file" class="form-control" accept="image/*" name="image" id="image" required>
+                    </div>
+                    <div>
+                        <label for="staffPosition">Position</label>
+                        <input class="form-control" name="position" id="staffPosition" required>
+                    </div>
+                    <div>
+                        <label for="staffSuperior">Superior</label>
+                        <select required name="superior" id="staffSuperior" class="form-control">
+                            <option value="0">None</option>
+                            {% for staff in staffs %}
+                            <option value="{{staff.id}}">{{staff.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="mt-2 btn btn-primary">Add</button>
+                    <button type="button" class="mt-2 btn btn-primary" data-bs-dismiss="modal" aria-label="Close">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

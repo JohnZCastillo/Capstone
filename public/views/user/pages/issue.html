@@ -1,0 +1,68 @@
+{% extends "./user/index.html" %}
+
+
+{% block body %}
+
+
+<div class="container-xxl flex-grow-1 container-p-y">
+
+    <div class="row invoice-preview">
+        <!-- Invoice -->
+        <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
+            <div class="card invoice-preview-card">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column p-sm-3 p-0">
+                        <div>
+                            <h4>Issue #{{issue.id}}</h4>
+                            <div class="mb-2">
+                                <span class="me-1">Date Issues:</span>
+                                <span class="fw-medium">{{issue.getCreatedAt()|date("M Y") }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="my-0">
+
+
+                <div class="card-body">
+                    <h4>{{issue.title}}</h4>
+
+                    <small>Issue Content</small>
+                    <textarea class="form-control" readonly>{{issue.content}}</textarea>
+                    {% set bg = issue.status|lower == 'resolved' ? "bg-success" : "bg-danger" %}
+
+                    <hr class="mb-3">
+
+                    {% if issue.status == 'pending' %}
+                    <p class="bg-light rounded mb-1" style="max-width: max-content">Issue is <span
+                            class="badge badge-pill {{bg}}">{{issue.status|lower}}</span> Please wait for
+                        admin resolution
+                    </p>
+                    {% else %}
+                    <p class="bg-light rounded mb-1" style="max-width: max-content">An admin has <span
+                            class="badge badge-pill {{bg}}">{{issue.status|lower}}</span> this issue
+                    </p>
+                    <small>Issue Resolution</small>
+                    <textarea class="form-control" readonly>{{issue.action}}</textarea>
+                    {% endif %}
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Invoice Actions -->
+        <div class="col-xl-3 col-md-4 col-12 invoice-actions">
+            <div class="card mb-2">
+                <div class="card-body">
+                    <a class="btn btn-secondary" href="/issues">Back</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

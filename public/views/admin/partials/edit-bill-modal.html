@@ -1,0 +1,61 @@
+<div
+        class="modal fade"
+        id="editBillModal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="editBillModalLabel"
+        aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="POST" action="/admin/edit-bill">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">Edit Bill</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="d-none">
+                        <label>Bill Id</label>
+                        <input readonly id="billId" type="text" name="billId" class="form-control ">
+                    </div>
+                    <div>
+                        <label>Title</label>
+                        <input id="billTitle" type="text" name="title" class="form-control">
+                    </div>
+                    <div>
+                        <label>Amount</label>
+                        <input id="billAmount" type="number" name="amount" class="form-control">
+                    </div>
+                    <div>
+                        <label>Purpose</label>
+                        <input id="billPurpose" type="text" name="purpose" class="form-control">
+                    </div>
+                    <div>
+                        <label>Interval</label>
+                        <select name="interval" class="form-control">
+                            <option>Daily</option>
+                            <option>Weekly</option>
+                            <option>Bi-Weekly</option>
+                            <option>Monthly</option>
+                            <option>Semi-Annually</option>
+                            <option>Yearly</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Fund</label>
+                        <select name="fund" class="form-control">
+                            {% for fund in funds %}
+                            <option value="{{fund.id}}">{{fund.title}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="submit">Save</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

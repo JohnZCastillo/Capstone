@@ -1,0 +1,99 @@
+<div
+        aria-hidden="true"
+        aria-labelledby="accountModalLabel"
+        class="modal fade"
+        id="accountModal"
+        role="dialog"
+        tabindex="-1"
+>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="accountModalLabel">Edit Account Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Account details form -->
+                <form
+                        action="/admin/payment-settings"
+                        enctype="multipart/form-data"
+                        id="accountForm"
+                        method="POST"
+                >
+                    <div>
+                        <input
+                                class="d-none"
+                                name="id"
+                                type="text"
+                                value="{{settings.id}}"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <img
+                                class="img-thumbnail d-block mx-auto"
+                                src="/uploads/{{settings.qr}}"
+                                alt="img"
+                        >
+                        <label for="accountQRCode">Change QR</label>
+                        <input
+                                class="form-control"
+                                id="accountQRCode"
+                                name="qr"
+                                type="file"
+                                accept="image/*"
+                        />
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm">
+                            <label for="accountName">Account Name</label>
+                            <input
+                                    class="form-control"
+                                    id="accountName"
+                                    name="name"
+                                    required
+                                    type="text"
+                                    value="{{settings.accountName}}"
+                            />
+                        </div>
+                        <div class="col-sm">
+                            <label for="accountNumber">Account Number</label>
+                            <input
+                                    class="form-control"
+                                    id="accountNumber"
+                                    name="number"
+                                    required
+                                    type="text"
+                                    value="{{settings.accountNumber}}"
+                            />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="dueMonth">Start Date</label>
+                        <input
+                                id="dueMonth"
+                                class="form-control"
+                                name="start"
+                                required
+                                type="month"
+                                value="{{settings.getConvertedStart()}}"
+                        />
+                    </div>
+                    <div class="form-group small text-secondary">
+                        <p>The "Start Date of Payment" is where payment counting begins. Payment Counting starts form
+                            the start date to current date</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal"
+                                type="button"
+                        >
+                            Close
+                        </button>
+                        <button class="btn btn-primary" type="submit">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

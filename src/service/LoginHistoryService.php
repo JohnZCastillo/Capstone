@@ -2,15 +2,16 @@
 
 namespace App\service;
 
+use App\exception\users\LoginHistoryNotFound;
 use App\model\LoginHistoryModel;
-use App\model\LogsModel;
 use App\model\UserModel;
 use DateTime;
 
 class LoginHistoryService extends Service
 {
 
-    public function save(LoginHistoryModel $log): void{
+    public function save(LoginHistoryModel $log): void
+    {
         $this->entityManager->persist($log);
         $this->entityManager->flush($log);
     }
@@ -21,14 +22,22 @@ class LoginHistoryService extends Service
         $this->entityManager->flush($model);
     }
 
+    /**
+     * @throws LoginHistoryNotFound
+     */
     public function getBySession(string $session): LoginHistoryModel|null
     {
 
         $em = $this->entityManager;
 
-        return $em->getRepository(LoginHistoryModel::class)
+        $loginSession = $em->getRepository(LoginHistoryModel::class)
             ->findOneBy(['session' => $session]);
 
+        if (!isset($loginSession)) {
+            throw  new LoginHistoryNotFound("Missing Login history with session of $session");
+        }
+
+        return $loginSession;
     }
 
     public function isSessionActive(string $session): bool
@@ -36,14 +45,14 @@ class LoginHistoryService extends Service
 
         $em = $this->entityManager;
 
-        $loginHistory =  $em->getRepository(LoginHistoryModel::class)
+        $loginHistory = $em->getRepository(LoginHistoryModel::class)
             ->findOneBy(['session' => $session]);
 
-        if($loginHistory == null){
+        if ($loginHistory == null) {
             return false;
         }
 
-        return  $loginHistory->isActive();
+        return $loginHistory->isActive();
     }
 
     public function addLogoutLog(): void

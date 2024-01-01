@@ -36,7 +36,10 @@ class UserModel{
     private string $password;
 
     #[ORM\Column(type: 'boolean', options: ["default"=> false])]
-    private string $isBlocked;
+    private bool $isBlocked;
+
+    #[ORM\Column(type: 'date', nullable: true)]
+    private \DateTime|null $blockDate;
 
     #[ORM\Column(type: 'boolean', options: ["default"=> true])]
     private bool $sharedPayments;
@@ -83,6 +86,16 @@ class UserModel{
         $this->sharedPayments = true;
     }
 
+    public function getBlockDate(): \DateTime|null
+    {
+        return $this->blockDate;
+    }
+
+    public function setBlockDate(\DateTime $blockDate): void
+    {
+        $this->blockDate = $blockDate;
+    }
+
     public function getMyLogs(): Collection|array
     {
         return $this->myLogs;
@@ -94,7 +107,7 @@ class UserModel{
         return $this;
     }
 
-    public function getIsBlocked(): string
+    public function getIsBlocked()
     {
         return $this->isBlocked;
     }

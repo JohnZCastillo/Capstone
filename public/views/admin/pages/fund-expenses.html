@@ -1,0 +1,52 @@
+{% extends "./admin/index.html" %}
+
+{% block body %}
+<div class="container-xxl flex-grow-1 container-p-y">
+
+    <div class="row">
+
+        <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
+            <div class="card">
+                <h5 class="card-header"><span class="card-title">{{fund.title}} Expenses</span></h5>
+
+                <div class="table-responsive">
+
+                    <table class="table thead-dark table-hover rounded-table table-shadow">
+                        <thead class="bg-dark text-white">
+                        <tr>
+                            <th>Title</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for expense in fund.expenses %}
+                            {% if expense.status|lower == 'approved' %}
+                                <tr>
+                                    <td>{{expense.title}}</td>
+                                    <td>{{expense.amount}}</td>
+                                    <td>{{expense.createdAt|date('M-d-y')}}</td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-4 col-12 invoice-actions">
+            <div class="card mb-2">
+                <div class="card-body">
+                    <div class="d-flex flex-column gap-2">
+                        <a href="/admin/fund/{{fund.id}}" class="btn btn-secondary mb-2">Back</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+

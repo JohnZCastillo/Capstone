@@ -1,0 +1,329 @@
+{% extends "./admin/index.html" %}
+
+
+{% block body %}
+
+
+<style>
+
+    .video {
+        object-fit: initial;
+        width: 100%;
+        min-height: 600px;
+    }
+
+
+</style>
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h1>Announcement Page</h1>
+                    <form id="formSave" class="form" method="POST" action="/admin/announcement/post">
+                        <div class="form-group">
+                            <label class="form-label">Title</label>
+                            <input
+                                    type="text"
+                                    id="title"
+                                    class="form-control"
+                                    name="title"
+                                    value="{{announcement.title}}"
+                            />
+                        </div>
+                        <div class="form-group mt-2">
+                            <label class="form-label">Content</label>
+                            <div id="editor" class="form-control"></div>
+                        </div>
+                        <div class="form-group">
+                            <textarea name="content" id="content" class="d-none"></textarea>
+                        </div>
+                        <div class="from-group mt-2">
+                            <button class="btn btn-success" type="button" id="postBtn">Post</button>
+                            <a class="btn btn-secondary" id="clear" type="button">CLEAR</a>
+                        </div>
+                        <div class="form-group">
+                            <!-- Announcement ID -->
+                            <input
+                                    id="id"
+                                    type="text"
+                                    class="form-control d-none"
+                                    name="id"
+                                    value="{{announcement.getId()}}"
+                            />
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-4 col-12 ">
+            <div class="card mb-2">
+                <div class="card-header pb-0">
+                    <h6 class="card-title">Edit History</h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+
+                        {% if mainId is not null %}
+                        <a href="/admin/announcement/edit/{{mainId}}"
+                           class="list-group-item list-group-item-action {{activeHistory}}">View Original Content</a>
+                        {% endif %}
+
+
+                        {% for history in announcement.history %}
+
+
+                        <a href="/admin/announcement/edit/history/{{history.id}}"
+                           class="list-group-item list-group-item-action
+                           d-flex justify-content-between align-items-center">
+
+                            <span>{{history.title}}</span>
+                            {% if historyId == history.id %}
+                            <span class="badge bg-info">Viewing</span>
+                            {% endif %}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-2">
+                <div class="card-body">
+                    <a href="/admin/announcements" class="btn btn-primary my-2" id="backBtn">Back</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include './partials/confirmation.html' %}
+
+{% endblock %}
+{% block javascript %}
+
+<script src="/bootstrap/quill.js"></script>
+<script src="/bootstrap/quill.resize.js"></script>
+
+<link rel="stylesheet" href="/bootstrap/quill.snow.css"/>
+
+<script>
+
+    var icons = Quill.import('ui/icons');
+
+
+    icons['code-block'] = '<i class="fa-regular fa-file"></i>';
+
+    var toolbarOptions = [
+        ['bold', 'italic', 'underline', 'strike'],          // Basic text formatting
+        [{'list': 'ordered'}, {'list': 'bullet'}],       // Lists
+        ['blockquote',],                      // Block-level elements
+        [{'size': ['small', 'normal', 'large', 'huge']}],
+        [{'header': [1, 2, 3, 4, 5, 6, false]}],          // Headers
+        [{'color': []}, {'background': []}],            // Text color and background
+        [{'font': []}],                                   // Font family
+        [{'align': []}],                                  // Text alignment
+        [{'script': 'sub'}, {'script': 'super'}],        // Superscript and subscript
+        [{'indent': '-1'}, {'indent': '+1'}],            // Indentation
+        ['link', 'image', 'video', 'code-block'],                        // Links, images, and videos
+        ['clean'],                                          // Clear formatting
+    ];
+
+    var quill = new Quill("#editor", {
+        theme: "snow",
+        modules: {
+            toolbar: toolbarOptions,
+            imageResize: {},
+        },
+    });
+
+
+</script>
+
+<script>
+    // Add a custom image handler
+    quill.getModule("toolbar").addHandler("image", function () {
+        // Create an input element to select the image file
+        const input = document.createElement("input");
+        input.setAttribute("type", "file");
+        input.setAttribute("accept", "image/*");
+        input.click();
+
+        // Handle the image file selection
+        input.onchange = async function () {
+            const file = input.files[0];
+
+            // Create a FormData object to store the image file
+            const formData = new FormData();
+            formData.append("image", file);
+
+            // Log the image uploading process
+            console.log("Uploading image:", file.name);
+            try {
+
+                // Send the image file to the server using Fetch
+                const result = await fetch("/upload", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const data = await result.json();
+
+                console.log(data);
+
+                if (!result.ok) {
+                    throw new Error("Error uploading file");
+                }
+
+                const range = quill.getSelection();
+                quill.insertEmbed(range.index, "image", data.data.path);
+            } catch (error) {
+                console.log(error.message)
+            }
+        };
+    });
+
+    quill.getModule("toolbar").addHandler("code-block", function () {
+        // Create an input element to select the image file
+        const input = document.createElement("input");
+        input.setAttribute("type", "file");
+        input.click();
+
+
+        // Handle the image file selection
+        input.onchange = async function () {
+            const file = input.files[0];
+
+            const fileName = file.name;
+
+            // Create a FormData object to store the image file
+            const formData = new FormData();
+            formData.append("image", file);
+
+            // Log the image uploading process
+            console.log("Uploading image:", file.name);
+
+            try {
+                // Send the image file to the server using Fetch
+                const result = await fetch("/upload", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const data = await result.json();
+
+                if (!result.ok) {
+                    throw new Error("Erro uploading file");
+                }
+
+                const range = quill.getSelection();
+                quill.insertText(range.index, fileName, {
+                    link: data.data.path,
+                });
+            } catch (error) {
+                console.log(error.message);
+            }
+        };
+    });
+
+    quill.getModule("toolbar").addHandler("video", function () {
+        // Create an input element to select the image file
+        const input = document.createElement("input");
+        input.setAttribute("type", "file");
+        input.click();
+
+        // Handle the image file selection
+        input.onchange = async function () {
+            const file = input.files[0];
+
+            // Create a FormData object to store the image file
+            const formData = new FormData();
+            formData.append("image", file);
+
+            // Log the image uploading process
+            console.log("Uploading image:", file.name);
+
+            try {
+                // Send the image file to the server using Fetch
+                const result = await fetch("/upload", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const data = await result.json();
+
+                if (!result.ok) {
+                    throw new Error("Erro uploading file");
+                }
+
+                const range = quill.getSelection();
+                quill.insertEmbed(range.index, "video", data.path);
+
+                // Find the inserted video element
+                const videoElement = quill.root.querySelector(`[src="${data.path}"]`);
+
+                // Apply full width style to the video element
+                if (videoElement) {
+                    videoElement.classList.add('video')
+
+                }
+
+            } catch (error) {
+                console.log(error.message);
+            }
+        };
+    });
+
+
+    const form = document.querySelector("#formSave");
+    const content = document.querySelector(".ql-editor");
+    const postBtn = document.querySelector("#postBtn");
+    const clearBtn = document.querySelector("#clear");
+
+    const title = document.querySelector("#title");
+    const id = document.querySelector("#id");
+    const hiddenContent = document.querySelector("#content");
+
+    clearBtn.addEventListener('click', () => {
+        content.innerHTML = "";
+    })
+
+    postBtn.addEventListener("click", (event) => {
+        hiddenContent.innerHTML = content.innerHTML;
+        form.submit();
+    });
+
+</script>
+
+<!-- set content if its updating -->
+<script>
+    quill.root.innerHTML = `{{ announcement.content|raw }}`;
+</script>
+
+<script>
+
+    const backBtn = document.querySelector('#backBtn');
+
+    const backMessage = "<p>If you exit, your unsaved <strong class='text-success'>content</strong> will be lost and cannot be restored. Are you sure you want to leave this page?</p>";
+
+    backBtn.addEventListener('click', (event) => {
+
+        event.preventDefault();
+
+        if (quill.root.innerText.trim().length > 0 || title.value.length > 0) {
+            confirm(backMessage, () => {
+                location.replace(backBtn.getAttribute('href'));
+            })
+        } else {
+            location.replace(backBtn.getAttribute('href'));
+        }
+
+    })
+
+
+</script>
+
+<script src="https://kit.fontawesome.com/f0632fdfe1.js" crossorigin="anonymous"></script>
+
+
+{% endblock %}

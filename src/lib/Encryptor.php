@@ -12,7 +12,7 @@ class Encryptor
 
     private static function loadKey()
     {
-        $dotenv = Dotenv::createImmutable( $_SERVER['DOCUMENT_ROOT']);
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
         $dotenv->load();
 
         self::$encryptionKey = Key::loadFromAsciiSafeString($_ENV["ENCRYPTION_KEY"]);;
@@ -28,6 +28,44 @@ class Encryptor
     {
         self::loadKey();
         return Crypto::decrypt($encryptedString, self::$encryptionKey);
+    }
+
+    public static function encryptDumpFile($filePath, $key = null)
+    {
+
+        $info = file_get_contents($filePath);
+
+
+        if ($key) {
+            $content = Crypto::encrypt($info, self::loadCustomKey($key));
+        } else {
+            self::loadKey();
+            $content = Crypto::encrypt($info, self::$encryptionKey);
+        }
+
+        file_put_contents($filePath, $content);
+
+    }
+
+    public static function decryptDumpFile($filePath, $key = null)
+    {
+
+        $info = file_get_contents($filePath);
+
+
+        if ($key) {
+            $content = Crypto::decrypt($info, self::loadCustomKey($key));
+        } else {
+            self::loadKey();
+            $content = Crypto::decrypt($info, self::$encryptionKey);
+        }
+
+        file_put_contents($filePath, $content);
+
+    }
+
+    public static function  loadCustomKey($key):Key{
+        return Key::loadFromAsciiSafeString($_ENV["ENCRYPTION_KEY"]);
     }
 
 }

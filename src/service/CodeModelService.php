@@ -2,9 +2,11 @@
 
 namespace App\service;
 
+use App\exception\code\InvalidCode;
 use App\lib\Randomizer;
 use App\model\CodeModel;
 use DateTime;
+use Doctrine\ORM\NonUniqueResultException;
 use Respect\Validation\Rules\Date;
 
 class CodeModelService extends Service
@@ -29,6 +31,9 @@ class CodeModelService extends Service
         return  $code;
     }
 
+    /**
+     * @throws InvalidCode
+     */
     public function isValid(string $sessionId, string $code, DateTime $time): bool
     {
 
@@ -43,10 +48,15 @@ class CodeModelService extends Service
             ->andWhere($qb->expr()->gte('c.expires_at', ':time',))
             ->setParameter('session', $sessionId)
             ->setParameter('code', $code)
-            ->setParameter('time', $time);
+            ->setParameter('time', $time)
+            ->getQuery()
+            ->getOneOrNullResult();
 
-        return $result->getQuery()->getOneOrNullResult() != null;
+        if(!isset($result)){
+            throw new InvalidCode('Invalid Code');
+        }
 
+        return true;
     }
 
     public function findCodeBySessionID(string $sessionId): CodeModel|null

@@ -10,11 +10,17 @@ use App\model\PaymentModel;
 use App\model\UserLogsModel;
 use App\model\UserModel;
 use App\service\AnnouncementService;
+use App\service\BillService;
 use App\service\CodeModelService;
 use App\service\DuesService;
+use App\service\ExpenseService;
+use App\service\FundService;
+use App\service\FundSourceService;
+use App\service\IncomeService;
 use App\service\IssuesService;
 use App\service\LoginHistoryService;
 use App\service\LogsService;
+use App\service\OverviewService;
 use App\service\PaymentService;
 use App\service\PriviligesService;
 use App\service\ReceiptService;
@@ -29,7 +35,6 @@ use UMA\DIC\Container;
 
 class Controller
 {
-
     protected UserService $userSerivce;
     protected TransactionService $transactionService;
     protected DuesService $duesService;
@@ -49,8 +54,21 @@ class Controller
 
     protected SystemSettingService $systemSettingService;
 
+    protected FundService $fundService;
+    protected FundSourceService $fundSourceService;
+    protected IncomeService $incomeService;
+    protected ExpenseService $expenseService;
+
+    protected BillService $billService;
+
+    protected array $DB_CONFIG;
+
 
     protected LogsService $actionLogs;
+
+
+    protected  Container $container;
+    protected  OverviewService $overviewService;
 
     public function __construct(Container $container)
     {
@@ -70,6 +88,15 @@ class Controller
         $this->codeModelService = $container->get(CodeModelService::class);
         $this->userLogsService = $container->get(UserLogsService::class);
         $this->systemSettingService = $container->get(SystemSettingService::class);
+        $this->DB_CONFIG = $container->get('DB_CONFIG');
+        $this->fundService = $container->get(FundService::class);
+        $this->fundSourceService = $container->get(FundSourceService::class);
+        $this->incomeService = $container->get(IncomeService::class);
+        $this->expenseService = $container->get(ExpenseService::class);
+        $this->billService = $container->get(BillService::class);
+        $this->overviewService = $container->get(OverviewService::class);
+
+        $this->container = $container;
     }
 
     protected function getLogin(): UserModel
