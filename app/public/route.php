@@ -3,6 +3,7 @@
 global $twig;
 
 use Slim\App;
+use Slim\Interfaces\RouteCollectorProxyInterface as Group;
 
 return function (App $app) use ($twig) {
 
@@ -61,5 +62,25 @@ return function (App $app) use ($twig) {
     $app->post('/lot',
         \App\controller\api\area\FindLot::class
     );
+
+
+    $app->group('', function (Group $group) {
+
+        $group->post('/change-password',
+            \App\controller\api\UpdatePassword::class
+        );
+
+        $group->post('/change-details',
+            \App\controller\api\users\UpdateAccountDetails::class
+        );
+
+        $group->post('/force-logout',
+            \App\controller\api\users\ForceLogout::class
+        );
+
+
+
+    })->add(\App\middleware\Auth::class)
+        ->add(\App\middleware\ActivePage::class);
 
 };

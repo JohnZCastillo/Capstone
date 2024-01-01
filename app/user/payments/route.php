@@ -53,6 +53,10 @@ return function (App $app) use ($twig) {
             \App\controller\user\issues\ViewIssue::class
         );
 
+        $group->get('/account',
+            \App\controller\user\account\Account::class
+        );
+
 
     })->add(\App\middleware\ActivePage::class)
         ->add(\App\middleware\role\UserAuth::class)
