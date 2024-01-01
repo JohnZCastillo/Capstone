@@ -36,6 +36,7 @@ $app->add(TwigMiddleware::create($app, $twig));
 
 $flashMessage = $container->get(\Slim\Flash\Messages::class);
 
+$twig->getEnvironment()->addGlobal('loginError',$flashMessage->getFirstMessage('loginError'));
 $twig->getEnvironment()->addGlobal('errorMessage',$flashMessage->getFirstMessage('errorMessage'));
 $twig->getEnvironment()->addGlobal('successMessage',$flashMessage->getFirstMessage('successMessage'));
 $twig->getEnvironment()->addGlobal('login_user',$container->get('LOGIN_USER'));

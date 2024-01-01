@@ -23,8 +23,6 @@ class LoginAuth extends AdminAction
     protected function action(): Response
     {
 
-        $data = [];
-
         try {
 
             $content = $this->getFormData();
@@ -48,7 +46,7 @@ class LoginAuth extends AdminAction
 
             switch ($user->getRole()) {
                 case UserRole::user():
-                    return $this->redirect('/user/home');
+                    return $this->redirect('/home');
                 case UserRole::admin():
                     return $this->redirect(Redirector::redirectToHome($user->getPrivileges()));
                 case UserRole::superAdmin():
@@ -58,14 +56,14 @@ class LoginAuth extends AdminAction
             }
 
         } catch (UserNotFoundException $userNotFoundException) {
-            $data['loginError'] = 'Incorrect Email or Password';
+            $this->addMessage('loginError','Incorrect Email or Password');
         } catch (InvalidInput $invalidInput) {
-            $data['loginError'] = $invalidInput->getMessage();
+            $this->addMessage('loginError',$invalidInput->getMessage());
         } catch (Exception $ex) {
-            $data['loginError'] = 'An Internal Error Occurred';
+            $this->addMessage('loginError','Something Went Wrong');
         }
 
-        return $this->view('pages/login.html', $data);
+        return $this->redirect('/login');
     }
 
 

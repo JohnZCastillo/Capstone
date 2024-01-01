@@ -23,10 +23,22 @@ class Login
     }
 
 
-    static function forceLogout()
+    /**
+     * Destroy session except for the pass key
+     * @param $toKeep
+     * @return void
+     */
+    static function forceLogout($toKeep = null)
     {
+
+        foreach ($_SESSION as $key => $value) {
+            if ($key !== $toKeep){
+                unset($_SESSION[$key]);
+            }
+        }
+
         session_regenerate_id();
-        session_destroy();
+
     }
 
     static function getLogin()
