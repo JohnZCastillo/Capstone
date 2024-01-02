@@ -55,9 +55,6 @@ return function (App $app) use ($twig) {
         \App\controller\auth\ViewLandingPage::class
     );
 
-    $app->get('/pdf',
-        \App\controller\pdf\DownloadPdf::class
-    );
 
     $app->post('/lot',
         \App\controller\api\area\FindLot::class
