@@ -22,8 +22,8 @@ class BlockUser extends AdminAction
 
             if (isset($lastBlockedDate)) {
 
-                $todayDateString = Time::convert(new \DateTime());
-                $lastBlockedString = Time::convert($lastBlockedDate);
+                $todayDateString = Time::convertToString(new \DateTime());
+                $lastBlockedString = Time::convertToString($lastBlockedDate);
 
                 $pastDay = Time::dayPast($todayDateString, $lastBlockedString);
 

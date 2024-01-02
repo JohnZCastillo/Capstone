@@ -144,7 +144,7 @@ class AnnouncementModel
      */
     public function getCreatedAt()
     {
-        return Time::convert($this->createdAt);
+        return $this->createdAt;
     }
 
     /**
