@@ -5,7 +5,7 @@ namespace App\controller\auth;
 use App\controller\admin\AdminAction;
 use App\exception\code\ExistingCode;
 use App\exception\code\InvalidCode;
-use App\Lib\Mail;
+use App\lib\Mail;
 use App\lib\Time;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
