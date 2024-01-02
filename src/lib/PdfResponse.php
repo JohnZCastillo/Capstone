@@ -17,8 +17,7 @@ class PdfResponse
     public function __construct(string $docxFile,string $outputFile)
     {
 
-//        $converter = new OfficeConverter($docxFile, self::DIR, 'soffice', false);
-        $converter = new OfficeConverter($docxFile);
+        $converter = new OfficeConverter($docxFile, self::DIR, 'soffice', false);
 
         $this->outputFile = $outputFile;
 

@@ -17,36 +17,42 @@ class PrintBudgetReport extends AdminAction
     protected function action(): Response
     {
 
-        $fundId = $this->args['id'];
+        try {
+            $fundId = $this->args['id'];
 
-        $year = Time::getCurrentYear();
+            $year = Time::getCurrentYear();
 
-        $fund = $this->fundService->findById($fundId);
+            $fund = $this->fundService->findById($fundId);
 
-        $prevCollection = $this->fundService->getCollection($fundId, $year - 1);
-        $netIncome = $this->fundService->getCollection($fundId, $year);
-        $incomes = $this->fundService->getYearlyIncome($fundId, $year);
-        $expenses = $this->fundService->getYearlyExpenses($fundId, $year);
+            $prevCollection = $this->fundService->getCollection($fundId, $year - 1);
+            $netIncome = $this->fundService->getCollection($fundId, $year);
+            $incomes = $this->fundService->getYearlyIncome($fundId, $year);
+            $expenses = $this->fundService->getYearlyExpenses($fundId, $year);
 
-        $prevCollection['TITLE'] = 'Prev Collection';
-        $netIncome['TITLE'] = 'Net Income';
-        $expenses['TITLE'] = 'Expenses';
-        $incomes['TITLE'] = 'Incomes';
+            $prevCollection['TITLE'] = 'Prev Collection';
+            $netIncome['TITLE'] = 'Net Income';
+            $expenses['TITLE'] = 'Expenses';
+            $incomes['TITLE'] = 'Incomes';
 
-        $reportContent = [$prevCollection, $netIncome, $expenses, $incomes];
+            $reportContent = [$prevCollection, $netIncome, $expenses, $incomes];
 
-        $summary['TOTAL'] = $fund->computeTotal();
-        $summary['INCOME'] = $fund->computeExpenses();
-        $summary['EXPENSE'] = $fund->computeIncomes();
+            $summary['TOTAL'] = $fund->computeTotal();
+            $summary['INCOME'] = $fund->computeExpenses();
+            $summary['EXPENSE'] = $fund->computeIncomes();
 
-        $docxMaker = new DocxMaker('budget_template.docx');
+            $docxMaker = new DocxMaker('budget_template.docx');
 
-        $docxMaker->addBody($reportContent, 'TITLE');
-        $docxMaker->addHeader($summary);
-        $output = $docxMaker->output();
+            $docxMaker->addBody($reportContent, 'TITLE');
+            $docxMaker->addHeader($summary);
+            $output = $docxMaker->output();
 
-        $pdfResponse = new PdfResponse($output, 'test.pdf');
+            $pdfResponse = new PdfResponse($output, 'test.pdf');
 
-        return $pdfResponse->getResponse();
+            return $pdfResponse->getResponse();
+
+        } catch (\Exception $exception) {
+            return  $this->respondWithData(['message' => 'an internal error occurred'],500);
+        }
+
     }
 }

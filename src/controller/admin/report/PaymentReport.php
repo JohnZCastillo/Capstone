@@ -13,25 +13,30 @@ class PaymentReport extends AdminAction
 
     public function action(): Response
     {
-        $formData = $this->getFormData();
 
-        $from = $formData['from'];
-        $to = $formData['to'];
+        try {
+            $formData = $this->getFormData();
 
-        $block = $formData['block'] ?? null;
-        $lot = $formData['lot'] ?? null;
+            $from = $formData['from'];
+            $to = $formData['to'];
 
-        $status = $formData['reportStatus'][0];
+            $block = $formData['block'] ?? null;
+            $lot = $formData['lot'] ?? null;
 
-        switch ($status) {
-            case 'APPROVED':
-                return  $this->approvePaymentReport();
-            case 'REJECTED':
-                return  $this->rejectedPaymentReport();
-            case 'PENDING':
-                return  $this->pendingPaymentReport();
-            case 'UNPAID':
-                return  $this->unpaidPaymentReport();
+            $status = $formData['reportStatus'][0];
+
+            switch ($status) {
+                case 'APPROVED':
+                    return  $this->approvePaymentReport();
+                case 'REJECTED':
+                    return  $this->rejectedPaymentReport();
+                case 'PENDING':
+                    return  $this->pendingPaymentReport();
+                case 'UNPAID':
+                    return  $this->unpaidPaymentReport();
+            }
+        }catch (\Exception $exception){
+            $this->redirect('/admin/payments');
         }
     }
 
