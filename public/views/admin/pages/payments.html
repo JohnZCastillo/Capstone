@@ -234,7 +234,28 @@
         lotInput.innerHTML = optionsHTML;
     })
 
-
 </script>
 
+<script>
+
+    formConfirmation({
+        formId: 'manualPaymentForm',
+        modalId: 'manualPaymentModal',
+        title: 'Confirmation',
+        text: 'Are you sure you want to continue with the manual payment?',
+        icon: 'question',
+        cancelledText: 'Action Cancelled'
+    });
+
+    formConfirmation({
+        formId: 'accountForm',
+        modalId: 'accountModal',
+        title: 'Confirmation',
+        text: 'Are you sure you want to update payment settings?',
+        icon: 'question',
+        cancelledText: 'Action Cancelled'
+    });
+
+
+</script>
 {% endblock %}
