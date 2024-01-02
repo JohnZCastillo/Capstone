@@ -63,10 +63,10 @@ class DownloadPdf extends AdminAction
         } catch (UserNotFoundException $userNotFoundException) {
             $data['message'] = $userNotFoundException->getMessage();
         } catch (Exception $e) {
-            return $this->respondWithData(['message' => $e->getMessage()], 500);
+            return $this->respondWithData(['message' => $e->getMessage()], );
         }
 
-        return $this->respondWithData($data, 400);
+        return $this->respondWithData($data, );
 
     }
 }
