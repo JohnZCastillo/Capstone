@@ -1,5 +1,5 @@
 <?php
-namespace App\Lib;
+namespace App\lib;
 use App\model\SystemSettings;
 use PHPMailer\PHPMailer\PHPMailer;
 

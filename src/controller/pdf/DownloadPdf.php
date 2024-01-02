@@ -4,15 +4,11 @@ namespace App\controller\pdf;
 
 use App\controller\admin\AdminAction;
 use App\exception\UserNotFoundException;
-use App\lib\BudgetReportDocx;
 use App\Lib\Mail;
 use App\lib\Time;
 use App\model\UserModel;
 use Exception;
-use NcJoes\OfficeConverter\OfficeConverter;
 use Slim\Psr7\Response;
-use TCPDF;
-use thiagoalessio\TesseractOCR\Tests\Common\TestCase;
 
 class DownloadPdf extends AdminAction
 {
@@ -63,10 +59,9 @@ class DownloadPdf extends AdminAction
         } catch (UserNotFoundException $userNotFoundException) {
             $data['message'] = $userNotFoundException->getMessage();
         } catch (Exception $e) {
-            return $this->respondWithData(['message' => $e->getMessage()], );
+            return $this->respondWithData(['message' => $e->getMessage()]);
         }
 
-        return $this->respondWithData($data, );
-
+        return $this->respondWithData($data);
     }
 }
