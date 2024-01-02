@@ -68,9 +68,12 @@ class NewCode extends AdminAction
         } catch (UserNotFoundException $userNotFoundException) {
             $data['message'] = $userNotFoundException->getMessage();
         } catch (Exception $e) {
-            return $this->respondWithData(['message' => "Internal Error Occurred"], 500);
+
+            var_dump($e->getMessage());
+//            return $this->respondWithData(['message' => "Internal Error Occurred"], 500);
+//            return $this->respondWithData(['message' => $e->getMessage()], 500);
         }
-        return $this->respondWithData($data, 400);
+//        return $this->respondWithData($data, 400);
     }
 
 }
