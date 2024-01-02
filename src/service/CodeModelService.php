@@ -18,7 +18,8 @@ class CodeModelService extends Service
         $this->entityManager->flush($code);
     }
 
-    public  function  createCode(\DateTime $time): CodeModel{
+    public function createCode(\DateTime $time): CodeModel
+    {
 
         $code = new CodeModel();
         $code->setCode(Randomizer::generateSixDigit());
@@ -28,7 +29,7 @@ class CodeModelService extends Service
 
         $this->save($code);
 
-        return  $code;
+        return $code;
     }
 
     /**
@@ -52,7 +53,7 @@ class CodeModelService extends Service
             ->getQuery()
             ->getOneOrNullResult();
 
-        if(!isset($result)){
+        if (!isset($result)) {
             throw new InvalidCode('Invalid Code');
         }
 
@@ -74,6 +75,26 @@ class CodeModelService extends Service
             ->getOneOrNullResult();
 
         return $result;
+
+    }
+
+    public function hasExistingValidCode(string $sessionId,DateTime $date): bool
+    {
+
+        $em = $this->entityManager;
+
+        $qb = $em->createQueryBuilder();
+
+        $result = $qb->select('c')
+            ->from(CodeModel::class, 'c')
+            ->where('c.sessionId = :session')
+            ->andWhere($qb->expr()->gte('c.expires_at', ':time',))
+            ->setParameter('session', $sessionId)
+            ->setParameter('time', $date)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return isset($result);
 
     }
 
