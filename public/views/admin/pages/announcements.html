@@ -92,13 +92,13 @@
                                 {% set archiveValue = "/admin/announcement/post/#{announcementId}"%}
                                 {% set action = status == "posted" ? postValue : archiveValue%}
 
-                                <form method="POST" action="{{action}}">
+                                <form class="archiveUnarchivedForm"  method="POST" action="{{action}}">
                                     <button type="submit" class="dropdown-item" style="flex: 1 1 0px;">
                                         {{displayStatus}}
                                     </button>
                                 </form>
 
-                                <form method="POST" action="{{pinUrl}}">
+                                <form class="pinUnpinForm"  method="POST" action="{{pinUrl}}">
                                     <button type="submit" class="dropdown-item">
                                         {{pinTitle}}
                                     </button>
@@ -145,6 +145,54 @@
     statuses.forEach(status => {
         status.addEventListener('change', (event) => announcementForm.submit());
     })
+</script>
+
+<script>
+
+    const pinUnpinForms = document.querySelectorAll('.pinUnpinForm');
+    const archiveUnarchivedForms = document.querySelectorAll('.archiveUnarchivedForm');
+
+    pinUnpinForms.forEach(status => {
+        status.addEventListener('submit', (event) =>{
+
+            event.preventDefault();
+
+            const submitBtn = status.querySelector('.dropdown-item');
+
+            const text = submitBtn.textContent;
+
+            onSubmitConfirmation({
+                title: 'Confirmation',
+                text: `Are you sure you want to ${text} this announcement?`,
+                icon: 'question',
+                cancelledText: 'Action Cancelled',
+                confirmCallback: ()=> status.submit(),
+            })
+
+        });
+    })
+
+    archiveUnarchivedForms.forEach(status => {
+        status.addEventListener('submit', (event) =>{
+
+            event.preventDefault();
+
+            const submitBtn = status.querySelector('.dropdown-item');
+
+            const text = submitBtn.textContent;
+
+            onSubmitConfirmation({
+                title: 'Confirmation',
+                text: `Are you sure you want to ${text} this announcement?`,
+                icon: 'question',
+                cancelledText: 'Action Cancelled',
+                confirmCallback: ()=> status.submit(),
+            })
+
+        });
+    })
+
+
 </script>
 
 {% endblock %}

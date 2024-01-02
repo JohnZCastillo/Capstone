@@ -7,8 +7,6 @@ use App\model\enum\UserRole;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping\JoinColumn;
-use thiagoalessio\TesseractOCR\Option;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'user')]
@@ -43,6 +41,9 @@ class UserModel{
 
     #[ORM\Column(type: 'boolean', options: ["default"=> true])]
     private bool $sharedPayments;
+
+    #[ORM\Column(type: 'boolean', options: ["default"=> false])]
+    private bool $verified;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: TransactionModel::class)]
     private Collection|array $transactions;
@@ -84,7 +85,19 @@ class UserModel{
         $this->posts = new ArrayCollection();
         $this->transactions = new ArrayCollection();
         $this->sharedPayments = true;
+        $this->verified = false;
     }
+
+    public function isVerified(): bool
+    {
+        return $this->verified;
+    }
+
+    public function setVerified(bool $verified): void
+    {
+        $this->verified = $verified;
+    }
+
 
     public function getBlockDate(): \DateTime|null
     {

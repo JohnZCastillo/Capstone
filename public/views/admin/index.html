@@ -83,7 +83,14 @@
             border-radius: 5px;
             border: 3px solid #ffffff;
         }
+
+        .swal2-actions {
+            gap: 5px
+        }
     </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 
 <body>
@@ -120,96 +127,96 @@
             <ul class="menu-inner py-1">
 
 
-                {% if login_user.privileges.adminPayment  %}
+                {% if login_user.privileges.adminPayment %}
 
 
-                    <li class="menu-item {{activeHome}}">
-                        <a
-                                href="/admin/payments"
-                                class="menu-link">
-                            <i class="menu-icon tf-icons bx bxs-wallet"></i>
-                            <div data-i18n="Email">Payments</div>
-                        </a>
-                    </li>
+                <li class="menu-item {{activeHome}}">
+                    <a
+                            href="/admin/payments"
+                            class="menu-link">
+                        <i class="menu-icon tf-icons bx bxs-wallet"></i>
+                        <div data-i18n="Email">Payments</div>
+                    </a>
+                </li>
 
                 {% endif %}
 
-                {% if login_user.privileges.adminIssues  %}
+                {% if login_user.privileges.adminIssues %}
 
-                    <li class="menu-item {{activeIssues}}">
-                        <a
-                                href="/admin/issues"
-                                class="menu-link">
-                            <i class="menu-icon tf-icons bx bxs-chat"></i>
-                            <div data-i18n="Chat">Issues</div>
-                        </a>
-                    </li>
+                <li class="menu-item {{activeIssues}}">
+                    <a
+                            href="/admin/issues"
+                            class="menu-link">
+                        <i class="menu-icon tf-icons bx bxs-chat"></i>
+                        <div data-i18n="Chat">Issues</div>
+                    </a>
+                </li>
                 {% endif %}
 
-                {% if login_user.privileges.adminAnnouncement  %}
+                {% if login_user.privileges.adminAnnouncement %}
 
-                    <li class="menu-item {{activeAnnouncement}}">
-                        <a
-                                href="/admin/announcements"
-                                class="menu-link">
-                            <i class="menu-icon tf-icons bx bxs-megaphone"></i>
-                            <div data-i18n="Calendar">Announcements</div>
-                        </a>
-                    </li>
+                <li class="menu-item {{activeAnnouncement}}">
+                    <a
+                            href="/admin/announcements"
+                            class="menu-link">
+                        <i class="menu-icon tf-icons bx bxs-megaphone"></i>
+                        <div data-i18n="Calendar">Announcements</div>
+                    </a>
+                </li>
                 {% endif %}
 
-                {% if login_user.privileges.adminUser  %}
+                {% if login_user.privileges.adminUser %}
 
-                    <li class="menu-item {{activeUsers}}">
-                        <a
-                                href="/admin/users"
-                                class="menu-link">
-                            <i class="menu-icon tf-icons bx bxs-user"></i>
-                            <div data-i18n="Calendar">Users</div>
-                        </a>
-                    </li>
+                <li class="menu-item {{activeUsers}}">
+                    <a
+                            href="/admin/users"
+                            class="menu-link">
+                        <i class="menu-icon tf-icons bx bxs-user"></i>
+                        <div data-i18n="Calendar">Users</div>
+                    </a>
+                </li>
                 {% endif %}
 
-                {% if login_user.privileges.adminPayment  %}
-                    <li class="menu-item {{activeBudget}}">
-                        <a
-                                href="/admin/budget"
-                                class="menu-link">
-                            <i class="menu-icon tf-icons bx bxs-coin"></i>
-                            <div data-i18n="Email">Budget</div>
-                        </a>
-                    </li>
+                {% if login_user.privileges.adminPayment %}
+                <li class="menu-item {{activeBudget}}">
+                    <a
+                            href="/admin/budget"
+                            class="menu-link">
+                        <i class="menu-icon tf-icons bx bxs-coin"></i>
+                        <div data-i18n="Email">Budget</div>
+                    </a>
+                </li>
                 {% endif %}
 
 
                 {% if login_user.role == 'super' %}
 
-                    <li class="menu-item {{activeOverview}}">
-                        <a
-                                href="/admin/overview"
-                                class="menu-link">
-                            <i class="menu-icon tf-icons bx bxs-building-house"></i>
-                            <div data-i18n="Email">Overview</div>
-                        </a>
-                    </li>
+                <li class="menu-item {{activeOverview}}">
+                    <a
+                            href="/admin/overview"
+                            class="menu-link">
+                        <i class="menu-icon tf-icons bx bxs-building-house"></i>
+                        <div data-i18n="Email">Overview</div>
+                    </a>
+                </li>
 
-                    <li class="menu-item {{activeLogs}}">
-                        <a
-                                href="/admin/logs"
-                                class="menu-link">
-                            <i class="menu-icon tf-icons bx bxs-notepad"></i>
-                            <div data-i18n="Calendar">Logs</div>
-                        </a>
-                    </li>
+                <li class="menu-item {{activeLogs}}">
+                    <a
+                            href="/admin/logs"
+                            class="menu-link">
+                        <i class="menu-icon tf-icons bx bxs-notepad"></i>
+                        <div data-i18n="Calendar">Logs</div>
+                    </a>
+                </li>
 
-                    <li class="menu-item {{activeSystem}}">
-                        <a
-                                href="/admin/system"
-                                class="menu-link">
-                            <i class='menu-icon tf-icons bx bxs-cog'></i>
-                            <div data-i18n="Calendar">System Settings</div>
-                        </a>
-                    </li>
+                <li class="menu-item {{activeSystem}}">
+                    <a
+                            href="/admin/system"
+                            class="menu-link">
+                        <i class='menu-icon tf-icons bx bxs-cog'></i>
+                        <div data-i18n="Calendar">System Settings</div>
+                    </a>
+                </li>
                 {% endif %}
 
             </ul>
@@ -242,7 +249,11 @@
                                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);"
                                    data-bs-toggle="dropdown">
                                     <div class="avatar">
-                                        <svg class="w-px-40 h-auto rounded-circle" xmlns="http://www.w3.org/2000/svg" height="16" width="14" viewBox="0 0 448 512"><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2023 Fonticons, Inc.--><path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/></svg>
+                                        <svg class="w-px-40 h-auto rounded-circle" xmlns="http://www.w3.org/2000/svg"
+                                             height="16" width="14" viewBox="0 0 448 512">
+                                            <!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2023 Fonticons, Inc.-->
+                                            <path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/>
+                                        </svg>
                                     </div>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
@@ -251,7 +262,12 @@
                                             <div class="d-flex">
                                                 <div class="flex-shrink-0 me-3">
                                                     <div class="avatar">
-                                                        <svg class="w-px-40 h-auto rounded-circle" xmlns="http://www.w3.org/2000/svg" height="16" width="14" viewBox="0 0 448 512"><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2023 Fonticons, Inc.--><path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/></svg>
+                                                        <svg class="w-px-40 h-auto rounded-circle"
+                                                             xmlns="http://www.w3.org/2000/svg" height="16" width="14"
+                                                             viewBox="0 0 448 512">
+                                                            <!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2023 Fonticons, Inc.-->
+                                                            <path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/>
+                                                        </svg>
                                                     </div>
                                                 </div>
                                                 <div class="flex-grow-1">
@@ -315,7 +331,6 @@
 </div>
 
 
-
 <script>
     const modalImage = document.querySelector("#modalImage");
     const images = document.querySelectorAll("img");
@@ -333,9 +348,203 @@
 <script src="/resources/assets/js/main.js"></script>
 
 
+<script>
+
+    const formConfirmation = ({formId, modalId, title, text, icon, cancelledText}) => {
+
+        const form = document.getElementById(formId);
+
+        const modal = new bootstrap.Modal(document.getElementById(modalId), {
+            keyboard: false
+        });
+
+        form.addEventListener('submit', async (event) => {
+
+            event.preventDefault();
+
+            modal.hide();
+
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger"
+                },
+                buttonsStyling: false
+            });
+
+            let confirmation = await swalWithBootstrapButtons.fire({
+                title: title,
+                text: text,
+                icon: icon,
+                showCancelButton: true,
+                confirmButtonText: "Confirm!",
+                cancelButtonText: "Cancel!",
+                reverseButtons: true
+            })
+
+            if (confirmation.dismiss === Swal.DismissReason.cancel) {
+
+                swalWithBootstrapButtons.fire({
+                    title: "Cancelled",
+                    text: cancelledText,
+                    icon: "error"
+                });
+
+                return;
+            }
+
+            form.submit();
+        })
+    }
+
+    const modalLessConfirmation = ({formId, title, text, icon, cancelledText}) => {
+
+        const form = document.getElementById(formId);
+
+        form.addEventListener('submit', async (event) => {
+
+            event.preventDefault();
+
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger"
+                },
+                buttonsStyling: false
+            });
+
+            let confirmation = await swalWithBootstrapButtons.fire({
+                title: title,
+                text: text,
+                icon: icon,
+                showCancelButton: true,
+                confirmButtonText: "Confirm!",
+                cancelButtonText: "Cancel!",
+                reverseButtons: true
+            })
+
+            if (confirmation.dismiss === Swal.DismissReason.cancel) {
+
+                swalWithBootstrapButtons.fire({
+                    title: "Cancelled",
+                    text: cancelledText,
+                    icon: "error"
+                });
+
+                return;
+            }
+
+            form.submit();
+        })
+    }
+
+    const onSubmitConfirmation = async ({title, text, icon, cancelledText, confirmCallback}) => {
+
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success",
+                cancelButton: "btn btn-danger"
+            },
+            buttonsStyling: false
+        });
+
+        let confirmation = await swalWithBootstrapButtons.fire({
+            title: title,
+            text: text,
+            icon: icon,
+            showCancelButton: true,
+            confirmButtonText: "Confirm!",
+            cancelButtonText: "Cancel!",
+            reverseButtons: true
+        })
+
+        if (confirmation.dismiss === Swal.DismissReason.cancel) {
+
+            swalWithBootstrapButtons.fire({
+                title: "Cancelled",
+                text: cancelledText,
+                icon: "error"
+            });
+
+            return;
+        }
+
+        confirmCallback();
+    }
+
+    const formCallback = async ({modalId, title, text, icon, cancelledText, confirmCallback, cancelCallback}) => {
+
+        const modal = new bootstrap.Modal(document.getElementById(modalId), {
+            keyboard: false
+        });
+
+        modal.hide();
+
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success",
+                cancelButton: "btn btn-danger"
+            },
+            buttonsStyling: false
+        });
+
+        let confirmation = await swalWithBootstrapButtons.fire({
+            title: title,
+            text: text,
+            icon: icon,
+            showCancelButton: true,
+            confirmButtonText: "Confirm!",
+            cancelButtonText: "Cancel!",
+            reverseButtons: true
+        })
+
+        if (confirmation.dismiss === Swal.DismissReason.cancel) {
+
+            cancelCallback();
+
+            return;
+        }
+
+        confirmCallback();
+
+    }
+
+    const showErrorMessage = (message)=>{
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success",
+                cancelButton: "btn btn-danger"
+            },
+            buttonsStyling: false
+        });
+
+        swalWithBootstrapButtons.fire({
+            title: "Error",
+            text: message,
+            icon: "error"
+        });
+    }
+
+    const showSuccessMessage = (message)=>{
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success",
+                cancelButton: "btn btn-danger"
+            },
+            buttonsStyling: false
+        });
+
+        swalWithBootstrapButtons.fire({
+            title: "Information",
+            text: message,
+            icon: "success"
+        });
+    }
+</script>
 {% block javascript %}
 
 {% endblock %}
+
 
 <!-- Place this tag in your head or just before your close body tag. -->
 <script async defer src="https://buttons.github.io/buttons.js"></script>

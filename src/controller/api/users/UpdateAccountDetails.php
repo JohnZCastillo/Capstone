@@ -6,6 +6,7 @@ use App\controller\admin\AdminAction;
 use App\exception\InvalidInput;
 use App\exception\NotAuthorizeException;
 use App\exception\UserNotFoundException;
+use App\exception\users\EmailInUse;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;
 
@@ -36,6 +37,14 @@ class UpdateAccountDetails extends AdminAction
                 throw new InvalidInput('Name must be string');
             }
 
+            if($this->userService->findByEmail($email) && $email !== $user->getEmail()){
+                throw new EmailInUse('Email is already used');
+            }
+
+            if($email !== $user->getEmail()){
+                $user->setVerified(false);
+            }
+
             $user->setEmail($email);
             $user->setName($name);
 
@@ -46,7 +55,9 @@ class UpdateAccountDetails extends AdminAction
                 "name" => $user->getName(),
             ]);
 
-        } catch (InvalidInput $invalidInput) {
+        }  catch (EmailInUse $emailInUse) {
+            return $this->respondWithData(["message" => $emailInUse->getMessage()], 400);
+        }catch (InvalidInput $invalidInput) {
             return $this->respondWithData(["message" => $invalidInput->getMessage()], 400);
         } catch (NotAuthorizeException $notAuthorizeException) {
             return $this->respondWithData(["message" => $notAuthorizeException->getMessage()], 401);

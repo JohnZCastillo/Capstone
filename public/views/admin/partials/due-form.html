@@ -108,43 +108,64 @@
 
         const updateDue = async (event) => {
 
-            const year = dueYear.value;
-            const month = target.name;
-            const due = target.value.replace(/[^0-9]/g, '');
+            const confirmCallback = async  ()=> {
 
-            const currentValue = target.value;
-            let numericValue = currentValue.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+                const year = dueYear.value;
+                const month = target.name;
+                const due = target.value.replace(/[^0-9]/g, '');
 
-            const formattedDate = year + "-" + month;
-            const date = new Date(formattedDate);
+                const currentValue = target.value;
+                let numericValue = currentValue.replace(/[^0-9]/g, ''); // Remove non-numeric characters
 
-            let finalValue = year + "-" + (date.getMonth() + 1);
+                const formattedDate = year + "-" + month;
+                const date = new Date(formattedDate);
 
-            const formData = new FormData();
+                let finalValue = year + "-" + (date.getMonth() + 1);
 
-            formData.append('month', finalValue);
-            formData.append('amount', numericValue);
-            formData.append('dueYear', dueYear.value);
+                const formData = new FormData();
 
-            const data = await fetch('/admin/payments/add-due', {
-                method: "POST",
-                body: formData
-            })
+                formData.append('month', finalValue);
+                formData.append('amount', numericValue);
+                formData.append('dueYear', dueYear.value);
 
-            const result = await data.json();
+                const data = await fetch('/admin/payments/add-due', {
+                    method: "POST",
+                    body: formData
+                })
 
-            if(data.ok){
-               result.data.forEach((due)=>{
-                   updateCalendar(due.month,due.amount,due.savePoint)
-               })
-            }else{
-                console.log(result.data.message);
+                const result = await data.json();
+
+                if(data.ok){
+                   result.data.forEach((due)=>{
+                       updateCalendar(due.month,due.amount,due.savePoint)
+                   })
+                }else{
+                    console.log(result.data.message);
+                }
+
+                target.addEventListener('click', makeEditable);
+                target.addEventListener('change', updateDue);
+                target.addEventListener('blur', lostFocus);
             }
-        }
 
-        target.addEventListener('click', makeEditable);
-        target.addEventListener('change', updateDue);
-        target.addEventListener('blur', lostFocus);
+            const cancelledCallback = ()=>{
+                swalWithBootstrapButtons.fire({
+                    title: "Cancelled",
+                    text: "Update Dues Cancelled",
+                    icon: "error"
+                });
+            }
+
+            formCallback({
+                modalId: 'dueModal',
+                title: 'Confirmation',
+                text: 'Are you sure you want to continue with the manual payment?',
+                icon: 'question',
+                cancelledText: 'Action Cancelled',
+                confirmCallback: confirmCallback,
+                cancelCallback: cancelledCallback,
+            })
+        }
     })
 
     function updateCalendar(id,value,savePoint){
@@ -166,7 +187,7 @@
         valueHolder.setAttribute('readonly', true);
     }
 
-    dueYear.addEventListener('change',async (event)=>{
+    dueYear.addEventListener('change', async (event) => {
 
         const formData = new FormData();
 
@@ -179,11 +200,11 @@
 
         const result = await data.json();
 
-        if(data.ok){
-            result.data.forEach((due)=>{
-                updateCalendar(due.month,due.amount,due.savePoint)
+        if (data.ok) {
+            result.data.forEach((due) => {
+                updateCalendar(due.month, due.amount, due.savePoint)
             })
-        }else{
+        } else {
             console.log(result.data.message);
         }
     })

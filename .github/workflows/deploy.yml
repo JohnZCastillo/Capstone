@@ -56,8 +56,7 @@ jobs:
           username: ${{ env.VM_USERNAME }}
           password: ${{ env.VM_PASSWORD }}
           script: |
-            sudo chown -R bitnami:daemon /opt/bitnami/capstone/htdocs/uploads
-            sudo chmod -R g+w /opt/bitnami/capstone/htdocs/uploads
-            sudo chown -R bitnami:daemon /opt/bitnami/capstone/htdocs/backup
-            sudo chmod -R g+w /opt/bitnami/capstone/htdocs/backup
+            sudo chown -R bitnami:daemon /opt/bitnami/capstone/htdocs/public/uploads
+            sudo chmod -R g+w /opt/bitnami/capstone/htdocs/public/uploads
+            sudo php /opt/bitnami/capstone/htdocs/console/cli-config.php orm:schema-tool:update --force --complete
             sudo /opt/bitnami/ctlscript.sh restart apache

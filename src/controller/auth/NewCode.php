@@ -5,7 +5,7 @@ namespace App\controller\auth;
 use App\controller\admin\AdminAction;
 use App\exception\code\InvalidCode;
 use App\exception\UserNotFoundException;
-use App\Lib\Mail;
+use App\lib\Mail;
 use App\lib\Randomizer;
 use App\lib\Time;
 use App\model\UserLogsModel;

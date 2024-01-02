@@ -155,7 +155,7 @@
             </div>
             <div class="modal-body">
                 <h2 class="text-center">Payment Rejection</h2>
-                <form class="form" id="form" method="POST" action="/admin/transaction/reject">
+                <form class="form" id="rejectTransactionForm" method="POST" action="/admin/transaction/reject">
                     <div class="form-group">
                         <label for="reason" class="form-label">Reason</label>
                         <input type="text" class="d-none" value="{{transaction.id}}" name="id">
@@ -202,7 +202,7 @@
             <div class="modal-body">
                 <h2 class="text-center">Payment Approval</h2>
                 <p>Please Input each receipt reference number</p>
-                <form id="approvalForm" method="POST" action="/admin/transaction/approve">
+                <form id="approveTransactionForm" method="POST" action="/admin/transaction/approve">
                     <input type="text" name="id" class="d-none" value="{{transaction.id}}">
                     {% for receipt in receipts %}
                     <div class="form-group">
@@ -226,5 +226,32 @@
         </div>
     </div>
 </div>
+
+
+{% block javascript %}
+
+<script>
+
+    formConfirmation({
+        formId: 'approveTransactionForm',
+        modalId: 'approveModal',
+        title: 'Confirmation',
+        text: 'Are you sure you want to approve this transaction?',
+        icon: 'question',
+        cancelledText: 'Action Cancelled'
+    });
+
+
+    formConfirmation({
+        formId: 'rejectTransactionForm',
+        modalId: 'rejectionModal',
+        title: 'Confirmation',
+        text: 'Are you sure you want to reject this transaction?',
+        icon: 'question',
+        cancelledText: 'Action Cancelled'
+    });
+
+</script>
+{% endblock %}
 
 {% endblock %}

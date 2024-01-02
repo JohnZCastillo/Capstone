@@ -9,11 +9,11 @@ return function (App $app) use ($twig) {
 
     $app->group('', function (Group $group) {
 
-        $group->post('/block-user',
+        $group->post('/block-user/{id}',
             \App\controller\api\users\BlockUser::class
         );
 
-        $group->post('/unblock-user',
+        $group->post('/unblock-user/{id}',
             \App\controller\api\users\UnblockUser::class
         );
 
