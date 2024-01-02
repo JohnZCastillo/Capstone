@@ -397,6 +397,81 @@
         })
     }
 
+    const modalLessConfirmation = ({formId, title, text, icon, cancelledText}) => {
+
+        const form = document.getElementById(formId);
+
+        form.addEventListener('submit', async (event) => {
+
+            event.preventDefault();
+
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger"
+                },
+                buttonsStyling: false
+            });
+
+            let confirmation = await swalWithBootstrapButtons.fire({
+                title: title,
+                text: text,
+                icon: icon,
+                showCancelButton: true,
+                confirmButtonText: "Confirm!",
+                cancelButtonText: "Cancel!",
+                reverseButtons: true
+            })
+
+            if (confirmation.dismiss === Swal.DismissReason.cancel) {
+
+                swalWithBootstrapButtons.fire({
+                    title: "Cancelled",
+                    text: cancelledText,
+                    icon: "error"
+                });
+
+                return;
+            }
+
+            form.submit();
+        })
+    }
+
+    const onSubmitConfirmation = async ({title, text, icon, cancelledText, confirmCallback}) => {
+
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success",
+                cancelButton: "btn btn-danger"
+            },
+            buttonsStyling: false
+        });
+
+        let confirmation = await swalWithBootstrapButtons.fire({
+            title: title,
+            text: text,
+            icon: icon,
+            showCancelButton: true,
+            confirmButtonText: "Confirm!",
+            cancelButtonText: "Cancel!",
+            reverseButtons: true
+        })
+
+        if (confirmation.dismiss === Swal.DismissReason.cancel) {
+
+            swalWithBootstrapButtons.fire({
+                title: "Cancelled",
+                text: cancelledText,
+                icon: "error"
+            });
+
+            return;
+        }
+
+        confirmCallback();
+    }
+
     const formCallback = async ({modalId, title, text, icon, cancelledText, confirmCallback, cancelCallback}) => {
 
         const modal = new bootstrap.Modal(document.getElementById(modalId), {
@@ -434,6 +509,37 @@
 
     }
 
+    const showErrorMessage = (message)=>{
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success",
+                cancelButton: "btn btn-danger"
+            },
+            buttonsStyling: false
+        });
+
+        swalWithBootstrapButtons.fire({
+            title: "Error",
+            text: message,
+            icon: "error"
+        });
+    }
+
+    const showSuccessMessage = (message)=>{
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success",
+                cancelButton: "btn btn-danger"
+            },
+            buttonsStyling: false
+        });
+
+        swalWithBootstrapButtons.fire({
+            title: "Information",
+            text: message,
+            icon: "success"
+        });
+    }
 </script>
 {% block javascript %}
 

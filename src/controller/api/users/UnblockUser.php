@@ -12,9 +12,7 @@ class UnblockUser extends AdminAction
     {
         try {
 
-            $formData = $this->getFormData();
-
-            $userId = $formData['userId'];
+            $userId = $this->args['id'];
 
             $user = $this->userService->findById($userId);
 

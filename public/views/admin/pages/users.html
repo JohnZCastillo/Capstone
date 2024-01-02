@@ -120,12 +120,20 @@
                     <td>
                         <div class="d-flex gap-2 h-100">
 
-                            <button type="button" onclick="unblockUser('{{user.id}}')" class="btn btn-success block-btn"
-                                    style="min-width: 85px">Unblock
-                            </button>
-                            <button type="button" onclick="blockUser('{{user.id}}')" class="btn btn-danger block-btn"
-                                    style="min-width: 85px">Block
-                            </button>
+
+                            <form data-user="{{user.id}}"  class="unblockForms" method="POST" action="/unblock-user/{{user.id}}">
+
+                                <button type="submit" class="btn btn-success block-btn"
+                                        style="min-width: 85px">Unblock
+                                </button>
+
+                            </form>
+
+                            <form data-user="{{user.id}}" class="blockForms" method="POST" action="/block-user/{{user.id}}">
+                                <button type="submit" class="btn btn-danger block-btn"
+                                        style="min-width: 85px">Block
+                                </button>
+                            </form>
 
                         </div>
 
@@ -314,40 +322,6 @@
 
     });
 
-    async function blockUser(id) {
-
-        let formData = new FormData();
-        formData.append("userId", id);
-
-        try {
-
-            const data = await fetch('/block-user', {
-                method: "POST",
-                body: formData
-            })
-
-            const result = await data.json();
-
-            if (data.ok) {
-                document.querySelector("#restricted" + id).innerHTML = "Yes";
-                document.querySelector("#restricted" + id).classList.add('bg-danger');
-                document.querySelector("#restricted" + id).classList.remove('bg-success');
-                console.log('user has been block')
-            } else {
-                throw new Error(result.data.message)
-            }
-
-        } catch (error) {
-
-            const alertMessage = document.querySelector("#infoModalMessage");
-            alertMessage.innerHTML = error.message;
-
-            new bootstrap.Modal(document.getElementById('infoModal'), {
-                keyboard: false
-            }).show();
-        }
-    }
-
     async function unblockUser(id) {
 
         let formData = new FormData();
@@ -368,6 +342,89 @@
         }
 
     }
+
+    const blockForms = document.querySelectorAll('.blockForms');
+    const unblockForms = document.querySelectorAll('.unblockForms');
+
+    blockForms.forEach(status => {
+
+        status.addEventListener('submit', (event) =>{
+
+            event.preventDefault();
+
+            const formUrl = status.action;
+
+            const confirmCallback = async ()=>{
+
+                const data = await fetch(formUrl, {
+                    method: "POST",
+                })
+
+                const result = await data.json();
+
+                if (data.ok) {
+
+                    let id = status.dataset.user
+
+                    document.querySelector("#restricted" + id).innerHTML = "No";
+                    document.querySelector("#restricted" + id).classList.remove('bg-danger');
+                    document.querySelector("#restricted" + id).classList.add('bg-success');
+                    showSuccessMessage('User Blocked Successfully');
+                } else {
+                    showErrorMessage(result.data.message);
+                }
+            }
+
+            onSubmitConfirmation({
+                title: 'Confirmation',
+                text: `Are you sure you want to block this user?`,
+                icon: 'question',
+                cancelledText: 'Action Cancelled',
+                confirmCallback: confirmCallback,
+            })
+
+        });
+    })
+
+    unblockForms.forEach(status => {
+
+        status.addEventListener('submit', (event) =>{
+
+            event.preventDefault();
+
+            const formUrl = status.action;
+
+            const confirmCallback = async ()=>{
+
+                const data = await fetch(formUrl, {
+                    method: "POST",
+                })
+
+                const result = await data.json();
+
+                if (data.ok) {
+                    let id = status.dataset.user
+                    document.querySelector("#restricted" + id).innerHTML = "No";
+                    document.querySelector("#restricted" + id).classList.remove('bg-danger');
+                    document.querySelector("#restricted" + id).classList.add('bg-success');
+                    console.log('user has been unblock')
+                    showSuccessMessage('User Unblocked Successfully');
+                } else {
+                    showErrorMessage(result.data.message);
+                }
+            }
+
+            onSubmitConfirmation({
+                title: 'Confirmation',
+                text: `Are you sure you want to unblock this user?`,
+                icon: 'question',
+                cancelledText: 'Action Cancelled',
+                confirmCallback: confirmCallback,
+            })
+
+        });
+    })
+
 </script>
 
 {% endblock %}
