@@ -12,71 +12,56 @@ class Time
 {
 
     /**
-     * Create a date with the starting day set to 1.
-     * @param string date
-     * @return DateTime
+     * Converts a date string to a DateTime object set on the first day of the month.
+     * @param string $date - (Y-m) eg: 2023-12
+     * @return DateTime - On Y-m-d format
+     * @throws InvalidDateFormat - on invalid format
      */
-    static function startMonth($date)
+    static function startMonth(string $date): DateTime
     {
+        $format = 'Y-m';
+
+        if (!v::date($format)->validate($date)) {
+            throw new InvalidDateFormat("Invalid Date must be in $format");
+        }
+
         return DateTime::createFromFormat('Y-m-d', $date . '-01');
     }
 
-    static function dayPast(string $x, string $y): int
+    /**
+     * Convert DateTime object to its string representation
+     * @param DateTime $date
+     * @param string $format
+     * @return string
+     */
+    static function convertToString(DateTime $date, string $format = 'Y-m-d'): string
     {
-        $difference =  strtotime($x) - strtotime($y);
-
-        return (($difference/60)/60)/24;
-    }
-
-
-
-    static function nowStartMonth($date)
-    {
-        return self::convert(self::startMonth($date));
-    }
-
-    static function nowEndMonth($date)
-    {
-        return self::convert(self::endMonth($date));
+        return $date->format($format);
     }
 
     /**
-     * Create a date with the starting day set to the last day.
-     * @param string date
-     * @return DateTime
+     * Returns the day difference
+     * @param string $start
+     * @param string $end
+     * @return int
      */
-    static function endMonth($date)
+    static function dayPast(string $start, string $end): int
     {
-        $date = self::startMonth($date);
-        $date = $date->format('Y-m-t');
-        return DateTime::createFromFormat('Y-m-d', $date);
+        $difference = strtotime($start) - strtotime($end);
+
+        return (($difference / 60) / 60) / 24;
     }
 
-    static function convert($date)
-    {
-        return $date->format('Y-m-d');
-    }
-
-    static function convertToMonth($date)
-    {
-        return $date->format('Y-m');
-    }
 
     /**
-     * Convert string date '2023-01-01 to '2023-01'.
+     * Convert string date '2023-12-01' to '2023-01'.
+     *
+     * @param string $date - Date in 'Y-m-d' format
+     * @return string - Date in 'Y-m' format
      */
-    static function toMonth($date)
+    static function toMonth(string $date): string
     {
-        if (Helper::existAndNotNull($date)) {
-            $date = DateTime::createFromFormat('Y-m-d', $date);
-            return $date->format('Y-m');
-        }
-    }
-
-    static function toStringMonthYear($date): string
-    {
-        $date = DateTime::createFromFormat('Y-m-d', $date);
-        return $date->format('M Y');
+        return (DateTime::createFromFormat('Y-m-d', $date))->format('Y-m');
     }
 
 
@@ -88,14 +73,22 @@ class Time
         return DateTime::createFromFormat('U', time());
     }
 
-    // return payment amount for this month
-    static function thisMonth()
+    /**
+     * Get the first day of the current month in 'Y-m-d' format.
+     *
+     * @return string - Date formatted as 'Y-m-01'
+     */
+    static function thisMonth():string
     {
         return date("Y-m-01");
     }
 
-    // return payment amount for next month
-    static function nextMonth()
+    /**
+     * Get the first day of the next month from the current date.
+     *
+     * @return string - Date formatted as 'Y-m-01'
+     */
+    static function nextMonth(): string
     {
         return date("Y-m-01", strtotime("+1 month", strtotime(self::thisMonth())));
     }
@@ -105,8 +98,9 @@ class Time
      * The month must start on the first day 2023-12-01.
      * @param string $startMonth
      * @param string $endMonth
+     * @return array
      */
-    static function getMonths(string $startMonth, string $endMonth)
+    static function getMonths(string $startMonth, string $endMonth): array
     {
 
         // Create DateTime objects for the start and end months
@@ -266,10 +260,19 @@ class Time
         return v::date($format)->validate($date);
     }
 
-    static function getCurrentYear (): int
+    /**
+     * Gets the year from the provided DateTime object or the current year if null.
+     * @param DateTime|null $date
+     * @return int
+     */
+    static function getCurrentYear(DateTime $date = null): int
     {
-        return ((new DateTime())->format('Y'));
+
+        if(!isset($date)){
+            $date = new DateTime();
+        }
+
+        return (int) $date->format('Y');
     }
 
 }
-

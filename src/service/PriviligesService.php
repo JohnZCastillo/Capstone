@@ -2,10 +2,7 @@
 
 namespace App\service;
 
-use App\model\DuesModel;
 use App\model\PrivilegesModel;
-use App\model\UserModel;
-use Doctrine\ORM\Exception\NotSupported;
 
 class PriviligesService extends Service {
 

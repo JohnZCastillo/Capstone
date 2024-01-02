@@ -6,7 +6,6 @@ use App\exception\date\InvalidDateFormat;
 use App\lib\Time;
 use App\model\DuesModel;
 use App\model\UserModel;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\NotSupported;
 use Exception;
 

@@ -4,7 +4,6 @@ namespace App\service;
 
 use App\model\ReceiptModel;
 use App\model\TransactionModel;
-use Doctrine\ORM\EntityManager;
 
 class ReceiptService extends Service {
 

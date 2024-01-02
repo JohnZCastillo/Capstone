@@ -3,12 +3,7 @@
 namespace App\service;
 
 use App\exception\payment\PaymentNotFound;
-use App\lib\Time;
 use App\model\PaymentModel;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Exception\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\TransactionRequiredException;
 
 class PaymentService extends Service
 {

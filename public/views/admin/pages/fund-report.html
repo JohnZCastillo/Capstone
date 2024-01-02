@@ -97,7 +97,6 @@
 
         try {
 
-
             const data = await fetch('/admin/fund/report/print/{{fund.id}}');
             const blob = await data.blob();
 
@@ -117,7 +116,6 @@
 
             }
             reader.readAsDataURL(blob);
-
 
 
         } catch (error) {

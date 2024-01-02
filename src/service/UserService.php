@@ -6,11 +6,6 @@ use App\exception\UserNotFoundException;
 use App\lib\Paginator;
 use App\model\enum\UserRole;
 use App\model\UserModel;
-use Doctrine\ORM\Exception\NotSupported;
-use Doctrine\ORM\Exception\ORMException;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\TransactionRequiredException;
 
 class UserService extends Service
 {

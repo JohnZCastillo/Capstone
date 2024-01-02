@@ -4,9 +4,6 @@ namespace App\service;
 
 use App\exception\fund\BillNotFound;
 use App\model\budget\BillModel;
-use Doctrine\ORM\Exception\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\TransactionRequiredException;
 
 class BillService extends Service
 {

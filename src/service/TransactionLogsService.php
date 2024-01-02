@@ -4,8 +4,6 @@ namespace App\service;
 
 use App\lib\Time;
 use App\model\TransactionLogsModel;
-use App\model\UserModel;
-use Doctrine\ORM;
 
 class TransactionLogsService extends Service {
 

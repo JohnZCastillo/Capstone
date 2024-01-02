@@ -4,9 +4,7 @@ namespace App\service;
 
 use App\exception\payment\TransactionNotFound;
 use App\lib\Paginator;
-use App\lib\QueryHelper;
 use App\lib\Time;
-use App\model\DuesModel;
 use App\model\PaymentModel;
 use App\model\TransactionModel;
 use App\model\UserModel;
@@ -162,7 +160,7 @@ class TransactionService extends Service
         if ($startMonth != null and $endMonth != null) {
             $months = Time::getMonths($startMonth, $endMonth);
         } else {
-            $months = Time::getMonths($payment->getStart(), Time::thisMonth());
+            $months = Time::getMonths(Time::convertToString($payment->getStart()), Time::thisMonth());
         }
 
         $data = [];
@@ -188,7 +186,6 @@ class TransactionService extends Service
             'total' => $total
         ];
     }
-
 
 
     /**

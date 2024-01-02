@@ -55,7 +55,7 @@ class Homepage extends AdminAction
                 $to,
             );
 
-            $startOfPaymentYear = (int)Time::getYearFromStringDate($settings->getStart());
+            $startOfPaymentYear = Time::getCurrentYear($settings->getStart());
 
             $dues = $this->duesService->getMonthlyDues($startOfPaymentYear);
 

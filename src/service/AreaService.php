@@ -3,7 +3,6 @@
 namespace App\service;
 
 use App\model\AreaModel;
-use App\model\budget\BillModel;
 
 class AreaService extends Service
 {
