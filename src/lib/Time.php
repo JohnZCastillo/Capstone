@@ -29,6 +29,23 @@ class Time
     }
 
     /**
+     * Converts a date string to a DateTime object set on the first day of the month.
+     * @param string $date - (Y-m) eg: 2023-12
+     * @return DateTime - On Y-m-d format
+     * @throws InvalidDateFormat - on invalid format
+     */
+    static function endMonth(string $date): DateTime
+    {
+        $format = 'Y-m';
+
+        if (!v::date($format)->validate($date)) {
+            throw new InvalidDateFormat("Invalid Date must be in $format");
+        }
+
+        return (new \DateTime($date))->modify('last day of this month');
+    }
+
+    /**
      * Convert DateTime object to its string representation
      * @param DateTime $date
      * @param string $format
