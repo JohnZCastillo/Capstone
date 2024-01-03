@@ -1,0 +1,8 @@
+# Ignore everything in this directory
+*
+# Except this file
+!approve_payment.docx
+!unpaid_payment.docx
+!rejected_payment.docx
+!pending_payment.docx
+!budget_template.docx
