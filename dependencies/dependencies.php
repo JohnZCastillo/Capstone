@@ -42,6 +42,10 @@ return array(
         return $c->get('DEFAULT_CREDENTIAL');
     },
 
+    \App\lib\LotFinder::class => function (ContainerInterface $container) {
+        return new \App\lib\LotFinder($container->get(\App\service\AreaService::class));
+    },
+
     UserService::class => function (ContainerInterface $container) {
         return new UserService($container->get(EntityManager::class));
     },
