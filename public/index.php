@@ -35,12 +35,15 @@ $twig->getEnvironment()->getExtension(\Twig\Extension\CoreExtension::class)->set
 $app->add(TwigMiddleware::create($app, $twig));
 
 $flashMessage = $container->get(\Slim\Flash\Messages::class);
+$areaService = $blockService = $container->get(\App\service\AreaService::class);
 
+$twig->addExtension($app->getContainer()->get(\App\lib\LotFinder::class));
 $twig->getEnvironment()->addGlobal('verify',$flashMessage->getFirstMessage('verify'));
 $twig->getEnvironment()->addGlobal('loginError',$flashMessage->getFirstMessage('loginError'));
 $twig->getEnvironment()->addGlobal('errorMessage',$flashMessage->getFirstMessage('errorMessage'));
 $twig->getEnvironment()->addGlobal('successMessage',$flashMessage->getFirstMessage('successMessage'));
 $twig->getEnvironment()->addGlobal('login_user',$container->get('LOGIN_USER'));
+$twig->getEnvironment()->addGlobal('blocks',$areaService->getBlock());
 
 // Register routes
 $routes = require APP_ROOT . 'app/routes.php';
