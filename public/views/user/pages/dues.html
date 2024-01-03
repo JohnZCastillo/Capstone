@@ -331,6 +331,18 @@
 
     };
 
+    const paymentSearchFrom = document.querySelector("#paymentSearchFormFrom");
+    const paymentSearchTo = document.querySelector("#paymentSearchFormTo");
+
+    paymentSearchFrom.addEventListener("change", (event) => {
+        paymentSearchForm.submit();
+    });
+
+    paymentSearchTo.addEventListener("change", (event) => {
+        paymentSearchForm.submit();
+    });
+
+
 </script>
 
 {% endblock %}
