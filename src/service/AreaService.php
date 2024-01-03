@@ -34,4 +34,41 @@ class AreaService extends Service
             ->getSingleColumnResult();
     }
 
+    public function getArea(string $block, string $lot): array
+    {
+
+        if ($lot === 'ALL') {
+            $lot = null;
+        }
+
+        if ($block === 'ALL') {
+            $block = null;
+        }
+
+        $qb = $this->entityManager->createQueryBuilder();
+
+        $andX = $qb->expr()->andX();
+
+        $query = $qb->select('e')
+            ->from(AreaModel::class, 'e');
+
+        if (isset($block)) {
+            $andX->add($qb->expr()->eq('e.block', ':block'));
+            $qb->setParameter('block', $block);
+
+        }
+
+        if (isset($lot)) {
+            $andX->add($qb->expr()->eq('e.lot', ':lot'));
+            $qb->setParameter('lot', $lot);
+        }
+
+        if (isset($block) || isset($lot)) {
+            $qb->where($andX);
+        }
+
+        return $query->getQuery()
+            ->getResult();
+    }
+
 }
