@@ -5,6 +5,9 @@ namespace App\controller\admin\report;
 use App\controller\admin\AdminAction;
 use App\lib\DocxMaker;
 use App\lib\PdfResponse;
+use App\lib\Time;
+use App\model\UserModel;
+use Couchbase\User;
 use DateTime;
 use Slim\Psr7\Response;
 
@@ -27,15 +30,15 @@ class PaymentReport extends AdminAction
 
             switch ($status) {
                 case 'APPROVED':
-                    return  $this->approvePaymentReport();
+                    return $this->approvePaymentReport();
                 case 'REJECTED':
-                    return  $this->rejectedPaymentReport();
+                    return $this->rejectedPaymentReport();
                 case 'PENDING':
-                    return  $this->pendingPaymentReport();
+                    return $this->pendingPaymentReport();
                 case 'UNPAID':
-                    return  $this->unpaidPaymentReport();
+                    return $this->unpaidPaymentReport();
             }
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             $this->redirect('/admin/payments');
         }
     }
@@ -206,44 +209,48 @@ class PaymentReport extends AdminAction
         $block = $formData['block'] ?? null;
         $lot = $formData['lot'] ?? null;
 
-        $data = array();
+        $areas = $this->areaService->getArea($block, $lot);
 
-        foreach ($transactions as $transaction) {
+        $users = [];
 
-            $user = $transaction->getUser();
+        foreach ($areas as $area) {
 
-            $receipts = $transaction->getReceipts();
+            $user = new UserModel();
+            $user->setBlock($area->getBlock());
+            $user->setLot($area->getLot());
 
-            $receiptsHolder = '';
-
-            foreach ($receipts as $receipt) {
-                $receiptsHolder = $receiptsHolder . ' ' . $receipt->getReferenceNumber();
-            }
-
-            $fromCoverage = new DateTime($transaction->getFromMonth());
-            $toCoverage = new DateTime($transaction->getToMonth());
-
-            $coverage = $fromCoverage->format('M Y') . ' - ' . $toCoverage->format('M Y');
-
-            $data[] = array(
-                'ID' => $transaction->getId(),
-                'UNIT' => 'B' . $user->getBlock() . ' L' . $user->getLot(),
-                'AMOUNT' => $transaction->getAmount(),
-                'REFERENCE' => $receiptsHolder,
-                'COVERAGE' => $coverage,
-                'CREATED' => $transaction->getCreatedAt()->format('Y-m-d'),
-            );
+            $users[] = $user;
 
         }
 
-        $docxMaker = new DocxMaker('approve_payment.docx');
+        $data = [];
 
-        $docxMaker->addBody($data, 'ID');
+        foreach ($users as $user) {
+
+            $total = $this->transactionService->getUnpaid(
+                $user,
+                $this->duesService,
+                $this->paymentService->findById(1),
+                Time::convertToString(Time::startMonth($from)),
+                Time::convertToString(Time::startMonth($to)),
+            )['total'];
+
+            $data[] = [
+                'AMOUNT' => $total,
+                'UNIT' => 'B'.$user->getBlock() . ' L'.$user->getLot()
+            ];
+        }
+
+
+        $docxMaker = new DocxMaker('unpaid_payment.docx');
+
+        $docxMaker->addBody($data, 'UNIT');
         $output = $docxMaker->output();
 
         $pdfResponse = new PdfResponse($output, 'test.pdf');
 
         return $pdfResponse->getResponse();
+
     }
 
 
