@@ -19,23 +19,33 @@
     </div>
     <div class="form-group row">
         <div class="col-sm">
-            <label class="form-label" for="">
+            <label class="form-label" for="block">
                 Block
                 <span class="text-danger">*</span>
             </label>
-            <input value="{{content.block}}" class="form-control  {% if blockError %} is-invalid {% endif %}"
-                   type="text" name="block"/>
+            <select id="block" class="form-control  {% if blockError %} is-invalid {% endif %}"
+                   type="text" name="block">
+                {% for block in blocks %}
+                <option class="small " value="{{block}}">{{block}}</option>
+                {% endfor %}
+            </select>
+
             <div class="invalid-feedback">
                 {{blockError}}
             </div>
         </div>
         <div class="col-sm">
-            <label class="form-label" for="">
+            <label class="form-label" for="lot">
                 Lot
                 <span class="text-danger">*</span>
             </label>
-            <input value="{{content.lot}}" class="form-control  {% if lotError %} is-invalid {% endif %}" type="text"
-                   name="lot"/>
+
+            <select id="lot" class="form-control {% if lotError %} is-invalid {% endif %}" type="text"
+                   name="lot">
+                {% for block in blocks %}
+                <option class="small " value="{{block}}" >{{block}}</option>
+                {% endfor %}
+            </select>
             <div class="invalid-feedback">
                 {{lotError}}
             </div>
@@ -101,4 +111,39 @@
         <a href="/login" class="text-decoration-none small">Have an account?</a>
     </div>
 </form>
+
+<script>
+
+    const blockInput = document.getElementById('block');
+    const lotInput = document.getElementById('lot');
+
+    blockInput.addEventListener('change', async (event) => {
+
+        lotInput.innerHTML = '';
+
+        let formData = new FormData();
+        formData.append('block', blockInput.value);
+
+        let result = await fetch('/lot', {
+            method: 'POST',
+            body: formData
+        });
+
+        let optionsHTML = ""
+
+
+        if (result.ok) {
+
+            let data = await result.json();
+            data.data.forEach(lot => {
+                optionsHTML += `<option class="small"  value="${lot}">${lot}</option>`;
+            });
+        }
+
+        lotInput.innerHTML = optionsHTML;
+    })
+
+</script>
+
 {% endblock %}
+
