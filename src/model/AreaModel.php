@@ -20,4 +20,35 @@ class AreaModel {
     #[ORM\Column(type: 'integer')]
     private int|null $lot;
 
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function setId($id): void
+    {
+        $this->id = $id;
+    }
+
+    public function getBlock(): ?int
+    {
+        return $this->block;
+    }
+
+    public function setBlock(?int $block): void
+    {
+        $this->block = $block;
+    }
+
+    public function getLot(): ?int
+    {
+        return $this->lot;
+    }
+
+    public function setLot(?int $lot): void
+    {
+        $this->lot = $lot;
+    }
+
+
 }
