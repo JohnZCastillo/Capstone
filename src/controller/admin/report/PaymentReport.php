@@ -39,8 +39,11 @@ class PaymentReport extends AdminAction
                     return $this->unpaidPaymentReport();
             }
         } catch (\Exception $exception) {
-            $this->redirect('/admin/payments');
+
+            $this->addErrorMessage($exception->getMessage());
         }
+
+        $this->redirect('/admin/payments');
     }
 
     public function approvePaymentReport(): Response
