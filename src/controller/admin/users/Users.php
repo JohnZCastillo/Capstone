@@ -38,8 +38,8 @@ class Users extends AdminAction
                 'superAdmin' => $this->getLoginUser()->getRole() === "super",
                 'loginUser' => $this->getLoginUser(),
                 'query' => $query,
-                'block' => $block,
-                'lot' => $lot
+                'selectedBlock' => $block,
+                'selectedLot' => $lot
             ]);
 
         }catch (\Exception $exception){
