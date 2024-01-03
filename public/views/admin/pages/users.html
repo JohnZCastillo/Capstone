@@ -59,9 +59,18 @@
                             <div>
                                 <label class="text-secondary small d-block" for="userBlock">Block</label>
                                 <select class="form-control" id="userBlock" name="block">
-                                    <option value="0">ALL</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
+
+
+                                    <option class="small" value="0">ALL</option>
+                                    {% for block in blocks %}
+
+                                        {% if selectedBlock == block %}
+                                            <option class="small" value="{{block}}" selected>{{block}}</option>
+                                        {% else %}
+                                            <option class="small" value="{{block}}">{{block}}</option>
+                                        {% endif %}
+
+                                    {% endfor %}
                                 </select>
                             </div>
 
@@ -69,8 +78,18 @@
                                 <label class="text-secondary small d-block" for="userLot">Lot</label>
                                 <select class="form-control" id="userLot" name="lot">
                                     <option value="0">ALL</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
+
+                                    {% set lots = getLot(selectedBlock) %}
+
+                                    {% for lot in lots %}
+
+                                        {% if selectedLot == lot %}
+                                        <option class="small" value="{{lot}}" selected>{{lot}}</option>
+                                        {% else %}
+                                        <option class="small" value="{{lot}}">{{lot}}</option>
+                                        {% endif %}
+
+                                    {% endfor %}
                                 </select>
                             </div>
                         </div>
