@@ -6,7 +6,7 @@
     <div class="card">
         <h5 class="card-header">System Settings</h5>
         <div class="card-body">
-            <form method="POST" action="/admin/system">
+            <form id="systemSettingsForm" method="POST" action="/admin/system">
 
                 <div class="form-group row">
                     <p class="m-0">Email Settings</p>
@@ -52,4 +52,28 @@
     </div>
 </div>
 
+{% endblock %}
+
+{% block javascript %}
+<script>
+
+    const systemSettingsForm = document.querySelector('#systemSettingsForm');
+
+    systemSettingsForm.addEventListener('submit',(event)=>{
+
+        event.preventDefault();
+
+        onSubmitConfirmation({
+            title: 'Confirmation',
+            text: `Are you sure you want to save changes?`,
+            icon: 'question',
+            cancelledText: 'Action Cancelled',
+            confirmCallback: ()=> systemSettingsForm.submit(),
+        })
+
+    })
+
+
+
+</script>
 {% endblock %}
