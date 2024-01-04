@@ -55,7 +55,7 @@
 
             <div class="card-body">
 
-                <form enctype="multipart/form-data" method="POST" action="/admin/overview">
+                <form id="overviewForm" enctype="multipart/form-data" method="POST" action="/admin/overview">
 
                     <div class="mb-2">
                         <label for="about">Hero Image</label>
@@ -223,4 +223,26 @@
     }
 
 </script>
+
+<script>
+
+    const overviewForm = document.querySelector('#overviewForm');
+
+    overviewForm.addEventListener('submit',(event)=>{
+
+        event.preventDefault();
+
+        onSubmitConfirmation({
+            title: 'Confirmation',
+            text: `Are you sure you want to save changes?`,
+            icon: 'question',
+            cancelledText: 'Action Cancelled',
+            confirmCallback: ()=> overviewForm.submit(),
+        })
+
+    })
+
+
+</script>
+
 {% endblock %}
