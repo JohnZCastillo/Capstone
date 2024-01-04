@@ -2,19 +2,11 @@
 
 namespace App\middleware;
 
-use App\lib\Login;
-use App\model\StaffModel;
-use App\service\AccessService;
-use App\service\CategoryService;
-use App\service\RoleService;
-use App\service\UserService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
-use Slim\Psr7\Response;
 use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
-use UMA\DIC\Container;
 
 class ActivePage
 {
