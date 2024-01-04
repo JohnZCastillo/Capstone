@@ -38,7 +38,7 @@ class RejectPayment extends AdminAction
                 throw new ContentLock('Cannot Edit Content');
             }
 
-            if (!v::alnum()->validate($message)) {
+            if (!v::alnum(' ')->validate($message)) {
                 throw new InvalidInput('Message must only be string characters');
             }
 
