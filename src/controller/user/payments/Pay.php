@@ -129,8 +129,6 @@ class Pay extends UserAction
     private function saveReceipts(array $images, TransactionModel $transaction): void
     {
 
-        $images = $_FILES['receipts'];
-
         if (!Image::isImage($images)) {
             throw new UnsupportedImageException();
         }
