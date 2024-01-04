@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use App\lib\Login;
 use DI\ContainerBuilder;
 use PHPUnit\Framework\TestCase as PHPUnit_TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
@@ -33,29 +34,28 @@ class TestCase extends PHPUnit_TestCase
     protected function getAppInstance(): App
     {
 
-            // Instantiate PHP-DI ContainerBuilder
-            $containerBuilder = new ContainerBuilder();
+        // Instantiate PHP-DI ContainerBuilder
+        $containerBuilder = new ContainerBuilder();
+
+        // Set up settings
+        $settings = require __DIR__ . '/../dependencies/container.php';
+        $settings($containerBuilder);
+
+        // Build PHP-DI Container instance
+        $container = $containerBuilder->build();
+
+        $twig = Twig::create(__DIR__ . '/../public/views/', ['cache' => false, 'debug' => true]);
+
+        // Instantiate the app
+        AppFactory::setContainer($container);
+        $app = AppFactory::create();
+
+        $app->add(TwigMiddleware::create($app, $twig));
 
 
-            // Set up settings
-            $settings = require __DIR__ . '/../dependencies/container.php';
-            $settings($containerBuilder);
-
-            // Build PHP-DI Container instance
-            $container = $containerBuilder->build();
-
-            $twig = Twig::create(__DIR__ . '/../public/views/', ['cache' => false, 'debug' => true]);
-
-            // Instantiate the app
-            AppFactory::setContainer($container);
-            $app = AppFactory::create();
-
-            $app->add(TwigMiddleware::create($app, $twig));
-
-
-            // Register routes
-            $routes = require __DIR__ . '/../app/routes.php';
-            $routes($app);
+        // Register routes
+        $routes = require __DIR__ . '/../app/routes.php';
+        $routes($app);
 
         return $app;
     }
@@ -87,4 +87,16 @@ class TestCase extends PHPUnit_TestCase
 
         return new SlimRequest($method, $uri, $h, $cookies, $serverParams, $stream);
     }
+
+    protected function setUp(): void
+    {
+        Login::login(1);
+    }
+
+    protected function tearDown(): void
+    {
+        session_destroy();
+    }
+
+
 }
