@@ -13,7 +13,8 @@
                 <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#filterModal">Filter Logs</button>
             </div>
 
-            <table class="table thead-dark table-hover rounded-table table-shadow">
+            <div class="table-responsive">
+                <table class="table thead-dark table-hover rounded-table table-shadow">
                 <thead class="bg-dark text-white">
                 <tr>
                     <th>User</th>
@@ -33,6 +34,8 @@
                 {% endfor %}
                 </tbody>
             </table>
+            </div>
+
             {% include './user/partials/pagination.html' %}
 
         </div>
