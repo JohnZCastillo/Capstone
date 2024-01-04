@@ -23,13 +23,6 @@ class Image {
             return $imageName;
     }
 
-    /**
-     * Return the temp image from array of images at index of $index.
-     */
-    static function getImage($images,$index){
-        return $images['tmp_name'][$index];
-    }
-
     static function storeAll($path,$images){
      
         foreach ($images['tmp_name'] as $index => $tmp_name) {
