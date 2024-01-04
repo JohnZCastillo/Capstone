@@ -11,11 +11,11 @@ return function (App $app) use ($twig) {
 
         $group->post('/block-user/{id}',
             \App\controller\api\users\BlockUser::class
-        );
+        )->add(\App\middleware\AdminOnly::class);
 
         $group->post('/unblock-user/{id}',
             \App\controller\api\users\UnblockUser::class
-        );
+        )->add(\App\middleware\AdminOnly::class);
 
         $group->post('/users',
             \App\controller\api\users\FindUser::class
