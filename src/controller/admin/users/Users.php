@@ -14,7 +14,7 @@ class Users extends AdminAction
     protected function action(): Response
     {
 
-        try{
+        try {
 
             $queryParams = $this->getQueryParams();
 
@@ -22,13 +22,18 @@ class Users extends AdminAction
             $block = $queryParams['block'];
             $lot = $queryParams['lot'];
 
-            $role = empty($queryParams['role']) ? 'admin' : $queryParams['role'];
+            //prevent staffs from seeing staffs using query
+            if ($this->getLoginUser()->getRole() === 'super') {
+                $role = empty($queryParams['role']) ? 'user' : $queryParams['role'];
+            } else if ($this->getLoginUser()->getRole() === 'admin') {
+                $role = 'user';
+            }
 
             $max = 10;
 
             $query = $queryParams['query'];
 
-            $pagination = $this->userService->getAll($page, $max, $query, $role,$block,$lot);
+            $pagination = $this->userService->getAll($page, $max, $query, $role, $block, $lot);
 
             return $this->view('admin/pages/users.html', [
                 'users' => $pagination->getItems(),
@@ -42,7 +47,7 @@ class Users extends AdminAction
                 'selectedLot' => $lot
             ]);
 
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             $this->addErrorMessage($exception->getMessage());
         }
     }
