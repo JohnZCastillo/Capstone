@@ -47,7 +47,7 @@
     <div class="row">
 
         {% for fund in funds %}
-        <div class="col-lg-4 col-md-8 col-12 mb-4">
+        <div class="col-lg-5 col-md-8 col-12 mb-4">
             <div class="card position-relative">
                 {% if fund.totalPendingExpenses > 0%}
                 <a href="/admin/fund/{{fund.id}}#pendingExpenses">
