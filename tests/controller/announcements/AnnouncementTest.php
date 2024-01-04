@@ -14,8 +14,6 @@ class AnnouncementTest extends TestCase
 
         $response = $app->handle($request);
 
-        var_dump($_SESSION);
-
         $this->assertEquals(200, $response->getStatusCode());
     }
 
