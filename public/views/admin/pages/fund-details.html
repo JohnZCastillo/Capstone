@@ -124,10 +124,10 @@
                                                 <i class="bx bx-dots-vertical-rounded"></i>
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="transactionID">
-                                                <form method="POST" action="/admin/approve-expense/{{expense.id}}">
+                                                <form id="approveExpenseForm" method="POST" action="/admin/approve-expense/{{expense.id}}">
                                                     <button class="dropdown-item" type="submit">Approve</button>
                                                 </form>
-                                                <form method="POST" action="/admin/reject-expense/{{expense.id}}">
+                                                <form id="rejectExpenseForm" method="POST" action="/admin/reject-expense/{{expense.id}}">
                                                     <button class="dropdown-item" type="submit">Reject</button>
                                                 </form>
                                             </div>
@@ -233,5 +233,48 @@
     var chart = new ApexCharts(document.querySelector("#expenseAndIncomeChart"), options);
     chart.render();
 </script>
+<script>
 
+    const rejectExpenseForm = document.getElementById('rejectExpenseForm');
+    const approveExpenseForm = document.getElementById('approveExpenseForm');
+
+    rejectExpenseForm.addEventListener('submit',(event)=>{
+
+        event.preventDefault();
+
+        onSubmitConfirmation({
+            title: 'Confirmation',
+            text: `Are you sure you want to reject this expense?`,
+            icon: 'question',
+            cancelledText: 'Action Cancelled',
+            confirmCallback: ()=> rejectExpenseForm.submit(),
+        })
+
+    })
+
+    approveExpenseForm.addEventListener('submit',(event)=>{
+
+        event.preventDefault();
+
+        onSubmitConfirmation({
+            title: 'Confirmation',
+            text: `Are you sure you want to approve this expense?`,
+            icon: 'question',
+            cancelledText: 'Action Cancelled',
+            confirmCallback: ()=> approveExpenseForm.submit(),
+        })
+
+    })
+
+    formConfirmation({
+        formId: 'transferBudgetForm',
+        modalId: 'transferModal',
+        title: 'Confirmation',
+        text: 'Are you sure you want to transfer?',
+        icon: 'question',
+        cancelledText: 'Action Cancelled'
+    });
+
+
+</script>
 {% endblock %}
