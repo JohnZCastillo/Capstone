@@ -32,10 +32,6 @@ class MakeAction extends AdminAction
                 throw new InvalidInput('Message cannot be empty');
             }
 
-            if (!v::alnum()->validate($action)) {
-                throw  new InvalidInput('No Special Characters Allowed in action message');
-            }
-
             $issue->setAction($action);
             $issue->setStatus($status);
 
