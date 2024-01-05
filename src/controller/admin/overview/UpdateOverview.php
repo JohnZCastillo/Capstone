@@ -30,12 +30,12 @@ class UpdateOverview extends AdminAction
             $aboutDescription = $content['aboutDescription'];
             $heroDescription = $content['heroDescription'];
 
-            if (!v::alnum(' ')->notEmpty()->validate($aboutDescription)) {
+            if (!v::stringVal()->notEmpty()->validate($aboutDescription)) {
                 throw new InvalidInput('Invalid content for about description');
             }
 
-            if (!v::alnum(' ')->notEmpty()->validate($heroDescription)) {
-                throw new InvalidInput('Invalid content for hero description');
+            if (!v::stringVal()->notEmpty()->validate($heroDescription)) {
+                throw new InvalidInput('Invalid content for main description');
             }
 
             $overview->setAboutDescription($aboutDescription);
@@ -48,7 +48,7 @@ class UpdateOverview extends AdminAction
 
             if ($heroImage['error'] !== UPLOAD_ERR_NO_FILE) {
                 $imageName = Image::store($path, $heroImage);
-                $overview->setAboutImg(str_replace('.', '', $path) . $imageName);
+                $overview->setHeroImg(str_replace('.', '', $path) . $imageName);
             }
 
             $this->overviewService->saveOverview($overview);
