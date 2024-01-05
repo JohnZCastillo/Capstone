@@ -28,17 +28,17 @@ class Overview{
     #[ORM\GeneratedValue]
     private int|null $id = null;
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private string $heroDescription;
+    #[ORM\Column(type: 'text', nullable: true)]
+    private string|null $heroDescription;
 
     #[ORM\Column(type: 'string', nullable: true)]
-    private string $heroImg;
+    private string|null $heroImg;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private string|null $aboutDescription;
 
     #[ORM\Column(type: 'string', nullable: true)]
-    private string $aboutDescription;
-
-    #[ORM\Column(type: 'string', nullable: true)]
-    private string $aboutImg;
+    private string|null $aboutImg;
 
     public function getId(): ?int
     {
@@ -50,44 +50,45 @@ class Overview{
         $this->id = $id;
     }
 
-    public function getHeroDescription(): string
+    public function getHeroDescription(): ?string
     {
         return $this->heroDescription;
     }
 
-    public function setHeroDescription(string $heroDescription): void
+    public function setHeroDescription(?string $heroDescription): void
     {
         $this->heroDescription = $heroDescription;
     }
 
-    public function getHeroImg(): string
+    public function getHeroImg(): ?string
     {
         return $this->heroImg;
     }
 
-    public function setHeroImg(string $heroImg): void
+    public function setHeroImg(?string $heroImg): void
     {
         $this->heroImg = $heroImg;
     }
 
-    public function getAboutDescription(): string
+    public function getAboutDescription(): ?string
     {
         return $this->aboutDescription;
     }
 
-    public function setAboutDescription(string $aboutDescription): void
+    public function setAboutDescription(?string $aboutDescription): void
     {
         $this->aboutDescription = $aboutDescription;
     }
 
-    public function getAboutImg(): string
+    public function getAboutImg(): ?string
     {
         return $this->aboutImg;
     }
 
-    public function setAboutImg(string $aboutImg): void
+    public function setAboutImg(?string $aboutImg): void
     {
         $this->aboutImg = $aboutImg;
     }
+
 
 }
