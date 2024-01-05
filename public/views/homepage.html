@@ -97,11 +97,7 @@
             <div class="col-lg-6 col-md-12 col-12">
                 <div class="header-content mb-2">
                     <h1 class="fw-bolder">Carissa Homes Subdivision</h1>
-                    <p class="mb-2">
-                        Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of
-                        classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a
-                        Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin
-                        words
+                    <p class="mb-2">{{overview.heroDescription}}
                     </p>
                     <div class="button">
                         <a href="/login" class="btn btn-light">Login</a>
@@ -110,7 +106,7 @@
             </div>
             <div class="col-lg-6 col-md-12 col-12">
                 <div class="header-image">
-                    <img src="/resources/hero.jpg" class="img-fluid">
+                    <img src="{{overview.heroImg}}" class="img-fluid">
                 </div>
             </div>
         </div>
@@ -122,17 +118,12 @@
         <div class="row align-items-center align-items-md-start">
             <div class="col-lg-6 col-12 mb-2">
                 <div class="about-image-five">
-                    <img class="img-fluid" src="/resources/about.jpg" alt="about">
+                    <img class="img-fluid" src="{{overview.aboutImg}}" alt="about">
                 </div>
             </div>
             <div class="col-lg-6 col-12">
                 <h2 class="fw-bold">OUR STORY</h2>
-                <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the
-                    industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type
-                    and scrambled it to make a type specimen book. It has survived not only five centuries, but also the
-                    leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s
-                    with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop
-                    publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
+                <p class="text-wrap" >{{overview.aboutDescription|nl2br}}</p>
             </div>
         </div>
     </div>
@@ -141,44 +132,24 @@
 <section class="bg-light">
     <div class="container py-4">
         <h2 class="fw-bold">Features</h2>
-        <section class="row">
+        <div class="row p-4" id="featureSection">
+
+            {% for feature in features %}
             <div class="col-sm col-md-6 col-lg-4">
                 <div class="card h-100">
-                    <img class="card-img-top" src="/resources/court.jpg" alt="Card image cap">
+                    <img style="min-height: 300px" class="card-img-top" src="{{feature.img}}"
+                         alt="Card image cap">
                     <div class="card-body">
-                        <h5 class="card-title fw-bold">Basketball Court</h5>
+                        <h5 class="card-title fw-bold">{{feature.name}}</h5>
                         <p class="card-text">
-                            Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece
-                            of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock,
+                            {{feature.description}}
                         </p>
                     </div>
                 </div>
             </div>
-            <div class="col-sm col-md-6 col-lg-4">
-                <div class="card h-100">
-                    <img class="card-img-top" src="/resources/court.jpg" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title fw-bold">Basketball Court</h5>
-                        <p class="card-text">
-                            Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece
-                            of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock,
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm col-md-6 col-lg-4">
-                <div class="card h-100">
-                    <img class="card-img-top" src="/resources/court.jpg" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title fw-bold">Basketball Court</h5>
-                        <p class="card-text">
-                            Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece
-                            of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock,
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
+
+            {% endfor %}
+        </div>
     </div>
 </section>
 
@@ -209,9 +180,6 @@
         ];
     }
 
-    function removeStaff(name) {
-        return staff.filter(element => element[0].v != name);
-    }
 
     google.charts.load('current', {
         packages: ["orgchart"]
@@ -219,11 +187,12 @@
 
     google.charts.setOnLoadCallback(drawChart);
 
-    let data = {{org|json_encode|raw}};
+    // will error if in new line
+    let data = {{ org | json_encode | raw }};
 
     let staff = [];
 
-    data.forEach(element =>{
+    data.forEach(element => {
 
         staff.push(createStaff(element.name,
             element.position,
@@ -231,8 +200,6 @@
             element.superior,
         ));
     })
-
-    console.log(staff)
 
     function drawChart() {
         var data = new google.visualization.DataTable();
