@@ -86,7 +86,7 @@ abstract class Payment extends AdminAction
                 continue;
             }
 
-            if (!$this->receiptService->isUniqueReference($reference)) {
+            if ($this->receiptService->isReferenceUsed($reference,'approved')) {
                 throw new NotUniqueReferenceException($reference);
             }
         }
