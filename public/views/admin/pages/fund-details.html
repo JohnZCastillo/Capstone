@@ -124,10 +124,10 @@
                                                 <i class="bx bx-dots-vertical-rounded"></i>
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="transactionID">
-                                                <form id="approveExpenseForm" method="POST" action="/admin/approve-expense/{{expense.id}}">
+                                                <form class="approveExpenseForm" method="POST" action="/admin/approve-expense/{{expense.id}}">
                                                     <button class="dropdown-item" type="submit">Approve</button>
                                                 </form>
-                                                <form id="rejectExpenseForm" method="POST" action="/admin/reject-expense/{{expense.id}}">
+                                                <form class="rejectExpenseForm" method="POST" action="/admin/reject-expense/{{expense.id}}">
                                                     <button class="dropdown-item" type="submit">Reject</button>
                                                 </form>
                                             </div>
@@ -235,35 +235,39 @@
 </script>
 <script>
 
-    const rejectExpenseForm = document.getElementById('rejectExpenseForm');
-    const approveExpenseForm = document.getElementById('approveExpenseForm');
+    const rejectExpenseForms = document.querySelectorAll('.rejectExpenseForm');
+    const approveExpenseForms = document.querySelectorAll('approveExpenseForm');
 
-    rejectExpenseForm.addEventListener('submit',(event)=>{
+    rejectExpenseForms.forEach(rejectExpenseForm => {
+        rejectExpenseForm.addEventListener('submit',(event)=>{
 
-        event.preventDefault();
+            event.preventDefault();
 
-        onSubmitConfirmation({
-            title: 'Confirmation',
-            text: `Are you sure you want to reject this expense?`,
-            icon: 'question',
-            cancelledText: 'Action Cancelled',
-            confirmCallback: ()=> rejectExpenseForm.submit(),
+            onSubmitConfirmation({
+                title: 'Confirmation',
+                text: `Are you sure you want to reject this expense?`,
+                icon: 'question',
+                cancelledText: 'Action Cancelled',
+                confirmCallback: ()=> rejectExpenseForm.submit(),
+            })
+
         })
-
     })
 
-    approveExpenseForm.addEventListener('submit',(event)=>{
+    approveExpenseForms.forEach(approveExpenseForm => {
+        approveExpenseForm.addEventListener('submit',(event)=>{
 
-        event.preventDefault();
+            event.preventDefault();
 
-        onSubmitConfirmation({
-            title: 'Confirmation',
-            text: `Are you sure you want to approve this expense?`,
-            icon: 'question',
-            cancelledText: 'Action Cancelled',
-            confirmCallback: ()=> approveExpenseForm.submit(),
+            onSubmitConfirmation({
+                title: 'Confirmation',
+                text: `Are you sure you want to approve this expense?`,
+                icon: 'question',
+                cancelledText: 'Action Cancelled',
+                confirmCallback: ()=> approveExpenseForm.submit(),
+            })
+
         })
-
     })
 
     formConfirmation({
@@ -274,7 +278,6 @@
         icon: 'question',
         cancelledText: 'Action Cancelled'
     });
-
 
 </script>
 {% endblock %}
