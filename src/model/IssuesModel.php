@@ -85,7 +85,7 @@ class IssuesModel{
      */ 
     public function getCreatedAt()
     {
-        return Time::convert($this->createdAt);
+        return Time::convertToString($this->createdAt);
     }
 
     /**
