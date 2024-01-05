@@ -75,7 +75,13 @@ return function (App $app) use ($twig) {
             \App\controller\api\users\ForceLogout::class
         );
 
+        $group->get('/verify',
+            \App\controller\auth\ViewVerify::class
+        );
 
+        $group->post('/verify',
+            \App\controller\auth\VerifyUser::class
+        );
 
     })->add(\App\middleware\Auth::class)
         ->add(\App\middleware\ActivePage::class);
