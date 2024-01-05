@@ -385,9 +385,9 @@
 
                     let id = status.dataset.user
 
-                    document.querySelector("#restricted" + id).innerHTML = "No";
-                    document.querySelector("#restricted" + id).classList.remove('bg-danger');
-                    document.querySelector("#restricted" + id).classList.add('bg-success');
+                    document.querySelector("#restricted" + id).innerHTML = "YES";
+                    document.querySelector("#restricted" + id).classList.add('bg-danger');
+                    document.querySelector("#restricted" + id).classList.remove('bg-success');
                     showSuccessMessage('User Blocked Successfully');
                 } else {
                     showErrorMessage(result.data.message);
