@@ -21,7 +21,7 @@ class AddFeature extends AdminAction
 
         try {
 
-            $path = './resources/staff/';
+            $path = './resources/overview/';
 
 
             $image = $_FILES['image'];

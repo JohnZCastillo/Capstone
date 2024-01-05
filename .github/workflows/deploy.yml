@@ -60,9 +60,7 @@ jobs:
             sudo chmod -R g+w /opt/bitnami/capstone/htdocs/public/uploads
             sudo chown -R bitnami:daemon /opt/bitnami/capstone/htdocs/template
             sudo chmod -R g+w /opt/bitnami/capstone/htdocs/template
-            sudo chown -R bitnami:daemon /opt/bitnami/capstone/htdocs/resources/public/overview
-            sudo chmod -R g+w /opt/bitnami/capstone/htdocs/resources/public/overview
-            sudo chown -R bitnami:daemon /opt/bitnami/capstone/htdocs/public/resources/overview/staff
-            sudo chmod -R g+w /opt/bitnami/capstone/htdocs/resources/public/overview/staff
+            sudo chown -R bitnami:daemon /opt/bitnami/capstone/htdocs/public/resources/overview
+            sudo chmod -R g+w /opt/bitnami/capstone/htdocs/public/resources/overview
             sudo php /opt/bitnami/capstone/htdocs/console/cli-config.php orm:schema-tool:update --force --complete
             sudo /opt/bitnami/ctlscript.sh restart apache
