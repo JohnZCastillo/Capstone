@@ -97,15 +97,19 @@
 
                 </div>
             </div>
-            <div class="card mb-2">
+            {% if transaction.logs is not empty %}
+             <div class="card mb-2">
                 <div class="card-body">
-                    {% if logs is not empty %}
                     <p>Status</p>
                     <ul class="list-group">
-                        {% if transaction.status == 'REJECTED' %} {% set bg = 'bg-danger text-white
-                        p-2' %} {% elseif transaction.status == 'APPROVED' %} {% set bg =
-                        'bg-success text-white p-2' %} {% else %} {% set bg = 'bg-secondary
-                        text-white p-2' %} {% endif %} {% for log in logs %}
+
+                        {% if transaction.status == 'REJECTED' %}
+                            {% set bg = 'bg-danger text-white p-2' %}
+                        {% elseif transaction.status == 'APPROVED' %}
+                            {% set bg = 'bg-success text-white p-2' %} {% else %} {% set bg = 'bg-secondary text-white p-2' %}
+                        {% endif %}
+
+                        {% for log in transaction.logs %}
 
                         <li class="list-group-item">
                             <span class="badge badge-pill {{bg}}">{{transaction.status}}</span>
@@ -113,9 +117,9 @@
                         </li>
                         {% endfor %}
                     </ul>
-                    {% endif %}
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
 
