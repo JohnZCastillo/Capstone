@@ -23,8 +23,6 @@ class AddStaff extends AdminAction
 
             $path = './resources/staff/';
 
-            $image = $_FILES['image'];
-
             $content = $this->getFormData();
 
             $rule = v::alnum(' ')->notEmpty();
@@ -47,15 +45,7 @@ class AddStaff extends AdminAction
                 $staff->setSuperior($superior);
             }
 
-            if ($image['error'] !== UPLOAD_ERR_NO_FILE) {
-                $imageName = Image::store($path, $image);
-
-                if (!v::image()->validate($path . $imageName)) {
-                    throw  new InvalidFile('Unsupported File');
-                }
-
-                $staff->setImg(str_replace('.', '', $path) . $imageName);
-            }
+            $staff->setImg('/resources/staff-placeholder.png');
 
             $this->overviewService->saveStaff($staff);
 
