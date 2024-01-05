@@ -11,7 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'receipt')]
-#[ORM\UniqueConstraint(name: "reference", columns: ["referenceNumber"])]
 class ReceiptModel {
 
     #[ORM\Id]
