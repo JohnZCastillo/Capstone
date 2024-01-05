@@ -145,7 +145,7 @@ class Pay extends UserAction
                 continue;
             }
 
-            if (!$this->receiptService->isUniqueReference($reference)) {
+            if ($this->receiptService->isReferenceUsed($reference,'approved')) {
                 throw new NotUniqueReferenceException($reference);
             }
         }
