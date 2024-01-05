@@ -31,7 +31,7 @@ return function (App $app) use ($twig) {
 
         $group->get('/announcements',
             \App\controller\user\announcements\Announcements::class
-        );
+        )->setName('announcements');
 
         $group->post('/issue',
             \App\controller\user\issues\CreateIssue::class
@@ -47,23 +47,17 @@ return function (App $app) use ($twig) {
 
         $group->get('/issues',
             \App\controller\user\issues\ViewIssues::class
-        );
+        )->setName('issues');
 
         $group->get('/issues/{id}',
             \App\controller\user\issues\ViewIssue::class
-        );
+        )->setName('issues');
 
         $group->get('/account',
             \App\controller\user\account\Account::class
         );
 
-        $group->get('/verify',
-            \App\controller\auth\ViewVerify::class
-        );
 
-        $group->post('/verify',
-            \App\controller\auth\VerifyUser::class
-        );
 
     })->add(\App\middleware\ActivePage::class)
         ->add(\App\middleware\role\UserAuth::class)
