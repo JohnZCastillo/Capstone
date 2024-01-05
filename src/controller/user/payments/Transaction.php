@@ -20,6 +20,8 @@ class Transaction extends UserAction
 
         $id = $this->args['id'];
 
+        $target = null;
+
         try {
 
             $transaction = $this->transactionService->findById($id);
@@ -38,6 +40,8 @@ class Transaction extends UserAction
                 throw new NotAuthorizeException('You`re Not Authorized to view this content');
             }
 
+            $target = $this->issuesService->findByTarget($transaction->getId());
+
         } catch (NotAuthorizeException $notAuthorizeException) {
             $this->addErrorMessage($notAuthorizeException->getMessage());
             return $this->redirect('/home');
@@ -50,6 +54,7 @@ class Transaction extends UserAction
             'transaction' => $transaction,
             'amountDue' => $amount,
             'receipts' => $transaction->getReceipts(),
+            'target' => $target,
         ]);
     }
 }
