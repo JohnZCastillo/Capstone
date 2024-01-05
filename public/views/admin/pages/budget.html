@@ -74,12 +74,12 @@
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt6">
                                 <a class="dropdown-item" href="/admin/fund/{{fund.id}}">View Details</a>
                                 {% if fund.isArchived %}
-                                <form method="POST" action="/admin/fund/unarchived/{{fund.id}}">
+                                <form class="activeFundForm" method="POST" action="/admin/fund/unarchived/{{fund.id}}">
                                     <input type="text" name="id" class="d-none" value="{{fund.id}}">
                                     <button class="dropdown-item" type="submit">Active</button>
                                 </form>
                                 {% else %}
-                                <form method="POST" action="/admin/fund/archive/{{fund.id}}">
+                                <form class="archiveFundForm" method="POST" action="/admin/fund/archive/{{fund.id}}">
                                     <button class="dropdown-item" type="submit">Archived</button>
                                 </form>
                                 {% endif %}
@@ -160,16 +160,16 @@
                                                 Edit
                                             </button>
                                             {% if bill.isArchived %}
-                                            <form method="POST" action="/admin/unarchive-bill/{{bill.id}}">
+                                            <form class="activeBillForm" method="POST" action="/admin/unarchive-bill/{{bill.id}}">
                                                 <button class="dropdown-item" type="submit">Active</button>
                                             </form>
                                             {% else %}
-                                            <form method="POST" action="/admin/archive-bill/{{bill.id}}">
+                                            <form class="archiveBillForm" method="POST" action="/admin/archive-bill/{{bill.id}}">
                                                 <button class="dropdown-item" type="submit">Archive</button>
                                             </form>
                                             {% endif %}
 
-                                            <form method="POST" action="/admin/bill/generate/{{bill.id}}">
+                                            <form class="fireBillForm" method="POST" action="/admin/bill/generate/{{bill.id}}">
                                                 <button class="dropdown-item" type="submit">Fire Bill</button>
                                             </form>
 
@@ -214,10 +214,10 @@
                                             <i class="bx bx-dots-vertical-rounded"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="transactionID">
-                                            <form method="POST" action="/admin/approve-bill/{{expense.id}}">
+                                            <form class="approveBillForm" method="POST" action="/admin/approve-bill/{{expense.id}}">
                                                 <button class="dropdown-item" type="submit">Approve</button>
                                             </form>
-                                            <form method="POST" action="/admin/reject-bill/{{expense.id}}">
+                                            <form class="rejectBillForm" method="POST" action="/admin/reject-bill/{{expense.id}}">
                                                 <button class="dropdown-item" type="submit">Reject</button>
                                             </form>
                                         </div>
@@ -248,10 +248,11 @@
 {% block javascript %}
 <script>
 
-
-
     const fundStatus = document.getElementById('fundStatus');
     const fundForm = document.getElementById('fundForm');
+    const editModalForm =  new bootstrap.Modal(document.getElementById('editBillModal'), {
+        keyboard: false
+    });
 
     async function editBill(id) {
 
@@ -269,9 +270,7 @@
             document.getElementById('billPurpose').value = data.purpose;
             document.getElementById('billId').value = data.id;
 
-            new bootstrap.Modal(document.getElementById('editBillModal'), {
-                keyboard: false
-            }).show();
+           editModalForm.show();
         }
     }
 
@@ -349,6 +348,78 @@
         {% for fund in funds %}
         loadChart({{fund.id}},'chart{{fund.id}}');
         {% endfor %}
+
+    onSubmitConfirmations({
+        classId: 'activeBillForm',
+        title: 'Confirmation',
+        text: `Are you sure you want to make this bill active?`,
+    })
+
+    onSubmitConfirmations({
+        classId: 'archiveBillForm',
+        title: 'Confirmation',
+        text: `Are you sure you want to archive this bill?`,
+    })
+
+    onSubmitConfirmations({
+        classId: 'fireBillForm',
+        title: 'Confirmation',
+        text: `Are you sure you want to fire this bill?`,
+    })
+
+    onSubmitConfirmations({
+        classId: 'approveBillForm',
+        title: 'Confirmation',
+        text: `Are you sure you want to approve this bill?`,
+    })
+
+
+    onSubmitConfirmations({
+        classId: 'rejectBillForm',
+        title: 'Confirmation',
+        text: `Are you sure you want to reject this bill?`,
+    })
+
+    onSubmitConfirmations({
+        classId: 'archiveFundForm',
+        title: 'Confirmation',
+        text: `Are you sure you want to archive this fund?`,
+    })
+
+    onSubmitConfirmations({
+        classId: 'activeFundForm',
+        title: 'Confirmation',
+        text: `Are you sure you want to unarchived this fund?`,
+    })
+
+    formConfirmation({
+        formId: 'addFundForm',
+        modalId: 'fundModal',
+        title: 'Confirmation',
+        text: 'Are you sure you want to save this fund?',
+        icon: 'question',
+        cancelledText: 'Action Cancelled'
+    });
+
+    formConfirmation({
+        formId: 'addBillForm',
+        modalId: 'billModal',
+        title: 'Confirmation',
+        text: 'Are you sure you want to add a new bill?',
+        icon: 'question',
+        cancelledText: 'Action Cancelled'
+    });
+
+    formConfirmation({
+        formId: 'editBillForm',
+        modalId: editModalForm,
+        title: 'Confirmation',
+        text: 'Are you sure you save changes to this bill?',
+        icon: 'question',
+        cancelledText: 'Action Cancelled',
+        byReference: true
+    });
+
 
 </script>
 {% endblock %}

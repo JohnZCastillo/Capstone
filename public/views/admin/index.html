@@ -350,13 +350,18 @@
 
 <script>
 
-    const formConfirmation = ({formId, modalId, title, text, icon, cancelledText}) => {
+    const formConfirmation = ({formId, modalId, title, text, icon, cancelledText, byReference = false}) => {
 
         const form = document.getElementById(formId);
+        let modal = modalId;
 
-        const modal = new bootstrap.Modal(document.getElementById(modalId), {
-            keyboard: false
-        });
+        if (!byReference) {
+
+            modal = new bootstrap.Modal(document.getElementById(modalId), {
+                keyboard: false
+            });
+
+        }
 
         form.addEventListener('submit', async (event) => {
 
@@ -438,6 +443,27 @@
         })
     }
 
+    const onSubmitConfirmations = async ({classId, title, text}) => {
+
+        const forms = document.querySelectorAll(`.${classId}`);
+
+        forms.forEach(form => {
+
+            form.addEventListener('submit', (event) => {
+
+                event.preventDefault();
+
+                onSubmitConfirmation({
+                    title: title,
+                    text: text,
+                    icon: 'question',
+                    cancelledText: 'Action Cancelled',
+                    confirmCallback: () => form.submit(),
+                })
+            })
+        })
+    }
+
     const onSubmitConfirmation = async ({title, text, icon, cancelledText, confirmCallback}) => {
 
         const swalWithBootstrapButtons = Swal.mixin({
@@ -509,7 +535,7 @@
 
     }
 
-    const showErrorMessage = (message)=>{
+    const showErrorMessage = (message) => {
         const swalWithBootstrapButtons = Swal.mixin({
             customClass: {
                 confirmButton: "btn btn-success",
@@ -525,7 +551,7 @@
         });
     }
 
-    const showSuccessMessage = (message)=>{
+    const showSuccessMessage = (message) => {
         const swalWithBootstrapButtons = Swal.mixin({
             customClass: {
                 confirmButton: "btn btn-success",
