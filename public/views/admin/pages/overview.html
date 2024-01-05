@@ -55,27 +55,43 @@
 
             <div class="card-body">
 
+
                 <form id="overviewForm" enctype="multipart/form-data" method="POST" action="/admin/overview">
 
-                    <div class="mb-2">
-                        <label for="about">Hero Image</label>
-                        <input name="heroImage" type="file" accept="image/*" class="form-control">
-                    </div>
-                    <div class="mb-2">
-                        <label for="about">Hero Details</label>
-                        <textarea rows="10" cols="50" class="form-control" name="heroDescription"
-                                  id="about">{{overview.heroDescription}}</textarea>
-                    </div>
-                    <div class="mb-2">
-                        <label for="about">About Image</label>
-                        <input  accept="image/*" name="aboutImage" type="file" class="form-control">
-                    </div>
-                    <div class="mb-2">
-                        <label for="about">About Details</label>
-                        <textarea rows="10" cols="50" class="form-control" name="aboutDescription"
-                                  id="about">{{overview.aboutDescription}}</textarea>
+                    <div class="p-2 bg-light">
+
+                        <small class="small text-secondary mb-2">
+                            This section contains the main description or summary you'll see when visiting the landing
+                            page.
+                        </small>
+
+                        <div class="mb-2">
+                            <label for="about">Main Image</label>
+                            <input name="heroImage" type="file" accept="image/*" class="form-control">
+                        </div>
+                        <div class="mb-2">
+                            <label for="about">Main Description</label>
+                            <textarea rows="10" cols="50" class="form-control" name="heroDescription"
+                                      id="about">{{overview.heroDescription}}</textarea>
+                        </div>
                     </div>
 
+                    <div class="p-2 bg-light">
+
+                        <small class="small text-secondary mb-2">
+                            This section is where you can provide information about the page.
+                        </small>
+                        <div class="mb-2">
+                            <label for="about">About Image</label>
+                            <input accept="image/*" name="aboutImage" type="file" class="form-control">
+                        </div>
+                        <div class="mb-2">
+                            <label for="about">About Details</label>
+                            <textarea rows="10" cols="50" class="form-control" name="aboutDescription"
+                                      id="about">{{overview.aboutDescription}}</textarea>
+                        </div>
+
+                    </div>
                     <div class="mb-3">
                         <button class="btn btn-primary">Save</button>
                     </div>
@@ -122,11 +138,12 @@
                         {% for feature in features %}
                         <div class="col-sm col-md-6 col-lg-4">
                             <div class="card h-100">
-                                <img style="min-height: 300px" class="card-img-top" src="{{feature.img}}" alt="Card image cap">
+                                <img style="min-height: 300px" class="card-img-top" src="{{feature.img}}"
+                                     alt="Card image cap">
                                 <div class="card-body">
                                     <h5 class="card-title fw-bold">{{feature.name}}</h5>
                                     <p class="card-text">
-                                      {{feature.description}}
+                                        {{feature.description}}
                                     </p>
                                 </div>
                             </div>
@@ -179,7 +196,7 @@
     google.charts.setOnLoadCallback(drawChart);
 
     // will error if in new line
-    let data = {{org | json_encode | raw}};
+    let data = {{ org | json_encode | raw }};
 
     let staff = [];
 
@@ -228,7 +245,7 @@
 
     const overviewForm = document.querySelector('#overviewForm');
 
-    overviewForm.addEventListener('submit',(event)=>{
+    overviewForm.addEventListener('submit', (event) => {
 
         event.preventDefault();
 
@@ -237,7 +254,7 @@
             text: `Are you sure you want to save changes?`,
             icon: 'question',
             cancelledText: 'Action Cancelled',
-            confirmCallback: ()=> overviewForm.submit(),
+            confirmCallback: () => overviewForm.submit(),
         })
 
     })
