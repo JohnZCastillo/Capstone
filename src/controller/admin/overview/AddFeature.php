@@ -7,8 +7,6 @@ use App\exception\InvalidFile;
 use App\exception\InvalidInput;
 use App\lib\Image;
 use App\model\overview\Features;
-use App\model\overview\Staff;
-use chillerlan\QRCode\QRCode;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;
 
