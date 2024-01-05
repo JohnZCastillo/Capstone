@@ -34,21 +34,22 @@ class Transaction extends UserAction
                 Time::toMonth($transaction->getToMonth())
             );
 
-            if(!($sameBlock && $sameLot)){
+            if (!($sameBlock && $sameLot)) {
                 throw new NotAuthorizeException('You`re Not Authorized to view this content');
             }
 
         } catch (NotAuthorizeException $notAuthorizeException) {
             $this->addErrorMessage($notAuthorizeException->getMessage());
-            return  $this->redirect('/home');
+            return $this->redirect('/home');
         } catch (TransactionNotFound $e) {
             $this->addErrorMessage($e->getMessage());
-            return  $this->redirect('/home');
+            return $this->redirect('/home');
         }
 
-        return $this->view('user/pages/transaction.html',[
+        return $this->view('user/pages/transaction.html', [
             'transaction' => $transaction,
-            'amountDue' => $amount
+            'amountDue' => $amount,
+            'receipts' => $transaction->getReceipts(),
         ]);
     }
 }
