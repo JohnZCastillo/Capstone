@@ -108,7 +108,8 @@ class TransactionService extends Service
             ->from(TransactionModel::class, 't')
             ->innerJoin('t.user', 'u', 'WITH', 'u.block = :block AND u.lot = :lot')
             ->setParameter('block', $user->getBlock())
-            ->setParameter('lot', $user->getLot());
+            ->setParameter('lot', $user->getLot())
+            ->orderBy('t.id','DESC');
 
         $or = $qb->expr()->andX();
 
