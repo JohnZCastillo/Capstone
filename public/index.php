@@ -32,6 +32,9 @@ $twig = Twig::create(APP_ROOT . 'public/views/', ['cache' => false, 'debug' => t
 $twig->addExtension(new \Twig\Extension\DebugExtension());
 $twig->addExtension(new IntlExtension());
 $twig->getEnvironment()->getExtension(\Twig\Extension\CoreExtension::class)->setTimezone('Asia/Manila');
+
+$container->set('view',$twig);
+
 $app->add(TwigMiddleware::create($app, $twig));
 
 $flashMessage = $container->get(\Slim\Flash\Messages::class);
@@ -49,6 +52,11 @@ $twig->getEnvironment()->addGlobal('blocks',$areaService->getBlock());
 $routes = require APP_ROOT . 'app/routes.php';
 $routes($app);
 
-$errorMiddleware = $app->addErrorMiddleware(true, true, true);
+
+$errorMiddleware = $app->addErrorMiddleware(false, true, true);
+
+// Get the default error handler and register my custom error renderer.
+$errorHandler = $errorMiddleware->getDefaultErrorHandler();
+$errorHandler->registerErrorRenderer('text/html', \App\middleware\MissingPage::class);
 
 $app->run();
