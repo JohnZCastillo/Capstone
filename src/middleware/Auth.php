@@ -14,6 +14,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Flash\Messages;
 use Slim\Psr7\Response;
+use Slim\Routing\RouteContext;
 
 class Auth
 {
@@ -41,23 +42,23 @@ class Auth
             }
 
 //            only allow if session is active; force logout inactive session
-//            if(!$this->loginHistoryService->isSessionActive(session_id())){
-//                throw new Exception('Invalid Session');
-//            }
+            if(!$this->loginHistoryService->isSessionActive(session_id())){
+                throw new Exception('Invalid Session');
+            }
 
             if ($this->userService->findById(Login::getLogin())->getIsBlocked()) {
                 throw new UserBlockException('Access Denied');
             }
 
-//            if(!$this->userService->findById(Login::getLogin())->isVerified()){
-//
-//                $routeContext = RouteContext::fromRequest($request);
-//                $route = $routeContext->getRoute();
-//
-//                if($route->getPattern() !== '/verify'){
-//                    throw new UserNotVerifiedException('Please Verify your email');
-//                }
-//            }
+            if(!$this->userService->findById(Login::getLogin())->isVerified()){
+
+                $routeContext = RouteContext::fromRequest($request);
+                $route = $routeContext->getRoute();
+
+                if($route->getPattern() !== '/verify'){
+                    throw new UserNotVerifiedException('Please Verify your email');
+                }
+            }
 
             return $handler->handle($request);
 
