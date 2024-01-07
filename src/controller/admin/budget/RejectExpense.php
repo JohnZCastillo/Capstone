@@ -10,6 +10,7 @@ use App\model\budget\BillModel;
 use App\model\budget\ExpenseModel;
 use App\model\budget\FundModel;
 use App\model\enum\BudgetStatus;
+use App\model\enum\LogsTag;
 use DateTime;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -33,6 +34,8 @@ class RejectExpense extends AdminAction
             $expense->setStatus(BudgetStatus::rejected());
 
             $this->expenseService->save($expense);
+
+            $this->addActionLog("Expense with $id was rejected ",LogsTag::expense());
 
         } catch (ExpenseNotFound $expenseNotFound) {
             $this->addErrorMessage($expenseNotFound->getMessage());

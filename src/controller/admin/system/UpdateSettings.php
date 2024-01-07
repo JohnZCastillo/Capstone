@@ -3,6 +3,7 @@
 namespace App\controller\admin\system;
 
 use App\controller\admin\AdminAction;
+use App\model\enum\LogsTag;
 use Psr\Http\Message\ResponseInterface as Response;
 
 class UpdateSettings extends AdminAction
@@ -32,6 +33,8 @@ class UpdateSettings extends AdminAction
             } else {
                 $systemSettings->setAllowSignup(false);
             }
+
+            $this->addActionLog('Update System Settings',LogsTag::systemSettings());
 
             $this->systemSettingService->save($systemSettings);
 

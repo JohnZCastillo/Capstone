@@ -21,7 +21,8 @@ class LogsService extends Service
         $qb = $this->entityManager->createQueryBuilder();
 
         $qb->select('t')
-            ->from(LogsModel::class, 't');
+            ->from(LogsModel::class, 't')
+            ->orderBy('t.created_at','DESC');
 
         $or = $qb->expr()->orX();
 
@@ -36,7 +37,7 @@ class LogsService extends Service
         }
 
         if (isset($status)) {
-            $or->add($qb->expr()->in('t.status', ':status'));
+            $or->add($qb->expr()->eq('t.tag', ':status'));
             $qb->setParameter('status', $status);
             $notEmpty = true;
 
@@ -55,7 +56,6 @@ class LogsService extends Service
             $qb->setParameter('to', $to);
             $notEmpty = true;
         }
-
 
         if ($notEmpty) {
             $qb->where($or);

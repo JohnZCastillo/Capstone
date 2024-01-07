@@ -12,6 +12,7 @@ use App\model\budget\ExpenseModel;
 use App\model\budget\FundModel;
 use App\model\budget\IncomeModel;
 use App\model\enum\BudgetStatus;
+use App\model\enum\LogsTag;
 use DateTime;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -58,6 +59,11 @@ class TransferFund extends AdminAction
             $income->setSource($fundSource);
 
             $this->incomeService->save($income);
+
+            $fromFund = $expense->getFund()->getId();
+            $toFund = $income->getFund()->getId();
+
+            $this->addActionLog("Fund was transferred from Fund with id of $fromFund to $toFund ",LogsTag::fund());
 
         } catch (NegativeFund $negativeFund) {
             $this->addErrorMessage($negativeFund->getMessage());

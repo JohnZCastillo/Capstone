@@ -18,6 +18,7 @@ use App\lib\GCashReceiptValidator;
 use App\lib\Image;
 use App\lib\ReferenceExtractor;
 use App\lib\Time;
+use App\model\enum\LogsTag;
 use App\model\TransactionModel;
 use App\model\UserModel;
 use Exception;
@@ -57,8 +58,14 @@ class ManualPayment extends Payment
                 throw new InvalidPaymentAmount("Payment must be equal to $amountToPay");
             }
 
+
             $this->approvedTransaction($transaction);
             $this->generateTransactionReceipt($transaction);
+
+            $actionMessage = 'Manual payment wit id of '. $transaction->getId(). ' was created';
+
+            $this->addActionLog($actionMessage, LogsTag::manualPayment());
+
         } catch (AlreadyPaidException $paidException) {
             $this->addErrorMessage($paidException->getMessage());
         } catch (InvalidDateRange $invalidDateRange) {

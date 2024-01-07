@@ -5,11 +5,7 @@ namespace App\controller\admin\budget;
 use App\controller\admin\AdminAction;
 use App\exception\fund\FundNotFound;
 use App\exception\InvalidInput;
-use App\model\budget\BillModel;
-use App\model\budget\ExpenseModel;
-use App\model\budget\FundModel;
-use App\model\enum\BudgetStatus;
-use DateTime;
+use App\model\enum\LogsTag;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;
@@ -48,6 +44,10 @@ class EditBill extends AdminAction
             $expense->setPurpose($content['purpose']);
 
             $this->expenseService->save($expense);
+
+            $billId = $bill->getId();
+
+            $this->addActionLog("Bill with $billId was edited ",LogsTag::bill());
 
         } catch (InvalidInput $invalidInput) {
             $this->addErrorMessage($invalidInput->getMessage());

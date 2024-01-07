@@ -4,6 +4,7 @@ namespace App\controller\api\users;
 
 use App\controller\admin\AdminAction;
 use App\exception\UserNotFoundException;
+use App\model\enum\LogsTag;
 use Psr\Http\Message\ResponseInterface as Response;
 
 class UnblockUser extends AdminAction
@@ -19,6 +20,8 @@ class UnblockUser extends AdminAction
             $user->setIsBlocked(false);
 
             $this->userService->save($user);
+
+            $this->addActionLog("User with id of $userId was unblocked", LogsTag::userBlock());
 
             return $this->respondWithData(["message" => "user has been unblocked"]);
 

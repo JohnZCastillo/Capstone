@@ -12,6 +12,7 @@ use App\exception\payment\InvalidPaymentAmount;
 use App\exception\payment\InvalidReference;
 use App\exception\payment\TransactionNotFound;
 use App\lib\Time;
+use App\model\enum\LogsTag;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;
@@ -82,7 +83,7 @@ class ApprovePayment extends AdminAction
             $this->transactionLogsService->log($transaction, $user, 'Payment was approved', 'APPROVED');
             $action = "Payment with id of " . $transaction->getId() . " was approved";
 
-            $this->addActionLog($action, 'payment');
+            $this->addActionLog($action, LogsTag::payment());
 
         } catch (TransactionNotFound $transactionNotFound) {
             $this->addErrorMessage('Transaction Not Found!');

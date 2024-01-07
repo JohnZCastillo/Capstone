@@ -7,6 +7,7 @@ use App\exception\InvalidInput;
 use App\model\AnnouncementHistoryModel;
 use App\model\AnnouncementModel;
 use App\model\enum\AnnouncementStatus;
+use App\model\enum\LogsTag;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;
@@ -50,6 +51,8 @@ class MakeAnnouncement extends AdminAction
             $announcemnent->setUser($this->getLoginUser());
             $announcemnent->setCreatedAt(new \DateTime());
             $announcemnent->setStatus(AnnouncementStatus::posted());
+
+            $this->addActionLog("Announcement with $id was created",LogsTag::announcement());
 
             $this->announcementService->save($announcemnent);
 

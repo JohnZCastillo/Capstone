@@ -6,6 +6,7 @@ use App\controller\admin\AdminAction;
 use App\exception\fund\ExpenseNotFound;
 use App\exception\fund\NegativeFund;
 use App\model\enum\BudgetStatus;
+use App\model\enum\LogsTag;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;
@@ -30,6 +31,8 @@ class ApproveExpense extends AdminAction
             }
 
             $expense->setStatus(BudgetStatus::approved());
+
+            $this->addActionLog("Expense with $id was approved ",LogsTag::expense());
 
             $this->expenseService->save($expense);
 

@@ -7,6 +7,7 @@ namespace App\controller\admin\payments;
 use App\controller\admin\AdminAction;
 use App\exception\InvalidInput;
 use App\lib\Time;
+use App\model\enum\LogsTag;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;
@@ -46,6 +47,10 @@ class AddDue extends AdminAction
             $this->duesService->save($due);
 
             $dues = $this->duesService->getMonthlyDues((int) $year);
+
+            $dueTime = Time::convertToString($due->getMonth(),'Y-m');
+
+            $this->addActionLog("A Due with amount of $amount was set for $dueTime ",LogsTag::due());
 
             return $this->respondWithData($dues);
 

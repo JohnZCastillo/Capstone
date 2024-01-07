@@ -6,6 +6,7 @@ use App\controller\admin\AdminAction;
 use App\lib\DocxMaker;
 use App\lib\PdfResponse;
 use App\lib\Time;
+use App\model\enum\LogsTag;
 use Psr\Http\Message\ResponseInterface as Response;
 
 class PrintBudgetReport extends AdminAction
@@ -47,6 +48,8 @@ class PrintBudgetReport extends AdminAction
             $output = $docxMaker->output();
 
             $pdfResponse = new PdfResponse($output, 'test.pdf');
+
+            $this->addActionLog('Budget Report was created', LogsTag::paymentReport());
 
             return $pdfResponse->getResponse();
 

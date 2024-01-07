@@ -8,6 +8,7 @@ use App\controller\admin\AdminAction;
 use App\exception\ContentLock;
 use App\exception\InvalidInput;
 use App\exception\payment\TransactionNotFound;
+use App\model\enum\LogsTag;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;
@@ -52,7 +53,7 @@ class RejectPayment extends AdminAction
             $this->transactionLogsService->log($transaction, $user, $message, 'APPROVED');
             $action = "Payment with id of " . $transaction->getId() . " was rejected";
 
-            $this->addActionLog($action, 'payment');
+            $this->addActionLog($action, LogsTag::payment());
 
         } catch (TransactionNotFound $transactionNotFound) {
             $this->addErrorMessage('Transaction Not Found!');

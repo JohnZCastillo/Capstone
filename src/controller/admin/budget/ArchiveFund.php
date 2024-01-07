@@ -6,6 +6,7 @@ use App\controller\admin\AdminAction;
 use App\exception\fund\FundNotFound;
 use App\exception\InvalidInput;
 use App\model\budget\FundModel;
+use App\model\enum\LogsTag;
 use DateTime;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -31,6 +32,8 @@ class ArchiveFund extends AdminAction
             $this->fundService->save($fund);
 
             $fundName = $fund->getTitle();
+
+            $this->addActionLog("Fund with $id was archived ",LogsTag::fund());
 
             $this->addSuccessMessage("$fundName archived successfully");
         }catch (FundNotFound $fundNotFound){

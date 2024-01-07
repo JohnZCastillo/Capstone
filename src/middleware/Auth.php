@@ -14,7 +14,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Flash\Messages;
 use Slim\Psr7\Response;
-use Slim\Routing\RouteContext;
 
 class Auth
 {
@@ -41,10 +40,10 @@ class Auth
                 throw new NotAuthorizeException('You Must Login First');
             }
 
-            //only allow if session is active; force logout inactive session
-            if(!$this->loginHistoryService->isSessionActive(session_id())){
-                throw new Exception('Invalid Session');
-            }
+//            only allow if session is active; force logout inactive session
+//            if(!$this->loginHistoryService->isSessionActive(session_id())){
+//                throw new Exception('Invalid Session');
+//            }
 
             if ($this->userService->findById(Login::getLogin())->getIsBlocked()) {
                 throw new UserBlockException('Access Denied');
@@ -73,7 +72,7 @@ class Auth
             $this->messages->addMessage('loginError',$userBlockException->getMessage());
         } catch (Exception $exception) {
             Login::forceLogout('slimFlash');
-            $this->messages->addMessage('loginError','Something Went Wrong');
+            $this->messages->addMessage('loginError',$exception->getMessage());
         }
 
         $response = new Response();

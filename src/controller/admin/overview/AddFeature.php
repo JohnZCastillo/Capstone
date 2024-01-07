@@ -6,6 +6,7 @@ use App\controller\admin\AdminAction;
 use App\exception\InvalidFile;
 use App\exception\InvalidInput;
 use App\lib\Image;
+use App\model\enum\LogsTag;
 use App\model\overview\Features;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;

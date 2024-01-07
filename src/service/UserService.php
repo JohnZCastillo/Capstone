@@ -144,6 +144,7 @@ s     */
         $qb->select('t')
             ->from(UserModel::class, 't')
             ->where($qb->expr()->eq('t.role', ':role'))
+            ->orderBy('t.name','ASC')
             ->setParameter('role', $role);
 
 
@@ -172,4 +173,22 @@ s     */
 
         return $paginator->paginate($qb, $page, $max);
     }
+
+
+    public function getStaffs()
+    {
+
+        $qb = $this->entityManager->createQueryBuilder();
+
+        return $qb->select('t')
+            ->from(UserModel::class, 't')
+            ->where($qb->expr()->eq('t.role', ':role'))
+            ->orderBy('t.name')
+            ->setParameter('role', 'admin')
+            ->getQuery()
+            ->getResult();
+
+    }
+
+
 }

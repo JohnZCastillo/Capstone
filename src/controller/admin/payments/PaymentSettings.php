@@ -9,6 +9,7 @@ use App\exception\InvalidFile;
 use App\exception\payment\PaymentNotFound;
 use App\lib\Image;
 use App\lib\Time;
+use App\model\enum\LogsTag;
 use chillerlan\QRCode\QRCode;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -63,6 +64,8 @@ class PaymentSettings extends AdminAction
             $this->addActionLog("Payment settings was update", 'Payment Settings');
 
             $this->addSuccessMessage('Payment Settings Updated!');
+
+            $this->addActionLog('Payment Settings Updated!', LogsTag::paymentSettings());
 
         } catch (InvalidFile $invalidFile) {
             $this->addErrorMessage($invalidFile->getMessage());

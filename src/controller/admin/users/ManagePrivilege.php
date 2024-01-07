@@ -5,6 +5,7 @@ namespace App\controller\admin\users;
 use App\controller\admin\AdminAction;
 use App\exception\InvalidInput;
 use App\exception\UserNotFoundException;
+use App\model\enum\LogsTag;
 use App\model\enum\UserRole;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -77,7 +78,7 @@ class ManagePrivilege extends AdminAction
 
             $action = "User with id of " . $user->getId() . " update privileges";
 
-            $this->addActionLog($action, 'Admin');
+            $this->addActionLog($action, LogsTag::privileges());
 
             $this->privilegesService->save($user->getPrivileges());
 

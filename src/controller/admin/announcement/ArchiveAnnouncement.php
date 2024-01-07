@@ -6,6 +6,7 @@ use App\controller\admin\AdminAction;
 use App\exception\announcement\AnnouncementNotFound;
 use App\exception\InvalidInput;
 use App\model\enum\AnnouncementStatus;
+use App\model\enum\LogsTag;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 
@@ -24,6 +25,8 @@ class ArchiveAnnouncement extends AdminAction
             $announcement->setStatus(AnnouncementStatus::archived());
 
             $this->announcementService->save($announcement);
+
+            $this->addActionLog("Announcement with $id was archived",LogsTag::announcement());
 
         } catch (AnnouncementNotFound $announcementNotFound) {
             $this->addErrorMessage($announcementNotFound->getMessage());

@@ -9,6 +9,7 @@ use App\model\budget\BillModel;
 use App\model\budget\ExpenseModel;
 use App\model\budget\FundModel;
 use App\model\enum\BudgetStatus;
+use App\model\enum\LogsTag;
 use DateTime;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -52,6 +53,11 @@ class AddBill extends AdminAction
             $bill = new BillModel();
             $bill->setExpense($expense);
             $this->billService->save($bill);
+
+            $id = $bill->getId();
+
+            $this->addActionLog("Bill with $id was created ",LogsTag::bill());
+
 
         }  catch (InvalidInput $invalidInput) {
             $this->addErrorMessage($invalidInput->getMessage());

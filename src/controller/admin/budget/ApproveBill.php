@@ -11,6 +11,7 @@ use App\model\budget\BillModel;
 use App\model\budget\ExpenseModel;
 use App\model\budget\FundModel;
 use App\model\enum\BudgetStatus;
+use App\model\enum\LogsTag;
 use DateTime;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -33,6 +34,9 @@ class ApproveBill extends AdminAction
             }
 
             $expense->setStatus(BudgetStatus::approved());
+
+
+            $this->addActionLog("Bill with $id was approved ",LogsTag::bill());
 
             $this->expenseService->save($expense);
 

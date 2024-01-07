@@ -6,6 +6,7 @@ use App\controller\admin\AdminAction;
 use App\exception\UserNotFoundException;
 use App\exception\users\UserBlockCooldown;
 use App\lib\Time;
+use App\model\enum\LogsTag;
 use Psr\Http\Message\ResponseInterface as Response;
 
 class BlockUser extends AdminAction
@@ -36,6 +37,8 @@ class BlockUser extends AdminAction
             $user->setIsBlocked(true);
 
             $this->userService->save($user);
+
+            $this->addActionLog("User with id of $userId was blocked", LogsTag::userBlock());
 
             return $this->respondWithData(["message" => "user has been blocked"]);
 

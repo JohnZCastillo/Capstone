@@ -7,6 +7,7 @@ use App\exception\announcement\AnnouncementNotFound;
 use App\exception\InvalidInput;
 use App\model\AnnouncementModel;
 use App\model\enum\AnnouncementStatus;
+use App\model\enum\LogsTag;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;
@@ -25,6 +26,8 @@ class UnpinAnnouncement extends AdminAction
 
             $announcement->setPin(false);
             $announcement->setPinDate(null);
+
+            $this->addActionLog("Announcement with $id was unpin",LogsTag::announcement());
 
             $this->announcementService->save($announcement);
 

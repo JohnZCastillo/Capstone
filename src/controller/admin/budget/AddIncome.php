@@ -10,6 +10,7 @@ use App\model\budget\ExpenseModel;
 use App\model\budget\FundModel;
 use App\model\budget\IncomeModel;
 use App\model\enum\BudgetStatus;
+use App\model\enum\LogsTag;
 use DateTime;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -43,7 +44,11 @@ class AddIncome extends AdminAction
             $income->setFund($fund);
             $income->setSource($source);
 
+
             $this->incomeService->save($income);
+
+            $incomeId = $income->getId();
+            $this->addActionLog("Income with $incomeId was created ",LogsTag::income());
 
             return $this->redirect("/admin/fund/$id");
 

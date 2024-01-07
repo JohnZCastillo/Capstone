@@ -9,6 +9,7 @@ use App\model\budget\BillModel;
 use App\model\budget\ExpenseModel;
 use App\model\budget\FundModel;
 use App\model\enum\BudgetStatus;
+use App\model\enum\LogsTag;
 use DateTime;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -46,6 +47,11 @@ class AddExpense extends AdminAction
             $expense->setPurpose($content['purpose']);
 
             $this->expenseService->save($expense);
+
+            $expenseId = $expense->getId();
+
+            $this->addActionLog("Expense with $expenseId was created ",LogsTag::expense());
+
 
             return $this->redirect("/admin/fund/$id");
 

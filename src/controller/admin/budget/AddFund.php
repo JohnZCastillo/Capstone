@@ -5,6 +5,7 @@ namespace App\controller\admin\budget;
 use App\controller\admin\AdminAction;
 use App\exception\InvalidInput;
 use App\model\budget\FundModel;
+use App\model\enum\LogsTag;
 use DateTime;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -27,6 +28,10 @@ class AddFund extends AdminAction
             $fund = new FundModel();
             $fund->setTitle($content['title']);
             $this->fundService->save($fund);
+
+            $fundId = $fund->getId();
+
+            $this->addActionLog("Fund with $fundId was created ",LogsTag::fund());
 
         }catch (InvalidInput $invalidInput){
             $this->addErrorMessage($invalidInput->getMessage());

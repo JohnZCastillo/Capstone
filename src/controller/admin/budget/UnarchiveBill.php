@@ -10,6 +10,7 @@ use App\model\budget\BillModel;
 use App\model\budget\ExpenseModel;
 use App\model\budget\FundModel;
 use App\model\enum\BudgetStatus;
+use App\model\enum\LogsTag;
 use DateTime;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -33,6 +34,8 @@ class UnarchiveBill extends AdminAction
             $this->billService->save($bill);
 
             $billName = $bill->getExpense()->getTitle();
+
+            $this->addActionLog("Bill with id of $id was archived ",LogsTag::bill());
 
             $this->addSuccessMessage("$billName unarchived successfully");
             

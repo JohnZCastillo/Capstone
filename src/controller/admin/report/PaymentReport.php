@@ -6,6 +6,7 @@ use App\controller\admin\AdminAction;
 use App\lib\DocxMaker;
 use App\lib\PdfResponse;
 use App\lib\Time;
+use App\model\enum\LogsTag;
 use App\model\UserModel;
 use Couchbase\User;
 use DateTime;
@@ -87,6 +88,7 @@ class PaymentReport extends AdminAction
                 'CREATED' => $transaction->getCreatedAt()->format('Y-m-d'),
             );
 
+
         }
 
         $docxMaker = new DocxMaker('approve_payment.docx');
@@ -95,6 +97,9 @@ class PaymentReport extends AdminAction
         $output = $docxMaker->output();
 
         $pdfResponse = new PdfResponse($output, 'test.pdf');
+
+        $this->addActionLog('Approved Payment Report was created', LogsTag::paymentReport());
+
 
         return $pdfResponse->getResponse();
     }
@@ -143,6 +148,8 @@ class PaymentReport extends AdminAction
         $output = $docxMaker->output();
 
         $pdfResponse = new PdfResponse($output, 'test.pdf');
+
+        $this->addActionLog('Rejected Payment Report was created', LogsTag::paymentReport());
 
         return $pdfResponse->getResponse();
 
@@ -198,6 +205,8 @@ class PaymentReport extends AdminAction
 
         $pdfResponse = new PdfResponse($output, 'test.pdf');
 
+        $this->addActionLog('Pending Payment Report was created', LogsTag::paymentReport());
+
         return $pdfResponse->getResponse();
     }
 
@@ -251,6 +260,8 @@ class PaymentReport extends AdminAction
         $output = $docxMaker->output();
 
         $pdfResponse = new PdfResponse($output, 'test.pdf');
+
+        $this->addActionLog('Unpaid Payment Report was created', LogsTag::paymentReport());
 
         return $pdfResponse->getResponse();
 

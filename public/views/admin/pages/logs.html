@@ -52,8 +52,54 @@
             <div class="modal-body">
                 <form>
                     <div class="form-group">
-                        <label for="user">Email</label>
-                        <input value="{{user.email}}" type="text" class="form-control" id="user" placeholder="Enter Email" name="email">
+
+
+                        <label for="user">Staff</label>
+
+                        <select  class="form-control" id="user" name="email">
+
+                            <option value="ALL"> ALL </option>
+
+                            {% for staff in staffs %}
+
+                                {% if user.id == staff.id %}
+                                    <option value="{{staff.email}}" selected>
+                                        {{staff.name}}
+                                    </option>
+                                {% else %}
+                                    <option value="{{staff.email}}">
+                                        {{staff.name}}
+                                    </option>
+                                {% endif %}
+
+                            {% endfor %}
+
+                        </select>
+                    </div>
+                    <div class="form-group">
+
+
+                        <label for="tags">Tags</label>
+
+                        <select  class="form-control" id="tags" name="tag">
+
+                            <option value="ALL"> ALL </option>
+
+                            {% for tag in tags %}
+
+                                {% if selectedTag == tag %}
+                                    <option value="{{tag}}" selected>
+                                        {{tag|title}}
+                                    </option>
+                                {% else %}
+                                    <option value="{{tag}}">
+                                        {{tag|title}}
+                                    </option>
+                                {% endif %}
+
+                            {% endfor %}
+
+                        </select>
                     </div>
                     <div class="form-group mb-1">
                         <label class="form-label">Start Date</label>
