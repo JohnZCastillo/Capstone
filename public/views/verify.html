@@ -14,26 +14,20 @@
         vh-100 d-flex
         justify-content-center align-items-center"
 >
-    <div class="container">
-        <div class="container mt-5">
-            <div class="jumbotron">
-                <form method="POST" action="/verify">
-                    <h4 class="display-4">Complete Sign up</h4>
-                    <p>A code was sent to your email</p>
-                    <div class="d-flex gap-2 mb-2 justify-content-center align-items-center">
-                        <input required style="max-width: 40px" type="text" maxlength="1" class="form-control" name="code[]">
-                        <input required style="max-width: 40px" type="text" maxlength="1" class="form-control" name="code[]">
-                        <input required style="max-width: 40px" type="text" maxlength="1" class="form-control" name="code[]">
-                        <input required style="max-width: 40px" type="text" maxlength="1" class="form-control" name="code[]">
-                        <input required style="max-width: 40px" type="text" maxlength="1" class="form-control" name="code[]">
-                        <input required style="max-width: 40px" type="text" maxlength="1" class="form-control" name="code[]">
-                    </div>
-                    <button class="btn btn-primary">verify</button>
-                    <p class="mt-2 text-danger">{{verify}}</p>
-                </form>
-            </div>
+    <form method="POST" action="/verify">
+        <h4 class="display-4">Complete Sign up</h4>
+        <p>A code was sent to your email</p>
+        <div class="d-flex gap-2 mb-2 justify-content-center align-items-center">
+            <input required style="max-width: 40px" type="text" maxlength="1" class="form-control" name="code[]">
+            <input required style="max-width: 40px" type="text" maxlength="1" class="form-control" name="code[]">
+            <input required style="max-width: 40px" type="text" maxlength="1" class="form-control" name="code[]">
+            <input required style="max-width: 40px" type="text" maxlength="1" class="form-control" name="code[]">
+            <input required style="max-width: 40px" type="text" maxlength="1" class="form-control" name="code[]">
+            <input required style="max-width: 40px" type="text" maxlength="1" class="form-control" name="code[]">
         </div>
-    </div>
+        <button class="btn btn-primary">verify</button>
+        <p class="mt-2 text-danger">{{verify}}</p>
+    </form>
 </div>
 </body>
 </html>
