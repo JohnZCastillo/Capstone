@@ -6,6 +6,7 @@ use App\controller\admin\AdminAction;
 use App\controller\user\issues\PostIssue;
 use App\exception\code\InvalidCode;
 use App\lib\Mail;
+use App\lib\Redirector;
 use App\lib\Time;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -20,19 +21,23 @@ class VerifyUser extends AdminAction
     {
         try {
 
+            $user = $this->getLoginUser();
+
+            if($user->isVerified()){
+                return $this->redirect(Redirector::redirectToHome($user->getPrivileges()));
+            }
+
             $formData = $this->getFormData();
 
             $code = implode($formData['code']);
 
             $valid = $this->codeModelService->isValid(session_id() , $code, new \DateTime());
 
-            $user = $this->getLoginUser();
-
             $user->setVerified(true);
 
             $this->userService->save($user);
 
-            return $this->redirect('/home');
+            return $this->redirect(Redirector::redirectToHome($user->getPrivileges()));
 
         } catch (InvalidCode $invalidCode) {
             $this->addMessage('verify', $invalidCode->getMessage());

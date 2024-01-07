@@ -6,6 +6,7 @@ use App\controller\admin\AdminAction;
 use App\exception\code\ExistingCode;
 use App\exception\code\InvalidCode;
 use App\lib\Mail;
+use App\lib\Redirector;
 use App\lib\Time;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -21,6 +22,10 @@ class ViewVerify extends AdminAction
         try {
 
             $user = $this->getLoginUser();
+
+            if($user->isVerified()){
+               return $this->redirect(Redirector::redirectToHome($user->getPrivileges()));
+            }
 
             if ($this->codeModelService->hasExistingValidCode(session_id(), new \DateTime())) {
                 throw new ExistingCode('Please Wait for 5 minutes to request for new code');
