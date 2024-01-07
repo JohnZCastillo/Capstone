@@ -42,6 +42,12 @@
 
             <select id="lot" class="form-control {% if lotError %} is-invalid {% endif %}" type="text"
                    name="lot">
+
+                {% for lot in getLot(1) %}
+                <option class="small " value="{{lot}}">{{lot}}</option>
+
+                {% endfor %}
+
             </select>
             <div class="invalid-feedback">
                 {{lotError}}
