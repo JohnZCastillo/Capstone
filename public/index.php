@@ -49,4 +49,6 @@ $twig->getEnvironment()->addGlobal('blocks',$areaService->getBlock());
 $routes = require APP_ROOT . 'app/routes.php';
 $routes($app);
 
+$errorMiddleware = $app->addErrorMiddleware(true, true, true);
+
 $app->run();
