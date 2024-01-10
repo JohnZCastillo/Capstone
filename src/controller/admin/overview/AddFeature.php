@@ -38,7 +38,7 @@ class AddFeature extends AdminAction
                 throw new InvalidInput('Invalid Feature Name');
             }
 
-            if(!v::alnum(' ')->notEmpty()->validate($description)){
+            if(!v::stringVal()->notEmpty()->validate($description)){
                 throw new InvalidInput('Invalid Feature Description');
             }
 
