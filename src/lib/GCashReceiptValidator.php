@@ -2,33 +2,29 @@
 
 namespace App\lib;
 
+use Doctrine\DBAL\Driver\PDO\Exception;
 use Respect\Validation\Validator as V;
 
-class GCashReceiptValidator{
+class GCashReceiptValidator
+{
 
-    static function isValid(array $images): bool{
-        
-        $GCASH_KEYWORDS = [
-            'gcash',
-            'amount',
-        ];
+    private static array $GCASH_KEYWORDS = ['amount',];
 
-        foreach ($images['tmp_name'] as $index => $tmp_name){
+    static function isValid(array $images): bool
+    {
+
+        foreach ($images['tmp_name'] as $index => $tmp_name) {
 
             $currentImage = $images['tmp_name'][$index];
             $ocrStringResult = Ocr::getText($currentImage);
 
             $ocrStringResult = strtolower($ocrStringResult);
 
-            foreach ($GCASH_KEYWORDS as $keyword) {
-                if (!V::contains($keyword)->validate($ocrStringResult)) {
-                    return false;
-                }
-            }
+            return V::containsAny(self::$GCASH_KEYWORDS)->validate($ocrStringResult);
 
         }
 
-        return true;
+        return false;
     }
 
 }
