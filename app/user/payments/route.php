@@ -9,6 +9,10 @@ return function (App $app) use ($twig) {
 
     $app->group('', function (Group $group) {
 
+        $group->post('/receipt/{id}',
+            \App\controller\user\reciept\ReceiptMaker::class
+        );
+
         $group->post('/payable-amount',
             \App\controller\api\payments\DueAmount::class
         );

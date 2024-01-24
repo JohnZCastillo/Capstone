@@ -85,7 +85,9 @@
                     <a href="/home" class="btn btn-secondary mb-2">Back</a>
 
                     {% if transaction.status == 'APPROVED' %}
-                    <a href="/receipt/{{transaction.id}}" class="btn btn-primary mb-2">Download Invoice</a>
+                    <form method="POST" action="/receipt/{{transaction.id}}">
+                        <button type="submit" class="btn btn-primary mb-2">Download Invoice</button>
+                    </form>
                     {% endif %}
 
                     {% if transaction.status == 'REJECTED' and target is null %}

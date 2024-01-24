@@ -17,7 +17,7 @@ class PdfResponse
     public function __construct(string $docxFile,string $outputFile)
     {
 
-        $converter = new OfficeConverter($docxFile, self::DIR, );
+        $converter = new OfficeConverter($docxFile, self::DIR);
 
         $this->outputFile = $outputFile;
 
@@ -29,7 +29,7 @@ class PdfResponse
 
         $outputFile = $this->outputFile;
 
-        $response = new \Slim\Psr7\Response();
+        $response =  new \Slim\Psr7\Response();
 
         $response = $response->withHeader('Content-Type', 'application/pdf');
         $response = $response->withHeader('Content-Disposition', 'attachment; filename="report.pdf"');

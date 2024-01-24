@@ -13,6 +13,9 @@ class ViewLogin extends AdminAction
      */
     protected function action(): Response
     {
-       return  $this->view('pages/login.html',[]);
+
+        $overview = $this->overviewService->getOverview();
+
+       return  $this->view('pages/login.html',['overview' => $overview]);
     }
 }

@@ -8,7 +8,6 @@ use App\lib\PdfResponse;
 use App\lib\Time;
 use App\model\enum\LogsTag;
 use App\model\UserModel;
-use Couchbase\User;
 use DateTime;
 use Slim\Psr7\Response;
 
@@ -44,7 +43,7 @@ class PaymentReport extends AdminAction
             $this->addErrorMessage($exception->getMessage());
         }
 
-        $this->redirect('/admin/payments');
+        return$this->redirect('/admin/payments');
     }
 
     public function approvePaymentReport(): Response
@@ -135,9 +134,7 @@ class PaymentReport extends AdminAction
                 'UNIT' => 'B' . $user->getBlock() . ' L' . $user->getLot(),
                 'AMOUNT' => $transaction->getAmount(),
                 'COVERAGE' => $coverage,
-                'REASON' => $transaction->getLogs()[0],
                 'REJECTOR' => $transaction->getRejectedBy()->getName(),
-                'CREATED' => $transaction->getCreatedAt()->format('Y-m-d'),
             );
 
         }
