@@ -24,7 +24,7 @@ class LogsService extends Service
             ->from(LogsModel::class, 't')
             ->orderBy('t.created_at','DESC');
 
-        $or = $qb->expr()->orX();
+        $or = $qb->expr()->andX();
 
         $paginator = new Paginator();
 
