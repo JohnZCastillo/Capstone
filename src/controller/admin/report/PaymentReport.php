@@ -4,6 +4,7 @@ namespace App\controller\admin\report;
 
 use App\controller\admin\AdminAction;
 use App\lib\DocxMaker;
+use App\lib\NumberFormat;
 use App\lib\PdfResponse;
 use App\lib\Time;
 use App\model\enum\LogsTag;
@@ -222,6 +223,8 @@ class PaymentReport extends AdminAction
 
         $users = [];
 
+        $totalUnpaidDues = 0;
+
         foreach ($areas as $area) {
 
             $user = new UserModel();
@@ -244,16 +247,27 @@ class PaymentReport extends AdminAction
                 Time::convertToString(Time::startMonth($to)),
             )['total'];
 
+            $copy = $total;
+
+            NumberFormat::format($copy);
+
             $data[] = [
-                'AMOUNT' => $total,
+                'AMOUNT' => $copy,
                 'UNIT' => 'B'.$user->getBlock() . ' L'.$user->getLot()
             ];
+
+            $totalUnpaidDues += $total;
         }
 
 
         $docxMaker = new DocxMaker('unpaid_payment.docx');
 
+        NumberFormat::format($totalUnpaidDues);
+
         $docxMaker->addBody($data, 'UNIT');
+
+        $docxMaker->addHeader(['TOTAL' => $totalUnpaidDues]);
+
         $output = $docxMaker->output();
 
         $pdfResponse = new PdfResponse($output, 'test.pdf');

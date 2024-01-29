@@ -31,7 +31,7 @@ class FundReport extends AdminAction
 
             $header = [
                 'Prev' => [
-                    'title' => 'Prev',
+                    'title' => 'Previous Collection',
                     'data' => $prevCollection
                 ],
                 'Incomes' => [

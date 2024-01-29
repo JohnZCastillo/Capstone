@@ -15,7 +15,7 @@
                         <thead class="bg-dark text-white">
                         <tr>
                             <th>Title</th>
-                            <th>Amount</th>
+                            <th style="text-align: right">Amount</th>
                             <th>Date</th>
                         </tr>
                         </thead>
@@ -23,7 +23,7 @@
                         {% for income in fund.incomes %}
                         <tr>
                             <td>{{income.title}}</td>
-                            <td>{{income.amount}}</td>
+                            <td style="text-align: right">{{income.amount|format_currency('PHP')}}</td>
                             <td>{{income.createdAt|date('M-d-y')}}</td>
                         </tr>
                         {% endfor %}
