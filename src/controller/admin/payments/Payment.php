@@ -127,7 +127,6 @@ abstract class Payment extends AdminAction
         $coverage = $transaction->getFromMonth() . ' - ' . $transaction->getToMonth();
 
         $pdf->Cell(0, 10, 'Transaction Number: ' . $transactionNumber, 0, 1);
-        $pdf->Cell(0, 10, 'Homeowner: ' . $homeownerName, 0, 1);
         $pdf->Cell(0, 10, 'Property: ' . $property, 0, 1);
         $pdf->Cell(0, 10, 'Amount: ' . $amount, 0, 1);
         $pdf->Cell(0, 10, 'Payment Date: ' . $paymentDate, 0, 1);
