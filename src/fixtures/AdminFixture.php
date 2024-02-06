@@ -26,12 +26,13 @@ class AdminFixture implements FixtureInterface
         foreach ($this->admins as $index => $admin){
 
             $user = new UserModel();
-            $user->setName($admin->name);
+            $user->setName($admin['name']);
             $user->setRole(UserRole::admin());
-            $user->setPassword($admin->password);
-            $user->setEmail($admin->email);
-            $user->setBlock($admin->blocl);
-            $user->setLot($admin->lot);
+            $user->setPassword($admin['password']);
+            $user->setEmail($admin['email']);
+            $user->setBlock($admin['block']);
+            $user->setLot($admin['lot']);
+            $user->setIsBlocked(false);
 
             $manager->persist($user);
             $manager->flush();
