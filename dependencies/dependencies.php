@@ -46,6 +46,10 @@ return array(
         return new \App\lib\LotFinder($container->get(\App\service\AreaService::class));
     },
 
+    \App\fixtures\AdminFixture::class => function (ContainerInterface $container) {
+        return new \App\fixtures\AdminFixture($container->get(EntityManager::class));
+    },
+
     UserService::class => function (ContainerInterface $container) {
         return new UserService($container->get(EntityManager::class));
     },
