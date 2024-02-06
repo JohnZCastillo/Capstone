@@ -46,8 +46,8 @@ return array(
         return new \App\lib\LotFinder($container->get(\App\service\AreaService::class));
     },
 
-    \App\fixtures\AdminFixture::class => function (ContainerInterface $container) {
-        return new \App\fixtures\AdminFixture($container->get(EntityManager::class));
+    \App\commands\LoadFixtureCommand::class => function (ContainerInterface $container) {
+        return new \App\commands\LoadFixtureCommand($container->get(EntityManager::class));
     },
 
     UserService::class => function (ContainerInterface $container) {

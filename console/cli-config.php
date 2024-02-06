@@ -22,7 +22,7 @@ AppFactory::setContainer($container);
 $app = AppFactory::create();
 
 $commands = [
-    $container->get(\App\fixtures\AdminFixture::class),
+    $container->get(\App\commands\LoadFixtureCommand::class),
 ];
 
 ConsoleRunner::run(new SingleManagerProvider($app->getContainer()->get(EntityManager::class)), $commands);
