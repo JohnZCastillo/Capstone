@@ -3,6 +3,7 @@
 namespace App\fixtures;
 
 use App\model\enum\UserRole;
+use App\model\PrivilegesModel;
 use App\model\UserModel;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -36,6 +37,33 @@ class AdminFixture implements FixtureInterface
 
             $manager->persist($user);
             $manager->flush();
+
+            $privilege = $this->createPrivileges($user);
+
+            $manager->persist($privilege);
+            $manager->flush();
+
+            $user->setPrivileges($privilege);
+
+            $manager->persist($user);
+            $manager->flush();
+
         }
+    }
+
+    private function createPrivileges(UserModel $userModel)
+    {
+        $privilege = new PrivilegesModel();
+        $privilege->setUser($userModel);
+        $privilege->setAdminAnnouncement(true);
+        $privilege->setAdminIssues(true);
+        $privilege->setAdminPayment(true);
+        $privilege->setAdminUser(true);
+        $privilege->setAdminUser(true);
+        $privilege->setUserAnnouncement(true);
+        $privilege->setUserIssues(true);
+        $privilege->setUserPayment(true);
+
+        return $privilege;
     }
 }
