@@ -3,7 +3,7 @@
 namespace App\controller\admin\budget;
 
 use App\controller\admin\AdminAction;
-use Doctrine\DBAL\Driver\Exception;
+use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 
 class BudgetManagement extends AdminAction
