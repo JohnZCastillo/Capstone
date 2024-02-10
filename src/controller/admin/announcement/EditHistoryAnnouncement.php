@@ -4,11 +4,8 @@ namespace App\controller\admin\announcement;
 
 use App\controller\admin\AdminAction;
 use App\exception\announcement\AnnouncementNotFound;
-use App\lib\Filter;
-use App\model\AnnouncementModel;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
-use Slim\Views\Twig;
 
 class EditHistoryAnnouncement extends AdminAction
 {
