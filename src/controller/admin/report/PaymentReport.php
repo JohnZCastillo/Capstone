@@ -4,6 +4,7 @@ namespace App\controller\admin\report;
 
 use App\controller\admin\AdminAction;
 use App\lib\DocxMaker;
+use App\lib\NumberFormat;
 use App\lib\PdfResponse;
 use App\lib\Time;
 use App\model\enum\LogsTag;
@@ -78,10 +79,15 @@ class PaymentReport extends AdminAction
 
             $coverage = $fromCoverage->format('M Y') . ' - ' . $toCoverage->format('M Y');
 
+            $amount = $transaction->getAmount();
+            $totalAmount += $amount;
+
+            NumberFormat::format($amount);
+
             $data[] = array(
                 'ID' => $transaction->getId(),
                 'UNIT' => 'B' . $user->getBlock() . ' L' . $user->getLot(),
-                'AMOUNT' => $transaction->getAmount(),
+                'AMOUNT' => $amount,
                 'REFERENCE' => $receiptsHolder,
                 'COVERAGE' => $coverage,
                 'CREATED' => $transaction->getCreatedAt()->format('Y-m-d'),
@@ -92,7 +98,14 @@ class PaymentReport extends AdminAction
 
         $docxMaker = new DocxMaker('approve_payment.docx');
 
+        NumberFormat::format($totalAmount);
+
         $docxMaker->addBody($data, 'ID');
+        $docxMaker->addHeader([
+            'TITLE' => 'APPROVED PAYMENTS REPORT',
+            'TOTAL' => $totalAmount
+        ]);
+
         $output = $docxMaker->output();
 
         $pdfResponse = new PdfResponse($output, 'test.pdf');
@@ -118,6 +131,8 @@ class PaymentReport extends AdminAction
 
         $data = array();
 
+        $totalAmount = 0;
+
         foreach ($transactions as $transaction) {
 
             $user = $transaction->getUser();
@@ -129,10 +144,15 @@ class PaymentReport extends AdminAction
 
             $coverage = $fromCoverage->format('M Y') . ' - ' . $toCoverage->format('M Y');
 
+            $amount = $transaction->getAmount();
+            $totalAmount += $amount;
+
+            NumberFormat::format($amount);
+
             $data[] = array(
                 'ID' => $transaction->getId(),
                 'UNIT' => 'B' . $user->getBlock() . ' L' . $user->getLot(),
-                'AMOUNT' => $transaction->getAmount(),
+                'AMOUNT' => $amount,
                 'COVERAGE' => $coverage,
                 'REJECTOR' => $transaction->getRejectedBy()->getName(),
             );
@@ -141,7 +161,14 @@ class PaymentReport extends AdminAction
 
         $docxMaker = new DocxMaker('rejected_payment.docx');
 
+        NumberFormat::format($totalAmount);
+
         $docxMaker->addBody($data, 'ID');
+        $docxMaker->addHeader([
+            'TOTAL' => $totalAmount ,
+            'TITLE' => 'REJECTED PAYMENT REPORT'
+        ]);
+
         $output = $docxMaker->output();
 
         $pdfResponse = new PdfResponse($output, 'test.pdf');
@@ -167,6 +194,8 @@ class PaymentReport extends AdminAction
 
         $data = array();
 
+        $totalAmount = 0;
+
         foreach ($transactions as $transaction) {
 
             $user = $transaction->getUser();
@@ -184,10 +213,15 @@ class PaymentReport extends AdminAction
 
             $coverage = $fromCoverage->format('M Y') . ' - ' . $toCoverage->format('M Y');
 
+            $amount = $transaction->getAmount();
+            $totalAmount += $amount;
+
+            NumberFormat::format($amount);
+
             $data[] = array(
                 'ID' => $transaction->getId(),
                 'UNIT' => 'B' . $user->getBlock() . ' L' . $user->getLot(),
-                'AMOUNT' => $transaction->getAmount(),
+                'AMOUNT' => $amount,
                 'REFERENCE' => $receiptsHolder,
                 'COVERAGE' => $coverage,
                 'CREATED' => $transaction->getCreatedAt()->format('Y-m-d'),
@@ -195,9 +229,16 @@ class PaymentReport extends AdminAction
 
         }
 
-        $docxMaker = new DocxMaker('approve_payment.docx');
+        $docxMaker = new DocxMaker('pending_payment.docx');
+
+        NumberFormat::format($totalAmount);
 
         $docxMaker->addBody($data, 'ID');
+        $docxMaker->addHeader([
+            'TITLE' => 'PENDING PAYMENTS REPORT',
+            'TOTAL' => $totalAmount,
+        ]);
+
         $output = $docxMaker->output();
 
         $pdfResponse = new PdfResponse($output, 'test.pdf');
@@ -222,6 +263,8 @@ class PaymentReport extends AdminAction
 
         $users = [];
 
+        $totalUnpaidDues = 0;
+
         foreach ($areas as $area) {
 
             $user = new UserModel();
@@ -244,16 +287,27 @@ class PaymentReport extends AdminAction
                 Time::convertToString(Time::startMonth($to)),
             )['total'];
 
+            $copy = $total;
+
+            NumberFormat::format($copy);
+
             $data[] = [
-                'AMOUNT' => $total,
+                'AMOUNT' => $copy,
                 'UNIT' => 'B'.$user->getBlock() . ' L'.$user->getLot()
             ];
+
+            $totalUnpaidDues += $total;
         }
 
 
         $docxMaker = new DocxMaker('unpaid_payment.docx');
 
+        NumberFormat::format($totalUnpaidDues);
+
         $docxMaker->addBody($data, 'UNIT');
+
+        $docxMaker->addHeader(['TOTAL' => $totalUnpaidDues]);
+
         $output = $docxMaker->output();
 
         $pdfResponse = new PdfResponse($output, 'test.pdf');

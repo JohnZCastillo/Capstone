@@ -21,7 +21,9 @@ $container = $containerBuilder->build();
 AppFactory::setContainer($container);
 $app = AppFactory::create();
 
-$commands = [];
+$commands = [
+    $container->get(\App\commands\LoadFixtureCommand::class),
+];
 
 ConsoleRunner::run(new SingleManagerProvider($app->getContainer()->get(EntityManager::class)), $commands);
 

@@ -15,7 +15,7 @@
                         <thead class="bg-dark text-white">
                         <tr>
                             <th>Title</th>
-                            <th>Amount</th>
+                            <th style="text-align: right">Amount</th>
                             <th>Date</th>
                         </tr>
                         </thead>
@@ -24,7 +24,7 @@
                             {% if expense.status|lower == 'approved' %}
                                 <tr>
                                     <td>{{expense.title}}</td>
-                                    <td>{{expense.amount}}</td>
+                                    <td style="text-align: right">{{expense.amount|format_currency('PHP')}}</td>
                                     <td>{{expense.createdAt|date('M-d-y')}}</td>
                                 </tr>
                             {% endif %}

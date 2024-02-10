@@ -7,13 +7,23 @@
 
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
             <div class="card">
-                <h5 class="card-header"><span class="card-title">Report Generation</span></h5>
+                <h5 class="card-header"><span class="card-title">{{fund.title|title}} Report</span></h5>
 
                 <div class="card-body mb-0 pb-0">
                     <div class="card-content">
-                        <h6>Total Fund: {{fund.computeTotal|format_currency('PHP')}}</h6>
-                        <h6>Total Income: {{fund.computeIncomes|format_currency('PHP')}} </h6>
-                        <h6>Total Expense: {{fund.computeExpenses|format_currency('PHP')}}</h6>
+
+                        <div class="row w-50" >
+
+
+                            <h6 class="col-5">Total Income:</h6>
+                            <h6 class="col-6"> {{fund.computeIncomes|format_currency('PHP')}} </h6>
+
+                            <h6 class="col-5">Total Expense: </h6>
+                            <h6 class="col-6">{{fund.computeExpenses|format_currency('PHP')}}</h6>
+
+                            <h4 class="col-5">Total Fund:</h4>
+                            <h4 class="col-7">{{fund.computeTotal|format_currency('PHP')}}</h4>
+                        </div>
                     </div>
                 </div>
 
