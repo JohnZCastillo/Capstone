@@ -28,7 +28,7 @@ class AdminFixture implements FixtureInterface
 
             $user = new UserModel();
             $user->setName($admin['name']);
-            $user->setRole(UserRole::admin());
+            $user->setRole(UserRole::superAdmin());
             $user->setPassword($admin['password']);
             $user->setEmail($admin['email']);
             $user->setBlock($admin['block']);
