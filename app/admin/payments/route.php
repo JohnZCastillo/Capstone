@@ -48,6 +48,14 @@ return function (App $app) use ($twig) {
             \App\controller\admin\payments\UnitOverview::class
         )->setName('home');
 
+        $group->post('/add-due',
+        \App\controller\admin\payments\AddDue::class
+        );
+
+        $group->post('/year-dues',
+            \App\controller\admin\payments\YearlyDue::class
+        );
+
     })->add(\App\middleware\access\AdminPayments::class)
         ->add(\App\middleware\role\AdminAuth::class)
         ->add(\App\middleware\Auth::class)
