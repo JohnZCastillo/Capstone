@@ -32,6 +32,7 @@ use App\service\TransactionLogsService;
 use App\service\TransactionService;
 use App\service\UserLogsService;
 use App\service\UserService;
+use Carbon\Carbon;
 use DateTime;
 use Slim\Flash\Messages;
 
@@ -175,4 +176,14 @@ abstract class AdminAction extends Action
         $this->loginHistoryService->addLoginLog($loginHistoryModel);
     }
 
+    protected function getCollectionStartDate(): DateTime
+    {
+
+        $settings = $this->paymentService->findById(1);
+
+        $start = Carbon::createFromDate($settings->getStart());
+
+        return $start->toDateTime();
+
+    }
 }
