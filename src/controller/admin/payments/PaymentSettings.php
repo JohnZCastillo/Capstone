@@ -5,20 +5,27 @@ declare(strict_types=1);
 namespace App\controller\admin\payments;
 
 use App\controller\admin\AdminAction;
+use App\exception\image\ImageUploadException;
 use App\exception\InvalidFile;
 use App\exception\payment\PaymentNotFound;
-use App\lib\Image;
+use App\lib\ImageUploadManager;
 use App\lib\Time;
 use App\model\enum\LogsTag;
-use chillerlan\QRCode\QRCode;
+use App\model\PaymentModel;
 use Exception;
+use phpDocumentor\Reflection\DocBlock\Tags\Throws;
 use Psr\Http\Message\ResponseInterface as Response;
-use Respect\Validation\Validator as v;
 
 class PaymentSettings extends AdminAction
 {
     /**
-     * {@inheritdoc}
+     * Update payment settings action
+     *
+     * This method handles the updating of payment settings based on the form data received.
+     * It validates the form data, updates the payment information in the database,
+     * and handles any errors that may occur during the process.
+     *
+     * @return Response
      */
     protected function action(): Response
     {
@@ -32,27 +39,26 @@ class PaymentSettings extends AdminAction
             $number = $formData['number'];
             $start = $formData['start'];
 
-            $paymentModel = $this->paymentService->findById($id);
+            try {
+                $paymentModel = $this->paymentService->findById((int)$id);
+            }catch (PaymentNotFound $paymentNotFound){
+                $paymentModel = new PaymentModel();
+            }
 
-            $image = $_FILES['qr'];
+            $uploadPath = './uploads/';
+            $fileName = 'qr';
 
-            if ($image['error'] !== UPLOAD_ERR_NO_FILE) {
+            //only update qr image if a new qr is uploaded
+            try {
+                $qr = ImageUploadManager::upload($fileName,$uploadPath);
+                $paymentModel->setQr($qr);
+            }catch (ImageUploadException $exception){
 
-                $path = './uploads/';
+                $image = $paymentModel->getQr();
 
-                $storedFile = Image::store($path, $_FILES['qr']);
-
-                if (!v::image()->validate($path . $storedFile)) {
-                    throw  new InvalidFile('Unsupported File');
+                if(empty($image)){
+                    throw  $exception;
                 }
-
-                try {
-                    $result = (new QRCode)->readFromFile($path . $storedFile);
-                } catch (Exception $exception) {
-                    throw new InvalidFile('Qr not detected');
-                }
-
-                $paymentModel->setQr($storedFile);
             }
 
             $paymentModel->setAccountName($name);
@@ -69,9 +75,9 @@ class PaymentSettings extends AdminAction
 
         } catch (InvalidFile $invalidFile) {
             $this->addErrorMessage($invalidFile->getMessage());
-        } catch (PaymentNotFound $paymentNotFound) {
-            $this->addErrorMessage('Payment Not Found!');
-        } catch (Exception $exception) {
+        } catch ( ImageUploadException $imageUploadException){
+            $this->addErrorMessage('Qr is missing');
+        }catch (Exception $exception) {
             $this->addErrorMessage('An  Internal Error Has Occurred, pleas check logs');
         }
 
