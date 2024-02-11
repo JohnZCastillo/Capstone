@@ -5,39 +5,43 @@ declare(strict_types=1);
 namespace App\controller\admin\payments;
 
 use App\controller\admin\AdminAction;
-use App\exception\ContentLock;
-use App\exception\NotUniqueReferenceException;
-use App\exception\payment\InvalidReference;
-use App\exception\payment\TransactionNotFound;
-use App\lib\Time;
+use Carbon\Carbon;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
-use Respect\Validation\Validator as v;
-use thiagoalessio\TesseractOCR\Tests\Common\TestCase;
 
 class UnitOverview extends AdminAction
 {
-    /**
-     * {@inheritdoc}
-     */
     protected function action(): Response
     {
 
-        $userId = $this->args['id'];
-        $transactionId = $this->args['transaction'];
+            $userId = $this->args['id'];
+            $transactionId = $this->args['transaction'];
 
-        $user = $this->userService->findById($userId);
+        try {
 
-        $unpaidDue = $this->transactionService->getUnpaid(
-            $user,
-            $this->duesService,
-            $this->paymentService->findById(1),
-            '2023-01-01',
-            '2023-12-01'
-        );
+            $user = $this->userService->findById($userId);
 
-        $unpaidDue['transactionId'] =  $transactionId;
+            $endMonth = Carbon::now();
+            $endMonth->setDay(1);
 
-        return $this->view('admin/pages/unit-overview.html', $unpaidDue);
+            $startCollection = $this->getCollectionStartDate();
+
+            $unpaidDue = $this->transactionService->getUnpaid(
+                $user,
+                $this->duesService,
+                $this->paymentService->findById(1),
+                $startCollection->format('Y-m-d'),
+                $endMonth->format('Y-m-d')
+            );
+
+            $unpaidDue['transactionId'] =  $transactionId;
+
+            return $this->view('admin/pages/unit-overview.html', $unpaidDue);
+
+        }catch (Exception $exception){
+            $this->addErrorMessage($exception->getMessage());
+        }
+
+        return $this->redirect('/admin/transaction/' . $transactionId);
     }
 }
