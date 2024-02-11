@@ -9,6 +9,7 @@ use App\lib\PdfResponse;
 use App\lib\Time;
 use App\model\enum\LogsTag;
 use App\model\UserModel;
+use Carbon\Carbon;
 use DateTime;
 use Slim\Psr7\Response;
 
@@ -259,6 +260,12 @@ class PaymentReport extends AdminAction
         $block = $formData['block'] ?? null;
         $lot = $formData['lot'] ?? null;
 
+        $carbonStart = Carbon::createFromFormat('Y-m',$from);
+        $carbonStart->setDay(1);
+
+        $carbonEnd = Carbon::createFromFormat('Y-m',$to);
+        $carbonEnd->setDay(1);
+
         $areas = $this->areaService->getArea($block, $lot);
 
         $users = [];
@@ -283,8 +290,8 @@ class PaymentReport extends AdminAction
                 $user,
                 $this->duesService,
                 $this->paymentService->findById(1),
-                Time::convertToString(Time::startMonth($from)),
-                Time::convertToString(Time::startMonth($to)),
+                $carbonStart->format('Y-m-d'),
+                $carbonEnd->format('Y-m-d'),
             )['total'];
 
             $copy = $total;
