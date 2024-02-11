@@ -153,7 +153,7 @@ class TransactionService extends Service
         return $paginator->paginate($qb, $page, $max);
     }
 
-    public function getUnpaid($user, DuesService $dueService, PaymentModel $payment, $startMonth = null, $endMonth = null)
+    public function getUnpaid($user, DuesService $dueService, PaymentModel $payment, $startMonth = null, $endMonth = null): array
     {
 
         $months = [];
