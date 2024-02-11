@@ -28,6 +28,7 @@ class PostAnnouncement extends AdminAction
 
             $this->announcementService->save($announcement);
 
+            return $this->redirect('/admin/announcements?status=ARCHIVED',303);
 
         } catch (AnnouncementNotFound $announcementNotFound) {
             $this->addErrorMessage($announcementNotFound->getMessage());

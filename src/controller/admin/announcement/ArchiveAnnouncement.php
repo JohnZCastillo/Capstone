@@ -28,6 +28,8 @@ class ArchiveAnnouncement extends AdminAction
 
             $this->addActionLog("Announcement with $id was archived",LogsTag::announcement());
 
+            return $this->redirect('/admin/announcements',303);
+
         } catch (AnnouncementNotFound $announcementNotFound) {
             $this->addErrorMessage($announcementNotFound->getMessage());
         } catch (InvalidInput $invalidInput) {

@@ -27,6 +27,8 @@ class UnpinAnnouncement extends AdminAction
 
             $this->announcementService->save($announcement);
 
+            return $this->redirect('/admin/announcements',303);
+
         } catch (AnnouncementNotFound $announcementNotFound) {
             $this->addErrorMessage($announcementNotFound->getMessage());
         } catch (Exception $exception) {

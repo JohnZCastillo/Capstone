@@ -14,8 +14,6 @@ class EditHistoryAnnouncement extends AdminAction
     {
 
         $id = $this->args['id'];
-        $announcement = null;
-        $mainId = null;
 
         try {
 
@@ -27,18 +25,18 @@ class EditHistoryAnnouncement extends AdminAction
 
             $mainId = $announcement->getId();
 
+            return $this->view('admin/pages/announcement.html', [
+                'announcement' => $announcement,
+                'historyId' => $id,
+                'mainId' => $mainId,
+            ]);
+
         } catch (AnnouncementNotFound $announcementNotFound) {
             $this->addErrorMessage($announcementNotFound->getMessage());
-            return $this->redirect('/admin/announcements');
         } catch (Exception $exception) {
             $this->addErrorMessage('An Internal Error Occurred');
         }
 
-        return $this->view('admin/pages/announcement.html', [
-            'announcement' => $announcement,
-            'historyId' => $id,
-            'mainId' => $mainId,
-        ]);
-
+        return $this->redirect('/admin/announcements');
     }
 }

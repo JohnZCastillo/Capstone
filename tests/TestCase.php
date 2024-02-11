@@ -90,7 +90,9 @@ class TestCase extends PHPUnit_TestCase
 
     protected function setUp(): void
     {
-        Login::login(1);
+
+      session_start();
+      $_SESSION['user'] = 1;
     }
 
     protected function tearDown(): void

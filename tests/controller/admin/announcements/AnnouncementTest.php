@@ -1,16 +1,19 @@
 <?php
 
-namespace Tests\controller\announcements;
+namespace Tests\controller\admin\announcements;
 
 use Tests\TestCase;
 
 class AnnouncementTest extends TestCase
 {
+
+
     public function testHomepage()
     {
+
         $app = $this->getAppInstance();
 
-        $request = $this->createRequest('GET','/admin/announcements');
+        $request = $this->createRequest('GET','/admin/announcement');
 
         $response = $app->handle($request);
 

@@ -14,21 +14,21 @@ class EditAnnouncement extends AdminAction
     {
 
         $id = $this->args['id'];
-        $announcement = null;
 
         try {
 
             $announcement = $this->announcementService->findById($id);
+
+            return $this->view('admin/pages/announcement.html', [
+                'announcement' => $announcement,
+            ]);
+
         } catch (AnnouncementNotFound $announcementNotFound) {
             $this->addErrorMessage($announcementNotFound->getMessage());
-            return $this->redirect('/admin/announcements');
         } catch (Exception $exception) {
             $this->addErrorMessage('An Internal Error Occurred');
         }
 
-        return $this->view('admin/pages/announcement.html', [
-            'announcement' => $announcement,
-        ]);
-
+        return $this->redirect('/admin/announcements');
     }
 }

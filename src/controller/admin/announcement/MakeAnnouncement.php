@@ -60,6 +60,8 @@ class MakeAnnouncement extends AdminAction
                 $this->announcementHistoryService->save($announcemnentHistory);
             }
 
+            return $this->redirect('/admin/announcements',303);
+
 
         } catch (InvalidInput $invalidInput) {
             $this->addErrorMessage($invalidInput->getMessage());

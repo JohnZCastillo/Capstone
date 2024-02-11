@@ -21,6 +21,7 @@ class CreateAnnouncement extends AdminAction
             return $this->view('admin/pages/announcement.html', [
                 'announcement' => null,
             ]);
+
         } catch (AnnouncementNotFound $announcementNotFound) {
             $this->addErrorMessage($announcementNotFound->getMessage());
         } catch (Exception $exception) {
