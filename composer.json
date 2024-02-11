@@ -35,7 +35,8 @@
         "beberlei/doctrineextensions": "dev-master",
         "ncjoes/office-converter": "^1.0",
         "phpoffice/phpword": "^1.1",
-        "chillerlan/php-qrcode": "^5.0"
+        "chillerlan/php-qrcode": "^5.0",
+        "nesbot/carbon": "^3.0"
     },
     "scripts": {
         "start":  [
