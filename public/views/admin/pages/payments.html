@@ -234,6 +234,7 @@
         lotInput.innerHTML = optionsHTML;
     })
 
+
 </script>
 
 <script>
@@ -258,4 +259,112 @@
 
 
 </script>
+
+<script>
+
+    const dueYear = document.querySelector("#dueYear");
+
+    const months = document.querySelectorAll(".monthControl");
+
+    months.forEach(target => {
+        const lostFocus = (event) => {
+            let newNumericValue = target.value.replace(/[^0-9]/g, '');
+            target.value = '₱' + newNumericValue; // Add the peso sign back
+            target.setAttribute('readonly', true);
+        }
+
+        const makeEditable = (event) => {
+
+            const currentValue = target.value;
+            let numericValue = currentValue.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+
+            target.removeAttribute('readonly');
+            target.value = numericValue;
+
+            target.removeAttribute('readonly');
+            target.focus();
+        }
+
+        const updateDue = async (event) => {
+
+            const year = dueYear.value;
+            const month = target.name;
+            const due = target.value.replace(/[^0-9]/g, '');
+
+            const currentValue = target.value;
+            let numericValue = currentValue.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+
+            const formattedDate = year + "-" + month;
+            const date = new Date(formattedDate);
+
+            let finalValue = year + "-" + (date.getMonth() + 1);
+
+            const formData = new FormData();
+
+            formData.append('month', finalValue);
+            formData.append('amount', numericValue);
+            formData.append('dueYear', dueYear.value);
+
+            const data = await fetch('/admin/add-due', {
+                method: "POST",
+                body: formData
+            })
+
+            const result = await data.json();
+
+            if(data.ok){
+                result.data.forEach((due)=>{
+                    updateCalendar(due.month,due.amount,due.savePoint)
+                })
+            }
+        }
+
+        target.addEventListener('click', makeEditable);
+        target.addEventListener('change', updateDue);
+        target.addEventListener('blur', lostFocus);
+    })
+
+    function updateCalendar(id,value,savePoint){
+
+        const valueHolder = document.getElementById(id);
+
+        if(savePoint){
+            document.getElementById('point'+id).classList.add("badge");
+            document.getElementById('point'+id).classList.add("bg-success");
+            document.getElementById('point'+id).classList.add("text-white");
+        }else{
+            document.getElementById('point'+id).classList.remove("badge");
+            document.getElementById('point'+id).classList.remove("bg-success");
+            document.getElementById('point'+id).classList.remove("text-white");
+
+        }
+
+        valueHolder.value = '₱' + value; // Add the peso sign back
+        valueHolder.setAttribute('readonly', true);
+    }
+
+    dueYear.addEventListener('change',async (event)=>{
+
+        const formData = new FormData();
+
+        formData.append('dueYear', dueYear.value);
+
+        const data = await fetch('/admin/year-dues', {
+            method: "POST",
+            body: formData
+        })
+
+        const result = await data.json();
+
+        if(data.ok){
+            result.data.forEach((due)=>{
+                updateCalendar(due.month,due.amount,due.savePoint)
+            })
+        }
+    })
+
+    console.log(months);
+
+</script>
+
 {% endblock %}
