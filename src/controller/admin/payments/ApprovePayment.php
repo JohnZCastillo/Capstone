@@ -6,13 +6,18 @@ namespace App\controller\admin\payments;
 
 use App\controller\admin\AdminAction;
 use App\exception\ContentLock;
+use App\exception\fund\FundNotFound;
 use App\exception\InvalidInput;
 use App\exception\NotUniqueReferenceException;
 use App\exception\payment\InvalidPaymentAmount;
 use App\exception\payment\InvalidReference;
 use App\exception\payment\TransactionNotFound;
 use App\lib\Time;
+use App\model\budget\IncomeModel;
 use App\model\enum\LogsTag;
+use App\model\TransactionModel;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;
@@ -70,13 +75,11 @@ class ApprovePayment extends AdminAction
                     throw new NotUniqueReferenceException($reference);
                 }
 
-                var_dump($this->receiptService->isReferenceUsed($reference, 'approved'));
-
                 $this->receiptService->confirm($receipt, $reference);
             }
 
             $transaction->setStatus('APPROVED');
-            $transaction->setApprovedBy($user);
+            $transaction->setProcessBy($user);
 
             $this->transactionService->save($transaction);
 
@@ -84,6 +87,8 @@ class ApprovePayment extends AdminAction
             $action = "Payment with id of " . $transaction->getId() . " was approved";
 
             $this->addActionLog($action, LogsTag::payment());
+
+            $this->setupIncome($transaction);
 
         } catch (TransactionNotFound $transactionNotFound) {
             $this->addErrorMessage('Transaction Not Found!');
@@ -96,12 +101,17 @@ class ApprovePayment extends AdminAction
             $this->addErrorMessage($contentLock->getMessage());
         } catch (InvalidReference $invalidReference) {
             $this->addErrorMessage($invalidReference->getMessage());
-        }  catch (InvalidInput $invalidInput) {
+        } catch (InvalidInput $invalidInput) {
+            $this->addErrorMessage($invalidInput->getMessage());
+        } catch (FundNotFound $invalidInput) {
             $this->addErrorMessage($invalidInput->getMessage());
         } catch (Exception $exception) {
-            $this->addErrorMessage('An  Internal Error Has Occurred, pleas check logs');
+            $this->addErrorMessage($exception->getMessage());
+//            $this->addErrorMessage('An  Internal Error Has Occurred, pleas check logs');
         }
 
         return $this->redirect("/admin/transaction/$id");
     }
+
+
 }
