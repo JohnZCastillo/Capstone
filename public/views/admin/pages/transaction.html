@@ -14,19 +14,17 @@
 
 
                     {% if transaction.status == 'REJECTED' %}
-                    {% set bg = 'bg-danger text-white p-2' %}
-                    {% set target_user = transaction.approvedBy %}
+                        {% set bg = 'bg-danger text-white p-2' %}
                     {% elseif transaction.status == 'APPROVED' %}
-                    {% set bg = 'bg-success text-white p-2' %} {% else %} {% set bg = 'bg-secondary
-                    text-white p-2' %}
-                    {% set target_user = transaction.rejectedBy %}
-
+                        {% set bg = 'bg-success text-white p-2' %}
+                    {% else %}
+                        {% set bg = 'bg-secondary text-white p-2' %}
                     {% endif %}
 
                     {% if transaction.status != 'PENDING' %}
                     <p>
                         <span class="badge badge-pill {{bg}}">{{transaction.status}}</span>
-                        by {{target_user.name}}
+                        by {{ transaction.processBy.name}}
                     </p>
                     {% endif %}
 
@@ -52,7 +50,7 @@
 
                 <div class="table-responsive">
                     <table class="table border-top m-0">
-                        <thead>
+                        <thead class="table-dark">
                         <tr>
                             <th>Id</th>
                             <th>From Due</th>
