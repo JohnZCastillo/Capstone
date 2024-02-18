@@ -32,11 +32,18 @@ class TransactionModel {
     #[ORM\JoinColumn(nullable: true )]
     private ?UserModel $rejectedBy = null;
 
+    #[ORM\ManyToOne(targetEntity: UserModel::class, )]
+    #[ORM\JoinColumn(nullable: true )]
+    private ?UserModel $processBy = null;
+
     #[ORM\Column(type: 'float')]
     private $amount;
 
     #[ORM\OneToMany(targetEntity: ReceiptModel::class, mappedBy: 'transaction')]
     private Collection|array $receipts;
+
+    #[ORM\OneToMany(targetEntity: MonthlyPaymentModel::class, mappedBy: 'transaction')]
+    private Collection|array $payments;
 
     #[ORM\OneToMany(targetEntity: TransactionLogsModel::class, mappedBy: 'transaction')]
     private Collection|array $logs;
@@ -52,6 +59,16 @@ class TransactionModel {
 
     #[ORM\Column(type: 'string')]
     private $status = 'PENDING';
+
+    public function getProcessBy(): ?UserModel
+    {
+        return $this->processBy;
+    }
+
+    public function setProcessBy(?UserModel $processBy): void
+    {
+        $this->processBy = $processBy;
+    }
 
     /**
      * Get the value of amount
@@ -246,4 +263,15 @@ class TransactionModel {
 
         return $this;
     }
+
+    public function getPayments(): Collection|array
+    {
+        return $this->payments;
+    }
+
+    public function setPayments(Collection|array $payments): void
+    {
+        $this->payments = $payments;
+    }
+
 }
