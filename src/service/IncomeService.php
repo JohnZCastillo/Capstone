@@ -2,6 +2,7 @@
 
 namespace App\service;
 
+use App\model\budget\FundModel;
 use App\model\budget\IncomeModel;
 
 class IncomeService extends Service
@@ -28,13 +29,15 @@ class IncomeService extends Service
             ->findAll();
     }
 
-    public function getRecentIncome(int $max = 10): array
+    public function getRecentIncome(FundModel $fundModel,int $max = 10): array
     {
 
         $qb = $this->entityManager->createQueryBuilder();
 
        return $qb->select('i')
             ->from(IncomeModel::class,'i')
+           ->where($qb->expr()->eq('i.fund',':fund'))
+           ->setParameter('fund',$fundModel)
             ->orderBy( 'i.createdAt','DESC')
             ->setMaxResults($max)
             ->getQuery()
