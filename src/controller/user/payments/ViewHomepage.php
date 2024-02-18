@@ -6,6 +6,7 @@ namespace App\controller\user\payments;
 
 use App\controller\user\UserAction;
 use App\lib\Time;
+use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 
 class ViewHomepage extends UserAction
@@ -16,49 +17,59 @@ class ViewHomepage extends UserAction
     protected function action(): Response
     {
 
-        // Get the user
-        $user = $this->getLoginUser();
+        $data = [];
 
-        $queryParams = $this->getQueryParams();
+        try {
 
-        $page = $queryParams['page'];
-        $id = $queryParams['query'];
-        $status = $queryParams['status'];
-        $from = $queryParams['from'];
-        $to = $queryParams['to'];
+            // Get the user
+            $user = $this->getLoginUser();
 
-        $max = 4;
+            $queryParams = $this->getQueryParams();
 
-        // Get transactions
-        $paginator = $this->transactionService->getUserPayments($user,$page, $max, $id,$status, $from, $to);
+            $page = $queryParams['page'];
+            $id = $queryParams['query'];
+            $status = $queryParams['status'];
+            $from = $queryParams['from'];
+            $to = $queryParams['to'];
 
-        // Get balances
-        $currentMonth = Time::thisMonth();
-        $nextMonth = Time::nextMonth();
+            $max = 4;
 
-        $currentDue = $this->transactionService->getBalance($user,$currentMonth, $this->duesService);
-        $nextDue = $this->transactionService->getBalance($user,$nextMonth, $this->duesService);
+            // Get transactions
+            $paginator = $this->transactionService->getUserPayments($user, $page, $max, $id, $status, $from, $to);
 
-        $settings = $this->paymentService->findById(1);
+            // Get balances
+            $currentMonth = Time::thisMonth();
+            $nextMonth = Time::nextMonth();
 
-        $totalDues =  $this->transactionService->getUnpaid($user, $this->duesService, $settings)['total'];
+            $currentDue = $this->transactionService->getBalance($user, $currentMonth, $this->duesService);
+            $nextDue = $this->transactionService->getBalance($user, $nextMonth, $this->duesService);
 
-        $data = [
-            'currentMonth' => $currentMonth,
-            'nextMonth' => $nextMonth,
-            'currentDue' => $currentDue,
-            'nextDue' => $nextDue,
-            'unpaid' => $totalDues,
-            'transactions' => $paginator->getItems(),
-            'currentPage' => $page,
-            'query' => $id,
-            'from' => $from,
-            'to' => $to,
-            'status' => $status,
-            'settings' => $settings,
-            'paginator' => $paginator,
-        ];
+            $settings = $this->paymentService->findById(1);
 
-        return $this->view('user/pages/dues.html',$data);
+            $totalDues = $this->transactionService->getUnpaid($user, $this->duesService, $settings)['total'];
+
+            $data = [
+                'currentMonth' => $currentMonth,
+                'nextMonth' => $nextMonth,
+                'currentDue' => $currentDue,
+                'nextDue' => $nextDue,
+                'unpaid' => $totalDues,
+                'transactions' => $paginator->getItems(),
+                'currentPage' => $page,
+                'query' => $id,
+                'from' => $from,
+                'to' => $to,
+                'status' => $status,
+                'settings' => $settings,
+                'paginator' => $paginator,
+            ];
+
+
+        } catch (Exception $ex) {
+            $this->addErrorMessage($ex->getMessage());
+        }
+
+        return $this->view('user/pages/dues.html', $data);
+
     }
 }
