@@ -106,12 +106,13 @@ class TransactionService extends Service
 
         $qb->select('t')
             ->from(TransactionModel::class, 't')
-            ->innerJoin('t.user', 'u', 'WITH', 'u.block = :block AND u.lot = :lot')
-            ->setParameter('block', $user->getBlock())
-            ->setParameter('lot', $user->getLot())
+            ->innerJoin('t.user', 'u', 'WITH', 't.user  = u.id')
             ->orderBy('t.id','DESC');
 
         $or = $qb->expr()->andX();
+
+        $or->add($qb->expr()->eq('t.user',':user'));
+        $qb->setParameter('user',$user);
 
         $paginator = new Paginator();
 
@@ -146,9 +147,7 @@ class TransactionService extends Service
 
         }
 
-        if ($hasQuery) {
             $qb->where($or);
-        }
 
         return $paginator->paginate($qb, $page, $max);
     }
@@ -308,6 +307,35 @@ class TransactionService extends Service
             ->setParameter('toYear', $toYear)
             ->getQuery()
             ->getResult();
+    }
+
+    public function getExpectedCollection($user, DuesService $dueService, PaymentModel $payment, $startMonth, $endMonth): array
+    {
+
+        $months = $months = Time::getMonths($startMonth, $endMonth);
+
+        $data = [];
+
+        $total = 0;
+
+        foreach ($months as $month) {
+
+            if ($this->isPaid($user, $month)) continue;
+
+            $balance = $this->getBalance($user, $month, $dueService);
+
+            $data[] = [
+                'month' => $month,
+                'due' => $balance,
+            ];
+
+            $total += $balance;
+        }
+
+        return [
+            'items' => $data,
+            'total' => $total
+        ];
     }
 
 }
