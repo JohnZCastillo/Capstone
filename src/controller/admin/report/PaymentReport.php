@@ -3,11 +3,12 @@
 namespace App\controller\admin\report;
 
 use App\controller\admin\AdminAction;
+use App\controller\admin\payments\Transaction;
 use App\lib\DocxMaker;
 use App\lib\NumberFormat;
 use App\lib\PdfResponse;
-use App\lib\Time;
 use App\model\enum\LogsTag;
+use App\model\TransactionModel;
 use App\model\UserModel;
 use Carbon\Carbon;
 use DateTime;
@@ -147,6 +148,8 @@ class PaymentReport extends AdminAction
 
         foreach ($transactions as $transaction) {
 
+            /** @var TransactionModel $transaction */
+
             $user = $transaction->getUser();
 
             $receipts = $transaction->getReceipts();
@@ -166,7 +169,7 @@ class PaymentReport extends AdminAction
                 'UNIT' => 'B' . $user->getBlock() . ' L' . $user->getLot(),
                 'AMOUNT' => $amount,
                 'COVERAGE' => $coverage,
-                'REJECTOR' => $transaction->getRejectedBy()->getName(),
+                'REJECTOR' => $transaction->getProcessBy()->getName(),
             );
 
         }
