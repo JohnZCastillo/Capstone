@@ -109,6 +109,18 @@
             </div>
             <div class="card mb-2">
                 <div class="card-body">
+                    <small class="text-danger fw-medium">Transactions that uses this reference</small>
+                    <div class="demo-inline-spacing mt-3">
+                        <div class="list-group list-group-flush">
+                            {% for transac in transactions %}
+                            <a href="/admin/transaction/{{transac.id}}" class="list-group-item list-group-item-action">{{transac.id}}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-2">
+                <div class="card-body">
                     <a href="/admin/payments" class="btn btn-secondary mb-2">Back</a>
 
                     {% if transaction.status == 'PENDING' %}

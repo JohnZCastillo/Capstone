@@ -1,8 +1,6 @@
 <?php
 namespace App\model\enum;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-
 class UserRole extends Enum
 {
     protected $name = UserRole::class;

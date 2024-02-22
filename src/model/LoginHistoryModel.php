@@ -2,7 +2,6 @@
 
 namespace App\model;
 
-use App\lib\Time;
 use Doctrine\ORM\Mapping as ORM;
 
 //loginTime and Logout Time should timestamp

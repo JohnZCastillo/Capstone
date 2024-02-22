@@ -16,6 +16,7 @@ use App\lib\GCashReceiptValidator;
 use App\lib\Image;
 use App\lib\ReferenceExtractor;
 use App\lib\Time;
+use App\model\ReceiptModel;
 use App\model\TransactionModel;
 use App\model\UserModel;
 use Exception;
@@ -129,6 +130,8 @@ class Pay extends UserAction
     private function saveReceipts(array $images, TransactionModel $transaction): void
     {
 
+        $referencePattern = $this->systemSettingService->findById()->getRegex();
+
         if (!Image::isImage($images)) {
             throw new UnsupportedImageException();
         }
@@ -137,9 +140,12 @@ class Pay extends UserAction
             throw new ImageNotGcashReceiptException();
         };
 
-        $references = ReferenceExtractor::extractReference($images);
+        $ocr = ReferenceExtractor::extractOcr($images);
+        $references = ReferenceExtractor::reference($ocr,$referencePattern);
+        $amount = ReferenceExtractor::extractAmount($ocr);
+        $receipts = [];
 
-        foreach ($references as $reference) {
+        foreach ($references as $index => $reference) {
 
             if ($reference == null) {
                 continue;
@@ -148,13 +154,21 @@ class Pay extends UserAction
             if ($this->receiptService->isReferenceUsed($reference,'approved')) {
                 throw new NotUniqueReferenceException($reference);
             }
+
+            $receipt = new ReceiptModel();
+            $receipt->setCor($ocr[$index]);
+            $receipt->setAmountSent((float)$amount[$index]);
+            $receipt->setTransaction($transaction);
+            $receipt->setReferenceNumber($reference);
+
+            $receipts[] = $receipt;
         }
 
         $this->transactionService->save($transaction);
 
         $storedImages = Image::storeAll(self::RECEIPT_DIR, $images);
 
-        $this->receiptService->saveAll($storedImages, $transaction, $references);
+        $this->receiptService->saveAllReceipt($storedImages, $receipts);
     }
 
 }

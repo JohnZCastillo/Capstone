@@ -23,6 +23,9 @@ class SystemSettings
     #[ORM\Column(type: 'string', nullable: true)]
     private $mailHost;
 
+    #[ORM\Column(type: 'string', nullable: true, options: ["default"=>"/(\d{4}\s\d{3}\s\d{6})/i"])]
+    private $regex;
+
     #[ORM\Column(type: 'text', nullable: true)]
     private $termsAndCondition;
 
@@ -145,6 +148,16 @@ class SystemSettings
     {
         $this->allowSignup = $allowSignup;
         return $this;
+    }
+
+    public function getRegex()
+    {
+        return $this->regex;
+    }
+
+    public function setRegex($regex): void
+    {
+        $this->regex = $regex;
     }
 
 }

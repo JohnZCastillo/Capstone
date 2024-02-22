@@ -12,8 +12,8 @@
             <div class="card invoice-preview-card">
                 <div class="card-body">
 
-                    {% if target is not null %}
-                    <a class="text-decoration-none text-secondary" href="/issues/{{target.id}}"> You submitted an <span
+                    {% if issue is not null %}
+                    <a class="text-decoration-none text-secondary" href="/issues/{{issue.id}}"> You submitted an <span
                             class="text-danger">issue </span> for this transaction</a>
                     {% endif %}
 
@@ -90,7 +90,7 @@
                     </form>
                     {% endif %}
 
-                    {% if transaction.status == 'REJECTED' and target is null %}
+                    {% if transaction.status != 'pending' and issue is null %}
                     <button class="btn btn-danger" data-bs-target="#issueModal" data-bs-toggle="modal">
                         Create Issue
                     </button>
@@ -131,7 +131,7 @@
 <div class="modal fade" id="issueModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form action="/issue" id="issueform" method="POST">
+            <form action="/issue/{{transaction.id}}" id="issueform" method="POST">
 
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel1">Report Issue</h5>

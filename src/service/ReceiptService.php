@@ -46,6 +46,20 @@ class ReceiptService extends Service {
 
     }
 
+    public function saveAllReceipt(array $images, array $receipts): void
+    {
+        foreach($images as $index => $imageName){
+
+            /** @var ReceiptModel $receipt */
+
+            $receipt = $receipts[$index];
+            $receipt->setPath($imageName);
+
+            $this->save($receipt);
+        }
+
+    }
+
     /**
      * Confirm the reference number of the receipt
      */

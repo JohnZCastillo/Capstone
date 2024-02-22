@@ -12,15 +12,16 @@ use App\model\LogsModel;
 use App\model\UserModel;
 use App\service\AnnouncementService;
 use App\service\DuesService;
+use App\service\IssueMessageService;
 use App\service\IssuesService;
 use App\service\LoginHistoryService;
 use App\service\LogsService;
 use App\service\PaymentService;
 use App\service\ReceiptService;
+use App\service\SystemSettingService;
 use App\service\TransactionService;
 use App\service\UserService;
 use DateTime;
-use Psr\Log\LoggerInterface;
 use Slim\Flash\Messages;
 
 abstract class UserAction extends Action
@@ -42,6 +43,10 @@ abstract class UserAction extends Action
 
     protected  AnnouncementService $announcementService;
 
+    protected SystemSettingService $systemSettingService;
+
+    protected  IssueMessageService $issueMessageService;
+
     /**
      * @param UserService $userService
      * @param Messages $flashMessage
@@ -53,8 +58,10 @@ abstract class UserAction extends Action
      * @param ReceiptService $receiptService
      * @param IssuesService $issuesService
      * @param AnnouncementService $announcementService
+     * @param SystemSettingService $systemSettingService
+     * @param IssueMessageService $issueMessageService
      */
-    public function __construct(UserService $userService, Messages $flashMessage, LogsService $logsService, LoginHistoryService $loginHistoryService, TransactionService $transactionService, DuesService $duesService, PaymentService $paymentService, ReceiptService $receiptService, IssuesService $issuesService, AnnouncementService $announcementService)
+    public function __construct(UserService $userService, Messages $flashMessage, LogsService $logsService, LoginHistoryService $loginHistoryService, TransactionService $transactionService, DuesService $duesService, PaymentService $paymentService, ReceiptService $receiptService, IssuesService $issuesService, AnnouncementService $announcementService, SystemSettingService $systemSettingService, IssueMessageService $issueMessageService)
     {
         $this->userService = $userService;
         $this->flashMessage = $flashMessage;
@@ -66,6 +73,8 @@ abstract class UserAction extends Action
         $this->receiptService = $receiptService;
         $this->issuesService = $issuesService;
         $this->announcementService = $announcementService;
+        $this->systemSettingService = $systemSettingService;
+        $this->issueMessageService = $issueMessageService;
     }
 
     protected function addErrorMessage($message)

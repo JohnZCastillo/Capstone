@@ -34,6 +34,10 @@ class UpdateSettings extends AdminAction
                 $systemSettings->setAllowSignup(false);
             }
 
+            if (isset($formData['regex'])) {
+                $systemSettings->setRegex($formData['regex']);
+            }
+
             $this->addActionLog('Update System Settings',LogsTag::systemSettings());
 
             $this->systemSettingService->save($systemSettings);

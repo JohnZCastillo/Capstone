@@ -5,12 +5,15 @@ namespace App\service;
 use App\exception\issue\IssueNotFoundException;
 use App\lib\Paginator;
 use App\lib\Time;
+use App\model\enum\IssuesStatus;
 use App\model\IssuesModel;
+use App\model\TransactionModel;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\TransactionRequiredException;
 
-class IssuesService extends Service {
+class IssuesService extends Service
+{
 
     /**
      * Save model to database
@@ -32,26 +35,26 @@ class IssuesService extends Service {
     public function findById($id): IssuesModel
     {
 
-        $issue  = $this->entityManager->find(IssuesModel::class, $id);
+        $issue = $this->entityManager->find(IssuesModel::class, $id);
 
-        if(!isset($issue)){
+        if (!isset($issue)) {
             throw new IssueNotFoundException("Issue with id of $id not found");
         }
 
         return $issue;
     }
 
-    public function findByTarget($target): IssuesModel|null
+    public function findByTransaction(TransactionModel $transaction): IssuesModel|null
     {
         $em = $this->entityManager;
 
         $due = $em->getRepository(IssuesModel::class)
-            ->findOneBy(['target' => $target]);
+            ->findOneBy(['transaction' => $transaction]);
 
-        return  $due;
+        return $due;
     }
 
-    public function getAll($page, $max, $id, $title,$status, $user = null, $type = 'posted', $createdAt = null)
+    public function getAll($page, $max, $id, $status, $user = null, $createdAt = null)
     {
 
         $qb = $this->entityManager->createQueryBuilder();
@@ -62,37 +65,27 @@ class IssuesService extends Service {
             ->from(IssuesModel::class, 't')
             ->where($or);
 
-        $or->add($qb->expr()->eq('t.type',':type'));
-        $qb->setParameter('type',$type);
+        $status = empty($status) ? [IssuesStatus::PENDING] : [$status];
 
-        $status = $status == 'ALL' ? null : $status;
-
-        if(isset($id)){
-            $or->add($qb->expr()->eq('t.id',':id'));
-            $qb->setParameter('id',$id);
+        if (isset($id)) {
+            $or->add($qb->expr()->eq('t.id', ':id'));
+            $qb->setParameter('id', $id);
         }
 
-        if(isset($user)){
-            $or->add($qb->expr()->eq('t.user',':user'));
-            $qb->setParameter('user',$user);
+        if (isset($user)) {
+            $or->add($qb->expr()->eq('t.user', ':user'));
+            $qb->setParameter('user', $user);
         }
 
-        if(isset($status)){
-            $or->add($qb->expr()->eq('t.status',':status'));
-            $qb->setParameter('status',$status);
-        }
+        $or->add($qb->expr()->in('t.status', ':status'));
+        $qb->setParameter('status', $status);
 
-        if(isset($title)){
-            $or->add($qb->expr()->eq('t.title',':title'));
-            $qb->setParameter('id',$title);
-        }
-
-        if(isset($cratedAt)){
+        if (isset($cratedAt)) {
             $createdEnd = Time::convertDateStringToDateTimeEndDay($createdAt);
             $createdStart = Time::convertDateStringToDateTimeStartDay($createdAt);
-            $or->add($qb->expr()->between('t.createdAt',':startDate',':endDate'));
-            $qb->setParameter('startDate',$createdStart);
-            $qb->setParameter('endDate',$createdEnd);
+            $or->add($qb->expr()->between('t.createdAt', ':startDate', ':endDate'));
+            $qb->setParameter('startDate', $createdStart);
+            $qb->setParameter('endDate', $createdEnd);
         }
 
         $paginator = new Paginator();

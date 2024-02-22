@@ -8,6 +8,10 @@ class IssuesStatus extends Enum
     protected $name = IssuesStatus::class;
     protected $values = array('resolved', 'rejected','pending');
 
+    public const RESOLVED = 'resolved';
+    public const REJECTED = 'rejected';
+    public const PENDING = 'pending';
+
     static function resolve(){
         return 'resolve';
     }

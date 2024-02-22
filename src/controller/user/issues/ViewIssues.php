@@ -26,8 +26,7 @@ class ViewIssues extends UserAction
         $user = $this->getLoginUser();
 
         try {
-
-            $pagination = $this->issuesService->getAll($page, $max, $query, null, $status,$user,$type);
+            $pagination = $this->issuesService->getAll($page, $max, $query, $status,$user);
         } catch (\Exception $exception) {
             $this->addErrorMessage('An Internal Error Occurred');
         }

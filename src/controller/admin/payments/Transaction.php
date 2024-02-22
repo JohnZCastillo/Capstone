@@ -24,10 +24,16 @@ class Transaction extends AdminAction
 
             $transaction = $this->transactionService->findById($id);
 
-            $totalDue = $this->duesService->getDueInRange(
-                Time::toMonth($transaction->getFromMonth()),
-                Time::toMonth($transaction->getToMonth())
-            );
+            $totalDue = 0;
+
+//            $totalDue = $this->duesService->getDueInRange(
+//                Time::toMonth($transaction->getFromMonth()),
+//                Time::toMonth($transaction->getToMonth())
+//            );
+
+            $references = $this->transactionService->getReferences($transaction);
+
+            $transactions = $this->transactionService->getByApprovedReferences($transaction,$references);
 
             return $this->view('admin/pages/transaction.html', [
                 'transaction' => $transaction,
@@ -35,6 +41,7 @@ class Transaction extends AdminAction
                 'user' => $transaction->getUser(),
                 'loginUser' => $this->getLoginUser(),
                 'totalDue' => $totalDue,
+                'transactions' => $transactions,
             ]);
 
         } catch (TransactionNotFound $transactionNotFound) {

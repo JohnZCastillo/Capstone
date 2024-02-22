@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\controller\admin\payments;
 
 use App\controller\admin\AdminAction;
+use App\exception\AlreadyPaidException;
 use App\exception\ContentLock;
 use App\exception\fund\FundNotFound;
 use App\exception\InvalidInput;
@@ -13,20 +14,13 @@ use App\exception\payment\InvalidPaymentAmount;
 use App\exception\payment\InvalidReference;
 use App\exception\payment\TransactionNotFound;
 use App\lib\Time;
-use App\model\budget\IncomeModel;
 use App\model\enum\LogsTag;
-use App\model\TransactionModel;
-use Carbon\Carbon;
-use Carbon\CarbonPeriod;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;
 
 class ApprovePayment extends AdminAction
 {
-    /**
-     * {@inheritdoc}
-     */
     protected function action(): Response
     {
 
@@ -42,16 +36,24 @@ class ApprovePayment extends AdminAction
                 throw new ContentLock('Cannot Edit Content');
             }
 
+            if($this->transactionService->isPaidForMonth(
+                $transaction->getUser(),
+                $transaction->getFromMonth(),
+                $transaction->getToMonth(),
+            )){
+                throw new AlreadyPaidException('user already paid for this month');
+            }
+
             $amount = $transaction->getAmount();
 
-            $amountToPay = $this->duesService->getDueInRange(
-                Time::toMonth($transaction->getFromMonth()),
-                Time::toMonth($transaction->getToMonth())
-            );
-
-            if ($amount !== $amountToPay) {
-                throw new InvalidPaymentAmount("Payment must be equal to $amountToPay");
-            }
+//            $amountToPay = $this->duesService->getDueInRange(
+//                Time::toMonth($transaction->getFromMonth()),
+//                Time::toMonth($transaction->getToMonth())
+//            );
+//
+//            if ($amount !== $amountToPay) {
+//                throw new InvalidPaymentAmount("Payment must be equal to $amountToPay");
+//            }
 
             $user = $this->getLoginUser();
 
