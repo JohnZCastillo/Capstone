@@ -9,6 +9,7 @@ use App\exception\date\InvalidDateRange;
 use App\exception\payment\InvalidPaymentAmount;
 use App\lib\Time;
 use App\model\enum\LogsTag;
+use App\model\ReceiptModel;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 
@@ -34,8 +35,18 @@ class ManualPayment extends Payment
             $transaction = $this->createTransaction($user, (float) $amount, $fromMonth, $toMonth);
 
             $transaction->setProcessBy($this->getLoginUser());
+            $transaction->setPaymentMethod('cash');
+
+            $receipt = new ReceiptModel();
 
             $this->transactionService->save($transaction);
+
+            $receipt->setReferenceNumber('Manual Payment ' . $transaction->getId());
+            $receipt->setPath(null);
+            $receipt->setTransaction($transaction);
+            $receipt->setAmountSent($transaction->getAmount());
+
+            $this->receiptService->save($receipt);
 
             $amount = $transaction->getAmount();
 
