@@ -46,7 +46,8 @@ class RejectPayment extends AdminAction
             $user = $this->getLoginUser();
 
             $transaction->setStatus('REJECTED');
-            $transaction->setRejectedBy($user);
+            $transaction->setProcessBy($user);
+            $transaction->setUpdatedAt(new \DateTime());
 
             $this->transactionService->save($transaction);
 

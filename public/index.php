@@ -52,11 +52,11 @@ $twig->getEnvironment()->addGlobal('blocks',$areaService->getBlock());
 $routes = require APP_ROOT . 'app/routes.php';
 $routes($app);
 
-
-$errorMiddleware = $app->addErrorMiddleware(false, true, true);
-
-// Get the default error handler and register my custom error renderer.
-$errorHandler = $errorMiddleware->getDefaultErrorHandler();
-$errorHandler->registerErrorRenderer('text/html', \App\middleware\MissingPage::class);
+//
+//$errorMiddleware = $app->addErrorMiddleware(false, true, true);
+//
+//// Get the default error handler and register my custom error renderer.
+//$errorHandler = $errorMiddleware->getDefaultErrorHandler();
+//$errorHandler->registerErrorRenderer('text/html', \App\middleware\MissingPage::class);
 
 $app->run();

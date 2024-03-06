@@ -2,7 +2,6 @@
 
 namespace App\model;
 
-use App\lib\Time;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -18,15 +17,55 @@ class ReceiptModel {
     #[ORM\GeneratedValue]
     private $id;
 
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', nullable: true,)]
     private $path;
 
     #[ORM\Column(type: 'string' , nullable: true,)]
     private ?string $referenceNumber = null;
 
+    #[ORM\Column(type: 'text' , nullable: true,)]
+    private ?string $cor = null;
+
+    #[ORM\Column(type: 'float', options: ['default'=> 0])]
+    private float $amountSent;
+
     #[ORM\ManyToOne(targetEntity: TransactionModel::class, inversedBy: 'receipts')]
     private ?TransactionModel $transaction = null;
 
+    public function __construct()
+    {
+        $this->amountSent = 0;
+    }
+
+    public function getCor(): ?string
+    {
+        return $this->cor;
+    }
+
+    public function setCor(?string $cor): void
+    {
+        $this->cor = $cor;
+    }
+
+    public function getAmountSent(): float
+    {
+        return $this->amountSent;
+    }
+
+    public function setAmountSent(float $amountSent): void
+    {
+        $this->amountSent = $amountSent;
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function setId($id): void
+    {
+        $this->id = $id;
+    }
 
     /**
      * Get the value of path

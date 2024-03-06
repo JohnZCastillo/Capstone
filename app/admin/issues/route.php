@@ -21,6 +21,14 @@ return function (App $app) use ($twig) {
             \App\controller\admin\issues\MakeAction::class
         )->setName('issues');
 
+        $group->post('/issues/resolve-issue/{id}',
+            \App\controller\api\issue\ResolveIssue::class
+        );
+
+        $group->post('/issues/reject-issue/{id}',
+            \App\controller\api\issue\RejectIssue::class
+        );
+
     })->add(\App\middleware\access\AdminIssues::class)
         ->add(\App\middleware\role\AdminAuth::class)
         ->add(\App\middleware\Auth::class)

@@ -1,0 +1,38 @@
+.chat-message{
+    display: flex;
+}
+
+.chat-message-text{
+    background-color: #fff;
+    box-shadow: 0 0.125rem 0.25rem rgba(161,172,184,.4);
+    padding: 12px 16px;
+    border-radius: 6px;
+    max-width: 75ch;
+}
+
+.chat-message-right{
+    justify-content: flex-end;
+}
+
+.chat-message-left{
+    justify-content: flex-start;
+}
+
+.chat-history-footer{
+    background-color: white;
+    padding: 5px;
+}
+
+.chat-image{
+    width: 200px;
+    height: 200px;
+}
+
+.chat{
+    height: 400px;
+    overflow-y: scroll;
+}
+
+.chat::-webkit-scrollbar {
+    display: none !important;
+}

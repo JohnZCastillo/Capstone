@@ -55,6 +55,9 @@
 
     <link rel="stylesheet" href="https://a.omappapi.com/app/js/api.min.css" id="omapi-css" media="all">
 
+    <link rel="stylesheet" href="/resources/assets/css/chat.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
     <style>
         .img-thumbnail {
             width: 150px;
@@ -93,9 +96,19 @@
         th {
             color:white !important;
         }
+
+        .staffName{
+            color: #697A8D;
+        }
+        .staffPosition{
+            color: #697A8D;
+        }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <link rel="stylesheet" href="/resources/assets/css/chat.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 </head>
 
@@ -343,7 +356,6 @@
 
     images.forEach((image) => {
         image.addEventListener("click", () => {
-            console.log('yow');
             modalImage.src = image.src;
             $("#imageModal").modal("show");
         });
@@ -390,7 +402,8 @@
                 showCancelButton: true,
                 confirmButtonText: "Confirm!",
                 cancelButtonText: "Cancel!",
-                reverseButtons: true
+                reverseButtons: true,
+                allowOutsideClick: false
             })
 
             if (confirmation.dismiss === Swal.DismissReason.cancel) {
@@ -398,7 +411,8 @@
                 swalWithBootstrapButtons.fire({
                     title: "Cancelled",
                     text: cancelledText,
-                    icon: "error"
+                    icon: "error",
+                    allowOutsideClick: false
                 });
 
                 return;
@@ -431,7 +445,8 @@
                 showCancelButton: true,
                 confirmButtonText: "Confirm!",
                 cancelButtonText: "Cancel!",
-                reverseButtons: true
+                reverseButtons: true,
+                allowOutsideClick: false
             })
 
             if (confirmation.dismiss === Swal.DismissReason.cancel) {
@@ -439,7 +454,8 @@
                 swalWithBootstrapButtons.fire({
                     title: "Cancelled",
                     text: cancelledText,
-                    icon: "error"
+                    icon: "error",
+                    allowOutsideClick: false
                 });
 
                 return;
@@ -487,7 +503,9 @@
             showCancelButton: true,
             confirmButtonText: "Confirm!",
             cancelButtonText: "Cancel!",
-            reverseButtons: true
+            reverseButtons: true,
+            allowOutsideClick: false
+
         })
 
         if (confirmation.dismiss === Swal.DismissReason.cancel) {
@@ -495,7 +513,8 @@
             swalWithBootstrapButtons.fire({
                 title: "Cancelled",
                 text: cancelledText,
-                icon: "error"
+                icon: "error",
+                allowOutsideClick: false
             });
 
             return;
@@ -553,7 +572,8 @@
         swalWithBootstrapButtons.fire({
             title: "Error",
             text: message,
-            icon: "error"
+            icon: "error",
+            allowOutsideClick: false
         });
     }
 
@@ -569,7 +589,8 @@
         swalWithBootstrapButtons.fire({
             title: "Information",
             text: message,
-            icon: "success"
+            icon: "success",
+            allowOutsideClick: false
         });
     }
 </script>

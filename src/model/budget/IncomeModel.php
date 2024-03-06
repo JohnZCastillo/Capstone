@@ -2,6 +2,7 @@
 
 namespace App\model\budget;
 
+use App\model\TransactionModel;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -31,12 +32,23 @@ class IncomeModel{
     #[ORM\Column(type: 'date', nullable: true)]
     private $updatedAt;
 
+    #[ORM\OneToOne(targetEntity: TransactionModel::class)]
+    private ?TransactionModel $transaction = null;
 
     public function __construct()
     {
         $this->createdAt = new \DateTime();
     }
 
+    public function getTransaction(): ?TransactionModel
+    {
+        return $this->transaction;
+    }
+
+    public function setTransaction(?TransactionModel $transaction): void
+    {
+        $this->transaction = $transaction;
+    }
 
     /**
      * @return mixed

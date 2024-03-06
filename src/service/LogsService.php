@@ -64,4 +64,22 @@ class LogsService extends Service
         return $paginator->paginate($qb, $page, $max);
     }
 
+    public function test($from = null, $to = null)
+    {
+
+        $qb = $this->entityManager->createQueryBuilder();
+
+        return $qb->select('t')
+            ->from(LogsModel::class, 't')
+            ->where($qb->expr()->andX(
+                $qb->expr()->gte('t.created_at',':from'),
+                $qb->expr()->lte('t.created_at',':to'),
+            ))
+            ->setParameter('from',$from)
+            ->setParameter('to',$to)
+            ->orderBy('t.created_at','DESC');
+
+    }
+
+
 }

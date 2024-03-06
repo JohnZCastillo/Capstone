@@ -14,41 +14,57 @@
 
                     <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column p-sm-3 p-0">
                         <div>
-                            <h4>Issue #{{issue.id}}</h4>
+                            <h4>Issue for Transaction <a href="/transaction/{{issue.transaction.id}}">#{{issue.transaction.id}}</a></h4>
                             <div class="mb-2">
-                                <span class="me-1">Date Issues:</span>
+                                <span class="me-1">Date: </span>
                                 <span class="fw-medium">{{issue.getCreatedAt()|date("M Y") }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
                 <hr class="my-0">
-
-
                 <div class="card-body">
-                    <h4>{{issue.title}}</h4>
-
-                    <small>Issue Content</small>
-                    <textarea class="form-control" readonly>{{issue.content}}</textarea>
                     {% set bg = issue.status|lower == 'resolved' ? "bg-success" : "bg-danger" %}
+                    <div class="app-chat-history bg-secondary p-2">
+                        <div class="chat-history-wrapper">
+                            <div class="chat-history-body ps ps--active-y">
+                               <div class="chat">
 
-                    <hr class="mb-3">
+                               </div>
+                                <div class="ps__rail-x" style="left: 0px; bottom: -609px;">
+                                    <div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div>
+                                </div>
+                                <div class="ps__rail-y" style="top: 609px; height: 467px; right: 0px;">
+                                    <div class="ps__thumb-y" tabindex="0" style="top: 265px; height: 202px;"></div>
+                                </div>
+                            </div>
 
-                    {% if issue.status == 'pending' %}
-                    <p class="bg-light rounded mb-1" style="max-width: max-content">Issue is <span
-                            class="badge badge-pill {{bg}}">{{issue.status|lower}}</span> Please wait for
-                        admin resolution
-                    </p>
-                    {% else %}
-                    <p class="bg-light rounded mb-1" style="max-width: max-content">An admin has <span
-                            class="badge badge-pill {{bg}}">{{issue.status|lower}}</span> this issue
-                    </p>
-                    <small>Issue Resolution</small>
-                    <textarea class="form-control" readonly>{{issue.action}}</textarea>
-                    {% endif %}
+                            {% if issue.status|lower == 'pending' %}
+                            <!-- Chat message form -->
+                            <div class="chat-history-footer">
+                                <form id="issueMessageForm" class="form-send-message d-flex justify-content-between align-items-center ">
+                                    <input class="form-control message-input border-0 me-3 shadow-none"
+                                           placeholder="Type your message here..." name="message">
+                                    <div class="message-actions d-flex align-items-center">
+                                        <label for="attach-doc" class="form-label mb-0">
+                                            <i class="bx bx-paperclip bx-sm cursor-pointer mx-3 text-body"></i>
+                                            <input type="file" id="attach-doc" hidden="">
+                                        </label>
+                                        <button class="btn btn-primary d-flex send-msg-btn">
+                                            <i class="bx bx-paper-plane me-md-1 me-0"></i>
+                                            <span class="align-middle d-md-inline-block d-none">Send</span>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            {% else %}
+                            <p class="text-center text-white">You Can't Reply to this conversation</p>
+                            {% endif %}
+
+                        </div>
+                    </div>
                 </div>
-
-
             </div>
         </div>
 
@@ -64,5 +80,100 @@
     </div>
 
 </div>
+
+{% endblock %}
+
+
+{% block javascript %}
+
+{% if issue.status|lower == 'pending' %}
+
+<script>
+
+    const updatChat = async () => {
+        $.ajax({
+            url: "/messages/{{issue.id}}",
+            success: function (result) {
+                $(".chat").html(result);
+            }
+        });
+    }
+
+    updatChat();
+
+    window.addEventListener("load", function () {
+
+        const fileUploadInput = document.querySelector('#attach-doc');
+        const issueMessageForm = document.querySelector('#issueMessageForm');
+
+
+        fileUploadInput.addEventListener('change', async (event) => {
+
+            let formData = new FormData();
+
+            formData.append('image', fileUploadInput.files[0])
+
+            let result = await fetch('/upload/issue/image/{{issue.id}}', {
+                method: "POST",
+                body: formData,
+            })
+
+            let data = await result.json();
+
+            if (result.ok) {
+                updatChat();
+            } else {
+                console.log(data);
+            }
+
+        })
+
+        issueMessageForm.addEventListener('submit', async (event) => {
+
+
+            event.preventDefault();
+
+            let formData = new FormData();
+            let message = issueMessageForm.querySelector("input[name='message']");
+
+            formData.append('message', message.value)
+
+            let result = await fetch('/issue/message/{{issue.id}}', {
+                method: "POST",
+                body: formData,
+            })
+
+            let data = await result.json();
+
+            if (result.ok) {
+                message.value = "";
+                updatChat();
+            } else {
+                console.log(data);
+            }
+
+        })
+
+        setInterval(updatChat, 300)
+    });
+
+
+</script>
+
+{% else %}
+
+<script>
+    const updatChat = async () => {
+        $.ajax({
+            url: "/messages/{{issue.id}}",
+            success: function (result) {
+                $(".chat").html(result);
+            }
+        });
+    }
+
+    updatChat();
+</script>
+{% endif %}
 
 {% endblock %}

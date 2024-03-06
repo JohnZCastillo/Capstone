@@ -16,6 +16,7 @@ use App\lib\GCashReceiptValidator;
 use App\lib\Image;
 use App\lib\ReferenceExtractor;
 use App\lib\Time;
+use App\model\ReceiptModel;
 use App\model\TransactionModel;
 use App\model\UserModel;
 use Exception;
@@ -34,15 +35,15 @@ class Pay extends UserAction
 
         try {
 
-            if(!v::number()->positive()->notEmpty()->validate($content['amount'])){
+            if (!v::number()->positive()->notEmpty()->validate($content['amount'])) {
                 throw new InvalidInput('Invalid Amount');
             }
 
-            if(!v::date('Y-m')->notEmpty()->validate($content['startDate'])){
+            if (!v::date('Y-m')->notEmpty()->validate($content['startDate'])) {
                 throw new InvalidInput('Invalid Start Date');
             }
 
-            if(!v::date('Y-m')->notEmpty()->validate($content['endDate'])){
+            if (!v::date('Y-m')->notEmpty()->validate($content['endDate'])) {
                 throw new InvalidInput('Invalid End Date');
             }
 
@@ -54,8 +55,8 @@ class Pay extends UserAction
             $transaction = $this->createTransaction($user, (float)$amount, $fromMonth, $toMonth);
 
             $amount = $this->duesService->getDueInRange(
-                Time::toMonth($transaction->getFromMonth()),
-                Time::toMonth($transaction->getToMonth())
+                $transaction->getFromMonth()->format('Y-m'),
+                $transaction->getToMonth()->format('Y-m'),
             );
 
             if ($amount !== ((float)$content['amount'])) {
@@ -65,6 +66,9 @@ class Pay extends UserAction
             $this->saveReceipts($images, $transaction);
 
             $this->addSuccessMessage('Payment created, please wait an admin review this');
+
+            return $this->redirect('/home',302);
+
         } catch (InvalidInput $invalidInput) {
             $this->addErrorMessage($invalidInput->getMessage());
         } catch (InvalidPaymentAmount $invalidPaymentAmount) {
@@ -80,7 +84,8 @@ class Pay extends UserAction
         } catch (AlreadyPaidException $paidException) {
             $this->addErrorMessage($paidException->getMessage());
         } catch (Exception $exception) {
-            $this->addErrorMessage('An Internal Error Occurred');
+            $this->addErrorMessage($exception->getMessage());
+            //            $this->addErrorMessage('An Internal Error Occurred');
         }
 
         return $this->redirect('/home');
@@ -129,6 +134,8 @@ class Pay extends UserAction
     private function saveReceipts(array $images, TransactionModel $transaction): void
     {
 
+        $referencePattern = $this->systemSettingService->findById()->getRegex();
+
         if (!Image::isImage($images)) {
             throw new UnsupportedImageException();
         }
@@ -137,24 +144,35 @@ class Pay extends UserAction
             throw new ImageNotGcashReceiptException();
         };
 
-        $references = ReferenceExtractor::extractReference($images);
+        $ocr = ReferenceExtractor::extractOcr($images);
+        $references = ReferenceExtractor::reference($ocr, $referencePattern);
+        $amount = ReferenceExtractor::extractAmount($ocr);
+        $receipts = [];
 
-        foreach ($references as $reference) {
+        foreach ($references as $index => $reference) {
 
             if ($reference == null) {
                 continue;
             }
 
-            if ($this->receiptService->isReferenceUsed($reference,'approved')) {
+            if ($this->receiptService->isReferenceUsed($reference, 'approved')) {
                 throw new NotUniqueReferenceException($reference);
             }
+
+            $receipt = new ReceiptModel();
+            $receipt->setCor($ocr[$index]);
+            $receipt->setAmountSent((float)$amount[$index]);
+            $receipt->setTransaction($transaction);
+            $receipt->setReferenceNumber($reference);
+
+            $receipts[] = $receipt;
         }
 
         $this->transactionService->save($transaction);
 
         $storedImages = Image::storeAll(self::RECEIPT_DIR, $images);
 
-        $this->receiptService->saveAll($storedImages, $transaction, $references);
+        $this->receiptService->saveAllReceipt($storedImages, $receipts);
     }
 
 }

@@ -1,0 +1,32 @@
+<ul class="list-unstyled chat-history mb-0">
+
+    {% for message in issue.messages %}
+
+    {% set chatPosition =  "chat-message-left" %}
+
+    {% if message.user.id == user.id %}
+    {% set chatPosition =  "chat-message-right" %}
+    {% endif %}
+
+
+    <li class="chat-message {{chatPosition}}">
+        <div class="d-flex overflow-hidden">
+            <div class="chat-message-wrapper flex-grow-1">
+                <div class="chat-message-text">
+                    {% if message.image %}
+                    <img class="chat-image" src="{{message.message}}">
+                    {% elseif message.file %}
+                    <a href="{{message.message}}" download>File</a>
+                    {% else %}
+                    <p class="mb-0">{{message.message}}</p>
+                    {% endif %}
+                </div>
+                <div class="text-muted mt-1">
+                    <small>{{message.createdAt|date(' h:m a')}}</small>
+                </div>
+            </div>
+        </div>
+    </li>
+    {% endfor %}
+
+</ul>

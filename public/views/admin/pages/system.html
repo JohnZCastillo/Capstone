@@ -46,6 +46,11 @@
                     <label for="termsAndCondition">Terms And Condition</label>
                     <textarea name="termsAndCondition" class="form-control" id="termsAndCondition" rows="12">{{systemSettings.termsAndCondition}}</textarea>
                 </div>
+
+                <div class="form-group mt-2">
+                    <label for="regex">Add Regex to find GCash Reference Number separated by a ; </label>
+                    <input type="text" name="regex" class="form-control" id="regex" value="{{systemSettings.regex}}" >
+                </div>
                 <button class="btn btn-primary mt-3" type="submit">Save Settings</button>
             </form>
         </div>

@@ -30,8 +30,8 @@ class ViewFund extends AdminAction
 
             $funds = $this->fundService->getAll();
 
-            $recentIncomes = $this->incomeService->getRecentIncome(5);
-            $recentExpenses = $this->expenseService->getRecentIncome(5);
+            $recentIncomes = $this->incomeService->getRecentIncome($fund,5);
+            $recentExpenses = $this->expenseService->getRecentIncome($fund,5);
 
             return $this->view('admin/pages/fund-details.html', [
                 'funds' => $funds,

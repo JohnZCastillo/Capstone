@@ -2,14 +2,13 @@
 
 namespace App\model;
 
-use App\lib\Time;
 use App\model\enum\AnnouncementStatus;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'annoucement')]
+#[ORM\Table(name: 'announcement')]
 class AnnouncementModel
 {
 

@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\controller\admin;
 
 use App\controller\Action;
+use App\exception\fund\FundNotFound;
 use App\lib\Login;
 use App\lib\LoginDetails;
+use App\model\budget\IncomeModel;
 use App\model\LoginHistoryModel;
 use App\model\LogsModel;
+use App\model\TransactionModel;
 use App\model\UserModel;
 use App\service\AnnouncementHistoryService;
 use App\service\AnnouncementService;
@@ -20,6 +23,7 @@ use App\service\ExpenseService;
 use App\service\FundService;
 use App\service\FundSourceService;
 use App\service\IncomeService;
+use App\service\IssueMessageService;
 use App\service\IssuesService;
 use App\service\LoginHistoryService;
 use App\service\LogsService;
@@ -33,6 +37,7 @@ use App\service\TransactionService;
 use App\service\UserLogsService;
 use App\service\UserService;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use DateTime;
 use Slim\Flash\Messages;
 
@@ -77,7 +82,7 @@ abstract class AdminAction extends Action
 
     protected OverviewService $overviewService;
 
-
+    protected  IssueMessageService $issueMessageService;
 
     /**
      * @param UserService $userService
@@ -103,8 +108,9 @@ abstract class AdminAction extends Action
      * @param UserLogsService $userLogsService
      * @param AreaService $areaService
      * @param OverviewService $overviewService
+     * @param IssueMessageService $issueMessageService
      */
-    public function __construct(UserService $userService, PaymentService $paymentService, TransactionService $transactionService, DuesService $duesService, ReceiptService $receiptService, Messages $flashMessage, LogsService $logsService, TransactionLogsService $transactionLogsService, IssuesService $issuesService, AnnouncementService $announcementService, AnnouncementHistoryService $announcementHistoryService, SystemSettingService $systemSettingService, LoginHistoryService $loginHistoryService, PriviligesService $privilegesService, BillService $billService, FundService $fundService, FundSourceService $fundSourceService, ExpenseService $expenseService, IncomeService $incomeService, CodeModelService $codeModelService, UserLogsService $userLogsService, AreaService $areaService, OverviewService $overviewService)
+    public function __construct(UserService $userService, PaymentService $paymentService, TransactionService $transactionService, DuesService $duesService, ReceiptService $receiptService, Messages $flashMessage, LogsService $logsService, TransactionLogsService $transactionLogsService, IssuesService $issuesService, AnnouncementService $announcementService, AnnouncementHistoryService $announcementHistoryService, SystemSettingService $systemSettingService, LoginHistoryService $loginHistoryService, PriviligesService $privilegesService, BillService $billService, FundService $fundService, FundSourceService $fundSourceService, ExpenseService $expenseService, IncomeService $incomeService, CodeModelService $codeModelService, UserLogsService $userLogsService, AreaService $areaService, OverviewService $overviewService, IssueMessageService $issueMessageService)
     {
         $this->userService = $userService;
         $this->paymentService = $paymentService;
@@ -129,8 +135,8 @@ abstract class AdminAction extends Action
         $this->userLogsService = $userLogsService;
         $this->areaService = $areaService;
         $this->overviewService = $overviewService;
+        $this->issueMessageService = $issueMessageService;
     }
-
 
     protected function addErrorMessage($message)
     {
@@ -184,6 +190,32 @@ abstract class AdminAction extends Action
         $start = Carbon::createFromDate($settings->getStart());
 
         return $start->toDateTime();
+
+    }
+    /**
+     * @throws FundNotFound
+     */
+    protected function setupIncome(TransactionModel $transaction): void
+    {
+
+        $months = CarbonPeriod::create($transaction->getFromMonth(), '1 month', $transaction->getToMonth());
+
+        foreach ($months as $month) {
+
+            $date = Carbon::createFromFormat('Y-m-d', $month->format('Y-m-d'));
+            $date->setDay(1);
+
+            $income = new IncomeModel();
+
+            $income->setTitle('Monthly Payment');
+            $income->setAmount($this->duesService->getDue($date->format('Y-m-d')));
+            $income->setSource($this->fundSourceService->findById(1));
+            $income->setFund($this->fundService->findById(1));
+            $income->setCreatedAt($date->toDateTime());
+            $income->setTransaction($transaction);
+
+            $this->incomeService->save($income);
+        }
 
     }
 }

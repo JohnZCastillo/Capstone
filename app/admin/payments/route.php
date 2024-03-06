@@ -32,6 +32,9 @@ return function (App $app) use ($twig) {
             \App\controller\admin\payments\PaymentSettings::class
         );
 
+        $group->post('/transaction/pending/{id}',
+            \App\controller\admin\payments\PendingPayment::class);
+
         $group->post('/transaction/approve',
             \App\controller\admin\payments\ApprovePayment::class)
             ->setName('home');

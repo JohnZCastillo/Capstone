@@ -3,11 +3,12 @@
 namespace App\controller\admin\report;
 
 use App\controller\admin\AdminAction;
+use App\controller\admin\payments\Transaction;
 use App\lib\DocxMaker;
 use App\lib\NumberFormat;
 use App\lib\PdfResponse;
-use App\lib\Time;
 use App\model\enum\LogsTag;
+use App\model\TransactionModel;
 use App\model\UserModel;
 use Carbon\Carbon;
 use DateTime;
@@ -15,6 +16,9 @@ use Slim\Psr7\Response;
 
 class PaymentReport extends AdminAction
 {
+
+
+    protected string $coverage;
 
     public function action(): Response
     {
@@ -29,6 +33,13 @@ class PaymentReport extends AdminAction
             $lot = $formData['lot'] ?? null;
 
             $status = $formData['reportStatus'][0];
+
+
+            $this->coverage = Carbon::createFromFormat('Y-m', $from)
+                    ->format('M Y')
+                . ' - ' .
+                Carbon::createFromFormat('Y-m', $to)
+                    ->format('M Y');
 
             switch ($status) {
                 case 'APPROVED':
@@ -45,7 +56,7 @@ class PaymentReport extends AdminAction
             $this->addErrorMessage($exception->getMessage());
         }
 
-        return$this->redirect('/admin/payments');
+        return $this->redirect('/admin/payments');
     }
 
     public function approvePaymentReport(): Response
@@ -75,8 +86,8 @@ class PaymentReport extends AdminAction
                 $receiptsHolder = $receiptsHolder . ' ' . $receipt->getReferenceNumber();
             }
 
-            $fromCoverage = new DateTime($transaction->getFromMonth());
-            $toCoverage = new DateTime($transaction->getToMonth());
+            $fromCoverage = $transaction->getFromMonth();
+            $toCoverage = $transaction->getToMonth();
 
             $coverage = $fromCoverage->format('M Y') . ' - ' . $toCoverage->format('M Y');
 
@@ -104,7 +115,8 @@ class PaymentReport extends AdminAction
         $docxMaker->addBody($data, 'ID');
         $docxMaker->addHeader([
             'TITLE' => 'APPROVED PAYMENTS REPORT',
-            'TOTAL' => $totalAmount
+            'TOTAL' => $totalAmount,
+            'REPORT_COVERAGE' => $this->coverage,
         ]);
 
         $output = $docxMaker->output();
@@ -136,12 +148,14 @@ class PaymentReport extends AdminAction
 
         foreach ($transactions as $transaction) {
 
+            /** @var TransactionModel $transaction */
+
             $user = $transaction->getUser();
 
             $receipts = $transaction->getReceipts();
 
-            $fromCoverage = new DateTime($transaction->getFromMonth());
-            $toCoverage = new DateTime($transaction->getToMonth());
+            $fromCoverage = $transaction->getFromMonth();
+            $toCoverage = $transaction->getToMonth();
 
             $coverage = $fromCoverage->format('M Y') . ' - ' . $toCoverage->format('M Y');
 
@@ -155,7 +169,7 @@ class PaymentReport extends AdminAction
                 'UNIT' => 'B' . $user->getBlock() . ' L' . $user->getLot(),
                 'AMOUNT' => $amount,
                 'COVERAGE' => $coverage,
-                'REJECTOR' => $transaction->getRejectedBy()->getName(),
+                'REJECTOR' => $transaction->getProcessBy()->getName(),
             );
 
         }
@@ -166,8 +180,9 @@ class PaymentReport extends AdminAction
 
         $docxMaker->addBody($data, 'ID');
         $docxMaker->addHeader([
-            'TOTAL' => $totalAmount ,
-            'TITLE' => 'REJECTED PAYMENT REPORT'
+            'TOTAL' => $totalAmount,
+            'TITLE' => 'REJECTED PAYMENT REPORT',
+            'REPORT_COVERAGE' => $this->coverage,
         ]);
 
         $output = $docxMaker->output();
@@ -209,8 +224,8 @@ class PaymentReport extends AdminAction
                 $receiptsHolder = $receiptsHolder . ' ' . $receipt->getReferenceNumber();
             }
 
-            $fromCoverage = new DateTime($transaction->getFromMonth());
-            $toCoverage = new DateTime($transaction->getToMonth());
+            $fromCoverage = $transaction->getFromMonth();
+            $toCoverage = $transaction->getToMonth();
 
             $coverage = $fromCoverage->format('M Y') . ' - ' . $toCoverage->format('M Y');
 
@@ -238,6 +253,7 @@ class PaymentReport extends AdminAction
         $docxMaker->addHeader([
             'TITLE' => 'PENDING PAYMENTS REPORT',
             'TOTAL' => $totalAmount,
+            'REPORT_COVERAGE' => $this->coverage,
         ]);
 
         $output = $docxMaker->output();
@@ -260,10 +276,10 @@ class PaymentReport extends AdminAction
         $block = $formData['block'] ?? null;
         $lot = $formData['lot'] ?? null;
 
-        $carbonStart = Carbon::createFromFormat('Y-m',$from);
+        $carbonStart = Carbon::createFromFormat('Y-m', $from);
         $carbonStart->setDay(1);
 
-        $carbonEnd = Carbon::createFromFormat('Y-m',$to);
+        $carbonEnd = Carbon::createFromFormat('Y-m', $to);
         $carbonEnd->setDay(1);
 
         $areas = $this->areaService->getArea($block, $lot);
@@ -300,7 +316,7 @@ class PaymentReport extends AdminAction
 
             $data[] = [
                 'AMOUNT' => $copy,
-                'UNIT' => 'B'.$user->getBlock() . ' L'.$user->getLot()
+                'UNIT' => 'B' . $user->getBlock() . ' L' . $user->getLot()
             ];
 
             $totalUnpaidDues += $total;
@@ -313,7 +329,11 @@ class PaymentReport extends AdminAction
 
         $docxMaker->addBody($data, 'UNIT');
 
-        $docxMaker->addHeader(['TOTAL' => $totalUnpaidDues]);
+        $docxMaker->addHeader(
+            [
+                'TOTAL' => $totalUnpaidDues,
+                'REPORT_COVERAGE' => $this->coverage,
+            ]);
 
         $output = $docxMaker->output();
 

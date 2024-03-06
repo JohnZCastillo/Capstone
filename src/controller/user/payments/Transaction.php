@@ -31,16 +31,18 @@ class Transaction extends UserAction
 
             $user = $this->getLoginUser();
 
-            $amount = $this->duesService->getDueInRange(
-                Time::toMonth($transaction->getFromMonth()),
-                Time::toMonth($transaction->getToMonth())
-            );
+            $amount = 0;
+
+//            $amount = $this->duesService->getDueInRange(
+//                Time::toMonth($transaction->getFromMonth()),
+//                Time::toMonth($transaction->getToMonth())
+//            );
 
             if (!($sameBlock && $sameLot)) {
                 throw new NotAuthorizeException('You`re Not Authorized to view this content');
             }
 
-            $target = $this->issuesService->findByTarget($transaction->getId());
+            $issue = $this->issuesService->findByTransaction($transaction);
 
         } catch (NotAuthorizeException $notAuthorizeException) {
             $this->addErrorMessage($notAuthorizeException->getMessage());
@@ -54,7 +56,7 @@ class Transaction extends UserAction
             'transaction' => $transaction,
             'amountDue' => $amount,
             'receipts' => $transaction->getReceipts(),
-            'target' => $target,
+            'issue' => $issue,
         ]);
     }
 }

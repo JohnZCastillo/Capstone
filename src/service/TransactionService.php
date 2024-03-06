@@ -6,9 +6,13 @@ use App\exception\payment\TransactionNotFound;
 use App\lib\Paginator;
 use App\lib\Time;
 use App\model\PaymentModel;
+use App\model\ReceiptModel;
 use App\model\TransactionModel;
 use App\model\UserModel;
+use Carbon\Carbon;
 use DateTime;
+use Doctrine\ORM\NonUniqueResultException;
+use Respect\Validation\Rules\Date;
 
 class TransactionService extends Service
 {
@@ -48,7 +52,10 @@ class TransactionService extends Service
         $qb = $this->entityManager->createQueryBuilder();
 
         $qb->select('t')
-            ->from(TransactionModel::class, 't');
+            ->from(TransactionModel::class, 't')
+            ->innerJoin('t.user', 'u', 'WITH', 't.user  = u.id')
+            ->innerJoin('t.receipts','r','WITH','t.id  = r.transaction');
+
 
         $or = $qb->expr()->andX();
 
@@ -64,8 +71,31 @@ class TransactionService extends Service
         }
 
         if (isset($id)) {
-            $or->add($qb->expr()->eq('t.id', ':id'));
-            $qb->setParameter('id', $id);
+
+            $pattern = "/B(\d+) L(\d+)/";
+            if (preg_match($pattern, $id, $matches)) {
+
+                $or->add(
+                    $qb->expr()->andX(
+                        $qb->expr()->eq('u.block', ':block'),
+                        $qb->expr()->eq('u.lot', ':lot'),
+                    )
+                );
+                $qb->setParameter('block', $matches[1]);
+                $qb->setParameter('lot', $matches[2]);
+            } else {
+                $or->add(
+                    $qb->expr()->orX(
+                        $qb->expr()->eq('t.id', ':id'),
+                        $qb->expr()->eq('r.referenceNumber', ':id'),
+                        $qb->expr()->eq('u.email', ':id'),
+                        $qb->expr()->like('u.name', ':likeName'),
+                    )
+                );
+                $qb->setParameter('id', $id);
+                $qb->setParameter('likeName', '%'.$id.'%');
+            }
+
             $hasQuery = true;
         }
 
@@ -106,12 +136,13 @@ class TransactionService extends Service
 
         $qb->select('t')
             ->from(TransactionModel::class, 't')
-            ->innerJoin('t.user', 'u', 'WITH', 'u.block = :block AND u.lot = :lot')
-            ->setParameter('block', $user->getBlock())
-            ->setParameter('lot', $user->getLot())
+            ->innerJoin('t.user', 'u', 'WITH', 't.user  = u.id')
             ->orderBy('t.id','DESC');
 
         $or = $qb->expr()->andX();
+
+        $or->add($qb->expr()->eq('t.user',':user'));
+        $qb->setParameter('user',$user);
 
         $paginator = new Paginator();
 
@@ -146,9 +177,7 @@ class TransactionService extends Service
 
         }
 
-        if ($hasQuery) {
             $qb->where($or);
-        }
 
         return $paginator->paginate($qb, $page, $max);
     }
@@ -309,5 +338,79 @@ class TransactionService extends Service
             ->getQuery()
             ->getResult();
     }
+
+
+    /**
+     * Check if user paid for a certain month
+     * @param UserModel $user
+     * @param DateTime $from
+     * @param DateTime $to
+     * @return bool values
+     * @throws NonUniqueResultException
+     */
+    public function isPaidForMonth(UserModel $user, DateTime $from, DateTime $to): bool
+    {
+
+        $qb = $this->entityManager->createQueryBuilder();
+
+        $count = $qb->select('COUNT(t.id)')
+            ->from(TransactionModel::class, 't')
+            ->innerJoin('t.user', 'u', 'WITH', 'u.block = :block AND u.lot = :lot')
+            ->setParameter('block', $user->getBlock())
+            ->setParameter('lot', $user->getLot())
+            ->where($qb->expr()->andX(
+                $qb->expr()->gte('MONTH(t.fromMonth)',':fromMonth'),
+                $qb->expr()->gte('YEAR(t.fromMonth)',':fromYear'),
+                $qb->expr()->gte('MONTH(t.toMonth)',':toMonth'),
+                $qb->expr()->gte('YEAR(t.toMonth)',':toYear'),
+                $qb->expr()->eq('t.status', ':status'),
+            ))
+            ->setParameter('fromMonth', $from->format('m'))
+            ->setParameter('fromYear', $from->format('Y'))
+            ->setParameter('toMonth', $to->format('m'))
+            ->setParameter('toYear', $to->format('Y'))
+            ->setParameter('status', 'APPROVED')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count > 0;
+    }
+
+    public function getByApprovedReferences(TransactionModel $transaction, array $references): array
+    {
+
+        $qb = $this->entityManager->createQueryBuilder();
+
+        return $qb->select('t')
+            ->from(TransactionModel::class, 't')
+            ->innerJoin('t.receipts', 'r', 'WITH', 't.id = r.transaction')
+            ->where($qb->expr()->andX(
+                $qb->expr()->eq('t.status',':status'),
+                $qb->expr()->neq('t',':transaction'),
+                $qb->expr()->in('r.referenceNumber',':references')
+            ))
+            ->setParameter('transaction',$transaction)
+            ->setParameter('status','approved')
+            ->setParameter('references',  $references)
+            ->getQuery()
+            ->getResult();
+
+    }
+
+    public function getReferences(TransactionModel $transaction): array
+    {
+
+        $qb = $this->entityManager->createQueryBuilder();
+
+        return $qb->select('r.referenceNumber')
+            ->from(ReceiptModel::class, 'r')
+            ->innerJoin('r.transaction', 't', 'WITH', 't.id = r.transaction')
+            ->where($qb->expr()->eq('t',':transaction'))
+            ->setParameter('transaction',$transaction)
+            ->getQuery()
+            ->getArrayResult();
+
+    }
+
 
 }

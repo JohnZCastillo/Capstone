@@ -37,7 +37,7 @@ return function (App $app) use ($twig) {
             \App\controller\user\announcements\Announcements::class
         )->setName('announcements');
 
-        $group->post('/issue',
+        $group->post('/issue/{transactionId}',
             \App\controller\user\issues\CreateIssue::class
         );
 

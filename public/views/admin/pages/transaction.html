@@ -14,19 +14,17 @@
 
 
                     {% if transaction.status == 'REJECTED' %}
-                    {% set bg = 'bg-danger text-white p-2' %}
-                    {% set target_user = transaction.approvedBy %}
+                        {% set bg = 'bg-danger text-white p-2' %}
                     {% elseif transaction.status == 'APPROVED' %}
-                    {% set bg = 'bg-success text-white p-2' %} {% else %} {% set bg = 'bg-secondary
-                    text-white p-2' %}
-                    {% set target_user = transaction.rejectedBy %}
-
+                        {% set bg = 'bg-success text-white p-2' %}
+                    {% else %}
+                        {% set bg = 'bg-secondary text-white p-2' %}
                     {% endif %}
 
                     {% if transaction.status != 'PENDING' %}
                     <p>
                         <span class="badge badge-pill {{bg}}">{{transaction.status}}</span>
-                        by {{target_user.name}}
+                        by {{ transaction.processBy.name}}
                     </p>
                     {% endif %}
 
@@ -52,7 +50,7 @@
 
                 <div class="table-responsive">
                     <table class="table border-top m-0">
-                        <thead>
+                        <thead class="table-dark">
                         <tr>
                             <th>Id</th>
                             <th>From Due</th>
@@ -109,6 +107,22 @@
                     </div>
                 </div>
             </div>
+
+            {% if transac is not null %}
+               <div class="card mb-2">
+                <div class="card-body">
+                    <small class="text-danger fw-medium">Transactions that uses this reference</small>
+                    <div class="demo-inline-spacing mt-3">
+                        <div class="list-group list-group-flush">
+                            {% for transac in transactions %}
+                            <a href="/admin/transaction/{{transac.id}}" class="list-group-item list-group-item-action">{{transac.id}}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
             <div class="card mb-2">
                 <div class="card-body">
                     <a href="/admin/payments" class="btn btn-secondary mb-2">Back</a>
@@ -132,6 +146,20 @@
                         Reject Payment
                     </button>
                     {% endif %}
+
+                    {% if transaction.status != 'PENDING' and  login_user.role|lower == 'super' %}
+
+                    <form class="pendingPaymentForm" method="POST" action="/admin/transaction/pending/{{transaction.id}}">
+                        <button
+                                type="submit"
+                                class="btn btn-warning  mb-2 mb-md-1"
+                        >
+                            Revert To Pending
+                        </button>
+                    </form>
+
+                    {% endif %}
+
                 </div>
             </div>
         </div>
@@ -252,6 +280,12 @@
         icon: 'question',
         cancelledText: 'Action Cancelled'
     });
+
+    onSubmitConfirmations({
+        classId: 'pendingPaymentForm',
+        title: 'Confirmation',
+        text: `Are you sure you want revert this into pending?`,
+    })
 
 </script>
 

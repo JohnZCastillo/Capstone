@@ -2,7 +2,7 @@
 
 namespace App\model;
 
-use App\lib\Time;
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 
@@ -26,224 +26,170 @@ class TransactionModel {
 
     #[ORM\ManyToOne(targetEntity: UserModel::class, )]
     #[ORM\JoinColumn(nullable: true )]
-    private ?UserModel $approvedBy = null;
-
-    #[ORM\ManyToOne(targetEntity: UserModel::class, )]
-    #[ORM\JoinColumn(nullable: true )]
-    private ?UserModel $rejectedBy = null;
+    private ?UserModel $processBy = null;
 
     #[ORM\Column(type: 'float')]
-    private $amount;
-
-    #[ORM\OneToMany(targetEntity: ReceiptModel::class, mappedBy: 'transaction')]
-    private Collection|array $receipts;
-
-    #[ORM\OneToMany(targetEntity: TransactionLogsModel::class, mappedBy: 'transaction')]
-    private Collection|array $logs;
-
-    #[ORM\Column(type: 'date')]
-    private $fromMonth;
-
-    #[ORM\Column(type: 'date')]
-    private $toMonth;
+    private float $amount;
 
     #[ORM\Column(type: 'datetime')]
-    private $createdAt;
+    private ?DateTime $fromMonth;
+
+    #[ORM\Column(type: 'datetime')]
+    private ?DateTime $toMonth;
 
     #[ORM\Column(type: 'string')]
-    private $status = 'PENDING';
+    private string $status = 'PENDING';
 
-    /**
-     * Get the value of amount
-     */
-    public function getAmount() {
-        return $this->amount;
-    }
+    #[ORM\Column(type: 'string' , options: ['default' => 'gcash'])]
+    private string $paymentMethod;
 
-    public function getApprovedBy(): ?UserModel
+    #[ORM\Column(type: 'datetime')]
+    private ?DateTime $createdAt;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTime $updatedAt = null;
+
+    #[ORM\OneToMany(mappedBy: 'transaction', targetEntity: ReceiptModel::class)]
+    private Collection|array $receipts;
+
+    #[ORM\OneToMany(mappedBy: 'transaction', targetEntity: TransactionLogsModel::class)]
+    private Collection|array $logs;
+
+    public function __construct()
     {
-        return $this->approvedBy;
+        $this->updatedAt = new DateTime();
+        $this->createdAt = new DateTime();
+        $this->paymentMethod = 'gcash';
     }
 
-    public function setApprovedBy(?UserModel $approvedBy): TransactionModel
+    public function getStatuses(): array
     {
-        $this->approvedBy = $approvedBy;
-        return $this;
+        return $this->statuses;
     }
 
-    public function getRejectedBy(): ?UserModel
+    public function setStatuses(array $statuses): void
     {
-        return $this->rejectedBy;
+        $this->statuses = $statuses;
     }
 
-    public function setRejectedBy(?UserModel $rejectedBy): TransactionModel
+    public function getId()
     {
-        $this->rejectedBy = $rejectedBy;
-        return $this;
-    }
-
-    /**
-     * Set the value of amount
-     *
-     * @return  self
-     */
-    public function setAmount($amount) {
-        $this->amount = $amount;
-
-        return $this;
-    }
-
-
-    /**
-     * Get the value of forMonth
-     */
-    public function getFromMonth() {
-         return Time::convertToString($this->fromMonth);
-    }
-
-    /**
-     * Set the value of forMonth
-     *
-     * @return  self
-     */
-    public function setFromMonth($fromMonth) {
-        $this->fromMonth = $fromMonth;
-        return $this;
-    }
-
-    /**
-     * Get the value of toMonth
-     */
-    public function getToMonth() {
-         return Time::convertToString($this->toMonth);
-    }
-
-    /**
-     * Must set this into the last day of the month
-     * Set the value of toMonth
-     *
-     * @return  self
-     */
-    public function setToMonth($toMonth) {
-        $this->toMonth = $toMonth;
-        return $this;
-    }
-
-    /**
-     * Get the value of createdAt
-     */
-    public function getCreatedAt() {
-        return $this->createdAt;
-    }
-
-    /**
-     * Set the value of createdAt
-     *
-     * @return  self
-     */
-    public function setCreatedAt($createdAt) {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of id
-     */
-    public function getId() {
         return $this->id;
     }
 
-    /**
-     * Set the value of id
-     *
-     * @return  self
-     */
-    public function setId($id) {
+    public function setId($id): void
+    {
         $this->id = $id;
-
-        return $this;
     }
 
-    /**
-     * Get the value of user
-     */
-    public function getUser() {
+    public function getUser(): ?UserModel
+    {
         return $this->user;
     }
 
-    /**
-     * Set the value of user
-     *
-     * @return  self
-     */
-    public function setUser($user) {
+    public function setUser(?UserModel $user): void
+    {
         $this->user = $user;
-
-        return $this;
     }
 
-    /**
-     * Get the value of status
-     */ 
-    public function getStatus()
+    public function getProcessBy(): ?UserModel
+    {
+        return $this->processBy;
+    }
+
+    public function setProcessBy(?UserModel $processBy): void
+    {
+        $this->processBy = $processBy;
+    }
+
+    public function getAmount(): float
+    {
+        return $this->amount;
+    }
+
+    public function setAmount(float $amount): void
+    {
+        $this->amount = $amount;
+    }
+
+    public function getFromMonth(): ?DateTime
+    {
+        return $this->fromMonth;
+    }
+
+    public function setFromMonth(?DateTime $fromMonth): void
+    {
+        $this->fromMonth = $fromMonth;
+    }
+
+    public function getToMonth(): ?DateTime
+    {
+        return $this->toMonth;
+    }
+
+    public function setToMonth(?DateTime $toMonth): void
+    {
+        $this->toMonth = $toMonth;
+    }
+
+    public function getStatus(): string
     {
         return $this->status;
     }
 
-    /**
-     * Set the value of status
-     *
-     * @return  self
-     */ 
-    public function setStatus($status)
+    public function setStatus(string $status): void
     {
-        if (!in_array($status, $this->statuses)){
-            throw new \InvalidArgumentException("Invalid status");
-        }
-        
         $this->status = $status;
-
-        return $this;
     }
 
-    /**
-     * Get the value of receipts
-     */ 
-    public function getReceipts()
+    public function getCreatedAt(): ?DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): ?DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
+    }
+
+    public function getReceipts(): Collection|array
     {
         return $this->receipts;
     }
 
-    /**
-     * Set the value of receipts
-     *
-     * @return  self
-     */ 
-    public function setReceipts($receipts)
+    public function setReceipts(Collection|array $receipts): void
     {
         $this->receipts = $receipts;
-
-        return $this;
     }
 
-    /**
-     * Get the value of logs
-     */ 
-    public function getLogs()
+    public function getLogs(): Collection|array
     {
         return $this->logs;
     }
 
-    /**
-     * Set the value of logs
-     *
-     * @return  self
-     */ 
-    public function setLogs($logs)
+    public function setLogs(Collection|array $logs): void
     {
         $this->logs = $logs;
-
-        return $this;
     }
+
+    public function getPaymentMethod(): string
+    {
+        return $this->paymentMethod;
+    }
+
+    public function setPaymentMethod(string $paymentMethod): void
+    {
+        $this->paymentMethod = $paymentMethod;
+    }
+
 }

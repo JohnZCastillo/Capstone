@@ -57,6 +57,7 @@ abstract class Payment extends AdminAction
         $transaction->setCreatedAt(Time::timestamp());
         $transaction->setUser($user);
 
+
         return $transaction;
     }
 
@@ -124,7 +125,7 @@ abstract class Payment extends AdminAction
 
         $amount = $transaction->getAmount();
         $paymentDate = Time::convertDateTimeToDateString($transaction->getCreatedAt());
-        $coverage = $transaction->getFromMonth() . ' - ' . $transaction->getToMonth();
+        $coverage = $transaction->getFromMonth()->format('Y-m') . ' - ' . $transaction->getToMonth()->format('Y-m') ;
 
         $pdf->Cell(0, 10, 'Transaction Number: ' . $transactionNumber, 0, 1);
         $pdf->Cell(0, 10, 'Property: ' . $property, 0, 1);

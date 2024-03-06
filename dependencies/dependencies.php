@@ -5,6 +5,7 @@ use App\service\AnnouncementHistoryService;
 use App\service\AnnouncementService;
 use App\service\CodeModelService;
 use App\service\DuesService;
+use App\service\IssueMessageService;
 use App\service\IssuesService;
 use App\service\LoginHistoryService;
 use App\service\LogsService;
@@ -56,6 +57,10 @@ return array(
 
     PriviligesService::class => function (ContainerInterface $c) {
         return new PriviligesService($c->get(EntityManager::class));
+    },
+
+    IssueMessageService::class => function (ContainerInterface $c) {
+        return new IssueMessageService($c->get(EntityManager::class));
     },
 
     SystemSettingService::class => function (ContainerInterface $c) {

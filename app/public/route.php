@@ -11,6 +11,23 @@ return function (App $app) use ($twig) {
         \App\controller\auth\ViewLogin::class
     )->add(\App\middleware\BypassPage::class);
 
+
+    $app->get('/test',
+        \App\controller\admin\Test::class
+    );
+
+    $app->post('/upload/issue/image/{id}',
+        \App\controller\api\issue\IssueImageUpload::class
+    );
+
+    $app->post('/issue/message/{id}',
+        \App\controller\api\issue\AddIssueMessage::class
+    );
+
+    $app->get('/messages/{id}',
+       \App\controller\api\issue\IssueMessage::class
+    );
+
     $app->post('/login',
         \App\controller\auth\LoginAuth::class
     )->add(\App\middleware\BypassPage::class);

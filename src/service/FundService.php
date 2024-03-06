@@ -151,5 +151,4 @@ class FundService extends Service
     {
         return self::getMonthlyIncomes($fundId,$month,$year) - self::getMonthlyExpenses($fundId,$month,$year) ;
     }
-
 }

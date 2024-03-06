@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\controller\admin\payments;
 
 use App\controller\admin\AdminAction;
+use App\exception\AlreadyPaidException;
 use App\exception\ContentLock;
+use App\exception\fund\FundNotFound;
 use App\exception\InvalidInput;
 use App\exception\NotUniqueReferenceException;
 use App\exception\payment\InvalidPaymentAmount;
 use App\exception\payment\InvalidReference;
 use App\exception\payment\TransactionNotFound;
-use App\lib\Time;
 use App\model\enum\LogsTag;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -19,9 +20,6 @@ use Respect\Validation\Validator as v;
 
 class ApprovePayment extends AdminAction
 {
-    /**
-     * {@inheritdoc}
-     */
     protected function action(): Response
     {
 
@@ -37,15 +35,12 @@ class ApprovePayment extends AdminAction
                 throw new ContentLock('Cannot Edit Content');
             }
 
-            $amount = $transaction->getAmount();
-
-            $amountToPay = $this->duesService->getDueInRange(
-                Time::toMonth($transaction->getFromMonth()),
-                Time::toMonth($transaction->getToMonth())
-            );
-
-            if ($amount !== $amountToPay) {
-                throw new InvalidPaymentAmount("Payment must be equal to $amountToPay");
+            if($this->transactionService->isPaidForMonth(
+                $transaction->getUser(),
+                $transaction->getFromMonth(),
+                $transaction->getToMonth(),
+            )){
+                throw new AlreadyPaidException('user already paid for this month');
             }
 
             $user = $this->getLoginUser();
@@ -70,20 +65,21 @@ class ApprovePayment extends AdminAction
                     throw new NotUniqueReferenceException($reference);
                 }
 
-                var_dump($this->receiptService->isReferenceUsed($reference, 'approved'));
-
                 $this->receiptService->confirm($receipt, $reference);
             }
 
             $transaction->setStatus('APPROVED');
-            $transaction->setApprovedBy($user);
+            $transaction->setProcessBy($user);
 
+            $transaction->setUpdatedAt(new \DateTime());
             $this->transactionService->save($transaction);
 
             $this->transactionLogsService->log($transaction, $user, 'Payment was approved', 'APPROVED');
             $action = "Payment with id of " . $transaction->getId() . " was approved";
 
             $this->addActionLog($action, LogsTag::payment());
+
+            $this->setupIncome($transaction);
 
         } catch (TransactionNotFound $transactionNotFound) {
             $this->addErrorMessage('Transaction Not Found!');
@@ -96,7 +92,9 @@ class ApprovePayment extends AdminAction
             $this->addErrorMessage($contentLock->getMessage());
         } catch (InvalidReference $invalidReference) {
             $this->addErrorMessage($invalidReference->getMessage());
-        }  catch (InvalidInput $invalidInput) {
+        } catch (InvalidInput $invalidInput) {
+            $this->addErrorMessage($invalidInput->getMessage());
+        } catch (FundNotFound $invalidInput) {
             $this->addErrorMessage($invalidInput->getMessage());
         } catch (Exception $exception) {
             $this->addErrorMessage('An  Internal Error Has Occurred, pleas check logs');
@@ -104,4 +102,6 @@ class ApprovePayment extends AdminAction
 
         return $this->redirect("/admin/transaction/$id");
     }
+
+
 }
