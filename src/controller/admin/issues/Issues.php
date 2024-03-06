@@ -26,8 +26,7 @@ class Issues extends AdminAction
         try {
             $pagination = $this->issuesService->getAll($page, $max, $query,$status);
         } catch (\Exception $exception) {
-            $this->addErrorMessage($exception->getMessage());
-//            $this->addErrorMessage('An Internal Error Occurred');
+            $this->addErrorMessage('An Internal Error Occurred');
         }
 
         return $this->view('admin/pages/issues.html', [
