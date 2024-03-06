@@ -57,6 +57,7 @@ abstract class Payment extends AdminAction
         $transaction->setCreatedAt(Time::timestamp());
         $transaction->setUser($user);
 
+
         return $transaction;
     }
 
