@@ -212,6 +212,7 @@ abstract class AdminAction extends Action
             $income->setSource($this->fundSourceService->findById(1));
             $income->setFund($this->fundService->findById(1));
             $income->setCreatedAt($date->toDateTime());
+            $income->setTransaction($transaction);
 
             $this->incomeService->save($income);
         }

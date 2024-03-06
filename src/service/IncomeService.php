@@ -4,6 +4,7 @@ namespace App\service;
 
 use App\model\budget\FundModel;
 use App\model\budget\IncomeModel;
+use App\model\TransactionModel;
 
 class IncomeService extends Service
 {
@@ -12,6 +13,18 @@ class IncomeService extends Service
     {
         $this->entityManager->persist($incomeModel);
         $this->entityManager->flush($incomeModel);
+    }
+
+    public function delete(TransactionModel $transaction): void
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+
+        $qb->delete(IncomeModel::class,'i')
+            ->where($qb->expr()->eq('i.transaction',':transaction'))
+            ->setParameter('transaction',$transaction)
+            ->getQuery()
+            ->getResult();
+
     }
 
     public function findById($id): IncomeModel|null
