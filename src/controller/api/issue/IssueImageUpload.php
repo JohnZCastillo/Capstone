@@ -4,6 +4,7 @@ namespace App\controller\api\issue;
 
 use App\controller\admin\AdminAction;
 use App\lib\Image;
+use App\model\enum\IssuesStatus;
 use App\model\IssuesMessages;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;
@@ -22,24 +23,29 @@ class IssueImageUpload extends AdminAction
 
             $file = '/uploads/' . $imageName;
 
-            $message = new IssuesMessages();
-            $message->setMessage($file);
-            $message->setIssue($issue);
-            $message->setUser($this->getLoginUser());
+            if($issue->getStatus() == IssuesStatus::PENDING){
 
-            if(v::image()->validate($uploadPath . $imageName)){
-                $message->setImage(true);
-            }else{
-                $message->setFile(true);
+                $message = new IssuesMessages();
+                $message->setMessage($file);
+                $message->setIssue($issue);
+                $message->setUser($this->getLoginUser());
+
+                if(v::image()->validate($uploadPath . $imageName)){
+                    $message->setImage(true);
+                }else{
+                    $message->setFile(true);
+                }
+
+                $this->issueMessageService->save($message);
+
+                return $this->respondWithData(['message' => $message->toArray()]);
+
             }
 
-            $this->issueMessageService->save($message);
-
-            return $this->respondWithData(['message' => $message->toArray() ]);
+            return $this->respondWithData(['message' => [] ]);
 
         }catch (\Exception $exception){
             return $this->respondWithData(['message' => $exception->getMessage()],400);
-
         }
 
     }
