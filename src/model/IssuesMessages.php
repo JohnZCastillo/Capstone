@@ -19,6 +19,9 @@ class IssuesMessages{
     #[ORM\Column(type: 'boolean', options: ['default'=> false])]
     private bool $image;
 
+    #[ORM\Column(type: 'boolean', options: ['default'=> false])]
+    private bool $file;
+
     #[ORM\ManyToOne(targetEntity: UserModel::class)]
     private ?UserModel $user = null;
 
@@ -32,6 +35,17 @@ class IssuesMessages{
     {
         $this->createdAt = new \DateTime();
         $this->image = false;
+        $this->file = false;
+    }
+
+    public function isFile(): bool
+    {
+        return $this->file;
+    }
+
+    public function setFile(bool $file): void
+    {
+        $this->file = $file;
     }
 
     public function isImage(): bool

@@ -6,6 +6,7 @@ use App\controller\admin\AdminAction;
 use App\lib\Image;
 use App\model\IssuesMessages;
 use Psr\Http\Message\ResponseInterface as Response;
+use Respect\Validation\Validator as v;
 
 class IssueImageUpload extends AdminAction
 {
@@ -24,8 +25,13 @@ class IssueImageUpload extends AdminAction
             $message = new IssuesMessages();
             $message->setMessage($file);
             $message->setIssue($issue);
-            $message->setImage(true);
             $message->setUser($this->getLoginUser());
+
+            if(v::image()->validate($file)){
+                $message->setImage(true);
+            }else{
+                $message->setFile(true);
+            }
 
             $this->issueMessageService->save($message);
 
