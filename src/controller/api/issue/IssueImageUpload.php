@@ -27,7 +27,7 @@ class IssueImageUpload extends AdminAction
             $message->setIssue($issue);
             $message->setUser($this->getLoginUser());
 
-            if(v::image()->validate($file)){
+            if(v::image()->validate($uploadPath . $imageName)){
                 $message->setImage(true);
             }else{
                 $message->setFile(true);
