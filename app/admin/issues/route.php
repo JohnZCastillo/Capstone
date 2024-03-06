@@ -21,14 +21,6 @@ return function (App $app) use ($twig) {
             \App\controller\admin\issues\MakeAction::class
         )->setName('issues');
 
-        $group->post('/issues/approve-transaction/{id}',
-            \App\controller\api\payments\ApproveTransaction::class
-        );
-
-        $group->post('/issues/reject-transaction/{id}',
-            \App\controller\api\payments\RejectTransaction::class
-        );
-
         $group->post('/issues/resolve-issue/{id}',
             \App\controller\api\issue\ResolveIssue::class
         );
