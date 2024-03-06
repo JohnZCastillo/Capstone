@@ -36,12 +36,19 @@ class PendingPayment extends AdminAction
                 throw new PaymentReversibilityExpired("Cannot set payment to PENDING as it has been more than 7 days since it been processed.");
             }
 
+
+            $status = $transaction->getStatus();
+
             $user = $this->getLoginUser();
 
             $transaction->setStatus('PENDING');
             $transaction->setProcessBy($user);
 
             $this->transactionService->save($transaction);
+
+            if($status == 'APPROVED'){
+                $this->incomeService->delete($transaction);
+            }
 
             $this->transactionLogsService->log($transaction, $user, $message, 'PENDING');
             $action = "Payment with id of " . $transaction->getId() . " was set to PENDING";
@@ -54,7 +61,9 @@ class PendingPayment extends AdminAction
         } catch (PaymentReversibilityExpired $exception) {
             $this->addErrorMessage($exception->getMessage());
         } catch (Exception $exception) {
-            $this->addErrorMessage('An  Internal Error Has Occurred, pleas check logs');
+            $this->addErrorMessage($exception->getMessage());
+
+//            $this->addErrorMessage('An  Internal Error Has Occurred, pleas check logs');
         }
 
         return $this->redirect("/admin/transaction/$id");
