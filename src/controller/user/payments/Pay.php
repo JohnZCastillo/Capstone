@@ -35,15 +35,15 @@ class Pay extends UserAction
 
         try {
 
-            if(!v::number()->positive()->notEmpty()->validate($content['amount'])){
+            if (!v::number()->positive()->notEmpty()->validate($content['amount'])) {
                 throw new InvalidInput('Invalid Amount');
             }
 
-            if(!v::date('Y-m')->notEmpty()->validate($content['startDate'])){
+            if (!v::date('Y-m')->notEmpty()->validate($content['startDate'])) {
                 throw new InvalidInput('Invalid Start Date');
             }
 
-            if(!v::date('Y-m')->notEmpty()->validate($content['endDate'])){
+            if (!v::date('Y-m')->notEmpty()->validate($content['endDate'])) {
                 throw new InvalidInput('Invalid End Date');
             }
 
@@ -55,8 +55,8 @@ class Pay extends UserAction
             $transaction = $this->createTransaction($user, (float)$amount, $fromMonth, $toMonth);
 
             $amount = $this->duesService->getDueInRange(
-                Time::toMonth($transaction->getFromMonth()),
-                Time::toMonth($transaction->getToMonth())
+                $transaction->getFromMonth()->format('Y-m'),
+                $transaction->getToMonth()->format('Y-m'),
             );
 
             if ($amount !== ((float)$content['amount'])) {
@@ -66,6 +66,9 @@ class Pay extends UserAction
             $this->saveReceipts($images, $transaction);
 
             $this->addSuccessMessage('Payment created, please wait an admin review this');
+
+            return $this->redirect('/home',302);
+
         } catch (InvalidInput $invalidInput) {
             $this->addErrorMessage($invalidInput->getMessage());
         } catch (InvalidPaymentAmount $invalidPaymentAmount) {
@@ -81,7 +84,8 @@ class Pay extends UserAction
         } catch (AlreadyPaidException $paidException) {
             $this->addErrorMessage($paidException->getMessage());
         } catch (Exception $exception) {
-            $this->addErrorMessage('An Internal Error Occurred');
+            $this->addErrorMessage($exception->getMessage());
+            //            $this->addErrorMessage('An Internal Error Occurred');
         }
 
         return $this->redirect('/home');
@@ -141,7 +145,7 @@ class Pay extends UserAction
         };
 
         $ocr = ReferenceExtractor::extractOcr($images);
-        $references = ReferenceExtractor::reference($ocr,$referencePattern);
+        $references = ReferenceExtractor::reference($ocr, $referencePattern);
         $amount = ReferenceExtractor::extractAmount($ocr);
         $receipts = [];
 
@@ -151,7 +155,7 @@ class Pay extends UserAction
                 continue;
             }
 
-            if ($this->receiptService->isReferenceUsed($reference,'approved')) {
+            if ($this->receiptService->isReferenceUsed($reference, 'approved')) {
                 throw new NotUniqueReferenceException($reference);
             }
 
