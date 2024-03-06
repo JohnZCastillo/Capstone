@@ -59,6 +59,7 @@ class TransactionModel {
     {
         $this->updatedAt = new DateTime();
         $this->createdAt = new DateTime();
+        $this->paymentMethod = 'gcash';
     }
 
     public function getStatuses(): array
