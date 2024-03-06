@@ -32,13 +32,16 @@ class ManualPayment extends Payment
         try {
             $user = $this->userService->findManualPayment($block,$lot);
             $transaction = $this->createTransaction($user, (float) $amount, $fromMonth, $toMonth);
+
+            $transaction->setProcessBy($this->getLoginUser());
+
             $this->transactionService->save($transaction);
 
             $amount = $transaction->getAmount();
 
             $amountToPay = $this->duesService->getDueInRange(
-                Time::toMonth($transaction->getFromMonth()),
-                Time::toMonth($transaction->getToMonth())
+                $transaction->getFromMonth()->format('Y-m'),
+                $transaction->getToMonth()->format('Y-m'),
             );
 
             if ($amount !== $amountToPay) {
