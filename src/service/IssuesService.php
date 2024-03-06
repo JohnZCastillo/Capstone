@@ -65,7 +65,7 @@ class IssuesService extends Service
             ->from(IssuesModel::class, 't')
             ->where($or);
 
-        $status = empty($status) ? [IssuesStatus::PENDING] : [$status];
+        $status = isset($status) ? [$status] : [IssuesStatus::PENDING,IssuesStatus::REJECTED,IssuesStatus::RESOLVED];
 
         if (isset($id)) {
             $or->add($qb->expr()->eq('t.id', ':id'));
