@@ -86,8 +86,8 @@ class PaymentReport extends AdminAction
                 $receiptsHolder = $receiptsHolder . ' ' . $receipt->getReferenceNumber();
             }
 
-            $fromCoverage = new DateTime($transaction->getFromMonth());
-            $toCoverage = new DateTime($transaction->getToMonth());
+            $fromCoverage = $transaction->getFromMonth();
+            $toCoverage = $transaction->getToMonth();
 
             $coverage = $fromCoverage->format('M Y') . ' - ' . $toCoverage->format('M Y');
 
@@ -154,8 +154,8 @@ class PaymentReport extends AdminAction
 
             $receipts = $transaction->getReceipts();
 
-            $fromCoverage = new DateTime($transaction->getFromMonth());
-            $toCoverage = new DateTime($transaction->getToMonth());
+            $fromCoverage = $transaction->getFromMonth();
+            $toCoverage = $transaction->getToMonth();
 
             $coverage = $fromCoverage->format('M Y') . ' - ' . $toCoverage->format('M Y');
 
@@ -224,8 +224,8 @@ class PaymentReport extends AdminAction
                 $receiptsHolder = $receiptsHolder . ' ' . $receipt->getReferenceNumber();
             }
 
-            $fromCoverage = new DateTime($transaction->getFromMonth());
-            $toCoverage = new DateTime($transaction->getToMonth());
+            $fromCoverage = $transaction->getFromMonth();
+            $toCoverage = $transaction->getToMonth();
 
             $coverage = $fromCoverage->format('M Y') . ' - ' . $toCoverage->format('M Y');
 
