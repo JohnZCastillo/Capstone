@@ -4,9 +4,7 @@ namespace App\controller\admin\issues;
 
 use App\controller\admin\AdminAction;
 use App\exception\issue\IssueNotFoundException;
-use App\lib\Filter;
 use Psr\Http\Message\ResponseInterface as Response;
-use Slim\Views\Twig;
 
 class Issue extends AdminAction
 {
