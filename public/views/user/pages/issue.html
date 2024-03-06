@@ -14,7 +14,7 @@
 
                     <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column p-sm-3 p-0">
                         <div>
-                            <h4>{{issue.title}}</h4>
+                            <h4>Issue for Transaction <a href="/transaction/{{issue.transaction.id}}">#{{issue.transaction.id}}</a></h4>
                             <div class="mb-2">
                                 <span class="me-1">Date: </span>
                                 <span class="fw-medium">{{issue.getCreatedAt()|date("M Y") }}</span>
