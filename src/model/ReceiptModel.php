@@ -17,7 +17,7 @@ class ReceiptModel {
     #[ORM\GeneratedValue]
     private $id;
 
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', nullable: true,)]
     private $path;
 
     #[ORM\Column(type: 'string' , nullable: true,)]
