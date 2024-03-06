@@ -13,7 +13,6 @@ use App\exception\NotUniqueReferenceException;
 use App\exception\payment\InvalidPaymentAmount;
 use App\exception\payment\InvalidReference;
 use App\exception\payment\TransactionNotFound;
-use App\lib\Time;
 use App\model\enum\LogsTag;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -44,17 +43,6 @@ class ApprovePayment extends AdminAction
                 throw new AlreadyPaidException('user already paid for this month');
             }
 
-            $amount = $transaction->getAmount();
-
-//            $amountToPay = $this->duesService->getDueInRange(
-//                Time::toMonth($transaction->getFromMonth()),
-//                Time::toMonth($transaction->getToMonth())
-//            );
-//
-//            if ($amount !== $amountToPay) {
-//                throw new InvalidPaymentAmount("Payment must be equal to $amountToPay");
-//            }
-
             $user = $this->getLoginUser();
 
             $references = $formData['field'];
@@ -83,6 +71,7 @@ class ApprovePayment extends AdminAction
             $transaction->setStatus('APPROVED');
             $transaction->setProcessBy($user);
 
+            $transaction->setUpdatedAt(new \DateTime());
             $this->transactionService->save($transaction);
 
             $this->transactionLogsService->log($transaction, $user, 'Payment was approved', 'APPROVED');
@@ -108,8 +97,7 @@ class ApprovePayment extends AdminAction
         } catch (FundNotFound $invalidInput) {
             $this->addErrorMessage($invalidInput->getMessage());
         } catch (Exception $exception) {
-            $this->addErrorMessage($exception->getMessage());
-//            $this->addErrorMessage('An  Internal Error Has Occurred, pleas check logs');
+            $this->addErrorMessage('An  Internal Error Has Occurred, pleas check logs');
         }
 
         return $this->redirect("/admin/transaction/$id");
