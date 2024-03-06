@@ -264,6 +264,10 @@
 
 <script>
 
+    const dueModalForm =  new bootstrap.Modal(document.getElementById('dueModal'), {
+        keyboard: false
+    });
+
     const dueYear = document.querySelector("#dueYear");
 
     const months = document.querySelectorAll(".monthControl");
@@ -288,6 +292,30 @@
         }
 
         const updateDue = async (event) => {
+
+            dueModalForm.hide();
+
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger"
+                },
+                buttonsStyling: false
+            });
+
+            let confirmation = await swalWithBootstrapButtons.fire({
+                title: "Update Due",
+                text: "Are You sure you want to update the due for this month?",
+                showCancelButton: true,
+                confirmButtonText: "Confirm!",
+                cancelButtonText: "Cancel!",
+                reverseButtons: true,
+                allowOutsideClick: false
+            })
+
+            if (confirmation.dismiss === Swal.DismissReason.cancel){
+                return;
+            }
 
             const year = dueYear.value;
             const month = target.name;
@@ -328,6 +356,7 @@
 
     function updateCalendar(id,value,savePoint){
 
+
         const valueHolder = document.getElementById(id);
 
         if(savePoint){
@@ -338,7 +367,6 @@
             document.getElementById('point'+id).classList.remove("badge");
             document.getElementById('point'+id).classList.remove("bg-success");
             document.getElementById('point'+id).classList.remove("text-white");
-
         }
 
         valueHolder.value = '₱' + value; // Add the peso sign back
@@ -364,8 +392,6 @@
             })
         }
     })
-
-    console.log(months);
 
 </script>
 

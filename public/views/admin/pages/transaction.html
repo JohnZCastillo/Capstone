@@ -107,7 +107,9 @@
                     </div>
                 </div>
             </div>
-            <div class="card mb-2">
+
+            {% if transac is not null %}
+               <div class="card mb-2">
                 <div class="card-body">
                     <small class="text-danger fw-medium">Transactions that uses this reference</small>
                     <div class="demo-inline-spacing mt-3">
@@ -119,6 +121,8 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
+
             <div class="card mb-2">
                 <div class="card-body">
                     <a href="/admin/payments" class="btn btn-secondary mb-2">Back</a>
@@ -142,6 +146,20 @@
                         Reject Payment
                     </button>
                     {% endif %}
+
+                    {% if transaction.status != 'PENDING' and  login_user.role|lower == 'super' %}
+
+                    <form class="pendingPaymentForm" method="POST" action="/admin/transaction/pending/{{transaction.id}}">
+                        <button
+                                type="submit"
+                                class="btn btn-warning  mb-2 mb-md-1"
+                        >
+                            Revert To Pending
+                        </button>
+                    </form>
+
+                    {% endif %}
+
                 </div>
             </div>
         </div>
@@ -262,6 +280,12 @@
         icon: 'question',
         cancelledText: 'Action Cancelled'
     });
+
+    onSubmitConfirmations({
+        classId: 'pendingPaymentForm',
+        title: 'Confirmation',
+        text: `Are you sure you want revert this into pending?`,
+    })
 
 </script>
 

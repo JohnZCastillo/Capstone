@@ -4,8 +4,6 @@
 {% block body %}
 
 {% include './partials/confirmation.html' %}
-
-
 <div class="container-xxl flex-grow-1 container-p-y">
     {% set bg = issue.status|lower == 'resolved' ? "bg-success" : "bg-danger" %}
     <div class="row invoice-preview">
@@ -27,42 +25,7 @@
                     </div>
                 </div>
                 <hr class="my-0">
-
-
                 <div class="card-body">
-<!--                    <h4> <a href="/admin/transaction/{{issue.target}}">{{issue.title}} </a> </h4>-->
-
-<!--                    <small>Issue Content</small>-->
-<!--                    <textarea class="form-control" readonly>{{issue.content}}</textarea>-->
-<!--                    {% set bg = issue.status|lower == 'resolved' ? "bg-success" : "bg-danger" %}-->
-
-<!--                    <hr class="mb-3">-->
-<!--                    <form action="/admin/issues/action" id="issueForm" method="POST">-->
-<!--                        <div class="form-group">-->
-<!--                            <input class="d-none" name="id" type="text" value="{{issue.id}}">-->
-<!--                            <label class="form-label small text-secondary" for="resolution">Your Message:</label>-->
-<!--                            <textarea class="form-control" id="resolution" name="action" rows="4"-->
-<!--                                      {{readOnly}}>{{issue.action}}</textarea>-->
-<!--                        </div>-->
-<!--                        <div class="form-group mt-2">-->
-
-<!--                            {% if issue.status == 'pending' %}-->
-
-<!--                            <label class="btn btn-success" for="resolved">Resolved</label>-->
-<!--                            <input autocomplete="off" class="btn-check " id="resolved" name="status"-->
-<!--                                   type="radio"-->
-<!--                                   value="resolved"-->
-<!--                            >-->
-
-<!--                            <label class="btn btn-danger" for="rejected">Reject</label>-->
-<!--                            <input autocomplete="off" class="btn-check " id="rejected" name="status"-->
-<!--                                   type="radio"-->
-<!--                                   value="rejected"-->
-<!--                            >-->
-<!--                            {% endif %}-->
-<!--                        </div>-->
-<!--                    </form>-->
-
                     <div class="app-chat-history bg-secondary p-2">
                         <div class="chat-history-wrapper">
                             <div class="chat-history-body ps ps--active-y">
@@ -77,14 +40,19 @@
                                 </div>
                             </div>
                             <!-- Chat message form -->
+                            {% if issue.status|lower == 'pending' %}
+
                             <div class="chat-history-footer">
-                                <form id="issueMessageForm" class="form-send-message d-flex justify-content-between align-items-center ">
+
+
+                                <form id="issueMessageForm"
+                                      class="form-send-message d-flex justify-content-between align-items-center ">
                                     <input class="form-control message-input border-0 me-3 shadow-none"
                                            placeholder="Type your message here..." name="message">
                                     <div class="message-actions d-flex align-items-center">
                                         <label for="attach-doc" class="form-label mb-0">
                                             <i class="bx bx-paperclip bx-sm cursor-pointer mx-3 text-body"></i>
-                                            <input type="file" id="attach-doc" hidden="">
+                                            <input type="file" accept="image/*,.docx,.pdf" id="attach-doc" hidden="">
                                         </label>
                                         <button class="btn btn-primary d-flex send-msg-btn">
                                             <i class="bx bx-paper-plane me-md-1 me-0"></i>
@@ -92,9 +60,32 @@
                                         </button>
                                     </div>
                                 </form>
+
                             </div>
+
+                            {% else %}
+                                <p class="text-center text-white">You Can't Reply to this conversation</p>
+                            {% endif %}
+
+
                         </div>
                     </div>
+
+                    {% if issue.status|lower == 'pending' %}
+                    <div class="d-flex gap-2 mt-3">
+
+                        <form class="resolveIssueForm" method="POST" action="/admin/issues/resolve-issue/{{issue.id}}">
+                            <button type="submit" class="btn btn-success">Mark as Resolved</button>
+                        </form>
+
+                        <form class="rejectIssueForm"  method="POST" action="/admin/issues/reject-issue/{{issue.id}}">
+                            <button type="submit" class="btn btn-danger">Mark as Rejected</button>
+                        </form>
+
+                    </div>
+                    {% endif %}
+
+
                 </div>
 
             </div>
@@ -106,7 +97,6 @@
                 <div class="card-body">
                     <a class="btn btn-secondary" href="/admin/issues">Back</a>
                 </div>
-
             </div>
         </div>
     </div>
@@ -115,27 +105,26 @@
 
 {% endblock %}
 
+
 {% block javascript %}
+
+
+{% if issue.status|lower == 'pending' %}
+
 <script>
 
-    // const issueForm = document.querySelector("#issueForm");
-    // const resolveBtn = document.querySelector('#resolved');
-    // const rejectBtn = document.querySelector('#rejected');
-    //
-    // const resolveMessage = "<p class='text-success font-weight-bold'>You are about to resolve this issue.</p> <p>Resolving the issue will mark it as completed and initiate the necessary actions to address the reported problem. Once resolved, the sender will be notified of the resolution status.</p> <p>Are you sure you want to proceed?</p>";
-    // const rejectMessage = "<p class='text-danger font-weight-bold'>You are about to reject this issue.</p> <p>Rejecting the issue will indicate that it will not be addressed further and the sender will be notified of the rejection status.</p> <p>Are you sure you want to proceed with rejection?</p>";
-    //
-    // resolveBtn.addEventListener('click', (event) => {
-    //     confirm(resolveMessage, submitForm);
-    // })
-    //
-    // rejectBtn.addEventListener('click', (event) => {
-    //     confirm(rejectMessage, submitForm);
-    // })
-    //
-    // const submitForm = () => {
-    //     issueForm.submit();
-    // }
+    onSubmitConfirmations({
+        classId: 'resolveIssueForm',
+        title: 'Confirmation',
+        text: 'Are you sure you want to resolve this issue?',
+    })
+
+    onSubmitConfirmations({
+        classId: 'rejectIssueForm',
+        title: 'Confirmation',
+        text: 'Are you sure you want to reject this issue?',
+    })
+
 </script>
 
 <script>
@@ -155,7 +144,6 @@
 
         const fileUploadInput = document.querySelector('#attach-doc');
         const issueMessageForm = document.querySelector('#issueMessageForm');
-
 
         fileUploadInput.addEventListener('change', async (event) => {
 
@@ -206,11 +194,26 @@
 
         })
 
-        setInterval(updatChat,3000)
-
+        setInterval(updatChat, 3000)
 
     });
 
 
 </script>
+
+{% else %}
+
+<script>
+    const updatChat = async () => {
+        $.ajax({
+            url: "/messages/{{issue.id}}",
+            success: function (result) {
+                $(".chat").html(result);
+            }
+        });
+    }
+
+    updatChat();
+</script>
+{% endif %}
 {% endblock %}

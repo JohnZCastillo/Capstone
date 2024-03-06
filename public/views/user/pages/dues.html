@@ -100,7 +100,7 @@
                         <div class="position-relative col-sm-3 col-md-4">
                             <label for="paymentSearchFormTo" class="position-absolute small"
                                    style="top: -20px">To</label>
-                            <input id="paymentSearchFormTo" class="form-control" type="month" name="to" value="{{to}}">
+                            <input id="paymentSearchFormTo"  class="form-control" type="month" name="to" value="{{to}}">
                         </div>
                     </div>
 
@@ -232,6 +232,7 @@
                         <div class="col-sm">
                             <label for="">From</label>
                             <input
+                                    max="{{'now'|date('Y') ~ -12}}"
                                     class="form-control"
                                     type="month"
                                     name="startDate"
@@ -242,6 +243,7 @@
                         <div class="col-sm">
                             <label for="">To</label>
                             <input
+                                    max="{{'now'|date('Y') ~ -12}}"
                                     class="form-control"
                                     type="month"
                                     name="endDate"
