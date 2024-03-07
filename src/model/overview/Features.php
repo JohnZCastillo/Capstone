@@ -31,7 +31,7 @@ class Features{
     #[ORM\Column(type: 'string')]
     private string $name;
 
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'text')]
     private string $description;
 
     #[ORM\Column(type: 'string')]
