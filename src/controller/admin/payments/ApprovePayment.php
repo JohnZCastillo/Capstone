@@ -94,7 +94,7 @@ class ApprovePayment extends AdminAction
             $this->addErrorMessage($invalidReference->getMessage());
         } catch (InvalidInput $invalidInput) {
             $this->addErrorMessage($invalidInput->getMessage());
-        } catch (FundNotFound $invalidInput) {
+        } catch (FundNotFound|AlreadyPaidException $invalidInput) {
             $this->addErrorMessage($invalidInput->getMessage());
         } catch (Exception $exception) {
             $this->addErrorMessage('An  Internal Error Has Occurred, pleas check logs');

@@ -13,6 +13,8 @@ const APP_ROOT = __DIR__ . '/../';
 
 require APP_ROOT . 'vendor/autoload.php';
 
+date_default_timezone_set('Asia/Manila');
+
 $container = new Container();
 
 $containerBuilder = new ContainerBuilder();
