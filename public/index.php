@@ -42,6 +42,9 @@ $app->add(TwigMiddleware::create($app, $twig));
 $flashMessage = $container->get(\Slim\Flash\Messages::class);
 $areaService = $blockService = $container->get(\App\service\AreaService::class);
 
+$paymentService = $container->get(\App\service\PaymentService::class);
+
+
 $twig->addExtension($app->getContainer()->get(\App\lib\LotFinder::class));
 $twig->getEnvironment()->addGlobal('verify',$flashMessage->getFirstMessage('verify'));
 $twig->getEnvironment()->addGlobal('loginError',$flashMessage->getFirstMessage('loginError'));
@@ -49,16 +52,17 @@ $twig->getEnvironment()->addGlobal('errorMessage',$flashMessage->getFirstMessage
 $twig->getEnvironment()->addGlobal('successMessage',$flashMessage->getFirstMessage('successMessage'));
 $twig->getEnvironment()->addGlobal('login_user',$container->get('LOGIN_USER'));
 $twig->getEnvironment()->addGlobal('blocks',$areaService->getBlock());
+$twig->getEnvironment()->addGlobal('paymentStart',$paymentService->findById(1));
 
 // Register routes
 $routes = require APP_ROOT . 'app/routes.php';
 $routes($app);
 
-//
-//$errorMiddleware = $app->addErrorMiddleware(false, true, true);
-//
-//// Get the default error handler and register my custom error renderer.
-//$errorHandler = $errorMiddleware->getDefaultErrorHandler();
-//$errorHandler->registerErrorRenderer('text/html', \App\middleware\MissingPage::class);
+
+$errorMiddleware = $app->addErrorMiddleware(false, true, true);
+
+// Get the default error handler and register my custom error renderer.
+$errorHandler = $errorMiddleware->getDefaultErrorHandler();
+$errorHandler->registerErrorRenderer('text/html', \App\middleware\MissingPage::class);
 
 $app->run();
