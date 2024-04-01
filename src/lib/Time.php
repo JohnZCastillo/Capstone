@@ -6,7 +6,7 @@ use App\exception\date\InvalidDateFormat;
 use Carbon\Carbon;
 use DateInterval;
 use DateTime;
-use PHPUnit\Exception;
+use Exception;
 use Respect\Validation\Validator as v;
 
 class Time

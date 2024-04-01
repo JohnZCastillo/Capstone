@@ -3,6 +3,7 @@
 namespace App\service;
 
 use App\model\AreaModel;
+use Doctrine\ORM\NonUniqueResultException;
 
 class AreaService extends Service
 {
@@ -71,4 +72,20 @@ class AreaService extends Service
             ->getResult();
     }
 
+    public function exist(string $block, string $lot): bool
+    {
+
+        $qb = $this->entityManager->createQueryBuilder();
+
+        $query = $qb->select('count(e)')
+            ->from(AreaModel::class, 'e')
+            ->where($qb->expr()->andX(
+                $qb->expr()->eq('e.block', ':block'),
+                $qb->expr()->eq('e.lot', ':lot')
+            ))
+            ->setParameter('block', $block)
+            ->setParameter('lot', $lot);
+
+        return $query->getQuery()->getSingleScalarResult() > 0;
+    }
 }

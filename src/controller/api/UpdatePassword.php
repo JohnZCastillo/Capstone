@@ -74,7 +74,8 @@ class UpdatePassword extends AdminAction
         } catch (NotAuthorizeException $notAuthorizeException) {
             return $this->respondWithData(["message" => $notAuthorizeException->getMessage()], '401');
         } catch (\Exception $e) {
-            return $this->respondWithData(["message" => 'An Internal Error Occurred'], '500');
+            return $this->respondWithData(["message" => $e->getMessage()], '500');
+//            return $this->respondWithData(["message" => 'An Internal Error Occurred'], '500');
         }
 
     }

@@ -345,5 +345,4 @@ class PaymentReport extends AdminAction
 
     }
 
-
 }

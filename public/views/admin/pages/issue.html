@@ -3,6 +3,11 @@
 
 {% block body %}
 
+<style>
+.chat-message-right{
+    margin-right: 5px;
+}
+</style>
 {% include './partials/confirmation.html' %}
 <div class="container-xxl flex-grow-1 container-p-y">
     {% set bg = issue.status|lower == 'resolved' ? "bg-success" : "bg-danger" %}

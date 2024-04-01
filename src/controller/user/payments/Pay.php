@@ -48,6 +48,7 @@ class Pay extends UserAction
                 throw new InvalidInput('Invalid End Date');
             }
 
+
             $fromMonth = $content['startDate'];
             $toMonth = $content['endDate'];
             $amount = $content['amount'];
