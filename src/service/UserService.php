@@ -190,5 +190,18 @@ s     */
 
     }
 
+    public function isEmailInUsed(string $email): bool
+    {
+
+        $qb = $this->entityManager->createQueryBuilder();
+
+        return $qb->select('COUNT(t)')
+            ->from(UserModel::class, 't')
+            ->where($qb->expr()->eq('t.email', ':email'))
+            ->setParameter('email', $email)
+            ->getQuery()
+            ->getSingleScalarResult() > 0;
+
+    }
 
 }

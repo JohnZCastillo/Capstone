@@ -7,6 +7,7 @@ use App\exception\InvalidInput;
 use App\exception\NotAuthorizeException;
 use App\exception\UserNotFoundException;
 use App\exception\users\EmailInUse;
+use PHPUnit\Logging\Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;
 
@@ -20,7 +21,9 @@ class UpdateAccountDetails extends AdminAction
 
             $userId = $formData['userId'];
 
+
             $user = $this->userService->findById($userId);
+
 
             $email = $formData['email'];
             $name = $formData['name'];
@@ -33,11 +36,12 @@ class UpdateAccountDetails extends AdminAction
                 throw new InvalidInput('Invalid Email');
             }
 
+
             if (!v::alnum(' ')->notEmpty()->validate($name)) {
                 throw new InvalidInput('Name must be string');
             }
 
-            if($this->userService->findByEmail($email) && $email !== $user->getEmail()){
+            if($this->userService->isEmailInUsed($email) && $email != $user->getEmail()){
                 throw new EmailInUse('Email is already used');
             }
 
@@ -64,7 +68,8 @@ class UpdateAccountDetails extends AdminAction
         } catch (UserNotFoundException $userNotFoundException) {
             return $this->respondWithData(["message" => $userNotFoundException->getMessage()], 404);
         } catch (\Exception $e) {
-            return $this->respondWithData(["message" => 'An Internal Error Occurred'], 500);
+            return $this->respondWithData(["message" => $e->getMessage()], 500);
+//            return $this->respondWithData(["message" => 'An Internal Error Occurred'], 500);
         }
     }
 }
