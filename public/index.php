@@ -46,6 +46,7 @@ $paymentService = $container->get(\App\service\PaymentService::class);
 
 
 $twig->addExtension($app->getContainer()->get(\App\lib\LotFinder::class));
+$twig->addExtension($app->getContainer()->get(\App\lib\Timeframe::class));
 $twig->getEnvironment()->addGlobal('verify',$flashMessage->getFirstMessage('verify'));
 $twig->getEnvironment()->addGlobal('loginError',$flashMessage->getFirstMessage('loginError'));
 $twig->getEnvironment()->addGlobal('errorMessage',$flashMessage->getFirstMessage('errorMessage'));
