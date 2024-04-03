@@ -124,7 +124,9 @@
                 </thead>
                 <tbody>
                 {% for user in users %}
-                <tr>
+
+                    {% if user.email|lower != user.block ~ user.lot ~ '@manual.payment' %}
+                       <tr>
                     {% set restricted = user.isBlocked ? "Yes" : "No" %}
                     {% set restrictedBg = user.isBlocked ? "bg-danger" : "bg-success" %}
 
@@ -158,6 +160,8 @@
 
                     </td>
                 </tr>
+                    {% endif %}
+
                 {% endfor %}
 
                 {% if users is empty %}

@@ -8,6 +8,7 @@ use App\lib\DocxMaker;
 use App\lib\NumberFormat;
 use App\lib\PdfResponse;
 use App\model\enum\LogsTag;
+use App\model\ReceiptModel;
 use App\model\TransactionModel;
 use App\model\UserModel;
 use Carbon\Carbon;
@@ -74,6 +75,7 @@ class PaymentReport extends AdminAction
 
         $data = array();
 
+        /** @var  TransactionModel $transaction */
         foreach ($transactions as $transaction) {
 
             $user = $transaction->getUser();
@@ -82,8 +84,14 @@ class PaymentReport extends AdminAction
 
             $receiptsHolder = '';
 
+            /** @var ReceiptModel $receipt */
             foreach ($receipts as $receipt) {
-                $receiptsHolder = $receiptsHolder . ' ' . $receipt->getReferenceNumber();
+
+                $receiptsHolder = $receiptsHolder . ' ' . $receipt->getTransaction()->getPaymentMethod();
+
+                if($receipt->getTransaction()->getPaymentMethod() == 'gcash'){
+                    $receiptsHolder = $receiptsHolder . ' (' . $receipt->getReferenceNumber() . ')';
+                }
             }
 
             $fromCoverage = $transaction->getFromMonth();
@@ -97,8 +105,9 @@ class PaymentReport extends AdminAction
             NumberFormat::format($amount);
 
             $data[] = array(
-                'ID' => $transaction->getId(),
+                'ID' => 'CH' . $transaction->getUser()->getBlock() .  $transaction->getUser()->getLot() ,
                 'UNIT' => 'B' . $user->getBlock() . ' L' . $user->getLot(),
+                'USER' => $transaction->getUser()->getName(),
                 'AMOUNT' => $amount,
                 'REFERENCE' => $receiptsHolder,
                 'COVERAGE' => $coverage,
@@ -166,7 +175,7 @@ class PaymentReport extends AdminAction
             NumberFormat::format($amount);
 
             $data[] = array(
-                'ID' => $transaction->getId(),
+                'ID' => 'CH' . $transaction->getUser()->getBlock() .  $transaction->getUser()->getLot() ,
                 'UNIT' => 'B' . $user->getBlock() . ' L' . $user->getLot(),
                 'AMOUNT' => $amount,
                 'COVERAGE' => $coverage,
@@ -236,7 +245,7 @@ class PaymentReport extends AdminAction
             NumberFormat::format($amount);
 
             $data[] = array(
-                'ID' => $transaction->getId(),
+                'ID' => 'CH' . $transaction->getUser()->getBlock() .  $transaction->getUser()->getLot() ,
                 'UNIT' => 'B' . $user->getBlock() . ' L' . $user->getLot(),
                 'AMOUNT' => $amount,
                 'REFERENCE' => $receiptsHolder,
