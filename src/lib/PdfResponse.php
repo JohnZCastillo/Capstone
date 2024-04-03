@@ -24,7 +24,7 @@ class PdfResponse
         $converter->convertTo($outputFile);
     }
 
-    public function getResponse(string $filename = 'report.pdf'): Response
+    public function getResponse(string $filename = 'reportmo.pdf'): Response
     {
 
         $outputFile = $this->outputFile;
@@ -33,6 +33,7 @@ class PdfResponse
 
         $response = $response->withHeader('Content-Type', 'application/pdf');
         $response = $response->withHeader('Content-Disposition', "inline; filename=$filename");
+        $response = $response->withHeader('Cache-Control', 'no-cache');
 
         $fileStream = fopen(self::DIR . $outputFile, 'r');
         $response->getBody()->write(fread($fileStream, filesize(self::DIR . $outputFile)));
@@ -40,4 +41,5 @@ class PdfResponse
 
         return $response;
     }
+
 }

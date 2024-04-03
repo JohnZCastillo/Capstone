@@ -107,7 +107,7 @@ class PaymentReport extends AdminAction
             $data[] = array(
                 'ID' => 'CH' . $transaction->getUser()->getBlock() .  $transaction->getUser()->getLot() ,
                 'UNIT' => 'B' . $user->getBlock() . ' L' . $user->getLot(),
-                'USER' => $transaction->getUser()->getName(),
+                'USER' => $this->areaService->getOwner($transaction->getUser()),
                 'AMOUNT' => $amount,
                 'REFERENCE' => $receiptsHolder,
                 'COVERAGE' => $coverage,
@@ -201,7 +201,9 @@ class PaymentReport extends AdminAction
 
         $this->addActionLog('Rejected Payment Report was created', LogsTag::paymentReport());
 
-        return $pdfResponse->getResponse();
+        $filename = "rejected-payment-report-" . $fromCoverage->format('m-Y') . '-to-' . $toCoverage->format('m-Y') . '.pdf';
+
+        return $pdfResponse->getResponse($filename);
 
     }
 
@@ -272,7 +274,9 @@ class PaymentReport extends AdminAction
 
         $this->addActionLog('Pending Payment Report was created', LogsTag::paymentReport());
 
-        return $pdfResponse->getResponse();
+        $filename = "pending-payment-report-" . $fromCoverage->format('m-Y') . '-to-' . $toCoverage->format('m-Y') . '.pdf';
+
+        return $pdfResponse->getResponse($filename);
     }
 
     public function unpaidPaymentReport(): Response
@@ -351,7 +355,9 @@ class PaymentReport extends AdminAction
 
         $this->addActionLog('Unpaid Payment Report was created', LogsTag::paymentReport());
 
-        return $pdfResponse->getResponse();
+        $filename = "pending-payment-report-" . $carbonStart->format('m-Y') . '-to-' . $carbonEnd->format('m-Y') . '.pdf';
+
+        return $pdfResponse->getResponse($filename);
 
     }
 
