@@ -74,6 +74,7 @@ class PaymentReport extends AdminAction
 
         $data = array();
 
+        /** @var  TransactionModel $transaction */
         foreach ($transactions as $transaction) {
 
             $user = $transaction->getUser();
@@ -97,7 +98,7 @@ class PaymentReport extends AdminAction
             NumberFormat::format($amount);
 
             $data[] = array(
-                'ID' => $transaction->getId(),
+                'ID' => 'CH' . $transaction->getUser()->getBlock() .  $transaction->getUser()->getLot() ,
                 'UNIT' => 'B' . $user->getBlock() . ' L' . $user->getLot(),
                 'AMOUNT' => $amount,
                 'REFERENCE' => $receiptsHolder,
@@ -166,7 +167,7 @@ class PaymentReport extends AdminAction
             NumberFormat::format($amount);
 
             $data[] = array(
-                'ID' => $transaction->getId(),
+                'ID' => 'CH' . $transaction->getUser()->getBlock() .  $transaction->getUser()->getLot() ,
                 'UNIT' => 'B' . $user->getBlock() . ' L' . $user->getLot(),
                 'AMOUNT' => $amount,
                 'COVERAGE' => $coverage,
@@ -236,7 +237,7 @@ class PaymentReport extends AdminAction
             NumberFormat::format($amount);
 
             $data[] = array(
-                'ID' => $transaction->getId(),
+                'ID' => 'CH' . $transaction->getUser()->getBlock() .  $transaction->getUser()->getLot() ,
                 'UNIT' => 'B' . $user->getBlock() . ' L' . $user->getLot(),
                 'AMOUNT' => $amount,
                 'REFERENCE' => $receiptsHolder,
