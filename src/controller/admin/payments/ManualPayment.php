@@ -31,6 +31,11 @@ class ManualPayment extends Payment
         $lot = $formData['lot'];
 
         try {
+
+            if(!$this->areaService->exist($block,$lot)){
+                throw new InvalidPaymentAmount("Property doest not exist!");
+            }
+
             $user = $this->userService->findManualPayment($block,$lot);
             $transaction = $this->createTransaction($user, (float) $amount, $fromMonth, $toMonth);
 
@@ -75,7 +80,7 @@ class ManualPayment extends Payment
         }catch (InvalidPaymentAmount $invalidPaymentAmount) {
             $this->addErrorMessage($invalidPaymentAmount->getMessage());
         }  catch (Exception $e) {
-            $this->addErrorMessage('Internal Error, please check logs');
+            $this->addErrorMessage('Something went wrong please try again');
         }
 
         return $this->redirect('/admin/payments');

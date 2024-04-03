@@ -76,6 +76,11 @@
                 <span class="text-danger p-2 fw-bold small">Amount Paid does not match total due</span>
                 {% endif %}
 
+
+                {% if isNotUniqueReferences and transaction.status == 'PENDING'  %}
+                 <span class="text-danger p-2 fw-bold small">Duplicate Reference In Used</span>
+                {% endif %}
+
                 <div class="card-body">
                     <p>GCASH Receipts</p>
                     <div class="row d-flex gap-2 flex-wrap">
@@ -149,14 +154,16 @@
 
                     {% if transaction.status != 'PENDING' and  login_user.role|lower == 'super' %}
 
-                    <form class="pendingPaymentForm" method="POST" action="/admin/transaction/pending/{{transaction.id}}">
-                        <button
-                                type="submit"
-                                class="btn btn-warning  mb-2 mb-md-1"
-                        >
-                            Revert To Pending
-                        </button>
-                    </form>
+                        {% if isNotExpired(transaction.updatedAt|date('Y-m-d'),7)   %}
+                            <form class="pendingPaymentForm" method="POST" action="/admin/transaction/pending/{{transaction.id}}">
+                                <button
+                                        type="submit"
+                                        class="btn btn-warning  mb-2 mb-md-1"
+                                >
+                                    Revert To Pending
+                                </button>
+                            </form>
+                        {% endif %}
 
                     {% endif %}
 

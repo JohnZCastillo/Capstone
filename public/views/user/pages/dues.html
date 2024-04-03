@@ -145,6 +145,14 @@
                     </td>
                 </tr>
                 {% endfor %}
+
+                {% if transactions is empty %}
+                <tr style="height: 200px" >
+                    <td colspan="5">
+                        <h6 class="text-secondary text-center">Empty Result</h6>
+                    </td>
+                </tr>
+                {% endif %}
                 </tbody>
             </table>
         </div>
@@ -232,6 +240,7 @@
                         <div class="col-sm">
                             <label for="">From</label>
                             <input
+                                    min="{{paymentStart.start|date('Y-m')}}"
                                     max="{{'now'|date('Y') ~ -12}}"
                                     class="form-control"
                                     type="month"
@@ -243,6 +252,7 @@
                         <div class="col-sm">
                             <label for="">To</label>
                             <input
+                                    min="{{paymentStart.start|date('Y-m')}}"
                                     max="{{'now'|date('Y') ~ -12}}"
                                     class="form-control"
                                     type="month"

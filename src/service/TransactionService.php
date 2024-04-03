@@ -136,13 +136,12 @@ class TransactionService extends Service
 
         $qb->select('t')
             ->from(TransactionModel::class, 't')
-            ->innerJoin('t.user', 'u', 'WITH', 't.user  = u.id')
+            ->innerJoin('t.user', 'u', 'WITH', 'u.block = :block AND u.lot = :lot')
+            ->setParameter('block', $user->getBlock())
+            ->setParameter('lot', $user->getLot())
             ->orderBy('t.id','DESC');
 
         $or = $qb->expr()->andX();
-
-        $or->add($qb->expr()->eq('t.user',':user'));
-        $qb->setParameter('user',$user);
 
         $paginator = new Paginator();
 
@@ -177,7 +176,9 @@ class TransactionService extends Service
 
         }
 
+        if($hasQuery){
             $qb->where($or);
+        }
 
         return $paginator->paginate($qb, $page, $max);
     }
@@ -251,7 +252,8 @@ class TransactionService extends Service
             ->setParameter('block', $user->getBlock())
             ->setParameter('lot', $user->getLot())
             ->where($qb->expr()->andX(
-                $qb->expr()->between(':month', 't.fromMonth', 't.toMonth'),
+                $qb->expr()->between('MONTH(:month)', 'MONTH(t.fromMonth)', 'MONTH(t.toMonth)'),
+                $qb->expr()->between('YEAR(:month)', 'YEAR(t.fromMonth)', 'YEAR(t.toMonth)'),
                 $qb->expr()->eq('t.status', ':status'))
             )
             ->setParameter('month', $month)

@@ -17,14 +17,14 @@ class PdfResponse
     public function __construct(string $docxFile,string $outputFile)
     {
 
-        $converter = new OfficeConverter($docxFile, self::DIR,'libreoffice',true);
+        $converter = new OfficeConverter($docxFile, self::DIR,'soffice',false);
 
         $this->outputFile = $outputFile;
 
         $converter->convertTo($outputFile);
     }
 
-    public function getResponse(): Response
+    public function getResponse(string $filename = 'report.pdf'): Response
     {
 
         $outputFile = $this->outputFile;
@@ -32,7 +32,7 @@ class PdfResponse
         $response =  new \Slim\Psr7\Response();
 
         $response = $response->withHeader('Content-Type', 'application/pdf');
-        $response = $response->withHeader('Content-Disposition', 'attachment; filename="report.pdf"');
+        $response = $response->withHeader('Content-Disposition', "attachment; filename=$filename");
 
         $fileStream = fopen(self::DIR . $outputFile, 'r');
         $response->getBody()->write(fread($fileStream, filesize(self::DIR . $outputFile)));

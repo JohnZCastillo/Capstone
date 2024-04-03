@@ -3,9 +3,10 @@
 namespace App\lib;
 
 use App\exception\date\InvalidDateFormat;
+use Carbon\Carbon;
 use DateInterval;
 use DateTime;
-use PHPUnit\Exception;
+use Exception;
 use Respect\Validation\Validator as v;
 
 class Time
@@ -165,9 +166,11 @@ class Time
             throw new InvalidDateFormat();
         }
 
-        $targetMonth = DateTime::createFromFormat('Y-m', $month);
-        $targetMonth->setDate($targetMonth->format('Y'), $targetMonth->format('m'), 1);
-        return $targetMonth->format('Y-m-d');
+        return Carbon::createFromFormat('Y-m',$month)->startOfMonth()->format('Y-m-d');
+
+//        $targetMonth = DateTime::createFromFormat('Y-m', $month);
+//        $targetMonth->setDate($targetMonth->format('Y'), $targetMonth->format('m'), 1);
+//        return $targetMonth->format('Y-m-d');
     }
 
     /**
@@ -179,8 +182,10 @@ class Time
      */
     static function setToLastDayOfMonth(string $month): string
     {
-        $targetMonth = DateTime::createFromFormat('Y-m', $month);
-        return $targetMonth->format('Y-m-t');
+//        $targetMonth = DateTime::createFromFormat('Y-m', $month);
+//        return $targetMonth->format('Y-m-t');
+
+        return Carbon::createFromFormat('Y-m',$month)->endOfMonth()->format('Y-m-d');
     }
 
     /**

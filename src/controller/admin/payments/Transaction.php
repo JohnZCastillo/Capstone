@@ -30,6 +30,9 @@ class Transaction extends AdminAction
 
             $references = $this->transactionService->getReferences($transaction);
 
+
+            $isNotUniqueReferences = $this->receiptService->isNotUniqueReferences($references);
+
             $transactions = $this->transactionService->getByApprovedReferences($transaction,$references);
 
             return $this->view('admin/pages/transaction.html', [
@@ -39,12 +42,14 @@ class Transaction extends AdminAction
                 'loginUser' => $this->getLoginUser(),
                 'totalDue' => $totalDue,
                 'transactions' => $transactions,
+                'isNotUniqueReferences' => $isNotUniqueReferences,
             ]);
 
         } catch (TransactionNotFound $transactionNotFound) {
             $this->addErrorMessage('Transaction Not Found!');
         } catch (Exception $exception) {
-            $this->addErrorMessage('An  Internal Error Has Occurred, pleas check logs');
+//            $this->addErrorMessage('An  Internal Error Has Occurred, pleas check logs');
+            $this->addErrorMessage($exception->getMessage());
         }
 
         return $this->redirect('/admin/payments');

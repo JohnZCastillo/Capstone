@@ -29,6 +29,29 @@ class ReceiptService extends Service {
     }
 
 
+    public function isNotUniqueReferences(array $references):bool {
+
+
+        $qb = $this->entityManager->createQueryBuilder();
+
+        $count = $qb->select('count(u.id)')
+            ->from(ReceiptModel::class, 'u')
+            ->innerJoin('u.transaction', 't', 'WITH', 't.id = u.transaction')
+            ->where(
+                $qb->expr()->andX(
+                    $qb->expr()->in('u.referenceNumber',':reference'),
+                    $qb->expr()->eq('t.status',':status'),
+                )
+            )
+            ->setParameter('reference', $references)
+            ->setParameter('status', 'APPROVED')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count;
+    }
+
+
     public function saveAll($receipts,TransactionModel $transaction, array $references = null) {
 
         foreach($receipts as $index => $imageName){

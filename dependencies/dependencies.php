@@ -151,4 +151,8 @@ return array(
         return new \App\service\AreaService($c->get(EntityManager::class));
     },
 
+    \App\lib\Timeframe::class => function (ContainerInterface $c) {
+        return new \App\lib\Timeframe();
+    },
+
 );

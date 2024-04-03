@@ -125,8 +125,9 @@ class PaymentReport extends AdminAction
 
         $this->addActionLog('Approved Payment Report was created', LogsTag::paymentReport());
 
+        $filename = "approve-payment-report-" . $fromCoverage->format('m-Y') . '-to-' . $toCoverage->format('m-Y') . '.pdf';
 
-        return $pdfResponse->getResponse();
+        return $pdfResponse->getResponse($filename);
     }
 
     protected function rejectedPaymentReport(): Response
@@ -344,6 +345,5 @@ class PaymentReport extends AdminAction
         return $pdfResponse->getResponse();
 
     }
-
 
 }

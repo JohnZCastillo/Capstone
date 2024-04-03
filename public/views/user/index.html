@@ -57,6 +57,13 @@
     <link rel="stylesheet" href="/resources/assets/css/chat.css"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
+    <style>
+        .img-thumbnail {
+            width: 150px;
+            height: 200px;
+
+        }
+    </style>
 </head>
 
 <body>
@@ -209,8 +216,23 @@
 
     <!-- Overlay -->
     <div class="layout-overlay layout-menu-toggle"></div>
+    {% include './admin/partials/image-modal.html' %}
+
 </div>
 
+
+<script>
+    const modalImage = document.querySelector("#modalImage");
+    const images = document.querySelectorAll("img");
+
+    images.forEach((image) => {
+        image.addEventListener("click", () => {
+            modalImage.src = image.src;
+            $("#imageModal").modal("show");
+        });
+    });
+
+</script>
 
 {% block javascript %}
 

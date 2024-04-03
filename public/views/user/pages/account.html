@@ -201,10 +201,10 @@
 
         if (result.ok) {
             document.getElementById("changePassError").innerHTML = "";
-            document.getElementById("changePassSuccess").innerHTML = "Password Udpated";
+            document.getElementById("changePassSuccess").innerHTML = "Password Updated";
         } else {
             document.getElementById("changePassSuccess").innerHTML = "";
-            document.getElementById("changePassError").innerHTML = data.message;
+            document.getElementById("changePassError").innerHTML = data.data.message;
         }
 
     });

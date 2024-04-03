@@ -41,7 +41,7 @@ class ReceiptMaker extends AdminAction
 
             $amount = $transaction->getAmount();
             $paymentDate = Time::convertDateTimeToDateString($transaction->getCreatedAt());
-            $coverage = $transaction->getFromMonth() . ' - ' . $transaction->getToMonth();
+            $coverage = $transaction->getFromMonth()->format('Y-m') . ' - ' . $transaction->getToMonth()->format('Y-m');
 
             $pdf->Cell(0, 10, 'Transaction Number: ' . $transactionNumber, 0, 1);
             $pdf->Cell(0, 10, 'Homeowner: ' . $homeownerName, 0, 1);

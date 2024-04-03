@@ -32,6 +32,7 @@ class ArchiveIssue extends UserAction
             $this->addErrorMessage($notAuthorizeException->getMessage());
         }catch (IssueNotFoundException $issueNotFoundException) {
             $this->addErrorMessage($issueNotFoundException->getMessage());
+            return  $this->redirect('/issues');
         }catch (\Exception $exception) {
             $this->addErrorMessage('An Internal Error Occurred');
         }

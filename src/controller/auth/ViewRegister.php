@@ -13,6 +13,11 @@ class ViewRegister extends AdminAction
      */
     protected function action(): Response
     {
-       return  $this->view('pages/register.html',[]);
+
+        $overview = $this->overviewService->getOverview();
+
+       return  $this->view('pages/register.html',[
+           'overview' => $overview
+       ]);
     }
 }

@@ -4,10 +4,12 @@ namespace App\controller\admin\payments;
 
 use App\controller\admin\AdminAction;
 use App\exception\AlreadyPaidException;
+use App\exception\date\InvalidDateFormat;
 use App\exception\date\InvalidDateRange;
 use App\exception\image\ImageNotGcashReceiptException;
 use App\exception\image\UnsupportedImageException;
 use App\exception\NotUniqueReferenceException;
+use App\exception\payment\InvalidPaymentAmount;
 use App\lib\GCashReceiptValidator;
 use App\lib\Image;
 use App\lib\ReferenceExtractor;
@@ -15,6 +17,7 @@ use App\lib\Time;
 use App\model\TransactionModel;
 use App\model\UserModel;
 use TCPDF;
+use Exception;
 
 abstract class Payment extends AdminAction
 {
@@ -23,8 +26,14 @@ abstract class Payment extends AdminAction
 
 
     /**
-     * @throws InvalidDateRange
+     * @param UserModel $user
+     * @param float $amount
+     * @param string $fromMonth
+     * @param string $toMonth
+     * @return TransactionModel
      * @throws AlreadyPaidException
+     * @throws InvalidDateFormat
+     * @throws InvalidDateRange
      * @throws Exception
      */
     protected function createTransaction(UserModel $user, float $amount, string $fromMonth, string $toMonth): TransactionModel
@@ -38,7 +47,7 @@ abstract class Payment extends AdminAction
         }
 
         if ($this->isPaymentLacking($user,$amount, $fromMonth, $toMonth)) {
-            throw new Exception("Insufficient Payment Amount");
+            throw new InvalidPaymentAmount("Insufficient Payment Amount");
         }
 
         $months = Time::getMonths(Time::convertStringDateMonthToStringDateTime($fromMonth), Time::convertStringDateMonthToStringDateTime($toMonth));
@@ -57,8 +66,8 @@ abstract class Payment extends AdminAction
         $transaction->setCreatedAt(Time::timestamp());
         $transaction->setUser($user);
 
-
         return $transaction;
+
     }
 
     /**
