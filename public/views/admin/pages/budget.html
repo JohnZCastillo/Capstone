@@ -216,8 +216,6 @@
 {% block javascript %}
 <script>
 
-    const fundStatus = document.getElementById('fundStatus');
-    const fundForm = document.getElementById('fundForm');
     const editModalForm =  new bootstrap.Modal(document.getElementById('editBillModal'), {
         keyboard: false
     });
@@ -241,10 +239,6 @@
            editModalForm.show();
         }
     }
-
-    fundStatus.addEventListener('change', (event) => {
-        fundForm.submit();
-    })
 
     async function loadChart(fundId, chartName) {
 
