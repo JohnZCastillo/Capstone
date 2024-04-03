@@ -32,7 +32,7 @@ class PdfResponse
         $response =  new \Slim\Psr7\Response();
 
         $response = $response->withHeader('Content-Type', 'application/pdf');
-        $response = $response->withHeader('Content-Disposition', "attachment; filename=$filename");
+        $response = $response->withHeader('Content-Disposition', "inline; filename=$filename");
 
         $fileStream = fopen(self::DIR . $outputFile, 'r');
         $response->getBody()->write(fread($fileStream, filesize(self::DIR . $outputFile)));
