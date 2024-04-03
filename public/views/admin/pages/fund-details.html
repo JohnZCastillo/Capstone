@@ -12,15 +12,21 @@
         <!-- Invoice -->
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
 
+
+
             <div class="row mb-2">
-                <div class="mb-2 col-sm col-md-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <span class="d-block mb-1 text-warning">Total Fund</span>
-                            <h3 class="card-title text-nowrap mb-2">{{fund.computeTotal|format_currency('PHP')}}</h3>
+
+                <div class="mb-2 col-sm-12 col-md-4">
+                    <a href="/admin/fund/incomes/{{fund.id}}">
+                        <div class="card">
+                            <div class="card-body">
+                                <span class="d-block mb-1">Fund</span>
+                                <h3 class="card-title text-nowrap mb-2">{{fund.computeIncomes|format_currency('PHP')}}</h3>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
+
                 <div class="mb-2 col-sm col-md-4">
                     <a href="/admin/fund/expenses/{{fund.id}}">
                         <div class="card">
@@ -31,16 +37,16 @@
                         </div>
                     </a>
                 </div>
-                <div class="mb-2 col-sm-12 col-md-4">
-                    <a href="/admin/fund/incomes/{{fund.id}}">
+
+                <div class="mb-2 col-sm col-md-4">
                     <div class="card">
                         <div class="card-body">
-                            <span class="d-block mb-1">Total Income</span>
-                            <h3 class="card-title text-nowrap mb-2">{{fund.computeIncomes|format_currency('PHP')}}</h3>
+                            <span class="d-block mb-1 text-warning">Remaining Fund</span>
+                            <h3 class="card-title text-nowrap mb-2">{{fund.computeTotal|format_currency('PHP')}}</h3>
                         </div>
                     </div>
-                    </a>
                 </div>
+
             </div>
 
             <div class="card mb-2">
@@ -101,47 +107,8 @@
                 </div>
             </div>
 
-            <div class="card mt-2" id="pendingExpenses">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <h5 class="card-title m-0 me-2">Pending Expenses</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="p-0 m-0">
-                        {% for expense in fund.expenses %}
-                            {% if expense.status|lower == 'pending' %}
-                             <li class="d-flex mb-4 pb-1">
-
-                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                    <div class="me-2">
-                                        <small class="text-muted d-block mb-1">{{expense.title}}</small>
-                                        <h6 class="mb-0">{{expense.purpose}}</h6>
-                                    </div>
-                                    <div class="user-progress d-flex align-items-center gap-1">
-                                        <h6 class="mb-0">{{expense.amount|format_currency('PHP')}}</h6>
-                                        <div class="dropdown">
-                                            <button class="btn p-0" type="button" id="transactionID" data-bs-toggle="dropdown"
-                                                    aria-haspopup="true" aria-expanded="false">
-                                                <i class="bx bx-dots-vertical-rounded"></i>
-                                            </button>
-                                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="transactionID">
-                                                <form class="approveExpenseForm" method="POST" action="/admin/approve-expense/{{expense.id}}">
-                                                    <button class="dropdown-item" type="submit">Approve</button>
-                                                </form>
-                                                <form class="rejectExpenseForm" method="POST" action="/admin/reject-expense/{{expense.id}}">
-                                                    <button class="dropdown-item" type="submit">Reject</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </li>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
         </div>
+
 
         <!-- Invoice Actions -->
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
@@ -149,30 +116,18 @@
                 <div class="card-body">
                     <div class="d-flex flex-column">
 
-                        <button
-                                class="btn-primary btn shadow mb-2"
-                                data-bs-target="#incomeModal"
-                                data-bs-toggle="modal"
-                                type="button">
-                            Add Income
-                        </button>
+                        {% if fund.title|lower != 'dues collection' %}
 
+                            <button
+                                    class="btn-primary btn shadow mb-2"
+                                    data-bs-target="#incomeModal"
+                                    data-bs-toggle="modal"
+                                    type="button">
+                                Add Income
+                            </button>
 
-                        <button
-                                class="btn-primary btn shadow mb-2"
-                                data-bs-target="#expenseModal"
-                                data-bs-toggle="modal"
-                                type="button">
-                            Add Expense
-                        </button>
+                        {% endif %}
 
-                        <button
-                                class="btn-primary btn shadow mb-2"
-                                data-bs-target="#transferModal"
-                                data-bs-toggle="modal"
-                                type="button">
-                            Transfer Funds
-                        </button>
 
                         <a href="/admin/fund/report/{{fund.id}}" class="btn btn-primary mb-2">Report</a>
 
@@ -181,13 +136,14 @@
                 </div>
             </div>
         </div>
+
     </div>
 
 </div>
 
-{% include './admin/partials/income-modal.html' %}
-{% include './admin/partials/expense-modal.html' %}
-{% include './admin/partials/transfer-modal.html' %}
+{% if fund.title|lower != 'dues collection' %}
+    {% include './admin/partials/income-modal.html' %}
+{% endif %}
 
 {% endblock %}
 
@@ -232,52 +188,5 @@
 
     var chart = new ApexCharts(document.querySelector("#expenseAndIncomeChart"), options);
     chart.render();
-</script>
-<script>
-
-    const rejectExpenseForms = document.querySelectorAll('.rejectExpenseForm');
-    const approveExpenseForms = document.querySelectorAll('approveExpenseForm');
-
-    rejectExpenseForms.forEach(rejectExpenseForm => {
-        rejectExpenseForm.addEventListener('submit',(event)=>{
-
-            event.preventDefault();
-
-            onSubmitConfirmation({
-                title: 'Confirmation',
-                text: `Are you sure you want to reject this expense?`,
-                icon: 'question',
-                cancelledText: 'Action Cancelled',
-                confirmCallback: ()=> rejectExpenseForm.submit(),
-            })
-
-        })
-    })
-
-    approveExpenseForms.forEach(approveExpenseForm => {
-        approveExpenseForm.addEventListener('submit',(event)=>{
-
-            event.preventDefault();
-
-            onSubmitConfirmation({
-                title: 'Confirmation',
-                text: `Are you sure you want to approve this expense?`,
-                icon: 'question',
-                cancelledText: 'Action Cancelled',
-                confirmCallback: ()=> approveExpenseForm.submit(),
-            })
-
-        })
-    })
-
-    formConfirmation({
-        formId: 'transferBudgetForm',
-        modalId: 'transferModal',
-        title: 'Confirmation',
-        text: 'Are you sure you want to transfer?',
-        icon: 'question',
-        cancelledText: 'Action Cancelled'
-    });
-
 </script>
 {% endblock %}
