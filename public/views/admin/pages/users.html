@@ -128,7 +128,7 @@
                     {% set restricted = user.isBlocked ? "Yes" : "No" %}
                     {% set restrictedBg = user.isBlocked ? "bg-danger" : "bg-success" %}
 
-                    <td>{{user.id}}</td>
+                    <td>CH{{user.block ~ user.lot}}</td>
                     <td>{{user.name}}</td>
                     <td>{{user.email}}</td>
                     <td>{{user.role}}</td>
