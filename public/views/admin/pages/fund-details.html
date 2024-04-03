@@ -107,46 +107,6 @@
                 </div>
             </div>
 
-            <div class="card mt-2" id="pendingExpenses">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <h5 class="card-title m-0 me-2">Pending Expenses</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="p-0 m-0">
-                        {% for expense in fund.expenses %}
-                            {% if expense.status|lower == 'pending' %}
-                             <li class="d-flex mb-4 pb-1">
-
-                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                    <div class="me-2">
-                                        <small class="text-muted d-block mb-1">{{expense.title}}</small>
-                                        <h6 class="mb-0">{{expense.purpose}}</h6>
-                                    </div>
-                                    <div class="user-progress d-flex align-items-center gap-1">
-                                        <h6 class="mb-0">{{expense.amount|format_currency('PHP')}}</h6>
-                                        <div class="dropdown">
-                                            <button class="btn p-0" type="button" id="transactionID" data-bs-toggle="dropdown"
-                                                    aria-haspopup="true" aria-expanded="false">
-                                                <i class="bx bx-dots-vertical-rounded"></i>
-                                            </button>
-                                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="transactionID">
-                                                <form class="approveExpenseForm" method="POST" action="/admin/approve-expense/{{expense.id}}">
-                                                    <button class="dropdown-item" type="submit">Approve</button>
-                                                </form>
-                                                <form class="rejectExpenseForm" method="POST" action="/admin/reject-expense/{{expense.id}}">
-                                                    <button class="dropdown-item" type="submit">Reject</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </li>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
         </div>
 
         <!-- Invoice Actions -->
