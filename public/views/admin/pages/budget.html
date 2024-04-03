@@ -12,38 +12,6 @@
 </style>
 <div class="container-xxl flex-grow-1 container-p-y">
 
-    <div class="d-flex gap-2">
-        <button
-                class="btn-success btn shadow mb-2"
-                data-bs-target="#fundModal"
-                data-bs-toggle="modal"
-                type="button"
-        >
-            New Fund
-        </button>
-
-        <button
-                class="btn-success btn shadow mb-2 d-none"
-                data-bs-target="#billModal"
-                data-bs-toggle="modal"
-                type="button"
-        >
-            New Bill
-        </button>
-
-        <form id="fundForm">
-
-            {% set viewActive = archived ? '' : 'selected'%}
-            {% set viewArchived = archived ? 'selected' : ''%}
-
-            <select name="status" class="form-control" id="fundStatus">
-                <option value="active" {{viewActive}}>Active</option>
-                <option value="archived" {{viewArchived}}>Archived</option>
-            </select>
-        </form>
-    </div>
-
-
     <div class="row">
 
         {% for fund in funds %}
