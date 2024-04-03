@@ -131,7 +131,7 @@
                 {% set statusLabel = transaction.getStatus == 'REJECTED' ? 'bg-label-danger' : statusLabel %}
 
                 <tr>
-                    <td>{{transaction.getId()}}</td>
+                    <td>CH{{transaction.user.block ~ transaction.user.lot}}</td>
                     <td>{{transaction.getFromMonth()|date("M Y")}}</td>
                     <td>{{transaction.getToMonth()|date("M Y")}}</td>
                     <td><span class="badge {{statusLabel}} me-1">{{transaction.getStatus()|lower}}</span></td>

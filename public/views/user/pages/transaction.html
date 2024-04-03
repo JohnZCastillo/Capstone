@@ -50,7 +50,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td>{{transaction.id}}</td>
+                            <td>CH{{transaction.user.block ~ transaction.user.lot}}</td>
                             <td class="text-nowrap">{{ transaction.getFromMonth()|date("M Y") }}</td>
                             <td class="text-nowrap">{{ transaction.getToMonth()|date("M Y") }}</td>
                             <td>{{amountDue}}</td>
@@ -86,7 +86,7 @@
 
                     {% if transaction.status == 'APPROVED' %}
                     <form method="POST" action="/receipt/{{transaction.id}}">
-                        <button type="submit" class="btn btn-primary mb-2">Download Invoice</button>
+                        <button type="submit" class="btn btn-primary mb-2">Generate Invoice</button>
                     </form>
                     {% endif %}
 

@@ -3,6 +3,7 @@
 namespace App\model\budget;
 
 use App\model\enum\ProjectStatus;
+use App\model\enum\ProjectType;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -22,8 +23,12 @@ class ProjectModel{
     #[ORM\Column(type: ProjectStatus::class)]
     private $status;
 
+    #[ORM\Column(type: ProjectType::class, options: ['default' => ProjectType::ACTIVE])]
+    private $type;
+
     #[ORM\OneToMany(mappedBy: 'project', targetEntity: ProjectExpenseModel::class)]
-    private Collection|array $expense;
+    private Collection|array $expenses;
+
 
     #[ORM\Column(type: 'date')]
     private $createdAt;
@@ -33,7 +38,7 @@ class ProjectModel{
 
     public function __construct()
     {
-        $this->expense = new ArrayCollection();
+        $this->expenses = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
 
@@ -67,14 +72,14 @@ class ProjectModel{
         $this->status = $status;
     }
 
-    public function getExpense(): Collection|array
+    public function getExpenses(): Collection|array
     {
-        return $this->expense;
+        return $this->expenses;
     }
 
-    public function setExpense(Collection|array $expense): void
+    public function setExpenses(Collection|array $expenses): void
     {
-        $this->expense = $expense;
+        $this->expenses = $expenses;
     }
 
     public function getCreatedAt()
@@ -97,5 +102,26 @@ class ProjectModel{
         $this->updatedAt = $updatedAt;
     }
 
+    public function getTotalExpense(): float{
+
+        $total = 0;
+
+        /** @var ProjectExpenseModel $expense */
+        foreach ($this->expenses as $expense) {
+            $total += $expense->getAmount();
+        }
+
+        return $total;
+    }
+
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    public function setType($type): void
+    {
+        $this->type = $type;
+    }
 
 }

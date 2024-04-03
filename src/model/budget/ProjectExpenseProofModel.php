@@ -19,7 +19,7 @@ class ProjectExpenseProofModel{
     #[ORM\Column(type: 'string')]
     private $image;
 
-    #[ORM\ManyToOne(targetEntity: ProjectExpenseModel::class, inversedBy: 'proof',)]
+    #[ORM\ManyToOne(targetEntity: ProjectExpenseModel::class, inversedBy: 'proofs',)]
     private ?ProjectExpenseModel $projectExpense = null;
 
     public function getId()

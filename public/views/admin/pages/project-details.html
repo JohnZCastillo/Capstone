@@ -1,0 +1,86 @@
+{% extends "./admin/index.html" %}
+
+{% block body %}
+
+    <div class="container-xxl flex-grow-1 container-p-y">
+
+        <div class="row invoice-preview">
+
+            <!-- Invoice -->
+            <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
+
+                <div class="row mb-2">
+
+                    <div class="mb-2 col-sm-12 col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <span class="d-block mb-1">{{project.title|title}} Total Expenses</span>
+                                    <h3 class="card-title text-nowrap mb-2">{{project.getTotalExpense()|format_currency('PHP')}}</h3>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+
+                <div class="row justify-content-between">
+                    <div class="card h-100">
+                            <div class="card-header d-flex align-items-center justify-content-between">
+                                <h5 class="card-title m-0 me-2">{{project.title|title}} Expenses</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="p-0 m-0 overflow-auto" style="max-height: 300px">
+                                    {% for expense in project.expenses %}
+                                    <li>
+                                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                            <div class="me-2">
+                                                <small class="text-muted d-block mb-1">{{fund.createdAt|date('M d, Y')}}</small>
+                                                <h5 class="mb-0">{{expense.title|title}}</h5>
+                                            </div>
+                                            <div class="user-progress d-flex align-items-center gap-1">
+                                                <h6 class="mb-0">{{expense.amount|format_currency('PHP')}}</h6>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2 d-flex">
+                                            {% for proof in expense.proofs %}
+                                            <img class="img-thumbnail" src="/uploads/{{proof.image}}">
+                                            {% endfor %}
+                                        </div>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                </div>
+
+            </div>
+
+
+            <!-- Invoice Actions -->
+            <div class="col-xl-3 col-md-4 col-12 invoice-actions">
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <div class="d-flex flex-column">
+
+                            {% if project.status|lower == 'ongoing' %}
+                                <button
+                                    class="btn-primary btn shadow mb-2"
+                                    data-bs-target="#projectExpenseModal"
+                                    data-bs-toggle="modal"
+                                    type="button">
+                                Add Expense
+                            </button>
+                            {% endif %}
+
+                            <a href="/admin/project" class="btn btn-secondary mb-2">Back</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+{% include './admin/partials/project-expense-modal.html' %}
+
+{% endblock %}
+

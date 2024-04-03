@@ -3,6 +3,7 @@
 namespace App\model;
 
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 
@@ -60,6 +61,7 @@ class TransactionModel {
         $this->updatedAt = new DateTime();
         $this->createdAt = new DateTime();
         $this->paymentMethod = 'gcash';
+        $this->receipts = new ArrayCollection();
     }
 
     public function getStatuses(): array

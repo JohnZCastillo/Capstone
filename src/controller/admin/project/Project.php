@@ -8,6 +8,7 @@ use App\controller\admin\AdminAction;
 use App\exception\InvalidInput;
 use App\lib\Time;
 use App\model\enum\LogsTag;
+use App\model\enum\ProjectStatus;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;
@@ -21,11 +22,34 @@ class Project extends AdminAction
     {
         try {
 
-            $projects = $this->projectService->getProjects();
+            $content = $this->getQueryParams();
+
+            $type = $content['type'] ?? 'active';
+
+            switch ($type){
+                case 'active':
+                    $type = \App\model\enum\ProjectType::ACTIVE;
+                    break;
+                case 'archive':
+                    $type = \App\model\enum\ProjectType::ARCHIVE;
+                    break;
+                default :
+                    $type = \App\model\enum\ProjectType::ACTIVE;
+            }
+
+            $projects = $this->projectService->getProjects($type);
+
+            $totalCompleted = $this->projectService->count(ProjectStatus::COMPLETED);
+            $totalOngoing = $this->projectService->count(ProjectStatus::ONGOING);
+            $totalCancelled = $this->projectService->count(ProjectStatus::CANCELLED);
 
             return $this->view('admin/pages/project.html',
                 [
-                    'projects' => $projects
+                    'projects' => $projects,
+                    'totalCompleted' => $totalCompleted,
+                    'totalOngoing' => $totalOngoing,
+                    'totalCancelled' => $totalCancelled,
+                    'type' => $type
                 ]
             );
 

@@ -16,15 +16,83 @@
             data-bs-toggle="modal"
             type="button">New Project</button>
 
-    <div class="row">
 
-        {% for project in projects %}
-        <div class="col-lg-5 col-md-8 col-12 mb-4">
+    <div class="row mt-2">
+
+        <div class="mb-2 col-sm-12 col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <span class="d-block mb-1 text-success">Completed</span>
+                        <div class="d-flex gap-2 align-items-center">
+                            <h3 class="card-title text-nowrap m-0">{{totalCompleted|number_format}}</h3>
+                            <i class="menu-icon tf-icons  bx-md bx bxs-check-square"></i>
+                        </div>
+
+                    </div>
+                </div>
+        </div>
+
+        <div class="mb-2 col-sm col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <span class="fw-medium d-block mb-1 text-warning">Ongoing</span>
+                        <div class="d-flex gap-2 align-items-center">
+                            <h3 class="card-title m-0">{{totalOngoing|number_format }}</h3>
+                            <i class="menu-icon tf-icons bx bx-md bx-run"></i>
+                        </div>
+                    </div>
+                </div>
+        </div>
+
+        <div class="mb-2 col-sm col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <span class="d-block mb-1 text-secondary">Cancelled</span>
+                    <div class="d-flex gap-2 align-items-center">
+                        <h3 class="card-title text-nowrap m-0">{{totalCancelled|number_format }}</h3>
+                        <i class="menu-icon tf-icons  bx-md bx bxs-trash"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <hr>
+
+    <form id="projectTypeForm" style="max-width: 150px">
+                <div>
+                    <label class="small m-0">View</label>
+                    <select class="form-control" id="projectTypeFormInput" name="type">
+
+                        {% set archiveSelected = type == 'archive' ? 'selected' : '' %}
+                        {% set activeSelected = type == 'active' ? 'selected' : '' %}
+
+                        <option value="archive" {{archiveSelected}}>Archive</option>
+                        <option value="active" {{activeSelected}}>Active</option>
+                    </select>
+                </div>
+            </form>
+
+    {% for project in projects %}
+
+    <div class="mt-2 row">
+
+        {% set statusLabel = 'bg-label-secondary' %}
+        {% set statusLabel = project.status|lower == 'completed' ? 'bg-label-success' : statusLabel %}
+        {% set statusLabel = project.status|lower == 'ongoing' ? 'bg-label-warning' : statusLabel %}
+
+        <div class="col-lg-4 col-md-8 col-12 mb-4">
             <div class="card position-relative">
-                <div class="card-body ">
+                <div class="card-body position-relative">
+                    <span class="position-absolute badge {{statusLabel}} me-1" style="top:5px; left: 2" >{{project.status}}</span>
                     <div class="mb-0 card-title d-flex align-items-start justify-content-between">
-                        <div class="flex-shrink-0">
-                            <h4>{{fund.title}}</h4>
+                        <div class="mt-2 w-75 shrink-0 d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4>{{project.title|title}}</h4>
+                            </div>
+                            <h3 class="card-title text-nowrap mb-2">{{project.getTotalExpense()|format_currency('PHP')}}</h3>
                         </div>
                         <div class="dropdown">
                             <button class="btn p-0" type="button" id="cardOpt6" data-bs-toggle="dropdown"
@@ -32,31 +100,38 @@
                                 <i class="bx bx-dots-vertical-rounded"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt6">
-                                <a class="dropdown-item" href="/admin/fund/{{fund.id}}">View Details</a>
-                                {% if fund.isArchived %}
-                                <form class="activeFundForm" method="POST" action="/admin/fund/unarchived/{{fund.id}}">
-                                    <input type="text" name="id" class="d-none" value="{{fund.id}}">
-                                    <button class="dropdown-item" type="submit">Active</button>
-                                </form>
+                                <a class="dropdown-item" href="/admin/project/{{project.id}}">View Details</a>
+
+                                {% if project.type|lower == 'archive' %}
+                                    <form  method="POST" class="setToActive dropdown-item" action="/admin/project/type/{{project.id}}/0">
+                                        <button type="submit" class="btn badge bg-label-primary me-1">Set to active</button>
+                                    </form>
                                 {% else %}
-                                <form class="archiveFundForm" method="POST" action="/admin/fund/archive/{{fund.id}}">
-                                    <button class="dropdown-item" type="submit">Archived</button>
-                                </form>
+                                    <form method="POST" class="setToArchive dropdown-item" action="/admin/project/type/{{project.id}}/1">
+                                        <button type="submit" class="btn badge bg-label-danger me-1">Set to archive</button>
+                                    </form>
                                 {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-4">
-                            <span>Total Fund</span>
-                            <h3 class="card-title text-nowrap mb-1">{{fund.computeTotal|format_currency('PHP')}}</h3>
-                        </div>
-                        <div class="col-8" id="profileReportChart" style="min-height: 80px;">
-                            <div id="" width="104" height="80"
-                                 class="apexcharts-canvas apexchartsiuk5bzuq apexcharts-theme-light mx-auto"
-                                 style="width: 104px; height: 80px;">
-                                <div id="chart{{fund.id}}">
-                                </div>
+
+
+                                {% if project.status|lower != 'completed' %}
+                                    <form class="markAsCompleted dropdown-item" method="POST" action="/admin/project/status/{{project.id}}/0">
+                                        mark as  <button type="submit" class="btn badge bg-label-success me-1">Completed</button>
+                                    </form>
+                                {% endif %}
+
+
+                                {% if project.status|lower != 'ongoing' %}
+                                    <form class="markAsOngoing dropdown-item" method="POST" action="/admin/project/status/{{project.id}}/1">
+                                        mark as   <button type="submit" class="btn badge bg-label-warning me-1">Ongoing</button>
+                                    </form>
+                                {% endif %}
+
+                                {% if project.status|lower != 'cancelled' %}
+                                    <form class="markAsCancelled dropdown-item" method="POST" action="/admin/project/status/{{project.id}}/2">
+                                        mark as  <button type="submit" class="btn badge bg-label-secondary me-1">Cancelled</button>
+                                    </form>
+                                {% endif %}
+
                             </div>
                         </div>
                     </div>
@@ -73,4 +148,45 @@
 {% endblock %}
 
 {% block javascript %}
+<script>
+
+
+    const projectTypeForm = document.querySelector('#projectTypeForm')
+    const projectTypeFormInput = document.querySelector('#projectTypeFormInput')
+
+    projectTypeFormInput.addEventListener('change',(event)=>{
+        projectTypeForm.submit();
+    })
+
+    onSubmitConfirmations({
+        classId: 'setToArchive',
+        title: 'Confirmation',
+        text: `Are you sure want to archive this?`,
+    })
+
+    onSubmitConfirmations({
+        classId: 'setToActive',
+        title: 'Confirmation',
+        text: `Are you sure want to make this active?`,
+    })
+
+    onSubmitConfirmations({
+        classId: 'markAsCompleted',
+        title: 'Confirmation',
+        text: `Are you sure want mark this project as Completed?`,
+    })
+
+    onSubmitConfirmations({
+        classId: 'markAsOngoing',
+        title: 'Confirmation',
+        text: `Are you sure want mark this project as Ongoing?`,
+    })
+
+    onSubmitConfirmations({
+        classId: 'markAsCancelled',
+        title: 'Confirmation',
+        text: `Are you sure want mark this project as Cancelled?`,
+    })
+
+</script>
 {% endblock %}

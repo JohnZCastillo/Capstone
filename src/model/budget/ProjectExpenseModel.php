@@ -19,21 +19,19 @@ class ProjectExpenseModel{
     #[ORM\Column(type: 'string')]
     private $title;
 
-    #[ORM\Column(type: 'text')]
-    private $description;
 
     #[ORM\Column(type: 'float')]
     private $amount;
 
     #[ORM\OneToMany(mappedBy: 'projectExpense', targetEntity: ProjectExpenseProofModel::class)]
-    private Collection|array $proof;
+    private Collection|array $proofs;
 
-    #[ORM\ManyToOne(targetEntity: ProjectModel::class, inversedBy: 'expense')]
+    #[ORM\ManyToOne(targetEntity: ProjectModel::class, inversedBy: 'expenses')]
     private ?ProjectModel $project;
 
     public function __construct()
     {
-        $this->proof = new ArrayCollection();
+        $this->proofs = new ArrayCollection();
     }
 
     public function getId()
@@ -56,16 +54,6 @@ class ProjectExpenseModel{
         $this->title = $title;
     }
 
-    public function getDescription()
-    {
-        return $this->description;
-    }
-
-    public function setDescription($description): void
-    {
-        $this->description = $description;
-    }
-
     public function getAmount()
     {
         return $this->amount;
@@ -76,14 +64,14 @@ class ProjectExpenseModel{
         $this->amount = $amount;
     }
 
-    public function getProof(): Collection|array
+    public function getProofs(): Collection|array
     {
-        return $this->proof;
+        return $this->proofs;
     }
 
-    public function setProof(Collection|array $proof): void
+    public function setProofs(Collection|array $proofs): void
     {
-        $this->proof = $proof;
+        $this->proofs = $proofs;
     }
 
     public function getProject(): ?ProjectModel

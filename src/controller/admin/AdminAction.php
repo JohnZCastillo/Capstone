@@ -6,11 +6,16 @@ namespace App\controller\admin;
 
 use App\controller\Action;
 use App\exception\fund\FundNotFound;
+use App\lib\DocxMaker;
 use App\lib\Login;
 use App\lib\LoginDetails;
+use App\lib\NumberFormat;
+use App\lib\PdfResponse;
 use App\model\budget\IncomeModel;
+use App\model\enum\LogsTag;
 use App\model\LoginHistoryModel;
 use App\model\LogsModel;
+use App\model\ReceiptModel;
 use App\model\TransactionModel;
 use App\model\UserModel;
 use App\service\AnnouncementHistoryService;
@@ -41,6 +46,7 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use DateTime;
 use Slim\Flash\Messages;
+use Slim\Psr7\Response;
 
 abstract class AdminAction extends Action
 {
@@ -222,4 +228,56 @@ abstract class AdminAction extends Action
         }
 
     }
+
+    public function  generateReceipt(TransactionModel $transaction): Response
+    {
+
+        $user = $transaction->getUser();
+
+        $receipts = $transaction->getReceipts();
+
+        $receiptsHolder = '';
+
+        /** @var ReceiptModel $receipt */
+        foreach ($receipts as $receipt) {
+
+            $receiptsHolder = $receiptsHolder . ' ' . $receipt->getTransaction()->getPaymentMethod();
+
+            if ($receipt->getTransaction()->getPaymentMethod() == 'gcash') {
+                $receiptsHolder = $receiptsHolder . ' (' . $receipt->getReferenceNumber() . ')';
+            }
+        }
+
+        $fromCoverage = $transaction->getFromMonth();
+        $toCoverage = $transaction->getToMonth();
+
+        $coverage = $fromCoverage->format('M Y') . ' - ' . $toCoverage->format('M Y');
+
+        $amount = $transaction->getAmount();
+
+        NumberFormat::format($amount);
+
+        $docxMaker = new DocxMaker('sales_invoice.docx');
+
+        $docxMaker->addHeader([
+            'REPORT_COVERAGE' => $this->coverage,
+            'ID' => $transaction->getId(),
+            'UNIT' => 'B' . $user->getBlock() . ' L' . $user->getLot(),
+            'USER' => $this->areaService->getOwner($transaction->getUser()),
+            'AMOUNT' => $amount,
+            'ADMIN' => $transaction->getProcessBy()->getName(),
+            'COVERAGE' => $coverage,
+            'DATE' => $transaction->getCreatedAt()->format('Y-m-d'),
+            'PAYMENT' => $transaction->getPaymentMethod()
+        ]);
+
+        $output = $docxMaker->output();
+
+        $pdfResponse = new PdfResponse($output, 'test.pdf');
+
+        $filename = "sales-invoice-" . $fromCoverage->format('m-Y') . '-to-' . $toCoverage->format('m-Y') . '.pdf';
+
+        return $pdfResponse->getResponse($filename);
+    }
+
 }

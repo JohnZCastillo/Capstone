@@ -5,6 +5,7 @@ namespace App\service;
 use App\model\budget\ProjectExpenseModel;
 use App\model\budget\ProjectExpenseProofModel;
 use App\model\budget\ProjectModel;
+use App\model\enum\ProjectType;
 
 class ProjectService extends Service {
 
@@ -23,15 +24,43 @@ class ProjectService extends Service {
         $this->entityManager->flush($receipt);
     }
 
-    public function  getProjects(): array
+    public function  getProjects(string $type = ProjectType::ACTIVE): array
     {
         $qb = $this->entityManager->createQueryBuilder();
 
         return $qb->select('p')
             ->from(ProjectModel::class, 'p')
+            ->where($qb->expr()->eq('p.type',':type'))
+            ->setParameter('type',$type)
             ->getQuery()
             ->getResult();
 
+    }
+
+    public function getProjectById($id): ProjectModel
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+
+        return $qb->select('p')
+            ->from(ProjectModel::class, 'p')
+            ->where($qb->expr()->eq('p.id',':id'))
+            ->setParameter('id',$id)
+            ->getQuery()
+            ->getSingleResult();
+    }
+
+    public function count(string $status): int
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+
+        $count = $qb->select('COUNT(p)')
+            ->from(ProjectModel::class, 'p')
+            ->where($qb->expr()->eq('p.status',':status'))
+            ->setParameter('status',$status)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return  $count ?? 0;
     }
 
 
