@@ -155,4 +155,8 @@ return array(
         return new \App\lib\Timeframe();
     },
 
+    \App\service\ProjectService::class => function (ContainerInterface $c) {
+        return new \App\service\ProjectService($c->get(EntityManager::class));
+    },
+
 );
