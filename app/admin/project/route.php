@@ -7,11 +7,10 @@ use Slim\Interfaces\RouteCollectorProxyInterface as Group;
 
 return function (App $app) use ($twig) {
 
-    $app->group('/project', function (Group $group) {
+    $app->group('/admin', function (Group $group) {
 
-        $group->get('/', \App\controller\admin\payments\Homepage::class)
-            ->setName('home');
-
+        $group->get('/project', \App\controller\admin\project\Project::class)
+            ->setName('project');
     })
         ->add(\App\middleware\role\SuperAdminAuth::class)
         ->add(\App\middleware\Auth::class)
