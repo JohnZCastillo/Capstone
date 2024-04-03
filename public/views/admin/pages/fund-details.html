@@ -109,19 +109,25 @@
 
         </div>
 
+
         <!-- Invoice Actions -->
         <div class="col-xl-3 col-md-4 col-12 invoice-actions">
             <div class="card mb-2">
                 <div class="card-body">
                     <div class="d-flex flex-column">
 
-                        <button
-                                class="btn-primary btn shadow mb-2"
-                                data-bs-target="#incomeModal"
-                                data-bs-toggle="modal"
-                                type="button">
-                            Add Income
-                        </button>
+                        {% if fund.title|lower != 'dues collection' %}
+
+                            <button
+                                    class="btn-primary btn shadow mb-2"
+                                    data-bs-target="#incomeModal"
+                                    data-bs-toggle="modal"
+                                    type="button">
+                                Add Income
+                            </button>
+
+                        {% endif %}
+
 
                         <a href="/admin/fund/report/{{fund.id}}" class="btn btn-primary mb-2">Report</a>
 
@@ -130,11 +136,14 @@
                 </div>
             </div>
         </div>
+
     </div>
 
 </div>
 
-{% include './admin/partials/income-modal.html' %}
+{% if fund.title|lower != 'dues collection' %}
+    {% include './admin/partials/income-modal.html' %}
+{% endif %}
 
 {% endblock %}
 
@@ -179,52 +188,5 @@
 
     var chart = new ApexCharts(document.querySelector("#expenseAndIncomeChart"), options);
     chart.render();
-</script>
-<script>
-
-    const rejectExpenseForms = document.querySelectorAll('.rejectExpenseForm');
-    const approveExpenseForms = document.querySelectorAll('approveExpenseForm');
-
-    rejectExpenseForms.forEach(rejectExpenseForm => {
-        rejectExpenseForm.addEventListener('submit',(event)=>{
-
-            event.preventDefault();
-
-            onSubmitConfirmation({
-                title: 'Confirmation',
-                text: `Are you sure you want to reject this expense?`,
-                icon: 'question',
-                cancelledText: 'Action Cancelled',
-                confirmCallback: ()=> rejectExpenseForm.submit(),
-            })
-
-        })
-    })
-
-    approveExpenseForms.forEach(approveExpenseForm => {
-        approveExpenseForm.addEventListener('submit',(event)=>{
-
-            event.preventDefault();
-
-            onSubmitConfirmation({
-                title: 'Confirmation',
-                text: `Are you sure you want to approve this expense?`,
-                icon: 'question',
-                cancelledText: 'Action Cancelled',
-                confirmCallback: ()=> approveExpenseForm.submit(),
-            })
-
-        })
-    })
-
-    formConfirmation({
-        formId: 'transferBudgetForm',
-        modalId: 'transferModal',
-        title: 'Confirmation',
-        text: 'Are you sure you want to transfer?',
-        icon: 'question',
-        cancelledText: 'Action Cancelled'
-    });
-
 </script>
 {% endblock %}
