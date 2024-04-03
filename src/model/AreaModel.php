@@ -20,6 +20,19 @@ class AreaModel {
     #[ORM\Column(type: 'integer')]
     private int|null $lot;
 
+    #[ORM\Column(type: 'string', nullable: true)]
+    private string|null $owner;
+
+    public function getOwner(): ?int
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(?int $owner): void
+    {
+        $this->owner = $owner;
+    }
+
     public function getId()
     {
         return $this->id;
@@ -49,6 +62,7 @@ class AreaModel {
     {
         $this->lot = $lot;
     }
+
 
 
 }

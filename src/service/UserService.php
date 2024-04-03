@@ -204,4 +204,26 @@ s     */
 
     }
 
+    public function isOccupied(int $block, int $lot): bool
+    {
+
+        $qb = $this->entityManager->createQueryBuilder();
+
+        return $qb->select('COUNT(t)')
+                ->from(UserModel::class, 't')
+                ->where(
+                    $qb->expr()->andX(
+                    $qb->expr()->eq('t.block', ':block'),
+                    $qb->expr()->eq('t.lot', ':lot'),
+                    $qb->expr()->like('t.email', ':email')
+                    )
+                )
+                ->setParameter('block', $block)
+                ->setParameter('lot', $lot)
+                ->setParameter('email', '%@manual.payment')
+                ->getQuery()
+                ->getSingleScalarResult() > 0;
+
+    }
+
 }
