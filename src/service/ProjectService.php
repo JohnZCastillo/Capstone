@@ -5,8 +5,6 @@ namespace App\service;
 use App\model\budget\ProjectExpenseModel;
 use App\model\budget\ProjectExpenseProofModel;
 use App\model\budget\ProjectModel;
-use App\model\ReceiptModel;
-use App\model\TransactionModel;
 
 class ProjectService extends Service {
 
@@ -25,6 +23,16 @@ class ProjectService extends Service {
         $this->entityManager->flush($receipt);
     }
 
+    public function  getProjects(): array
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+
+        return $qb->select('p')
+            ->from(ProjectModel::class, 'p')
+            ->getQuery()
+            ->getResult();
+
+    }
 
 
 }

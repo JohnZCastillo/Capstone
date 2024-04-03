@@ -28,12 +28,13 @@ class ProjectModel{
     #[ORM\Column(type: 'date')]
     private $createdAt;
 
-    #[ORM\Column(type: 'date')]
+    #[ORM\Column(type: 'date', nullable: true)]
     private $updatedAt;
 
     public function __construct()
     {
         $this->expense = new ArrayCollection();
+        $this->createdAt = new \DateTime();
     }
 
     public function getId()

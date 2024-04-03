@@ -7,12 +7,14 @@ namespace App\controller\admin\project;
 use App\controller\admin\AdminAction;
 use App\exception\InvalidInput;
 use App\lib\Time;
+use App\model\budget\ProjectModel;
 use App\model\enum\LogsTag;
+use App\model\enum\ProjectStatus;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Respect\Validation\Validator as v;
 
-class Project extends AdminAction
+class NewProject extends AdminAction
 {
     /**
      * {@inheritdoc}
@@ -21,13 +23,15 @@ class Project extends AdminAction
     {
         try {
 
-            $projects = $this->projectService->getProjects();
+            $content = $this->getFormData();
 
-            return $this->view('admin/pages/project.html',
-                [
-                    'projects' => $projects
-                ]
-            );
+            $project = new ProjectModel();
+            $project->setTitle($content['title']);
+            $project->setStatus(ProjectStatus::ONGOING);
+
+            $this->projectService->saveProject($project);
+
+            return  $this->redirect('/admin/project');
 
         } catch (Exception $exception) {
             return $this->respondWithData(['message' => $exception->getMessage()],500);

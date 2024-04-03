@@ -11,6 +11,9 @@ return function (App $app) use ($twig) {
 
         $group->get('/project', \App\controller\admin\project\Project::class)
             ->setName('project');
+
+        $group->post('/new-project', \App\controller\admin\project\NewProject::class)
+            ->setName('project');
     })
         ->add(\App\middleware\role\SuperAdminAuth::class)
         ->add(\App\middleware\Auth::class)
