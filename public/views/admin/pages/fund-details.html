@@ -12,15 +12,21 @@
         <!-- Invoice -->
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
 
+
+
             <div class="row mb-2">
-                <div class="mb-2 col-sm col-md-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <span class="d-block mb-1 text-warning">Total Fund</span>
-                            <h3 class="card-title text-nowrap mb-2">{{fund.computeTotal|format_currency('PHP')}}</h3>
+
+                <div class="mb-2 col-sm-12 col-md-4">
+                    <a href="/admin/fund/incomes/{{fund.id}}">
+                        <div class="card">
+                            <div class="card-body">
+                                <span class="d-block mb-1">Fund</span>
+                                <h3 class="card-title text-nowrap mb-2">{{fund.computeIncomes|format_currency('PHP')}}</h3>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
+
                 <div class="mb-2 col-sm col-md-4">
                     <a href="/admin/fund/expenses/{{fund.id}}">
                         <div class="card">
@@ -31,16 +37,16 @@
                         </div>
                     </a>
                 </div>
-                <div class="mb-2 col-sm-12 col-md-4">
-                    <a href="/admin/fund/incomes/{{fund.id}}">
+
+                <div class="mb-2 col-sm col-md-4">
                     <div class="card">
                         <div class="card-body">
-                            <span class="d-block mb-1">Total Income</span>
-                            <h3 class="card-title text-nowrap mb-2">{{fund.computeIncomes|format_currency('PHP')}}</h3>
+                            <span class="d-block mb-1 text-warning">Remaining Fund</span>
+                            <h3 class="card-title text-nowrap mb-2">{{fund.computeTotal|format_currency('PHP')}}</h3>
                         </div>
                     </div>
-                    </a>
                 </div>
+
             </div>
 
             <div class="card mb-2">
