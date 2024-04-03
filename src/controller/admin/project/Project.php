@@ -21,7 +21,8 @@ class Project extends AdminAction
     {
         try {
 
-            return $this->respondWithData(['message' => 'hello world']);
+            return $this->view('admin/pages/project.html', []);
+
         } catch (Exception $exception) {
             return $this->respondWithData(['message' => $exception->getMessage()],500);
         }

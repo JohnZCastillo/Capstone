@@ -1,0 +1,76 @@
+{% extends "./admin/index.html" %}
+
+
+{% block body %}
+
+<style>
+    .notification {
+        position: absolute;
+        top: -10px;
+        right: 0;
+    }
+</style>
+<div class="container-xxl flex-grow-1 container-p-y">
+
+    <button class="btn btn-primary" data-bs-target="#projectModal"
+            data-bs-toggle="modal"
+            type="button">New Project</button>
+
+    <div class="row">
+
+        {% for project in projects %}
+        <div class="col-lg-5 col-md-8 col-12 mb-4">
+            <div class="card position-relative">
+                <div class="card-body ">
+                    <div class="mb-0 card-title d-flex align-items-start justify-content-between">
+                        <div class="flex-shrink-0">
+                            <h4>{{fund.title}}</h4>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn p-0" type="button" id="cardOpt6" data-bs-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">
+                                <i class="bx bx-dots-vertical-rounded"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt6">
+                                <a class="dropdown-item" href="/admin/fund/{{fund.id}}">View Details</a>
+                                {% if fund.isArchived %}
+                                <form class="activeFundForm" method="POST" action="/admin/fund/unarchived/{{fund.id}}">
+                                    <input type="text" name="id" class="d-none" value="{{fund.id}}">
+                                    <button class="dropdown-item" type="submit">Active</button>
+                                </form>
+                                {% else %}
+                                <form class="archiveFundForm" method="POST" action="/admin/fund/archive/{{fund.id}}">
+                                    <button class="dropdown-item" type="submit">Archived</button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <span>Total Fund</span>
+                            <h3 class="card-title text-nowrap mb-1">{{fund.computeTotal|format_currency('PHP')}}</h3>
+                        </div>
+                        <div class="col-8" id="profileReportChart" style="min-height: 80px;">
+                            <div id="" width="104" height="80"
+                                 class="apexcharts-canvas apexchartsiuk5bzuq apexcharts-theme-light mx-auto"
+                                 style="width: 104px; height: 80px;">
+                                <div id="chart{{fund.id}}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% include './admin/partials/project-modal.html' %}
+
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+{% endblock %}
