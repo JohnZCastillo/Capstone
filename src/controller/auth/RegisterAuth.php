@@ -104,6 +104,14 @@ class RegisterAuth extends AdminAction
             }
 
 
+
+            if($this->userService->isOccupied($content['block'],$content['lot'])){
+                $data['nameError'] = "An account is already created for this property";
+                $data['blockError'] = " ";
+                $data['lotError'] = " ";
+                throw new Exception('An account is already created for this property');
+            }
+
             // Creat user model
             $user = new UserModel();
             $user->setName($content['name']);
@@ -135,6 +143,8 @@ class RegisterAuth extends AdminAction
 
             $message = "Maligayang Pagdating sa Carissa Homes Subdivision Portal! $name
   Kasama ka na sa masayang komunidad ng Carissa Homes. Tara, mag-explore tayo!";
+
+            $this->areaService->updateOwner($user);
 
             return $this->redirect('/home');
 

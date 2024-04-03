@@ -18,7 +18,11 @@ class BudgetManagement extends AdminAction
         $data = [];
 
         try {
+
+            return $this->redirect('/admin/fund/1');
+
             $query = $this->getQueryParams();
+
 
             $archived = false;
             $archiveBill = false;

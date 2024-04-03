@@ -116,8 +116,6 @@
                 <div class="card-body">
                     <div class="d-flex flex-column">
 
-                        {% if fund.title|lower != 'dues collection' %}
-
                             <button
                                     class="btn-primary btn shadow mb-2"
                                     data-bs-target="#incomeModal"
@@ -125,9 +123,6 @@
                                     type="button">
                                 Add Income
                             </button>
-
-                        {% endif %}
-
 
                         <a href="/admin/fund/report/{{fund.id}}" class="btn btn-primary mb-2">Report</a>
 
@@ -141,9 +136,7 @@
 
 </div>
 
-{% if fund.title|lower != 'dues collection' %}
     {% include './admin/partials/income-modal.html' %}
-{% endif %}
 
 {% endblock %}
 

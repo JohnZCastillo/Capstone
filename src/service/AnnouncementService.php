@@ -47,7 +47,7 @@ class AnnouncementService extends Service
             ->where('t.status = :status')
             ->setParameter('status', 'posted')
             ->addOrderBy('t.pinDate', 'DESC')
-            ->addOrderBy('t.createdAt', 'ASC')
+            ->addOrderBy('t.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
     }

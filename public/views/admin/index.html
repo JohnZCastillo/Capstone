@@ -127,6 +127,7 @@
         {% set activeLogs = active_route == 'logs' ? 'active' : '' %}
         {% set activeSystem = active_route == 'system' ? 'active' : '' %}
         {% set activeBudget = active_route == 'budget' ? 'active' : '' %}
+        {% set activeProject = active_route == 'project' ? 'active' : '' %}
 
         <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
             <div class="app-brand py-2">
@@ -197,6 +198,15 @@
                 {% endif %}
 
                 {% if login_user.privileges.adminPayment %}
+                <li class="menu-item {{activeProject}}">
+                    <a
+                            href="/admin/project"
+                            class="menu-link">
+                        <i class="menu-icon tf-icons bx bxs-building"></i>
+                        <div data-i18n="Email">Project</div>
+                    </a>
+                </li>
+
                 <li class="menu-item {{activeBudget}}">
                     <a
                             href="/admin/budget"

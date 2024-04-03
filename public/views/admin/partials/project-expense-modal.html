@@ -1,0 +1,38 @@
+<div
+        class="modal fade"
+        id="projectExpenseModal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="expenseModalLabel"
+        aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="POST" action="/admin/project/new-expense/{{project.id}}" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">Add Expense</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <label>Title</label>
+                        <input type="text" name="title" class="form-control">
+                    </div>
+                    <div>
+                        <label>Amount</label>
+                        <input type="number" name="amount" class="form-control">
+                    </div>
+                    <div>
+                        <label>Proof/Receipt</label>
+                        <input type="file" name="proof" class="form-control">
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="submit">Save</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

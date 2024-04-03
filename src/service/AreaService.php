@@ -3,6 +3,7 @@
 namespace App\service;
 
 use App\model\AreaModel;
+use App\model\UserModel;
 use Doctrine\ORM\NonUniqueResultException;
 
 class AreaService extends Service
@@ -87,5 +88,42 @@ class AreaService extends Service
             ->setParameter('lot', $lot);
 
         return $query->getQuery()->getSingleScalarResult() > 0;
+    }
+
+    public function getOwner(UserModel $userModel): string
+    {
+
+        $qb = $this->entityManager->createQueryBuilder();
+
+        $result = $qb->select('a.owner')
+            ->from(AreaModel::class, 'a')
+            ->where($qb->expr()->andX(
+                $qb->expr()->eq('a.block', ':block'),
+                $qb->expr()->eq('a.lot', ':lot')
+            ))
+            ->setParameter('block', $userModel->getBlock())
+            ->setParameter('lot', $userModel->getLot())
+            ->getQuery()->getSingleScalarResult();
+
+        return $result ?? 'John Doe';
+    }
+
+    public function updateOwner(UserModel $userModel): void
+    {
+
+        $qb = $this->entityManager->createQueryBuilder();
+
+        $result = $qb->update(AreaModel::class,'a')
+            ->set('a.owner',':owner')
+            ->where($qb->expr()->andX(
+                $qb->expr()->eq('e.block', ':block'),
+                $qb->expr()->eq('e.lot', ':lot')
+            ))
+            ->setParameter('owner', $userModel->getName())
+            ->setParameter('block', $userModel->getBlock())
+            ->setParameter('lot', $userModel->getLot())
+            ->getQuery()
+            ->execute();
+
     }
 }

@@ -65,13 +65,15 @@ class ManualPayment extends Payment
             }
 
             $this->approvedTransaction($transaction);
-            $this->generateTransactionReceipt($transaction);
+//            $this->generateTransactionReceipt($transaction);
 
             $actionMessage = 'Manual payment wit id of '. $transaction->getId(). ' was created';
 
             $this->addActionLog($actionMessage, LogsTag::manualPayment());
 
             $this->setupIncome($transaction);
+
+            return $this->generateReceipt($transaction);
 
         } catch (AlreadyPaidException $paidException) {
             $this->addErrorMessage($paidException->getMessage());

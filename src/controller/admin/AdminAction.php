@@ -6,11 +6,16 @@ namespace App\controller\admin;
 
 use App\controller\Action;
 use App\exception\fund\FundNotFound;
+use App\lib\DocxMaker;
 use App\lib\Login;
 use App\lib\LoginDetails;
+use App\lib\NumberFormat;
+use App\lib\PdfResponse;
 use App\model\budget\IncomeModel;
+use App\model\enum\LogsTag;
 use App\model\LoginHistoryModel;
 use App\model\LogsModel;
+use App\model\ReceiptModel;
 use App\model\TransactionModel;
 use App\model\UserModel;
 use App\service\AnnouncementHistoryService;
@@ -30,6 +35,7 @@ use App\service\LogsService;
 use App\service\OverviewService;
 use App\service\PaymentService;
 use App\service\PriviligesService;
+use App\service\ProjectService;
 use App\service\ReceiptService;
 use App\service\SystemSettingService;
 use App\service\TransactionLogsService;
@@ -40,6 +46,7 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use DateTime;
 use Slim\Flash\Messages;
+use Slim\Psr7\Response;
 
 abstract class AdminAction extends Action
 {
@@ -84,6 +91,8 @@ abstract class AdminAction extends Action
 
     protected  IssueMessageService $issueMessageService;
 
+    protected  ProjectService $projectService;
+
     /**
      * @param UserService $userService
      * @param PaymentService $paymentService
@@ -110,7 +119,7 @@ abstract class AdminAction extends Action
      * @param OverviewService $overviewService
      * @param IssueMessageService $issueMessageService
      */
-    public function __construct(UserService $userService, PaymentService $paymentService, TransactionService $transactionService, DuesService $duesService, ReceiptService $receiptService, Messages $flashMessage, LogsService $logsService, TransactionLogsService $transactionLogsService, IssuesService $issuesService, AnnouncementService $announcementService, AnnouncementHistoryService $announcementHistoryService, SystemSettingService $systemSettingService, LoginHistoryService $loginHistoryService, PriviligesService $privilegesService, BillService $billService, FundService $fundService, FundSourceService $fundSourceService, ExpenseService $expenseService, IncomeService $incomeService, CodeModelService $codeModelService, UserLogsService $userLogsService, AreaService $areaService, OverviewService $overviewService, IssueMessageService $issueMessageService)
+    public function __construct(UserService $userService, PaymentService $paymentService, TransactionService $transactionService, DuesService $duesService, ReceiptService $receiptService, Messages $flashMessage, LogsService $logsService, TransactionLogsService $transactionLogsService, IssuesService $issuesService, AnnouncementService $announcementService, AnnouncementHistoryService $announcementHistoryService, SystemSettingService $systemSettingService, LoginHistoryService $loginHistoryService, PriviligesService $privilegesService, BillService $billService, FundService $fundService, FundSourceService $fundSourceService, ExpenseService $expenseService, IncomeService $incomeService, CodeModelService $codeModelService, UserLogsService $userLogsService, AreaService $areaService, OverviewService $overviewService, IssueMessageService $issueMessageService, ProjectService $projectService)
     {
         $this->userService = $userService;
         $this->paymentService = $paymentService;
@@ -136,6 +145,7 @@ abstract class AdminAction extends Action
         $this->areaService = $areaService;
         $this->overviewService = $overviewService;
         $this->issueMessageService = $issueMessageService;
+        $this->projectService = $projectService;
     }
 
     protected function addErrorMessage($message)
@@ -218,4 +228,56 @@ abstract class AdminAction extends Action
         }
 
     }
+
+    public function  generateReceipt(TransactionModel $transaction): Response
+    {
+
+        $user = $transaction->getUser();
+
+        $receipts = $transaction->getReceipts();
+
+        $receiptsHolder = '';
+
+        /** @var ReceiptModel $receipt */
+        foreach ($receipts as $receipt) {
+
+            $receiptsHolder = $receiptsHolder . ' ' . $receipt->getTransaction()->getPaymentMethod();
+
+            if ($receipt->getTransaction()->getPaymentMethod() == 'gcash') {
+                $receiptsHolder = $receiptsHolder . ' (' . $receipt->getReferenceNumber() . ')';
+            }
+        }
+
+        $fromCoverage = $transaction->getFromMonth();
+        $toCoverage = $transaction->getToMonth();
+
+        $coverage = $fromCoverage->format('M Y') . ' - ' . $toCoverage->format('M Y');
+
+        $amount = $transaction->getAmount();
+
+        NumberFormat::format($amount);
+
+        $docxMaker = new DocxMaker('sales_invoice.docx');
+
+        $docxMaker->addHeader([
+            'REPORT_COVERAGE' => $this->coverage,
+            'ID' => $transaction->getId(),
+            'UNIT' => 'B' . $user->getBlock() . ' L' . $user->getLot(),
+            'USER' => $this->areaService->getOwner($transaction->getUser()),
+            'AMOUNT' => $amount,
+            'ADMIN' => $transaction->getProcessBy()->getName(),
+            'COVERAGE' => $coverage,
+            'DATE' => $transaction->getCreatedAt()->format('Y-m-d'),
+            'PAYMENT' => $transaction->getPaymentMethod()
+        ]);
+
+        $output = $docxMaker->output();
+
+        $pdfResponse = new PdfResponse($output, 'test.pdf');
+
+        $filename = "sales-invoice-" . $fromCoverage->format('m-Y') . '-to-' . $toCoverage->format('m-Y') . '.pdf';
+
+        return $pdfResponse->getResponse($filename);
+    }
+
 }

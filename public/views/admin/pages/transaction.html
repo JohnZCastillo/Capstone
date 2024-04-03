@@ -61,7 +61,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td>{{transaction.id}}</td>
+                            <td>CH{{transaction.user.block ~ transaction.user.lot}}</td>
                             <td class="text-nowrap">{{ transaction.getFromMonth()|date("M Y") }}</td>
                             <td class="text-nowrap">{{ transaction.getToMonth()|date("M Y") }}</td>
                             <td>{{totalDue}}</td>
