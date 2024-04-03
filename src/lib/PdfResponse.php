@@ -32,8 +32,9 @@ class PdfResponse
         $response =  new \Slim\Psr7\Response();
 
         $response = $response->withHeader('Content-Type', 'application/pdf');
-        $response = $response->withHeader('Content-Disposition', "inline; filename=$filename");
-        $response = $response->withHeader('Cache-Control', 'no-cache');
+        $response = $response->withHeader('Content-Disposition', "attachment; filename=$filename");
+// $response = $response->withHeader('Content-Disposition', "inline; filename=$filename");
+//        $response = $response->withHeader('Cache-Control', 'no-cache');
 
         $fileStream = fopen(self::DIR . $outputFile, 'r');
         $response->getBody()->write(fread($fileStream, filesize(self::DIR . $outputFile)));
