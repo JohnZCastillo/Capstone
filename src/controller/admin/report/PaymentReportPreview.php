@@ -15,8 +15,10 @@ use Carbon\Carbon;
 use DateTime;
 use Slim\Psr7\Response;
 
-class PaymentReport extends AdminAction
+class PaymentReportPreview extends AdminAction
 {
+
+    protected  $formData = [];
 
 
     protected string $coverage;
@@ -26,6 +28,8 @@ class PaymentReport extends AdminAction
 
         try {
             $formData = $this->getFormData();
+
+            $this->formData = $formData;
 
             $from = $formData['from'];
             $to = $formData['to'];
@@ -116,30 +120,19 @@ class PaymentReport extends AdminAction
                 'COVERAGE' => $coverage,
                 'CREATED' => $transaction->getCreatedAt()->format('Y-m-d'),
             );
-
-
         }
 
-        $docxMaker = new DocxMaker('approve_payment.docx');
+        return  $this->view('/admin/pages/approve-preview.html', [
+            'data' => $data,
+            'header' => [
+                'TITLE' => 'APPROVED PAYMENTS REPORT',
+                'TOTAL' => $totalAmount,
+                'REPORT_COVERAGE' => $this->coverage,
+            ]
+            ,'form' => $this->formData
 
-        NumberFormat::format($totalAmount);
-
-        $docxMaker->addBody($data, 'ID');
-        $docxMaker->addHeader([
-            'TITLE' => 'APPROVED PAYMENTS REPORT',
-            'TOTAL' => $totalAmount,
-            'REPORT_COVERAGE' => $this->coverage,
         ]);
 
-        $output = $docxMaker->output();
-
-        $pdfResponse = new PdfResponse($output, 'test.pdf');
-
-        $this->addActionLog('Approved Payment Report was created', LogsTag::paymentReport());
-
-        $filename = "approve-payment-report-" . $fromCoverage->format('m-Y') . '-to-' . $toCoverage->format('m-Y') . '.pdf';
-
-        return $pdfResponse->getResponse($filename);
     }
 
     protected function rejectedPaymentReport(): Response
@@ -185,30 +178,18 @@ class PaymentReport extends AdminAction
                 'COVERAGE' => $coverage,
                 'REJECTOR' => $transaction->getProcessBy()->getName(),
             );
-
         }
 
-        $docxMaker = new DocxMaker('rejected_payment.docx');
+        return  $this->view('/admin/pages/rejected-preview.html', [
+            'data' => $data,
+            'header' => [
+                'TITLE' => 'REJECTED PAYMENT REPORT',
+                'TOTAL' => $totalAmount,
+                'REPORT_COVERAGE' => $this->coverage,
+            ]
+            ,'form' => $this->formData
 
-        NumberFormat::format($totalAmount);
-
-        $docxMaker->addBody($data, 'ID');
-        $docxMaker->addHeader([
-            'TOTAL' => $totalAmount,
-            'TITLE' => 'REJECTED PAYMENT REPORT',
-            'REPORT_COVERAGE' => $this->coverage,
         ]);
-
-        $output = $docxMaker->output();
-
-        $pdfResponse = new PdfResponse($output, 'test.pdf');
-
-        $this->addActionLog('Rejected Payment Report was created', LogsTag::paymentReport());
-
-        $filename = "rejected-payment-report-" . $fromCoverage->format('m-Y') . '-to-' . $toCoverage->format('m-Y') . '.pdf';
-
-        return $pdfResponse->getResponse($filename);
-
     }
 
     public function pendingPaymentReport(): Response
@@ -262,26 +243,16 @@ class PaymentReport extends AdminAction
 
         }
 
-        $docxMaker = new DocxMaker('pending_payment.docx');
+        return  $this->view('/admin/pages/pending-preview.html', [
+            'data' => $data,
+            'header' => [
+                'TITLE' => 'PENDING PAYMENTS REPORT',
+                'TOTAL' => $totalAmount,
+                'REPORT_COVERAGE' => $this->coverage,
+            ]
+            ,'form' => $this->formData
 
-        NumberFormat::format($totalAmount);
-
-        $docxMaker->addBody($data, 'ID');
-        $docxMaker->addHeader([
-            'TITLE' => 'PENDING PAYMENTS REPORT',
-            'TOTAL' => $totalAmount,
-            'REPORT_COVERAGE' => $this->coverage,
         ]);
-
-        $output = $docxMaker->output();
-
-        $pdfResponse = new PdfResponse($output, 'test.pdf');
-
-        $this->addActionLog('Pending Payment Report was created', LogsTag::paymentReport());
-
-        $filename = "pending-payment-report-" . $fromCoverage->format('m-Y') . '-to-' . $toCoverage->format('m-Y') . '.pdf';
-
-        return $pdfResponse->getResponse($filename);
     }
 
     public function unpaidPaymentReport(): Response
@@ -341,29 +312,16 @@ class PaymentReport extends AdminAction
             $totalUnpaidDues += $total;
         }
 
-
-        $docxMaker = new DocxMaker('unpaid_payment.docx');
-
-        NumberFormat::format($totalUnpaidDues);
-
-        $docxMaker->addBody($data, 'UNIT');
-
-        $docxMaker->addHeader(
-            [
+        return  $this->view('/admin/pages/unpaid-preview.html', [
+            'data' => $data,
+            'header' => [
+                'TITLE' => 'UNPAID PAYMENTS REPORT',
                 'TOTAL' => $totalUnpaidDues,
                 'REPORT_COVERAGE' => $this->coverage,
-            ]);
+            ]
+            ,'form' => $this->formData
 
-        $output = $docxMaker->output();
-
-        $pdfResponse = new PdfResponse($output, 'test.pdf');
-
-        $this->addActionLog('Unpaid Payment Report was created', LogsTag::paymentReport());
-
-        $filename = "pending-payment-report-" . $carbonStart->format('m-Y') . '-to-' . $carbonEnd->format('m-Y') . '.pdf';
-
-        return $pdfResponse->getResponse($filename);
-
+        ]);
     }
 
 }

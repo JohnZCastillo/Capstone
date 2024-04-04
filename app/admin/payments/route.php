@@ -17,6 +17,10 @@ return function (App $app) use ($twig) {
         );
 
         $group->post('/report',
+            \App\controller\admin\report\PaymentReportPreview::class
+        );
+
+        $group->post('/report-download',
             \App\controller\admin\report\PaymentReport::class
         );
 
