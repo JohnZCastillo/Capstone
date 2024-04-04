@@ -86,11 +86,11 @@
 
                     {% if transaction.status == 'APPROVED' %}
                     <form method="POST" action="/receipt/{{transaction.id}}">
-                        <button type="submit" class="btn btn-primary mb-2">Generate Invoice</button>
+                        <button type="submit" class="btn btn-primary mb-2">Download Invoice</button>
                     </form>
                     {% endif %}
 
-                    {% if transaction.status != 'pending' and issue is null %}
+                    {% if transaction.status|lower == 'rejected' and issue is null %}
                     <button class="btn btn-danger" data-bs-target="#issueModal" data-bs-toggle="modal">
                         Create Issue
                     </button>

@@ -180,6 +180,7 @@ class PaymentReport extends AdminAction
             $data[] = array(
                 'ID' => 'CH' . $transaction->getUser()->getBlock() .  $transaction->getUser()->getLot() ,
                 'UNIT' => 'B' . $user->getBlock() . ' L' . $user->getLot(),
+                'USER' => $this->areaService->getOwner($transaction->getUser()),
                 'AMOUNT' => $amount,
                 'COVERAGE' => $coverage,
                 'REJECTOR' => $transaction->getProcessBy()->getName(),
@@ -252,6 +253,7 @@ class PaymentReport extends AdminAction
             $data[] = array(
                 'ID' => 'CH' . $transaction->getUser()->getBlock() .  $transaction->getUser()->getLot() ,
                 'UNIT' => 'B' . $user->getBlock() . ' L' . $user->getLot(),
+                'USER' => $this->areaService->getOwner($transaction->getUser()),
                 'AMOUNT' => $amount,
                 'REFERENCE' => $receiptsHolder,
                 'COVERAGE' => $coverage,
