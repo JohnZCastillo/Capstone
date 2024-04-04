@@ -28,6 +28,7 @@ class NewProject extends AdminAction
             $project = new ProjectModel();
             $project->setTitle($content['title']);
             $project->setStatus(ProjectStatus::ONGOING);
+            $project->setType(\App\model\enum\ProjectType::ACTIVE);
 
             $this->projectService->saveProject($project);
 
