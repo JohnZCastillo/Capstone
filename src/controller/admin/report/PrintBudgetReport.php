@@ -65,7 +65,10 @@ class PrintBudgetReport extends AdminAction
 
             $this->addActionLog('Budget Report was created', LogsTag::paymentReport());
 
-            return $pdfResponse->getResponse();
+
+            $filename = 'Budget Report for year '.  $year . '.pdf';
+
+            return $pdfResponse->getResponse($filename);
 
         } catch (\Exception $exception) {
             return  $this->respondWithData(['message' => $exception->getMessage()],500);
